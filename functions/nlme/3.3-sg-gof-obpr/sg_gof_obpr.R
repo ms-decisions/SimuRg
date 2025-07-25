@@ -1,7 +1,7 @@
-#'Observed vs. Predicted Plot
+#'Create observed vs predicted Plot
 #'
 #' @description
-#' Creates a ggplot2 scatter plot of observed (DV) vs predicted (PRED/IPRED) values 
+#' Creates a scatter plot of observed (DV) vs predicted (PRED/IPRED) values
 #' with options for faceting, coloring by covariates, and trend lines.
 #'
 #' @param fpath_i Path to .RData file containing modeling results (must contain `obj1` with `SDTAB`, `COTAB`, `CATAB`)
@@ -25,19 +25,14 @@
 #'
 #' @return A ggplot2 object
 #'
-#' @details
-#' The function automatically:
-#' - Filters out MDV != 1 records
-#' - Handles continuous covariates by converting to quantile categories
-#' - Adds identity line and customizable trend lines
-#'
+
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Basic plot
-#' p <- fun_ObPr.nm("model_results.RData")
-#' 
+#' p <- sg_gof_obpr("model_results.RData")
+#'
 #' # With covariates
-#' p <- fun_ObPr.nm(
+#' p <- sg_gof_obpr(
 #'   "model_results.RData",
 #'   cov_cols = "SEX",
 #'   col_i = "SEX",
@@ -46,17 +41,18 @@
 #' }
 #'
 #' @importFrom dplyr %>% filter mutate_at rename_at select distinct left_join
-#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_smooth labs 
+#' @importFrom ggplot2 ggplot aes geom_point geom_line geom_smooth labs
 #' @importFrom scales pretty_breaks number_format
 #' @export
-NULL
+
 sg_gof_obpr <- function(
   fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
-  smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7), 
-  xlab = "Model-predicted values", ylab = "Observed values", col_i = NULL, col_lab = NULL, 
+  smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
+  xlab = "Model-predicted values", ylab = "Observed values", col_i = NULL, col_lab = NULL,
   facet_i = NULL, f_scales = "fixed",
   no_leg = F, n_quantiles = 3, levels_discrete = 10
 ){
+  
   is_discrete <- function(x, max_levels = levels_discrete) {
     n_unique <- length(unique(na.omit(x)))
     n_unique <= max_levels
@@ -69,12 +65,14 @@ sg_gof_obpr <- function(
       labels = paste0("Q", 1:n_quant)
     )
   }
+  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
+  
   X <- ifelse(indiv, "IPRED", "PRED")
   load(fpath_i)
-  ds_i <- obj1$SDTAB %>% 
+  ds_i <- obj1$SDTAB %>%
     #read_table(fpath_i, skip = 1, col_names = T, col_types = cols()) %>%
-    filter(MDV != 1) %>% 
-    mutate_at(vars(IPRED, PRED, DV), function(s){s/sc_factor}) %>% 
+    filter(MDV != 1) %>%
+    mutate_at(vars(IPRED, PRED, DV), function(s){s/sc_factor}) %>%
     rename_at(vars(one_of(X)), function(n){n = "X"})
   
   if(!is.null(cov_cols)){
@@ -102,13 +100,13 @@ sg_gof_obpr <- function(
           legend.box.just = "left",
           legend.background = element_rect(fill = "white", size = 0.15, linetype = "solid", colour = "black"),
           legend.key.size = unit(0.38, "cm"),
-          legend.title = element_text(size = 8), 
+          legend.title = element_text(size = 8),
           legend.text = element_text(size = 8),
           plot.title = element_text(size = 12))
   )
   
   if(log_axes){
-    p_char <- c(p_char, 
+    p_char <- c(p_char,
                 scale_x_log10(
                   breaks = scales::trans_breaks("log10", function(x) 10^x),
                   labels = scales::trans_format("log10", scales::math_format(10^.x))),
@@ -123,7 +121,7 @@ sg_gof_obpr <- function(
                                    labels = scales::number_format()))
   }
   
-  p_ObPr <<- ggplot(data = ds_i, aes(x = X, y = DV)) + p_char
+  p_ObPr <- ggplot(data = ds_i, aes(x = X, y = DV)) + p_char
   
   if(!is.null(col_i)){
     p_ObPr <- p_ObPr +
@@ -155,4 +153,3 @@ sg_gof_obpr <- function(
   return(p_ObPr)
 }
 
-roxygen2::roxygenise(package.dir = '~/Simurg_function/sg_gof_obpr.R')
