@@ -75,7 +75,6 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
       .groups = "drop"
     )
   
-  # Создаем данные для нормальных кривых для каждой группы
   norm_curves <- norm_params %>%
     group_by(DVID, residual_type) %>%
     summarise(
@@ -90,9 +89,6 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
   }
   
   if (plot_type == 'QQ') {
-    # Преобразуем в длинный формат
-    ds_i_e2 <- ds_i_e %>% 
-      gather(key = "residual_type", value = "value", -DVID)
     
     # Создаем базовый QQ-plot
     p_i <- ggplot(res_for_plot2, aes(sample = value)) +
@@ -105,13 +101,8 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
       theme_bw()+ 
       facet_wrap(DVID ~ residual_type, scales = "free")
   }
- 
   return(p_i)
   
   
  
 }
-
-
-sg_gof_res_dist(path, res_type =c('IRES','RES','IWRES'), n_bins = 30)
-
