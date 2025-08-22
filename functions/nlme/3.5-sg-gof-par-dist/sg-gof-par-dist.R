@@ -1,13 +1,15 @@
 #' Plot Distributions of Individual Parameters with Optional Theoretical Density
 #'
-#' This function creates histograms of individual parameter estimates from simulation output,
+#' This function creates histograms of individual parameter estimates,
 #' with optional overlay of the theoretical distribution based on the population parameters and OMEGA matrix.
 #'
 #' @param fpath_i Path to .RData file containing modeling results (must contain  `$PATAB`, `$SUMTAB`, and `$OMEGAMAT`).
 #' @param eta_seq Character vector of parameter names to be plotted (e.g., `c("ka", "Cl")`). If `NULL` (default), all parameters be included.
 #' @param n_bins Integer. Number of bins to use in the histogram. Default is 30.
 #' @param tdist Logical. If `TRUE` (default), overlay theoretical parameter distributions based on population mean and OMEGA matrix.
-#'
+#' @param plot_type Character. Type of plot to produce:  
+#'   * `"DIST"` (default) — histogram of individual parameters,  
+#'   * `"QQ"` — QQ-plot of individual parameters
 #' @return A `ggplot` object containing histogram(s) of individual parameter distributions, optionally overlaid with theoretical densities.
 #'
 #' @details
@@ -28,7 +30,7 @@
 #'
 #' @export
 
-sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T){
+sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot_type = 'DIST'){
   smrg_obj <- get(load(fpath_i))
   prm_i <- smrg_obj$COVMAT
   patab_i <- smrg_obj$PATAB
@@ -68,9 +70,20 @@ sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T){
       p_i <- p_i + geom_density(data = gen_par_set, aes(x = TDIST), size = 0.8, lty = "dashed")
       
     }
+    if (plot_type == 'QQ') {
+      p_i <- ggplot(ind_par_dist, aes(sample = value)) +
+      stat_qq(size = 1.75, color = MSDcol[1], alpha = 0.8) +
+      stat_qq_line(col = "firebrick") +
+      labs(x = "Theoretical quantiles", y = "Sample quantiles") +
+      geom_abline(size = 0.5, col = "black", linetype = "dashed") +
+      scale_x_continuous(breaks = scales::pretty_breaks(7)) +
+      scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+      theme_bw()+ 
+      facet_wrap(~PAR, scales = "free")
+    }
   })
   return(p_i)
   
-  
-  return()
 }
+
+
