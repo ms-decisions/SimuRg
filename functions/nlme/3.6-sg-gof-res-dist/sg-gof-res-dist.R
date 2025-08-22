@@ -51,7 +51,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
     geom_histogram(bins = n_bins, col = "grey25", fill = MSDcol[2]) +
     facet_wrap(DVID~residual_type, scales = "free") +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
-    scale_x_continuous(name = all_of(res_type), breaks = scales::pretty_breaks(7), expand = c(0, 0))+
+    scale_x_continuous(name = 'Residuals', breaks = scales::pretty_breaks(7), expand = c(0, 0))+
     theme_bw()
   if (ndist) {
     
@@ -112,4 +112,6 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
  
 }
 
+
+sg_gof_res_dist(path, res_type =c('IRES','RES','IWRES'), n_bins = 30)
 
