@@ -1,0 +1,144 @@
+{
+  "model": ["./functions/nlme/1.1-sg-fit/monolix/models/model_PK_1c.txt"],
+  "data": ["./functions/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"],
+  "headers": [
+    {
+      "name": ["ID"],
+      "use": ["identifier"],
+      "type": {}
+    },
+    {
+      "name": ["TIME"],
+      "use": ["time"],
+      "type": {}
+    },
+    {
+      "name": ["DV"],
+      "use": ["observation"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["DVID"],
+      "use": ["observationtype"],
+      "type": {}
+    },
+    {
+      "name": ["ADM"],
+      "use": ["administration"],
+      "type": {}
+    },
+    {
+      "name": ["AMT"],
+      "use": ["amount"],
+      "type": {}
+    },
+    {
+      "name": ["EVID"],
+      "use": ["eventidentifier"],
+      "type": {}
+    },
+    {
+      "name": ["MDV"],
+      "use": ["missingdependentvariable"],
+      "type": {}
+    },
+    {
+      "name": ["AGE"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["AGE_centered"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["SEX"],
+      "use": ["covariate"],
+      "type": ["categorical"]
+    },
+    {
+      "name": ["WEIGHT"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["BMI"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    }
+  ],
+  "theta": [
+    {
+      "NAME": "Cl",
+      "TRANS": "logNormal",
+      "INIT": 0.2,
+      "EST": true
+    },
+    {
+      "NAME": "Vd",
+      "TRANS": "logNormal",
+      "INIT": 20,
+      "EST": true
+    },
+    {
+      "NAME": "ka",
+      "TRANS": "logNormal",
+      "INIT": 0.2,
+      "EST": true
+    }
+  ],
+  "ruv": {
+    "YNAME": ["y1"],
+    "DVID": [1],
+    "TRANS": ["normal"],
+    "PRED": ["Cc"],
+    "ERR": ["combined1"],
+    "INIT": [1, 1],
+    "EST": [true, true],
+    "BLQM": {}
+  },
+  "re": {
+    "init": [
+      [1, 0, 0],
+      [0, 0, 0],
+      [0, 0, 1]
+    ],
+    "est": [
+      [true, null, null],
+      [null, null, null],
+      [null, null, true]
+    ]
+  },
+  "occ": {
+    "init": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ],
+    "est": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  },
+  "covs": [
+    {
+      "PAR": ["Vd"],
+      "COVNAME": ["AGE"],
+      "FUNC": ["linear"],
+      "TRANS": ["median"],
+      "INIT": [1],
+      "EST": [true]
+    },
+    {
+      "PAR": ["ka"],
+      "COVNAME": ["SEX"],
+      "REF": [0],
+      "INIT": [1],
+      "EST": [true]
+    }
+  ],
+  "project_name": ["my_project"],
+  "task_opt": {}
+}
