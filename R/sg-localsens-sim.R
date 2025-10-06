@@ -9,7 +9,6 @@
 #' Generates simulation datasets for a model varying each specified parameter
 #' within provided bounds or relative percentage. Supports multiple outputs and covariates.
 #'
-#' @inheritParams sg_dummy
 #' @param model An RxODE model object.
 #' @param params Character vector of parameter names to vary in the analysis.
 #' @param stimes Numeric vector of time points for the simulation.

@@ -29,7 +29,7 @@
 #' }
 #' @import dplyr
 #' @import ggplot2
-#' @import scales
+#' @importFrom scales pretty_breaks
 #' @export
 
 sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot_type = 'DIST'){

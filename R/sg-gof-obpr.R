@@ -31,16 +31,18 @@
 #'
 #' @import dplyr
 #' @import ggplot2
-#' @import scales
+#' @importFrom scales pretty_breaks trans_breaks trans_format math_format number_format
 #' @export
 
 sg_gof_obpr <- function(
-  fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
-  smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
-  lab_x = "Model-predicted values", lab_y = "Observed values", col_i = NULL, col_lab = NULL,
-  facet_i = NULL, f_scales = "fixed",
-  no_leg = F, n_quantiles = 3, levels_discrete = 10
+    fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
+    smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
+    xlab = "Model-predicted values", ylab = "Observed values", col_i = NULL, col_lab = NULL,
+    facet_i = NULL, f_scales = "fixed",
+    no_leg = F, n_quantiles = 3, levels_discrete = 10
 ){
+
+  #browser()
 
   is_discrete <- function(x, max_levels = levels_discrete) {
     n_unique <- length(unique(na.omit(x)))
@@ -54,13 +56,41 @@ sg_gof_obpr <- function(
       labels = paste0("Q", 1:n_quant)
     )
   }
+
+  read_smrg_obj <- function(fpath_i) {
+    if (!file.exists(fpath_i)) {
+      stop("File does not exist: ", fpath_i)
+    }
+
+    ext <- tools::file_ext(fpath_i)
+
+    if (tolower(ext) == "rdata") {
+      result <- get(load(fpath_i))
+    } else if (tolower(ext) == "json") {
+      if (!requireNamespace("jsonlite", quietly = TRUE)) {
+        stop("Package 'jsonlite' is required for reading JSON files.")
+      }
+      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
+
+
+    } else {
+      stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
+    }
+
+    return(result)
+  }
   MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
 
   X <- ifelse(indiv, "IPRED", "PRED")
-  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
+  smrg_obj <- read_smrg_obj(fpath_i) #get(load(fpath_i))
 
-  # smrg_obj <- get(load(fpath_i))
-  ds_i <- smrg_obj$SDTAB %>%
+  sdtab <- smrg_obj$SDTAB
+
+  ds_i <- as.data.frame(do.call(rbind, sdtab)) %>%
+    mutate(IPRED = as.numeric(IPRED), PRED = as.numeric(PRED),
+           TIME = as.numeric(TIME), WRES = as.numeric(WRES),
+           IWRES = as.numeric(IWRES), DV = as.numeric(DV),
+           MDV = as.numeric(MDV)) %>%
     #read_table(fpath_i, skip = 1, col_names = T, col_types = cols()) %>%
     filter(MDV != 1) %>%
     mutate_at(vars(IPRED, PRED, DV), function(s){s/sc_factor}) %>%
@@ -84,7 +114,7 @@ sg_gof_obpr <- function(
   lim_obpr <- c(min(ds_i$X, ds_i$DV), max(ds_i$X, ds_i$DV))
 
   p_char <- list(
-    labs(y = lab_y, x = lab_x),
+    labs(y = ylab, x = xlab),
     geom_abline(size = 0.5, col = "black", linetype = "dashed"),
     scale_color_manual(values = rep(MSDcol[c(2, 3, 4, 5, 7, 9, 6, 8, 1)], 30)),
     theme(legend.justification = c("left", "center"),

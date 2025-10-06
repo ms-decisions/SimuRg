@@ -38,7 +38,7 @@
 #'
 #' @import dplyr
 #' @import ggplot2
-#' @import scales
+#' @importFrom scales pretty_breaks pretty_breaks trans_format math_format
 #' @export
 sg_gof_res <- function(
     fpath_i, res_type, cov_cols = NULL, indiv = TRUE, vs_time = TRUE,
