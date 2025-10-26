@@ -28,8 +28,13 @@ sg_gof_tp <- function(fpath_i, filt = "T",
                       log_y = F, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
                       cap = "empty circles - observed data\nsolid lines with point - individual predictions\ndashed grey lines with point - population predictions"){
-  if (inherits(fpath_i, "character")) {
-    obj <- get(load(fpath_i))
+  if (inherits(fpath_i, "character") ) {
+    if (file.exists(fpath_i)) {
+      obj <- get(load(fpath_i))
+    } else {
+      stop("File specified by fpath_i does not exist")
+    }
+
   } else if (inherits(fpath_i, "list")) {
     obj <- fpath_i
   } else {
