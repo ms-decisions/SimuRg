@@ -1,8 +1,6 @@
-sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, grps_vpc = NULL, tsld = F, pc = T,
-                       ds_obs_i = data_fin.vpc, ds_pred_i = sim_vpc_full, ds_pred_tv = sim_vpc_tv,
-                       n_bins = 15, lq_i = 0.1, uq_i = 0.9,
-                       predp = F, obsdat = F, binlim = F, logy = F, logx = F, xlab = NULL, ylab = NULL,
-                       sc_factor = 1, bincent = "BINM", fcsc = "free", xlim = NULL, ylim = NULL){
+library(tidyverse)
+load("data-raw/example_code/simurg_object/Warfarin_PK.RData")
+sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, nrep = 100){
   if (inherits(fpath_i, "character")) {
     if (file.exists(fpath_i)) {
       obj <- get(load(fpath_i))
@@ -14,17 +12,24 @@ sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, grps_
   } else {
     stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
   }
-  data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% rename(time = ATSFD) %>% select(-MDV)
+  data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
+  data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
+  if (!is.null(obj$COTAB)) ev_tab <-  merge(ev_tab, obj$COTAB, by = "ID", all.x = T)
+  if (!is.null(obj$CATAB)) ev_tab <-  merge(ev_tab, obj$CATAB, by = "ID", all.x = T)
+  covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
+  covs_i <- covs_i[covs_i != "ID"]
   id_seq <- unique(data_fin.noex$ID)
+  par_fin_tv <- obj$SUMTAB %>% filter(TYPE == "Typical values") %>%
+    select(PAR, VALUE) %>% mutate(PAR = str_remove(PAR, "_pop")) %>% deframe()
   sim_vpc_full <- id_seq %>% map_dfr(function(id_seq.i){
-    message(str_c(which(id_seq == id_seq.i), " out of ", length(id_seq)))
+    # message(str_c(which(id_seq == id_seq.i), " out of ", length(id_seq)))
     data_fin.noex.i <- data_fin.noex %>% filter(ID == id_seq.i) %>% pull(time)
-    ev_tab.i <- ev_tab %>% fiter(ID == id_seq.i) %>%
+    ev_tab.i <- ev_tab %>% filter(ID == id_seq.i) %>%
       rename(DEFID = ID) %>% mutate(id = 1)
-    sim.i <- sg_sim(model = mod_fin, et = ev_tab_i, stimes = data_fin.noex.i,
-                    output = output, theta_i = par_fin_tv, omega_i = m_omega_full,
-                    sigma_i = m_reserr, cov_i = covs_i, nrep = nrep_i,
+    sim.i <- sg_sim(model = mod_fin, et = ev_tab.i, stimes = data_fin.noex.i,
+                    output = output, theta = par_fin_tv, omega = obj$OMEGAMAT,
+                    sigma = obj$SIGMAMAT, covs = covs_i, npop = nrep,
                     addcov = F, ncores = parallel::detectCores()-1) %>%
       mutate(ID = unique(data_fin.noex.i$DEFID)) %>% select(-id)
     return(sim.i)
