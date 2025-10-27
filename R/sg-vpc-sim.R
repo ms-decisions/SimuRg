@@ -1,14 +1,18 @@
-library(tidyverse)
-mod_fin <- rxode2({
-  # Differential equations
-  d/dt(Ad) = -ka * Ad
-  d/dt(Ac) = ka * Ad - Cl/V * Ac
+## Author: Mikhailova Anna
+## First created: 2025-10-27
+## Description: functions for vpc calculations
+## Keywords: SimuRg, vpc, diagnostics
 
-  # Concentration calculations
-  Cc = Ac / V
-})
-load("data-raw/example_code/simurg_object/Warfarin_PK.RData")
-sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, nrep = 100){
+#' Perform simulations for VPC plot
+#'
+#' @inheritParams sg_dummy
+#' @returns A dataset with simulation results
+#' @examples
+#' @import rxode2
+#' @importFrom purrr map_dfr
+#' @import dplyr
+#' @export
+sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", output = NULL, npop = 100){
   if (inherits(fpath_i, "character")) {
     if (file.exists(fpath_i)) {
       obj <- get(load(fpath_i))
@@ -34,9 +38,9 @@ sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, nrep 
     data_fin.noex.i <- data_fin.noex %>% filter(ID == id_seq.i) %>% pull(time)
     ev_tab.i <- ev_tab %>% filter(ID == id_seq.i) %>%
       rename(DEFID = ID) %>% mutate(id = 1)
-    sim.i <- sg_sim(model = mod_fin, et = ev_tab.i, stimes = data_fin.noex.i,
+    sim.i <- sg_sim(model = model, et = ev_tab.i, stimes = data_fin.noex.i,
                     output = output, theta = par_fin_tv, omega = obj$OMEGAMAT,
-                    sigma = obj$SIGMAMAT, covs = covs_i, npop = nrep,
+                    sigma = obj$SIGMAMAT, covs = covs_i, npop = npop,
                     addcov = F, ncores = parallel::detectCores()-1) %>%
       mutate(ID = id_seq.i)
     return(sim.i)

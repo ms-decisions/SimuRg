@@ -47,6 +47,7 @@
 #' @param npop integer. Number of population replicates. Default is 1
 #' @param nsub integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1
 #' @param omega named mztrix or vector. Matrix
+#' @param output vector of strings. The names of model variables to output. If `NULL`, all variables will be outputed. Default is `NULL`
 #' @param outputs vector of strings. Names of the model variabeles to output. If `NULL`, all varaibles returned. Default is `NULL`
 #' @param plot_type Character. Type of plot to produce:
 #'   * `"DIST"` (default) - histogram of individual parameters,
