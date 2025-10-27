@@ -98,7 +98,7 @@ sg_sim <- function(model, et, stimes = NULL, output = NULL, theta = NULL,
   sim_i_ind <- sim_i %>% as_tibble()
   if(!"id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, id = 1) }
   if(!"sim.id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, sim.id = 1) }
-  sim_i_ind <- sim_i_ind %>% gather("VAR", "VALUE", -id, -sim.id, -time, -POPN)
+  sim_i_ind <- sim_i_ind %>% gather("VAR", "VALUE", -any_of("id", "sim.id", "time", "POPN"))
   if(!is.null(output)){sim_i_ind <- sim_i_ind %>% filter( VAR %in% output )}
   #
   #   sim_i_aggr_id <- NULL; sim_i_aggr_tot <- NULL

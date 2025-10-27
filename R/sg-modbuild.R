@@ -1,4 +1,4 @@
-## Author: Ugolkov Yaroslav
+## Author: Ugolkov Yaroslav, Victoria Kulesh, Mikhailova Anna
 ## First created: 2025-10-17
 ## Description: Local sensitivity analysis simulations for RxODE models
 ## Keywords: SimuRg, model build
