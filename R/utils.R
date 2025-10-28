@@ -24,7 +24,7 @@
 #' @param eta_seq vector of strings. Character vector of parameter names to be plotted (e.g., `c("ka", "Cl")`). If `NULL`, all parameters be included. Default is `NULL`
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
-#' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` file with sg-fit object is expected
+#' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` or `.json` file with sg-fit object is expected
 #' @param ncores integer. Number of cores used for calculations. Default is 1
 #' @param indiv logical. If `TRUE` uses individual predictions (`"IPRED"`); otherwise uses population predictions (`"PRED"`). Default is `TRUE`
 #' @param inits named vector. Initial conditions of model variables. Default is `NULL`
