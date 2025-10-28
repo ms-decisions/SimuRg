@@ -8,6 +8,19 @@
 #' @inheritParams sg_dummy
 #' @returns A dataset with simulation results
 #' @examples
+#' \dontrun{
+#' library(tidyverse)
+#' library(rxode2)
+#' mod_fin <- rxode2({
+#'   # Differential equations
+#'   d/dt(Ad) = -ka * Ad
+#'   d/dt(Ac) = ka * Ad - Cl/V * Ac
+#'
+#'   # Concentration calculations
+#'   Cc = Ac / V
+#' })
+#' sg_vpc_sim(obj1, mod_fin, output = "Cc")
+#'}
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr
