@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+example_code
+renv
+man
+*.txt
+*.cpp
+*.smrg
+*.mlxtran
+*.mlxproperties
+scripts/nlme/1.1-sg-fit/monolix
+scripts/nlme/1.1-sg-fit/simurg
+scripts/nlme/2.1-sg-converter/proj-r-solo/
