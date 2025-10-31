@@ -240,7 +240,7 @@ sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
   write_csv(summary_df, paste0(path, '/scenarios_info.csv'))
   for (i in seq(1,length(sc_lst$mod))){
     sg_result_mod <- sg_fit(sc_lst$mod[i], data, headers, sc_lst$theta[[i]], sc_lst$ruv[[i]], sc_lst$re[[i]],  sc_lst$occ[[i]], project_name = paste0(project_name,'_',i), covs_lst, opt_name = "Monolix")
-    write(sg_result_mod, str_c(path, paste0(project_name,'_',i),'.mlxtran'))
+    write(sg_result_mod, str_c(path, paste0('/',project_name,'_',i),'.mlxtran'))
   }
 }
 
