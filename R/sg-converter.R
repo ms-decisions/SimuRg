@@ -514,7 +514,8 @@ sg_converter <- function(folder_path, proj_name){
   end_idx_data <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_data)[1]
   data_path <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
     str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>% str_replace_all("'", "")
-  data_file <- read_csv(str_c(folder_path, data_path))
+  if (!file.exists(data_path)) data_path <- str_c(folder_path, data_path)
+  data_file <- read_csv(data_path)
 
   ## info about columns mapping
   start_idx_col_map <- which(str_detect(contr_obj, fixed("[CONTENT]")))
@@ -721,7 +722,9 @@ sg_converter <- function(folder_path, proj_name){
 
   ## sumtab compiling
 
-
+  if (sum(grepl("sa$", colnames(sum_dt_i))) > 0 &
+      sum(grepl("lin$", colnames(sum_dt_i))) > 0) sum_dt_i <-sum_dt_i %>%
+    select(-ends_with("lin"))
   sumtab <- sum_dt_i %>%
     rename(PAR = parameter, VALUE = value) %>%
     rename(!!!setNames(c(colnames(sum_dt_i)[grepl("^se_", colnames(sum_dt_i))],

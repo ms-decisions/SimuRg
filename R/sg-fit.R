@@ -1,73 +1,65 @@
-## Author: Victoria Kulesh
-## First created: 2025-07-28
-## Description:
-## Keywords:
+## Author: Mikhailova Anna, Kulesh Victoria
+## First created: 2025-11-05
+## Description: function for fit
+## Keywords: SimuRg, fit
 
-
-#####--------------- Load functions and libraries ---------------#####
-library(tidyverse)
-library(jsonlite)
-
-
-#####--------------- Compile simurg object ---------------#####
-
-# model - path to the model
-# data - path to the data
-# headers - predefined list of names
-# theta - tibble with pop parameters properties
-# re - list of "init" and "est" matrices
-# ruv - list residual unexpected variability properties (with data mapping)
-# covs - list of covariates assignment
-
-model <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/models/pk_1cmp.txt"
-data <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"
-
-headers <- list(list(name = "ID", use = "identifier", type = NULL),
-                list(name = "TIME", use = "time", type = NULL),
-                list(name = "DV", use = "observation", type = "continuous"),
-                list(name = "DVID", use = "observationtype", type = NULL),
-                list(name = "ADM", use = "administration", type = NULL),
-                list(name = "AMT", use = "amount", type = NULL),
-                list(name = "EVID", use = "eventidentifier", type = NULL),
-                list(name = "MDV", use = "missingdependentvariable", type = NULL),
-                list(name = "AGE", use = "covariate", type = "continuous"),
-                list(name = "AGE_centered", use = "covariate", type = "continuous"),
-                list(name = "SEX", use = "covariate", type = "categorical"),
-                list(name = "WEIGHT", use = "covariate", type = "continuous"),
-                list(name = "BMI", use = "covariate", type = "continuous"))
-
-
-
-theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
-                 "Cl", "logNormal", 0.2, NA, NA, T,
-                 "Vd", "logNormal", 20, NA, NA, T,
-                 "ka", "logNormal", 0.2, NA, NA, T
-                 )
-
-ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc", ERR = "combined1", INIT = c(1, 1), EST = c(T, T), BLQM = NULL)
-
-re <- list(init = tribble(~Cl, ~Vd, ~ka,
-                          1, 0, 0,
-                          0, 0, 0,
-                          0, 0, 1) %>% as.matrix(),
-           est = tribble(~Cl, ~Vd, ~ka,
-                         T, NA, NA,
-                         NA, NA, NA,
-                         NA, NA, T) %>% as.matrix())
-
-
-occ <- list(init = tribble(~Cl, ~Vd, ~ka,
-                          0, 0, 0,
-                          0, 0, 0,
-                          0, 0, 0) %>% as.matrix(),
-           est = tribble(~Cl, ~Vd, ~ka,
-                         NA, NA, NA,
-                         NA, NA, NA,
-                         NA, NA, NA) %>% as.matrix())
-
-
-covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear", TRANS = "median", INIT = 1, EST = T),
-             list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = T))
+#' Run fit with monolix/simurg/nonmem fitter
+#'
+#' @inheritParams sg_dummy
+#' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
+#' @examples
+#' \dontrun{
+#'  model <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/models/pk_1cmp.txt"
+#'  data <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"
+#'
+#'  headers <- list(list(name = "ID", use = "identifier", type = NULL),
+#'                  list(name = "TIME", use = "time", type = NULL),
+#'                  list(name = "DV", use = "observation", type = "continuous"),
+#'                  list(name = "DVID", use = "observationtype", type = NULL),
+#'                  list(name = "ADM", use = "administration", type = NULL),
+#'                  list(name = "AMT", use = "amount", type = NULL),
+#'                  list(name = "EVID", use = "eventidentifier", type = NULL),
+#'                  list(name = "MDV", use = "missingdependentvariable", type = NULL),
+#'                  list(name = "AGE", use = "covariate", type = "continuous"),
+#'                  list(name = "AGE_centered", use = "covariate", type = "continuous"),
+#'                  list(name = "SEX", use = "covariate", type = "categorical"),
+#'                  list(name = "WEIGHT", use = "covariate", type = "continuous"),
+#'                  list(name = "BMI", use = "covariate", type = "continuous"))
+#'
+#'  theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+#'                   "Cl", "logNormal", 0.2, NA, NA, T,
+#'                   "Vd", "logNormal", 20, NA, NA, T,
+#'                   "ka", "logNormal", 0.2, NA, NA, T
+#'  )
+#'
+#'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc", ERR = "combined1", INIT = c(1, 1), EST = c(T, T), BLQM = NULL)
+#'
+#'  re <- list(init = tribble(~Cl, ~Vd, ~ka,
+#'                            1, 0, 0,
+#'                            0, 0, 0,
+#'                            0, 0, 1) %>% as.matrix(),
+#'             est = tribble(~Cl, ~Vd, ~ka,
+#'                           T, NA, NA,
+#'                           NA, NA, NA,
+#'                           NA, NA, T) %>% as.matrix())
+#'
+#'  occ <- list(init = tribble(~Cl, ~Vd, ~ka,
+#'                             0, 0, 0,
+#'                             0, 0, 0,
+#'                             0, 0, 0) %>% as.matrix(),
+#'              est = tribble(~Cl, ~Vd, ~ka,
+#'                            NA, NA, NA,
+#'                            NA, NA, NA,
+#'                            NA, NA, NA) %>% as.matrix())
+#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear", TRANS = "median", INIT = 1, EST = T),
+#'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = T))
+#'  result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
+#'  project_name = "my_project", fit = T,
+#'  path_to_save_output =  "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/my_project/",
+#'  path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
+#' }
+#' @import sys
+#' @export
 
 sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name,
                    task_opt = NULL, opt_name = "Monolix", fit = F,
@@ -75,6 +67,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
   sc_data <- ""
   res_fit <- NULL
   if (is.null(path_to_save_output)) path_to_save_output <-  file.path(getwd(), project_name)
+  if (is.null(path_to_fitter)) path_to_fitter <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
   if (opt_name == "Monolix") {
     # Read the data file to get column names
     data_df <- read.csv(data, nrows = 1)  # Read just the header row
@@ -139,7 +132,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
         unique_cats <- unique(data_df_full[[cov_name]])
         categories_str <- paste0("'", paste(unique_cats, collapse = "', '"), "'")
         categorical_properties <- c(categorical_properties,
-                                  paste0(cov_name, " = {type=", cov_type, ", categories={", categories_str, "}}"))
+                                    paste0(cov_name, " = {type=", cov_type, ", categories={", categories_str, "}}"))
       }
 
       # Combine input and categorical properties
@@ -385,7 +378,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     Sys.sleep(10)
 
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
-  # } else if (fit & opt_name == "Simurg") {
+    # } else if (fit & opt_name == "Simurg") {
     # int_res <- system(sprintf('%s --no-gui -p "%s" --mode none -o "%s"',
     #                           path_to_fitter, path.expand(filepath),
     #                           path.expand(path_to_save_output)))
@@ -393,12 +386,3 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
   }
   return(res_fit)
 }
-
-
-result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
-                 project_name = "my_project", fit = T,
-                 path_to_save_output =  "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/my_project/",
-                 path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
-sg_result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs, project_name = "my_project", opt_name = "Simurg")
-write(sg_result, "./example_code/simurg_object/sg_object.json")
-
