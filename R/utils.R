@@ -18,6 +18,7 @@
 #' Default is `"locf"`
 #' @param col_i string. Column name for color
 #' @param col_lab string. Label for color legend
+#' @param data string. Path to the dataset used to fit a model
 #' @param dens Logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
 #' @param et data.frame. Event table
@@ -25,6 +26,7 @@
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
 #' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` or `.json` file with sg-fit object is expected
+#' @param headers list. List with dataframe headers.
 #' @param ncores integer. Number of cores used for calculations. Default is 1
 #' @param indiv logical. If `TRUE` uses individual predictions (`"IPRED"`); otherwise uses population predictions (`"PRED"`). Default is `TRUE`
 #' @param inits named vector. Initial conditions of model variables. Default is `NULL`
@@ -46,13 +48,16 @@
 #' @param no_leg logical. If `TRUE`, no legend will be displayed. Default is `FALSE`
 #' @param npop integer. Number of population replicates. Default is 1
 #' @param nsub integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1
+#' @param occ interoccasion variability object. Object to set properties of interoccasion variability
 #' @param omega named mztrix or vector. Matrix
 #' @param outputs vector of strings. Names of the model variabeles to output. If `NULL`, all varaibles returned. Default is `NULL`
 #' @param plot_type Character. Type of plot to produce:
 #'   * `"DIST"` (default) - histogram of individual parameters,
 #'   * `"QQ"` - QQ-plot of individual parameters
+#' @param re random effects object. Contains options for random effects in model fit
 #' @param rtol numeric. A numberic relative tolerance used by the ODE solver to determine if a good solution has been achieved.This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
 #' @param run_id integer. Tested model ID. Default is 1.
+#' @param ruv residual error object. Options for residual error used in model fit
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`

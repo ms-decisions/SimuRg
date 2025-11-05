@@ -6,6 +6,7 @@
 #' Run fit with monolix/simurg/nonmem fitter
 #'
 #' @inheritParams sg_dummy
+#' @param model path to MLXTRAN file with model structure
 #' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
 #' @examples
 #' \dontrun{
