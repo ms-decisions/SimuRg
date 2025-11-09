@@ -62,6 +62,7 @@
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`
 #' @param tdist logical. If `TRUE`, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is `TRUE`
+#' @param time_col string. The column to use as a time column. Currently, can be only `TIME`. Default is `TIME`
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
 #' @param thetamat matrix. Named theta matrix. Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
