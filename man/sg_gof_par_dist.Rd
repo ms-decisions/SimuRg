@@ -13,7 +13,7 @@ sg_gof_par_dist(
 )
 }
 \arguments{
-\item{fpath_i}{string or sg-fit object. If the string is given, the path to \code{.Rdata} file with sg-fit object is expected}
+\item{fpath_i}{string or sg-fit object. If the string is given, the path to \code{.Rdata} or \code{.json} file with sg-fit object is expected}
 
 \item{eta_seq}{vector of strings. Character vector of parameter names to be plotted (e.g., \code{c("ka", "Cl")}). If \code{NULL}, all parameters be included. Default is \code{NULL}}
 
@@ -21,11 +21,9 @@ sg_gof_par_dist(
 
 \item{tdist}{logical. If \code{TRUE}, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is \code{TRUE}}
 
-\item{plot_type}{Character. Type of plot to produce:
-\itemize{
-\item \code{"DIST"} (default) - histogram of individual parameters,
-\item \code{"QQ"} - QQ-plot of individual parameters
-}}
+\item{plot_type}{Character string specifying the type of plot to generate.
+Options: 'DIST' for parameter distributions (default), 'QQ' for Q-Q plots,
+'correlations' for correlation matrix plot.}
 }
 \value{
 A \code{ggplot} object containing histogram(s) of individual parameter distributions, optionally overlaid with theoretical densities.
