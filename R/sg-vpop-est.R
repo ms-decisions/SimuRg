@@ -6,9 +6,18 @@
 #' Perform generation of synthetic dataset
 #'
 #' @inheritParams sg_dummy
-#' @returns A dataset with simulation results, 4 diagnostic plots and results of Kolmogorov-Smirnov test
+#' @returns A list containing:
+#' \itemize{
+#'   \item \code{datagen} - Synthetic dataset returned by \code{synthpop::syn()} (data.frame)
+#'   \item \code{dplot_cont} - List of ggplot histogram objects, one per continuous variable (or \code{NULL} if none)
+#'   \item \code{dplot_cat} - List of ggplot bar-plot objects, one per categorical variable (or \code{NULL} if none)
+#'   \item \code{dplot_umap_cont} - ggplot object with the continuous UMAP comparison (or \code{NULL})
+#'   \item \code{dplot_umap_cat} - ggplot object with the categorical UMAP comparison (or \code{NULL})
+#'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
+#' }
 #' @param data - input dataset
 #' @param idcol - string name of ID column
+#' @param nobj - Optional integer; explicit number of rows to synthesize. Overrides \code{expfctr} when provided. description
 #' @param minnumlev - maximum number of numeric variable levels that will be regarded as factor. Set to 3 by default
 #' @param seed - seed number for data synthesis. Set to 123 by default
 #' @param seed_umap - seed number for umap plots. Set to 123 by default
@@ -16,10 +25,8 @@
 #' @param diag_plots - logical, TRUE by default. Set TRUE to generate diagnostic plots, set FALSE otherwise.
 #' @examples
 #' \dontrun{
-#' library(tidyverse)
 #' library(readr)
 #' library(dplyr)
-#' library(grid)
 #'
 #' load("data/data_pbc.rda")
 #' sd_umap = 40
