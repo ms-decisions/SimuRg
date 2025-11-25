@@ -42,7 +42,6 @@
 #' @importFrom stringr str_c
 #' @importFrom cluster daisy
 #' @importFrom fastDummies dummy_cols
-#' @importFrom gridExtra arrangeGrob
 #' @importFrom synthpop syn
 #' @importFrom umap umap umap.defaults
 #' @importFrom tidyr drop_na
@@ -150,8 +149,8 @@ sg_vpop_est = function(data,
     )
   })
 
-  ptable_hist_cont = NULL
-  ptable_bp_cat  = NULL
+  plist_cont = NULL
+  plist_cat = NULL
   plot_umap_cont = NULL
   plot_umap_cat = NULL
 
@@ -233,7 +232,7 @@ sg_vpop_est = function(data,
         theme(legend.position = "topright")
     })
 
-    ptable_hist_cont <- do.call("arrangeGrob", c(plist_cont, ncol = 2))
+    #ptable_hist_cont <- do.call("arrangeGrob", c(plist_cont, ncol = 2))
     }
 
 
@@ -319,7 +318,7 @@ sg_vpop_est = function(data,
     })
 
 
-    ptable_bp_cat <- do.call("arrangeGrob", c(plist_cat, ncol = 3))
+    #ptable_bp_cat <- do.call("arrangeGrob", c(plist_cat, ncol = 3))
 }
     if (length(var_cat) == 0){cat("No categorical variables to plot")}
     if (length(var_cont) == 0){cat("No continuous variables to plot")}
@@ -327,8 +326,8 @@ sg_vpop_est = function(data,
 
 
   return(list(datagen = data_syn,
-              dplot_cont = ptable_hist_cont,
-              dplot_cat  = ptable_bp_cat,
+              dplot_cont =plist_cont,
+              dplot_cat =plist_cat,
               dplot_umap_cont = plot_umap_cont,
               dplot_umap_cat = plot_umap_cat,
               ks_test = ks_results

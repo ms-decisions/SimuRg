@@ -143,8 +143,8 @@ test_that("sg_vpop_est works with diag_plots = FALSE", {
 
 test_that("sg_vpop_est works with diag_plots = TRUE", {
   test_data <- data.frame(
-    x1 = rnorm(50, mean = 10, sd = 2),
-    x2 = rnorm(50, mean = 20, sd = 3)
+    x1 = rnorm(150, mean = 10, sd = 2),
+    x2 = rnorm(150, mean = 20, sd = 3)
   )
 
   output <- sg_vpop_est(data = test_data, diag_plots = TRUE, seed = 123, seed_umap = 123)
