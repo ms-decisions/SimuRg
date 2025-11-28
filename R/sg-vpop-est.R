@@ -69,10 +69,12 @@ sg_vpop_est = function(data,
 
   theme_set(theme_bw())
   theme_update(panel.grid.minor = element_blank())
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#5839bb", "#9c4ec7",
-                  "#3a6eba","#efdd3c", "#69686d")
+  MSDcol_cut <- c("#1a1866", "#f2b93b", "#3a6eba","#efdd3c", "#a2d620")
 
-  if(!is.null(palette)){color_p = palette} else {color_p = MSDcol}
+  if(!is.null(palette) & length(palette)>1){
+    color_p = rep(palette,3)
+  } else {color_p = MSDcol_cut
+    cat("Default color palette is used")}
   #####--------------- Processing ---------------#####
 
   if (!is.null(idcol)){data <- data %>%
@@ -227,7 +229,7 @@ sg_vpop_est = function(data,
                        color = "black", linewidth = 0.3) +
         scale_fill_manual(
           values = setNames(
-            color_p[c(7, 8, 4)],
+            color_p[c(3, 4, 5)],
             c("Original", "Synthetic", "Difference")
           )
         ) +

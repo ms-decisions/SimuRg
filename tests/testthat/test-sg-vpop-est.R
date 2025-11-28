@@ -8,8 +8,16 @@ test_that("sg-vpop-est file load works", {
   load(fpath_i)
   output <- sg_vpop_est(data = data_pbc, diag_plots = TRUE)
   expect_true(inherits(output$datagen, "data.frame"))
-  expect_true(inherits(output$dplot_cont, "gtable"))
-  expect_true(inherits(output$dplot_cat, "gtable"))
+  expect_true(
+    is.null(output$dplot_cont) ||
+      (is.list(output$dplot_cont) &&
+         all(vapply(output$dplot_cont, function(x) inherits(x, "ggplot"), logical(1))))
+  )
+  expect_true(
+    is.null(output$dplot_cat) ||
+      (is.list(output$dplot_cat) &&
+         all(vapply(output$dplot_cat, function(x) inherits(x, "ggplot"), logical(1))))
+  )
   expect_true(inherits(output$dplot_umap_cont, "ggplot"))
   expect_true(inherits(output$dplot_umap_cat, "ggplot"))
   expect_true(inherits(output$ks_test, "data.frame"))
@@ -149,8 +157,16 @@ test_that("sg_vpop_est works with diag_plots = TRUE", {
 
   output <- sg_vpop_est(data = test_data, diag_plots = TRUE, seed = 123, seed_umap = 123)
 
-  expect_true(inherits(output$dplot_cont, "gtable") || is.null(output$dplot_cont))
-  expect_true(inherits(output$dplot_cat, "gtable") || is.null(output$dplot_cat))
+  expect_true(
+    is.null(output$dplot_cont) ||
+      (is.list(output$dplot_cont) &&
+         all(vapply(output$dplot_cont, function(x) inherits(x, "ggplot"), logical(1))))
+  )
+  expect_true(
+    is.null(output$dplot_cat) ||
+      (is.list(output$dplot_cat) &&
+         all(vapply(output$dplot_cat, function(x) inherits(x, "ggplot"), logical(1))))
+  )
   expect_true(inherits(output$dplot_umap_cont, "ggplot") || is.null(output$dplot_umap_cont))
   expect_true(inherits(output$dplot_umap_cat, "ggplot") || is.null(output$dplot_umap_cat))
 })
