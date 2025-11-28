@@ -37,8 +37,8 @@
 #'                       diag_plots = T
 #' print(head(output$datagen,10))
 #' print(output$ks_test)
-#' grid.draw(output$dplot_cont)
-#' grid.draw(output$dplot_cat)
+#' print(output$dplot_umap_cont[[1]])
+#' print(output$dplot_umap_cat[[1]])
 #' print(output$dplot_umap_cont)
 #' print(output$dplot_umap_cat)
 #'
@@ -69,10 +69,10 @@ sg_vpop_est = function(data,
 
   theme_set(theme_bw())
   theme_update(panel.grid.minor = element_blank())
-  MSDcol_cut <- c("#1a1866", "#f2b93b", "#3a6eba","#efdd3c", "#a2d620")
+  MSDcol_cut <- c("#3a6eba","#efdd3c", "#1a1866", "#f2b93b")
 
   if(!is.null(palette) & length(palette)>1){
-    color_p = rep(palette,3)
+    color_p = rep(palette,2)
   } else {color_p = MSDcol_cut
     cat("Default color palette is used")}
   #####--------------- Processing ---------------#####
@@ -198,7 +198,7 @@ sg_vpop_est = function(data,
 
     plot_umap_cont <- ggplot(umap_df, aes(x = X, y = Y, color = Source)) +
       geom_point(alpha = 0.4, size = 1) +
-      scale_color_manual(values = c("Original data" = color_p[[1]], "Synthetic data" = color_p[[2]])) +
+      scale_color_manual(values = c("Original data" = color_p[[3]], "Synthetic data" = color_p[[4]])) +
       labs(
         title = str_c("UMAP: Continuous Data Comparison. Seed_umap = ", seed_ii),
         subtitle = paste0("Original: N=", sum(umap_df$Source == "Original data"),
@@ -227,11 +227,14 @@ sg_vpop_est = function(data,
       ggplot(plot_data, aes(x = value, fill = source)) +
         geom_histogram(alpha = 0.6, bins = 30, position = "identity",
                        color = "black", linewidth = 0.3) +
+        # scale_fill_manual(
+        #   values = setNames(
+        #     color_p[c(1, 2, 3)],
+        #     c("Original", "Synthetic", "Difference")
+        #   )
+        # ) +
         scale_fill_manual(
-          values = setNames(
-            color_p[c(3, 4, 5)],
-            c("Original", "Synthetic", "Difference")
-          )
+          values = c("Original" = color_p[[1]], "Synthetic" = color_p[[2]])
         ) +
         labs(title = paste(var, "Distribution"),
              x = var,
@@ -281,8 +284,8 @@ sg_vpop_est = function(data,
     # Create plot
     plot_umap_cat <-  ggplot(umap_cat_df, aes(x = X, y = Y, color = Source)) +
       geom_point(alpha = 0.4, size = 1) +
-      scale_color_manual(values = c("Original data" = color_p[[1]],
-                                    "Synthetic data" = color_p[[2]])) +
+      scale_color_manual(values = c("Original data" = color_p[[4]],
+                                    "Synthetic data" = color_p[[5]])) +
       labs(
         title = str_c("UMAP: Categorical Data Comparison. Seed_umap = ", seed_ii),
         subtitle = paste0("Original: N=", sum(umap_cat_df$Source == "Original data"),
@@ -316,8 +319,8 @@ sg_vpop_est = function(data,
       # Create ggplot barplot
       ggplot(plot_data, aes(x = category, y = count, fill = source)) +
         geom_col(position = "dodge", color = "black", linewidth = 0.3) +
-        scale_fill_manual(values = c("Original" = color_p[[1]],
-                                     "Synthetic" = color_p[[2]])) +
+        scale_fill_manual(values = c("Original" = color_p[[4]],
+                                     "Synthetic" = color_p[[5]])) +
         labs(title = paste(var, "Distribution"),
              x = var,
              y = "Count",
