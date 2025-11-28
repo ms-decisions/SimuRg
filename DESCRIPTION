@@ -18,12 +18,17 @@ Suggests:
     rxode2,
     testthat (>= 3.0.0)
 Imports: 
+    cluster,
     dplyr,
+    fastDummies,
     forcats,
     ggplot2,
     purrr,
     scales,
-    stringr
+    stringr,
+    synthpop,
+    tidyr,
+    umap
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
