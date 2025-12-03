@@ -77,12 +77,32 @@ sg_vpop_est = function(data,
     cat("Default color palette is used")}
   #####--------------- Processing ---------------#####
 
-  if (!is.null(idcol)){data <- data %>%
-    dplyr::select(-all_of(idcol))}
+  # if (!is.null(idcol)){data <- data %>%
+  #   dplyr::select(-any_of(idcol))}
+  #
+  # if (!is.null(exclcol)){
+  #   data <- data %>%
+  #     dplyr::select(-any_of(exclcol))
+  # }
+
+  #Exclude ID column and Exclusion columns
+
+  if (!is.null(idcol)){
+    if (!(idcol %in% names(data))){
+      warning("`idcol` = '", idcol, "' is not present in `data`.")
+    }
+    data <- data %>%
+      dplyr::select(-any_of(idcol))
+  }
 
   if (!is.null(exclcol)){
+    missing_excl <- setdiff(exclcol, names(data))
+    if (length(missing_excl) > 0){
+      warning("The following `exclcol` values are not present in `data`: ",
+              paste(missing_excl, collapse = ", "))
+    }
     data <- data %>%
-      dplyr::select(-all_of(exclcol))
+      dplyr::select(-any_of(exclcol))
   }
 
 
@@ -165,7 +185,8 @@ sg_vpop_est = function(data,
 
   if (diag_plots){
     if (length(var_cont)>0){
-    # Get UMAP
+
+    # Get UMAP for continuous data
     combined_data <- rbind(
       cbind(data[,var_cont], Source = "Original data"),
       cbind(data_syn[,var_cont], Source = "Synthetic data")
@@ -284,8 +305,8 @@ sg_vpop_est = function(data,
     # Create plot
     plot_umap_cat <-  ggplot(umap_cat_df, aes(x = X, y = Y, color = Source)) +
       geom_point(alpha = 0.4, size = 1) +
-      scale_color_manual(values = c("Original data" = color_p[[4]],
-                                    "Synthetic data" = color_p[[5]])) +
+      scale_color_manual(values = c("Original data" = color_p[[3]],
+                                    "Synthetic data" = color_p[[4]])) +
       labs(
         title = str_c("UMAP: Categorical Data Comparison. Seed_umap = ", seed_ii),
         subtitle = paste0("Original: N=", sum(umap_cat_df$Source == "Original data"),
@@ -319,8 +340,8 @@ sg_vpop_est = function(data,
       # Create ggplot barplot
       ggplot(plot_data, aes(x = category, y = count, fill = source)) +
         geom_col(position = "dodge", color = "black", linewidth = 0.3) +
-        scale_fill_manual(values = c("Original" = color_p[[4]],
-                                     "Synthetic" = color_p[[5]])) +
+        scale_fill_manual(values = c("Original" = color_p[[3]],
+                                     "Synthetic" = color_p[[4]])) +
         labs(title = paste(var, "Distribution"),
              x = var,
              y = "Count",
