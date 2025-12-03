@@ -2,7 +2,7 @@ library(tidyverse)
 library(rxode2)
 library(devtools)
 source("scripts/nlme/5.1.1-sg-vpc-sim/sg-vpc-sim.R")
-
+load("data/warfarin.rda")
 #' Add Percentile Lines to VPC Plot
 #'
 #' Internal helper function
