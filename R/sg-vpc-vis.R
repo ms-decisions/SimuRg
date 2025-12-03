@@ -1,7 +1,299 @@
 ## Author: Mikhailova Anna
-## First created: 2025-11-17
+## First created: 2025-12-03
 ## Description: functions for vpc visualisation
 ## Keywords: SimuRg, vpc, diagnostics
+
+#' Add Percentile Lines to VPC Plot
+#'
+#' Internal helper function
+add_percentile_lines <- function(plot, line_data, ci_data, show_ci, interpolation) {
+
+  if (interpolation) {
+    # Use smooth lines
+    plot <- plot +
+      geom_line(data = line_data,
+                aes(x = TIME_BIN, y = OBS, group = interaction(PI, TYPE), lty = TYPE),
+                col = "royalblue", size = 0.8)
+
+    if (show_ci) {
+      plot <- plot +
+        geom_ribbon(data = ci_data %>% filter(PI != "median"),
+                    aes(x = TIME_BIN, ymin = theor_LCI, ymax = theor_UCI,
+                        group = PI, fill = CI_label),
+                    col = NA, size = 1, alpha = 0.3) +
+        geom_ribbon(data = ci_data %>% filter(PI == "median"),
+                    aes(x = TIME_BIN, ymin = theor_LCI, ymax = theor_UCI,
+                        group = PI, fill = CI_label),
+                    col = NA, size = 1, alpha = 0.3)
+    }
+
+  } else {
+    # Use step rectangles
+    plot <- plot +
+      geom_line(data = line_data,
+                aes(x = TIME_BIN, y = OBS, group = interaction(PI, TYPE), lty = TYPE),
+                col = "royalblue", size = 0.8)
+
+    if (show_ci) {
+      plot <- plot +
+        geom_rect(data = ci_data %>% filter(PI != "median"),
+                  aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
+                      ymin = theor_LCI, ymax = theor_UCI,
+                      group = PI, fill = CI_label),
+                  col = NA, size = 1, alpha = 0.3) +
+        geom_rect(data = ci_data %>% filter(PI == "median"),
+                  aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
+                      ymin = theor_LCI, ymax = theor_UCI,
+                      group = PI, fill = CI_label),
+                  col = NA, size = 1, alpha = 0.3)
+    }
+  }
+
+  return(plot)
+}
+#' Create VPC Plot
+#'
+#' Internal function to generate the VPC ggplot object
+#'
+create_vpc_plot <- function(pred_int_median_emp_mod,
+                            pred_int_ci_mod,
+                            data_obs,
+                            pred_int_ci,
+                            data_i_var,
+                            theor_perc,
+                            emp_perc,
+                            theor_percCI,
+                            interpolation,
+                            dt_obs_fl,
+                            strat_by_dose,
+                            logy,
+                            pred.corr,
+                            name_y,
+                            name_x,
+                            legend_fl) {
+
+  # Base plot aesthetics
+  p_char <- list(
+    theme_bw(),
+    theme(
+      panel.background = element_rect(fill = "transparent", colour = "black"),
+      strip.text = element_text(size = 18, colour = "black"),
+      plot.title = element_text(size = 18, face = "bold"),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 18)
+    ),
+    scale_fill_manual(values = c("royalblue", "firebrick3")),
+    scale_linetype_manual(values = c(
+      `empirical percentiles` = "solid",
+      `theoretical percentiles` = "dashed"
+    )),
+    scale_x_continuous(name = name_x)
+  )
+
+  # Legend settings
+  p_char_leg_T <- list(
+    theme(legend.position = c(0.8, 0.85)),
+    theme(legend.box.background = element_rect(fill = "white", color = "black", linetype = "solid")),
+    theme(legend.box.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")),
+    theme(legend.text = element_text(size = 18)),
+    theme(legend.title = element_blank()),
+    theme(legend.key.size = unit(1, "cm")),
+    theme(legend.margin = unit(0, "cm")),
+    labs(lty = "", fill = "", color = "", shape = "")
+  )
+
+  p_char_leg_F <- list(theme(legend.position = "none"))
+
+  # Initialize plot
+  vpc_plot <- ggplot()
+
+  # Add percentile lines and confidence intervals
+  if (theor_perc && emp_perc) {
+    vpc_plot <- add_percentile_lines(vpc_plot, pred_int_median_emp_mod,
+                                     pred_int_ci_mod, theor_percCI, interpolation)
+  } else if (theor_perc) {
+    data_filtered <- pred_int_median_emp_mod %>%
+      filter(TYPE == "theoretical percentiles")
+    vpc_plot <- add_percentile_lines(vpc_plot, data_filtered,
+                                     pred_int_ci_mod, theor_percCI, interpolation)
+  } else if (emp_perc) {
+    data_filtered <- pred_int_median_emp_mod %>%
+      filter(TYPE == "empirical percentiles")
+    vpc_plot <- add_percentile_lines(vpc_plot, data_filtered,
+                                     pred_int_ci_mod, theor_percCI, interpolation)
+  }
+
+  # Add stratification by dose
+  if (!is.null(strat_by_dose)) {
+    vpc_plot <- vpc_plot + facet_grid(~COV_add)
+  }
+
+  # Add observed data points
+  if (dt_obs_fl) {
+    vpc_plot <- vpc_plot +
+      geom_point(data = data_obs, aes(x = TIME, y = DV, shape = DT_label),
+                 col = "royalblue4", size = 1.5)
+  }
+
+  # Y-axis scaling
+  y_label <- paste0(if_else(pred.corr, "Prediction corrected ", ""), name_y)
+
+  x_range <- c(
+    min(c(pred_int_ci$TIME_BIN, data_i_var$TIME)),
+    max(c(pred_int_ci$TIME_BIN, data_i_var$TIME))
+  )
+
+  if (logy) {
+    vpc_plot <- vpc_plot +
+      scale_y_log10(
+        name = y_label,
+        breaks = 10^seq(-2, 4, 1),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+      ) +
+      coord_cartesian(xlim = x_range)
+  } else {
+    vpc_plot <- vpc_plot +
+      scale_y_continuous(name = y_label) +
+      coord_cartesian(xlim = x_range)
+  }
+
+  # Apply styling
+  vpc_plot <- vpc_plot + p_char
+
+  # Apply legend settings
+  if (legend_fl) {
+    vpc_plot <- vpc_plot + p_char_leg_T
+  } else {
+    vpc_plot <- vpc_plot + p_char_leg_F
+  }
+
+  return(vpc_plot)
+}
+#' Function for data binning
+#'
+#' Internal function to generate the VPC ggplot object
+#'
+fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "custom")){
+
+  #browser()
+
+  if(method == "kmeans"){
+
+    if(bins > length(unique(ds$TIME))){
+      bins <- length(unique(ds$TIME))
+    }
+
+    set.seed(123)
+
+    #browser()
+
+    ds_bin <- ds %>%
+      mutate(BIN = as.factor(kmeans(TIME, bins)$cluster))
+
+    sorted_bins <- ds_bin %>%
+      group_by(BIN) %>%
+      summarise_at(vars(TIME), list(min_BIN_time = ~min(., na.rm=T))) %>%
+      ungroup() %>%
+      select(BIN, min_BIN_time) %>%
+      unique() %>%
+      arrange(min_BIN_time) %>%
+      mutate(BIN_sort = 1:nrow(.)) %>%
+      select(-min_BIN_time)
+
+    ds_bin <- ds_bin %>%
+      left_join(sorted_bins, by='BIN') %>%
+      select(-BIN) %>%
+      rename(BIN=BIN_sort)
+
+  } else if(method == "ntile"){
+    ds_bin <- ds %>%
+      mutate(BIN = as.factor(ntile(TIME, bins)))
+  } else if(method == "equal_x"){
+
+
+    #browser()
+
+    print(c(1))
+    #browser()
+    bins <- seq(min(ds$TIME, na.rm = T),
+                max(ds$TIME, na.rm = T),
+                length.out = bins + 1)
+    print(c(2))
+    bins <- bins[-1]
+    print(c(3))
+
+    time_bin <- ds %>%
+      select(TIME) %>%
+      filter(!is.na(TIME)) %>%
+      mutate(BIN = 0) %>%
+      unique()
+
+    print(c(4))
+
+    time_bin <- time_bin %>%
+      mutate(nrow = 1:nrow(.)) %>%
+      group_by(nrow) %>%
+      mutate(BIN = min((1:length(bins))[TIME <= bins], na.rm = T)) %>%
+      ungroup() %>%
+      select(-nrow)
+
+    print(c(5))
+    # for (i in 1:nrow(time_bin)){
+    #   time_bin[i,]$BIN <- min((1:length(bins))[time_bin[i,]$TIME <= bins], na.rm = T)
+    # }
+
+    time_bin <- time_bin %>%
+      mutate(BIN = as.factor(BIN))
+
+    print(c(6))
+
+    ds_bin <- ds %>%
+      left_join(time_bin, by = "TIME")
+
+    print(c(7))
+  } else if(method == "custom"){
+    bins <- c(bins, max(ds$TIME, na.rm = T))
+
+    time_bin <- ds %>%
+      select(TIME) %>%
+      filter(!is.na(TIME)) %>%
+      mutate(BIN = 0)
+
+    for (i in 1:nrow(time_bin)){
+      time_bin[i,]$BIN <- min((1:length(bins))[time_bin[i,]$TIME <= bins], na.rm = T)
+    }
+
+    time_bin <- time_bin %>%
+      mutate(BIN = as.factor(BIN))
+
+    ds_bin <- ds %>%
+      left_join(time_bin, by = "TIME")
+  }
+
+  ds_bin <- ds_bin %>%
+    group_by(BIN) %>%
+    mutate_at(vars(TIME), list(TIME_BIN = ~mean(., na.rm = T))) %>%
+    ungroup()
+
+  bin_stats <- ds_bin %>%
+    group_by(BIN) %>%
+    summarise(TIME_BIN_min = min(TIME),
+              TIME_BIN_max = max(TIME)) %>%
+    mutate(TIME_BIN_max_prev = lag(TIME_BIN_max),
+           TIME_BIN_min_next = lead(TIME_BIN_min)) %>%
+    ungroup() %>%
+    mutate(TIME_BIN_min = (TIME_BIN_min + TIME_BIN_max_prev) / 2,
+           TIME_BIN_max = (TIME_BIN_max + TIME_BIN_min_next) / 2) %>%
+    select(-TIME_BIN_max_prev, -TIME_BIN_min_next)
+
+  bin_stats$TIME_BIN_min[is.na(bin_stats$TIME_BIN_min)] <- -Inf
+  bin_stats$TIME_BIN_max[is.na(bin_stats$TIME_BIN_max)] <- Inf
+
+  ds_bin <- ds_bin %>%
+    left_join(bin_stats, by = "BIN")
+
+  return(ds_bin)
+}
 
 #' Visual Predictive Check (VPC) Function
 #'
@@ -9,8 +301,7 @@
 #' with prediction intervals derived from simulated data.
 #'
 #' @param ds_sim Data frame with simulated data containing columns:
-#'   - id: patient identifier
-#'   - sim.id: simulation replicate identifier
+#'   - id: simulation replicate identifier
 #'   - time: time points
 #'   - VAR: output variable name
 #'   - VALUE: simulated values
@@ -56,34 +347,28 @@
 #' }
 #' @import dplyr tidyr ggplot2 purrr stringr
 #' @export
-
 sg_vpc_vis <- function(ds_sim,
-                         data_i,
-                         output_names,
-                         x = "TIME",
-                         y = "DV",
-                         logy = TRUE,
-                         piLow = 0.10,
-                         piUp = 0.90,
-                         ciLow = 0.025,
-                         ciUp = 0.975,
-                         pred.corr = FALSE,
-                         name_y,
-                         name_x,
-                         theor_perc = TRUE,
-                         theor_percCI = TRUE,
-                         emp_perc = TRUE,
-                         dt_obs_fl = FALSE,
-                         legend_fl = FALSE,
-                         bins = 10,
-                         method = "kmeans",
-                         interpolation = FALSE,
-                         strat_by_dose = NULL) {
-
-
-  # Standardize column names in ds_sim
-  ds_sim <- ds_sim %>%
-    rename(ID = id, TIME = time)
+                       data_i,
+                       output_names,
+                       x = "TIME",
+                       y = "DV",
+                       logy = F,
+                       piLow = 0.10,
+                       piUp = 0.90,
+                       ciLow = 0.025,
+                       ciUp = 0.975,
+                       pred.corr = FALSE,
+                       name_y = "DV",
+                       name_x = "Time, h",
+                       theor_perc = TRUE,
+                       theor_percCI = TRUE,
+                       emp_perc = TRUE,
+                       dt_obs_fl = FALSE,
+                       legend_fl = FALSE,
+                       bins = 10,
+                       method = "kmeans",
+                       interpolation = T,
+                       strat_by_dose = NULL) {
 
   # Get unique output variables
   unique_vars <- unique(ds_sim$VAR)
@@ -108,7 +393,7 @@ sg_vpc_vis <- function(ds_sim,
       mutate(DT_label = "Data")
 
     # ===== TIME BINNING =====
-    data_i_var <- bin_data(data_i_var, bins = bins, method = method)
+    data_i_var <- fun_Bin_smrg(data_i_var, bins = bins, method = method)
 
     # Extract binning assignments
     bin_assignments <- data_i_var %>%
@@ -175,13 +460,14 @@ sg_vpc_vis <- function(ds_sim,
     emp_int <- data_i_var %>%
       group_by(across(all_of(vec_group))) %>%
       summarise(across(DV, summ_pi), .groups = "drop")
+    colnames(emp_int) <- str_remove(colnames(emp_int), "DV_")
 
     # Prediction intervals from simulated data (per simulation)
     pred_int <- ds_sim_var %>%
-      mutate(sim.id = as.numeric(sim.id)) %>%
-      group_by(across(all_of(c(vec_group, "sim.id")))) %>%
+      mutate(ID = as.numeric(ID)) %>%
+      group_by(across(all_of(c(vec_group, "ID")))) %>%
       summarise(across(VALUE, summ_pi), .groups = "drop")
-
+    colnames(pred_int) <- str_remove(colnames(pred_int), "VALUE_")
     # Confidence intervals around prediction intervals
     conf_int <- pred_int %>%
       group_by(across(all_of(vec_group))) %>%
