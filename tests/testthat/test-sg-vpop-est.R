@@ -82,13 +82,13 @@ test_that("sg_vpop_est respects nobj parameter", {
   expect_equal(nrow(output$datagen), 50)
 })
 
-test_that("sg_vpop_est respects expfctr parameter", {
+test_that("sg_vpop_est respects npop parameter", {
   test_data <- data.frame(
     x1 = rnorm(100, mean = 10, sd = 2),
     x2 = rnorm(100, mean = 20, sd = 3)
   )
 
-  output <- sg_vpop_est(data = test_data, expfctr = 2, diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data = test_data, npop = 2, diag_plots = FALSE, seed = 123)
 
   expect_equal(nrow(output$datagen), 200)
 })

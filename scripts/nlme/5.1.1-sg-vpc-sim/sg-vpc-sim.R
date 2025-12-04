@@ -40,7 +40,7 @@ mod_fin <- RxODE({
   Cc_ResErr = Cc + b*Cc;
 })
 
-load("data-raw/example_code/simurg_object/Warfarin_PK.RData")
+load("inst/extdata/simurg_object/Warfarin_PK.Rdata")
 sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, nrep = 100){
   if (inherits(fpath_i, "character")) {
     if (file.exists(fpath_i)) {

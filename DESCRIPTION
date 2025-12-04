@@ -3,7 +3,7 @@ Title: R package for builidng and simulating from ode-based pharuse
 Version: 0.0.0.9000
 Authors@R: c(
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
-    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkovh@msdecisions.tech", role = "aut"),
+    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
     person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
     person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
     person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut"),
