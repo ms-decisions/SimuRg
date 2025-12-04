@@ -3,9 +3,8 @@
 ## Description: Covariate simulation from original dataset
 ## Keywords: covariates, simulations
 
-#' Perform generation of synthetic dataset
+#' Perform generation of synthetic dataset for an empirical distribution
 #'
-#' @inheritParams sg_dummy
 #' @returns A list containing:
 #' \itemize{
 #'   \item \code{datagen} - Synthetic dataset returned by \code{synthpop::syn()} (data.frame)
@@ -15,14 +14,16 @@
 #'   \item \code{dplot_umap_cat} - ggplot object with the categorical UMAP comparison (or \code{NULL})
 #'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
 #' }
-#' @param data - input dataset
-#' @param idcol - string name of ID column
-#' @param nobj - Optional integer; explicit number of rows to synthesize. Overrides \code{expfctr} when provided. description
-#' @param minnumlev - maximum number of numeric variable levels that will be regarded as factor. Set to 3 by default
-#' @param seed - seed number for data synthesis. Set to 123 by default
-#' @param seed_umap - seed number for umap plots. Set to 123 by default
-#' @param palette - vector with user color palette
-#' @param diag_plots - logical, TRUE by default. Set TRUE to generate diagnostic plots, set FALSE otherwise.
+#' @param data Input data frame containing the original dataset to be synthesized (required)
+#' @param idcol Character string specifying the name of the identifier column to exclude from synthesis (optional, default: \code{NULL})
+#' @param nobj Integer specifying the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{expfctr} (optional, default: \code{NA})
+#' @param minnumlev Integer threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
+#' @param expfctr Numeric expansion factor; synthetic dataset size = original size × \code{expfctr} (optional, default: \code{1})
+#' @param exclcol Character vector of column names to exclude from synthesis (optional, default: \code{NULL})
+#' @param seed Integer random seed for synthetic data generation reproducibility (optional, default: \code{123})
+#' @param seed_umap Integer random seed for UMAP algorithm reproducibility (optional, default: \code{123})
+#' @param palette Character vector of color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
+#' @param diag_plots Logical flag; if \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
 #' @examples
 #' \dontrun{
 #' library(readr)
@@ -53,19 +54,9 @@
 #' @importFrom umap umap umap.defaults
 #' @importFrom tidyr drop_na
 #' @export
-
-
-sg_vpop_est = function(data,
-                       nobj = NA,
-                       idcol = NULL,
-                       minnumlev = 3,
-                       expfctr = 1,
-                       exclcol = NULL,
-                       seed = NA,
-                       seed_umap = NA,
-                       palette = NULL,
+sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 1,
+                       exclcol = NULL,seed = NA, seed_umap = NA, palette = c("#3a6eba","#efdd3c", "#1a1866", "#f2b93b"),
                        diag_plots = T){
-
 
   theme_set(theme_bw())
   theme_update(panel.grid.minor = element_blank())
