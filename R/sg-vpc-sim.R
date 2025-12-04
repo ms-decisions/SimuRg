@@ -5,10 +5,8 @@
 
 #' Perform simulations for VPC plot
 #'
+#' @inheritParams sg_dummy
 #' @param fpath_i Either a character string specifying the file path to a saved `sg_fit` object (R data file), or a list object containing the `sg_fit` results directly. The object must contain: `SDTAB`, `EVTAB`, `SUMTAB`, `OMEGAMAT`, `SIGMAMAT`, and optionally `COTAB` and `CATAB`
-#' @param model An `rxode2` model object defining the system of differential equations representing the pharmacokinetic/pharmacodynamic model structure
-#' @param time_col Character string specifying the column name in `SDTAB` that contains observation time points. Default is `"TIME"`
-#' @param output Character string or vector specifying which model output variables to simulate (e.g., "Cc" for central compartment concentration). If `NULL`, all model outputs are simulated. Default is `NULL`
 #' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
 #' @returns A dataset with simulation results
 #' @examples

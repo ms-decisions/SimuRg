@@ -50,7 +50,7 @@
 #' @param nsub integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1
 #' @param occ interoccasion variability object. Object to set properties of interoccasion variability
 #' @param omega named mztrix or vector. Matrix
-#' @param outputs vector of strings. Names of the model variabeles to output. If `NULL`, all varaibles returned. Default is `NULL`
+#' @param output vector of strings. Names of the model variables to output. If `NULL`, all variables returned. Default is `NULL`
 #' @param plot_type Character. Type of plot to produce:
 #'   * `"DIST"` (default) - histogram of individual parameters,
 #'   * `"QQ"` - QQ-plot of individual parameters

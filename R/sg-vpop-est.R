@@ -14,11 +14,11 @@
 #'   \item \code{dplot_umap_cat} - ggplot object with the categorical UMAP comparison (or \code{NULL})
 #'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
 #' }
+#' @inheritParams sg_dummy
 #' @param data Input data frame containing the original dataset to be synthesized (required)
 #' @param idcol Character string specifying the name of the identifier column to exclude from synthesis (optional, default: \code{NULL})
-#' @param nobj Integer specifying the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{expfctr} (optional, default: \code{NA})
+#' @param nobj Integer specifying the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
 #' @param minnumlev Integer threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
-#' @param expfctr Numeric expansion factor; synthetic dataset size = original size × \code{expfctr} (optional, default: \code{1})
 #' @param exclcol Character vector of column names to exclude from synthesis (optional, default: \code{NULL})
 #' @param seed Integer random seed for synthetic data generation reproducibility (optional, default: \code{123})
 #' @param seed_umap Integer random seed for UMAP algorithm reproducibility (optional, default: \code{123})
@@ -54,7 +54,7 @@
 #' @importFrom umap umap umap.defaults
 #' @importFrom tidyr drop_na
 #' @export
-sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 1,
+sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
                        exclcol = NULL,seed = NA, seed_umap = NA, palette = c("#3a6eba","#efdd3c", "#1a1866", "#f2b93b"),
                        diag_plots = T){
 
@@ -67,15 +67,6 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 
   } else {color_p = MSDcol_cut
     cat("Default color palette is used")}
   #####--------------- Processing ---------------#####
-
-  # if (!is.null(idcol)){data <- data %>%
-  #   dplyr::select(-any_of(idcol))}
-  #
-  # if (!is.null(exclcol)){
-  #   data <- data %>%
-  #     dplyr::select(-any_of(exclcol))
-  # }
-
   #Exclude ID column and Exclusion columns
 
   if (!is.null(idcol)){
@@ -143,8 +134,8 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 
 
   data_orig <- data
 
-  if (!is.na(nobj)){n_new = nobj} else if(!is.na(expfctr)&(expfctr>0)){
-    n_new = as.integer(round(n_orig * expfctr))
+  if (!is.na(nobj)){n_new = nobj} else if(!is.na(npop)&(npop>0)){
+    n_new = as.integer(round(n_orig * npop))
     } else {n_new = n_orig}
 
   #Synthpop Method
@@ -156,9 +147,21 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 
 
 
   # Get Kolmogorov-Smirnov test
-
   ks_results <- map_dfr(var_cont, function(var) {
-    ks_result <- ks.test(data[[var]], data_syn[[var]])
+    x <- data[[var]]
+    y <- data_syn[[var]]
+
+    # Detect ties across combined samples; ks.test assumes continuous data
+    has_ties <- any(duplicated(c(x, y)))
+
+    # Suppress the default ks.test warning about ties and emit a custom one instead
+    ks_result <- suppressWarnings(ks.test(x, y))
+    if (has_ties) {
+      warning(
+        "Kolmogorov–Smirnov test for variable '", var,
+        "' may be approximate due to ties in the data"
+      )
+    }
     p_val <- ks_result$p.value
 
     p_val_formatted <- ifelse(p_val < 0.01, "<0.01", p_val)
@@ -168,6 +171,17 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,expfctr = 
       status = ifelse(p_val > 0.05, "similar", "different")
     )
   })
+  # ks_results <- map_dfr(var_cont, function(var) {
+  #   ks_result <- ks.test(data[[var]], data_syn[[var]])
+  #   p_val <- ks_result$p.value
+  #
+  #   p_val_formatted <- ifelse(p_val < 0.01, "<0.01", p_val)
+  #   tibble(
+  #     variable = var,
+  #     p.value = p_val_formatted,
+  #     status = ifelse(p_val > 0.05, "similar", "different")
+  #   )
+  # })
 
   plist_cont = NULL
   plist_cat = NULL
