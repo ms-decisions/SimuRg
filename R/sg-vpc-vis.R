@@ -66,10 +66,10 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
                             interpolation,
                             dt_obs_fl,
                             strat_by_dose,
-                            logy,
+                            log_y,
                             pred.corr,
-                            name_y,
-                            name_x,
+                            lab_y,
+                            lab_x,
                             legend_fl) {
 
   # Base plot aesthetics
@@ -87,7 +87,7 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
       `empirical percentiles` = "solid",
       `theoretical percentiles` = "dashed"
     )),
-    scale_x_continuous(name = name_x)
+    scale_x_continuous(name = lab_x)
   )
 
   # Legend settings
@@ -98,7 +98,8 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
     theme(legend.text = element_text(size = 18)),
     theme(legend.title = element_blank()),
     theme(legend.key.size = unit(1, "cm")),
-    theme(legend.margin = unit(0, "cm")),
+    theme(legend.margin = margin(0, 0, 0, 0, "cm")),
+    #theme(legend.margin = unit(0, "cm")),
     labs(lty = "", fill = "", color = "", shape = "")
   )
 
@@ -136,14 +137,14 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
   }
 
   # Y-axis scaling
-  y_label <- paste0(if_else(pred.corr, "Prediction corrected ", ""), name_y)
+  y_label <- paste0(if_else(pred.corr, "Prediction corrected ", ""), lab_y)
 
   x_range <- c(
     min(c(pred_int_ci$TIME_BIN, data_i_var$TIME)),
     max(c(pred_int_ci$TIME_BIN, data_i_var$TIME))
   )
 
-  if (logy) {
+  if (log_y) {
     vpc_plot <- vpc_plot +
       scale_y_log10(
         name = y_label,
@@ -173,14 +174,14 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
 #'
 #' Internal function to generate the VPC ggplot object
 #'
-fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "custom")){
+fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "custom")){
 
   #browser()
 
   if(method == "kmeans"){
 
-    if(bins > length(unique(ds$TIME))){
-      bins <- length(unique(ds$TIME))
+    if(n_bins > length(unique(ds$TIME))){
+      n_bins <- length(unique(ds$TIME))
     }
 
     set.seed(123)
@@ -188,7 +189,7 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
     #browser()
 
     ds_bin <- ds %>%
-      mutate(BIN = as.factor(kmeans(TIME, bins)$cluster))
+      mutate(BIN = as.factor(kmeans(TIME, n_bins)$cluster))
 
     sorted_bins <- ds_bin %>%
       group_by(BIN) %>%
@@ -207,7 +208,7 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 
   } else if(method == "ntile"){
     ds_bin <- ds %>%
-      mutate(BIN = as.factor(ntile(TIME, bins)))
+      mutate(BIN = as.factor(ntile(TIME, n_bins)))
   } else if(method == "equal_x"){
 
 
@@ -215,11 +216,11 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 
     print(c(1))
     #browser()
-    bins <- seq(min(ds$TIME, na.rm = T),
+    n_bins <- seq(min(ds$TIME, na.rm = T),
                 max(ds$TIME, na.rm = T),
-                length.out = bins + 1)
+                length.out = n_bins + 1)
     print(c(2))
-    bins <- bins[-1]
+    n_bins <- n_bins[-1]
     print(c(3))
 
     time_bin <- ds %>%
@@ -233,13 +234,13 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
     time_bin <- time_bin %>%
       mutate(nrow = 1:nrow(.)) %>%
       group_by(nrow) %>%
-      mutate(BIN = min((1:length(bins))[TIME <= bins], na.rm = T)) %>%
+      mutate(BIN = min((1:length(n_bins))[TIME <= n_bins], na.rm = T)) %>%
       ungroup() %>%
       select(-nrow)
 
     print(c(5))
     # for (i in 1:nrow(time_bin)){
-    #   time_bin[i,]$BIN <- min((1:length(bins))[time_bin[i,]$TIME <= bins], na.rm = T)
+    #   time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = T)
     # }
 
     time_bin <- time_bin %>%
@@ -252,7 +253,7 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 
     print(c(7))
   } else if(method == "custom"){
-    bins <- c(bins, max(ds$TIME, na.rm = T))
+    n_bins <- c(n_bins, max(ds$TIME, na.rm = T))
 
     time_bin <- ds %>%
       select(TIME) %>%
@@ -260,7 +261,7 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
       mutate(BIN = 0)
 
     for (i in 1:nrow(time_bin)){
-      time_bin[i,]$BIN <- min((1:length(bins))[time_bin[i,]$TIME <= bins], na.rm = T)
+      time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = T)
     }
 
     time_bin <- time_bin %>%
@@ -300,36 +301,24 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 #' Generates VPC plots to assess model performance by comparing observed data
 #' with prediction intervals derived from simulated data.
 #'
-#' @param ds_sim Data frame with simulated data containing columns:
+#' @inheritParams sg_dummy
+#' @param ds_sim data frame with simulated data containing columns:
 #'   - id: simulation replicate identifier
 #'   - time: time points
 #'   - VAR: output variable name
 #'   - VALUE: simulated values
-#' @param data_i Data frame with observed data containing columns:
+#' @param data_i data frame with observed data containing columns:
 #'   - ID: patient identifier
 #'   - TIME: time points
 #'   - DV: observed dependent variable values
 #'   - DVID: dependent variable identifier
-#' @param output_names Data frame mapping VAR names to DVID
-#' @param x Character. Name of time column in data_i (default: "TIME")
-#' @param y Character. Name of DV column in data_i (default: "DV")
-#' @param logy Logical. Use log scale for y-axis (default: TRUE)
-#' @param piLow Numeric. Lower prediction interval bound (default: 0.10)
-#' @param piUp Numeric. Upper prediction interval bound (default: 0.90)
-#' @param ciLow Numeric. Lower confidence interval bound (default: 0.025)
-#' @param ciUp Numeric. Upper confidence interval bound (default: 0.975)
-#' @param pred.corr Logical. Apply prediction correction (default: FALSE)
-#' @param name_y Character. Y-axis label
-#' @param name_x Character. X-axis label
-#' @param theor_perc Logical. Show theoretical percentiles (default: TRUE)
-#' @param theor_percCI Logical. Show CI around theoretical percentiles (default: TRUE)
-#' @param emp_perc Logical. Show empirical percentiles (default: TRUE)
-#' @param dt_obs_fl Logical. Show observed data points (default: FALSE)
-#' @param legend_fl Logical. Show legend (default: FALSE)
-#' @param bins Integer. Number of bins for time stratification (default: 10)
-#' @param method Character. Binning method: "kmeans", "equal", "quantile" (default: "kmeans")
-#' @param interpolation Logical. Use line interpolation vs rectangles (default: FALSE)
-#' @param strat_by_dose Character. Variable name for dose stratification (default: NULL)
+#' @param output_names data frame mapping VAR names to DVID
+#' @param lab_x string. X-axis label.Default is "TIME, h".
+#' @param lab_y string. Y-axis label.Default is "DV".
+#' @param method character. Binning method: "kmeans", "equal", "quantile" (default: "kmeans")
+#' @param n_bins integer. Number of bins to use in the histogram. Default is 10.
+#' @param interpolation logical. Use line interpolation vs rectangles (default: FALSE)
+#' @param strat_by_dose character. Variable name for dose stratification (default: NULL)
 #'
 #' @return List of ggplot objects, one for each output variable
 #'
@@ -339,9 +328,9 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 #'   ds_sim = sim_data,
 #'   data_i = obs_data,
 #'   output_names = output_map,
-#'   name_x = "Time (hours)",
-#'   name_y = "Concentration (ng/mL)",
-#'   bins = 8,
+#'   lab_x = "Time (hours)",
+#'   lab_y = "Concentration (ng/mL)",
+#'   n_bins = 8,
 #'   pred.corr = TRUE
 #' )
 #' }
@@ -350,25 +339,58 @@ fun_Bin_smrg <- function(ds, bins, method = c("kmeans", "ntile", "equal_x", "cus
 sg_vpc_vis <- function(ds_sim,
                        data_i,
                        output_names,
-                       x = "TIME",
-                       y = "DV",
-                       logy = F,
+                       time_col = "TIME",
+                       dv_col = "DV",
+                       log_y = F,
                        piLow = 0.10,
                        piUp = 0.90,
                        ciLow = 0.025,
                        ciUp = 0.975,
                        pred.corr = FALSE,
-                       name_y = "DV",
-                       name_x = "Time, h",
+                       lab_y = "DV",
+                       lab_x = "Time, h",
                        theor_perc = TRUE,
                        theor_percCI = TRUE,
                        emp_perc = TRUE,
                        dt_obs_fl = FALSE,
                        legend_fl = FALSE,
-                       bins = 10,
+                       n_bins = 10,
                        method = "kmeans",
                        interpolation = T,
                        strat_by_dose = NULL) {
+
+  # Check input dataset for required columns
+  required_ds_sim_cols <- c("id", "ID", "TIME", "VAR", "VALUE")
+  missing_ds_sim_cols <- setdiff(required_ds_sim_cols, colnames(ds_sim))
+  if (length(missing_ds_sim_cols) > 0) {
+    stop(
+      "ds_sim is missing required columns: ",
+      paste(missing_ds_sim_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # Validate output_names: must be provided and contain required columns
+  if (is.null(output_names)) {
+    stop("output_names must be provided and map VAR to DVID", call. = FALSE)
+  }
+  required_output_cols <- c("output", "dvid")
+  missing_output_cols <- setdiff(required_output_cols, colnames(output_names))
+  if (length(missing_output_cols) > 0) {
+    stop(
+      "output_names is missing required columns: ",
+      paste(missing_output_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  # Check if the method is valid
+  valid_methods <- c("kmeans", "ntile", "equal_x", "custom")
+  if (!method %in% valid_methods) {
+    cat("Invalid binning method. Valid methods are: ", paste(valid_methods, collapse = ", "), "\n",
+        "Using default method: kmeans\n")
+    method <- "kmeans"
+  }
 
   # Get unique output variables
   unique_vars <- unique(ds_sim$VAR)
@@ -386,14 +408,14 @@ sg_vpc_vis <- function(ds_sim,
 
     data_i_var <- data_i %>%
       filter(DVID == target_dvid) %>%
-      rename(TIME = all_of(x), DV = all_of(y))
+      rename(TIME = all_of(time_col), DV = all_of(dv_col))
 
     # Store original observed data for overlay
     data_obs <- data_i_var %>%
       mutate(DT_label = "Data")
 
     # ===== TIME BINNING =====
-    data_i_var <- fun_Bin_smrg(data_i_var, bins = bins, method = method)
+    data_i_var <- fun_Bin_smrg(data_i_var, n_bins = n_bins, method = method)
 
     # Extract binning assignments
     bin_assignments <- data_i_var %>%
@@ -579,10 +601,10 @@ sg_vpc_vis <- function(ds_sim,
       interpolation = interpolation,
       dt_obs_fl = dt_obs_fl,
       strat_by_dose = strat_by_dose,
-      logy = logy,
+      log_y = log_y,
       pred.corr = pred.corr,
-      name_y = name_y,
-      name_x = name_x,
+      lab_y = lab_y,
+      lab_x = lab_x,
       legend_fl = legend_fl
     )
 
