@@ -16,3 +16,4 @@ scripts/nlme/2.1-sg-converter/proj-r-solo/
 scripts/nlme/1.1-sg-fit/my_project/
 *.md
 *.Rd
+tests/testthat/_snaps
