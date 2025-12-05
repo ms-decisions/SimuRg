@@ -3,7 +3,7 @@ Title: R package for builidng and simulating from ode-based pharuse
 Version: 0.0.0.9000
 Authors@R: c(
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
-    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkovh@msdecisions.tech", role = "aut"),
+    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
     person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
     person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
     person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut"),
@@ -13,17 +13,22 @@ Description: The package includes all functions needed to develop, validate and 
 License: Commercial
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests: 
     rxode2,
     testthat (>= 3.0.0)
 Imports: 
+    cluster,
     dplyr,
+    fastDummies,
     forcats,
     ggplot2,
     purrr,
     scales,
-    stringr
+    stringr,
+    synthpop,
+    tidyr,
+    umap
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
