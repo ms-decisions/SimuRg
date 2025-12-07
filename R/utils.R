@@ -28,11 +28,13 @@
 #' @param emp_perc logical. Show empirical percentiles (default: TRUE)
 #' @param et data.frame. Event table
 #' @param eta_seq vector of strings. Character vector of parameter names to be plotted (e.g., `c("ka", "Cl")`). If `NULL`, all parameters be included. Default is `NULL`
+#' @param excl_col character vector. Contains column names to exclude from synthesis. Default: \code{NULL}
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
 #' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` or `.json` file with sg-fit object is expected
 #' @param headers list. List with dataframe headers.
 #' @param ncores integer. Number of cores used for calculations. Default is 1
+#' @param id_col character string. Specify the name of the identifier column to exclude from synthesis. Default: \code{NULL}
 #' @param indiv logical. If `TRUE` uses individual predictions (`"IPRED"`); otherwise uses population predictions (`"PRED"`). Default is `TRUE`
 #' @param inits named vector. Initial conditions of model variables. Default is `NULL`
 #' @param keep vector of strings. Columns of event table to keep in the output dataframe. Default is `NULL`
@@ -68,6 +70,7 @@
 #' @param run_id integer. Tested model ID. Default is 1.
 #' @param ruv residual error object. Options for residual error used in model fit
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
+#' @param seed integer. Random seed for synthetic data generation reproducibility.Default is \code{123}.
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`
 #' @param tdist logical. If `TRUE`, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is `TRUE`

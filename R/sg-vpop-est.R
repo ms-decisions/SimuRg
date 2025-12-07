@@ -15,27 +15,29 @@
 #'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
 #' }
 #' @inheritParams sg_dummy
-#' @param data Input data frame containing the original dataset to be synthesized (required)
-#' @param idcol Character string specifying the name of the identifier column to exclude from synthesis (optional, default: \code{NULL})
-#' @param nobj Integer specifying the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
-#' @param minnumlev Integer threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
-#' @param exclcol Character vector of column names to exclude from synthesis (optional, default: \code{NULL})
-#' @param seed Integer random seed for synthetic data generation reproducibility (optional, default: \code{123})
-#' @param seed_umap Integer random seed for UMAP algorithm reproducibility (optional, default: \code{123})
-#' @param palette Character vector of color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
-#' @param diag_plots Logical flag; if \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
+#' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
+#' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
+#' @param minnumlev integer. Threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
+#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
+#' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
+#' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
 #' @examples
 #' \dontrun{
-#' library(readr)
 #' library(dplyr)
 #'
-#' load("data/data_pbc.rda")
-#' sd_umap = 40
-#' output <- sg_vpop_est(data = data,#original data
-#'                      idcol = "id", #name of ID column
+#' # Generate example dataset
+#' data <- data.frame(
+#'   id = 1:150,
+#'   ALB = rnorm(150, mean = 3.5, sd = 0.5),
+#'   ALT = rnorm(150, mean = 50, sd = 20),
+#'   SEX = factor(sample(c("M", "F"), 150, replace = TRUE)),
+#'   RACE = factor(sample(c("White", "Black", "Asian", "Other"), 150, replace = TRUE))
+#' )
+#' output <- sg_vpop_est(data_i = data,#original data
+#'                      id_col = "id", #name of ID column
 #'                       seed = 123,#provide reproducibility
-#'                       seed_umap = sd_umap,#provide reproducibility for umap
-#'                       diag_plots = T
+#'                       seed_umap = 40,#provide reproducibility for umap
+#'                       diag_plots = T)
 #' print(head(output$datagen,10))
 #' print(output$ks_test)
 #' print(output$dplot_umap_cont[[1]])
@@ -54,8 +56,8 @@
 #' @importFrom umap umap umap.defaults
 #' @importFrom tidyr drop_na
 #' @export
-sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
-                       exclcol = NULL,seed = NA, seed_umap = NA, palette = c("#3a6eba","#efdd3c", "#1a1866", "#f2b93b"),
+sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
+                       excl_col = NULL,seed = NA, seed_umap = NA, palette = c("#3a6eba","#efdd3c", "#1a1866", "#f2b93b"),
                        diag_plots = T){
 
   theme_set(theme_bw())
@@ -69,70 +71,70 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
   #####--------------- Processing ---------------#####
   #Exclude ID column and Exclusion columns
 
-  if (!is.null(idcol)){
-    if (!(idcol %in% names(data))){
-      warning("`idcol` = '", idcol, "' is not present in `data`.")
+  if (!is.null(id_col)){
+    if (!(id_col %in% names(data_i))){
+      warning("`id_col` = '", id_col, "' is not present in `data`.")
     }
-    data <- data %>%
-      dplyr::select(-any_of(idcol))
+    data_i <- data_i %>%
+      dplyr::select(-any_of(id_col))
   }
 
-  if (!is.null(exclcol)){
-    missing_excl <- setdiff(exclcol, names(data))
+  if (!is.null(excl_col)){
+    missing_excl <- setdiff(excl_col, names(data_i))
     if (length(missing_excl) > 0){
-      warning("The following `exclcol` values are not present in `data`: ",
+      warning("The following `excl_col` values are not present in `data`: ",
               paste(missing_excl, collapse = ", "))
     }
-    data <- data %>%
-      dplyr::select(-any_of(exclcol))
+    data_i <- data_i %>%
+      dplyr::select(-any_of(excl_col))
   }
 
 
   #Exclude rows with NAs.
-  data <- data %>%
+  data_i <- data_i %>%
     drop_na()
 
   var_char = NULL
 
   # Convert character columns to factor
-  is_char  <- vapply(data, is.character, logical(1))
-  var_char  <- names(data)[is_char]
+  is_char  <- vapply(data_i, is.character, logical(1))
+  var_char  <- names(data_i)[is_char]
 
   if (!is.na(minnumlev)){minnum = minnumlev} else {minnum = 3}
 
   # Convert numeric variables with <= minnumlev unique values to factor
   is_low_level_num <- vapply(
-    data,
+    data_i,
     function(x) is.numeric(x) && length(unique(na.omit(x))) <= minnum,
     logical(1)
   )
-  var_low_level <- names(data)[is_low_level_num]
+  var_low_level <- names(data_i)[is_low_level_num]
 
 
-  data <- data %>%
+  data_i <- data_i %>%
     mutate(across(any_of(c(var_char, var_low_level)), as.factor))
 
-  is_cont <- vapply(data, is.numeric, logical(1))
-  is_cat  <- vapply(data, is.factor, logical(1))
+  is_cont <- vapply(data_i, is.numeric, logical(1))
+  is_cat  <- vapply(data_i, is.factor, logical(1))
 
   # Define names for continuous and categorical (ordered/factor) columns
-  var_cont <- names(data)[is_cont]
-  var_cat  <- names(data)[is_cat]
-  #var_cont <- var_cont[var_cont != idcol]
+  var_cont <- names(data_i)[is_cont]
+  var_cat  <- names(data_i)[is_cat]
+  #var_cont <- var_cont[var_cont != id_col]
   var_all <- c(var_cont, var_cat)
 
 
 
-  n_orig <- nrow(data)
+  n_orig <- nrow(data_i)
 
 
 
   # Print dataset summary
-   cat("Number of rows in the data_orig:", nrow(data), "\n")
+   cat("Number of rows in the data_orig:", nrow(data_i), "\n")
    cat("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
    cat("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
 
-  data_orig <- data
+  data_orig <- data_i
 
   if (!is.na(nobj)){n_new = nobj} else if(!is.na(npop)&(npop>0)){
     n_new = as.integer(round(n_orig * npop))
@@ -141,14 +143,14 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
   #Synthpop Method
   if (!is.na(seed)){seed_i = seed} else {seed_i = 123}
   print(seed_i)
-  syn_obj <- syn(data, method = "rf", k = n_new, seed = seed_i)
+  syn_obj <- syn(data_i, method = "rf", k = n_new, seed = seed_i)
   data_syn <- syn_obj$syn  # Extract synthetic data
 
 
 
   # Get Kolmogorov-Smirnov test
   ks_results <- map_dfr(var_cont, function(var) {
-    x <- data[[var]]
+    x <- data_i[[var]]
     y <- data_syn[[var]]
 
     # Detect ties across combined samples; ks.test assumes continuous data
@@ -159,7 +161,8 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
     if (has_ties) {
       warning(
         "Kolmogorov–Smirnov test for variable '", var,
-        "' may be approximate due to ties in the data"
+        "' may be approximate due to ties in the data",
+        call. = FALSE
       )
     }
     p_val <- ks_result$p.value
@@ -172,7 +175,7 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
     )
   })
   # ks_results <- map_dfr(var_cont, function(var) {
-  #   ks_result <- ks.test(data[[var]], data_syn[[var]])
+  #   ks_result <- ks.test(data_i[[var]], data_syn[[var]])
   #   p_val <- ks_result$p.value
   #
   #   p_val_formatted <- ifelse(p_val < 0.01, "<0.01", p_val)
@@ -193,7 +196,7 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
 
     # Get UMAP for continuous data
     combined_data <- rbind(
-      cbind(data[,var_cont], Source = "Original data"),
+      cbind(data_i[,var_cont], Source = "Original data"),
       cbind(data_syn[,var_cont], Source = "Synthetic data")
     )
 
@@ -244,9 +247,9 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
     plist_cont <- var_cont %>% map(function(var){
       # Create data frame for plotting
       plot_data <- data.frame(
-        value = c(data[[var]], data_syn[[var]]),
+        value = c(data_i[[var]], data_syn[[var]]),
         source = rep(c("Original", "Synthetic"),
-                     times = c(length(data[[var]]), length(data_syn[[var]])))
+                     times = c(length(data_i[[var]]), length(data_syn[[var]])))
       )
 
       # Create ggplot histogram
@@ -277,7 +280,7 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
 
     #Umap for categorical data
     if (length(var_cat)>0){
-    cat_orig <- data[, var_cat, drop = FALSE]
+    cat_orig <- data_i[, var_cat, drop = FALSE]
     cat_syn <- data_syn[, var_cat, drop = FALSE]
 
     # Combine for processing
@@ -332,7 +335,7 @@ sg_vpop_est <-  function(data, nobj = NA, idcol = NULL, minnumlev = 3,npop = 1,
 
     plist_cat <- var_cat %>% map(function(var){
       # Create tables for original and synthetic data
-      orig_table <- table(data[[var]])
+      orig_table <- table(data_i[[var]])
       synth_table <- table(data_syn[[var]])
 
       # Convert to data frame for ggplot

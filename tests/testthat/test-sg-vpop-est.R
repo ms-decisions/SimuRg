@@ -1,12 +1,12 @@
 ## Author: Melnikova Alina
 ## First created: 2025-11-24
 ## Description: formal testing of sg-vpop-est function and its helpers
-## Keywords: SimuRg, sg-parsum, sg-vpop-est
+## Keywords: SimuRg, sg-vpop-est
 
 test_that("sg-vpop-est file load works", {
   fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
   load(fpath_i)
-  output <- sg_vpop_est(data = data_pbc, diag_plots = TRUE)
+  output <- sg_vpop_est(data_i = data_pbc, diag_plots = TRUE, id_col = "id",  excl_col = "years")
   expect_true(inherits(output$datagen, "data.frame"))
   expect_true(
     is.null(output$dplot_cont) ||
@@ -100,7 +100,7 @@ test_that("sg_vpop_est excludes idcol when specified", {
     x2 = rnorm(50, mean = 20, sd = 3)
   )
 
-  output <- sg_vpop_est(data = test_data, idcol = "id", diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data_i = test_data, id_col = "id", diag_plots = FALSE, seed = 123)
 
   expect_false("id" %in% colnames(output$datagen))
   expect_equal(ncol(output$datagen), 2)
@@ -113,7 +113,7 @@ test_that("sg_vpop_est excludes exclcol when specified", {
     exclude_me = rnorm(50, mean = 5, sd = 1)
   )
 
-  output <- sg_vpop_est(data = test_data, exclcol = "exclude_me",
+  output <- sg_vpop_est(data_i = test_data, excl_col = "exclude_me",
                         diag_plots = FALSE, seed = 123)
 
   expect_false("exclude_me" %in% colnames(output$datagen))
@@ -126,8 +126,8 @@ test_that("sg_vpop_est uses seed for reproducibility", {
     x2 = rnorm(50, mean = 20, sd = 3)
   )
 
-  output1 <- sg_vpop_est(data = test_data, seed = 123, diag_plots = FALSE)
-  output2 <- sg_vpop_est(data = test_data, seed = 123, diag_plots = FALSE)
+  output1 <- sg_vpop_est(data_i = test_data, seed = 123, diag_plots = FALSE)
+  output2 <- sg_vpop_est(data_i = test_data, seed = 123, diag_plots = FALSE)
 
   # Results should be identical with same seed
   expect_equal(output1$datagen, output2$datagen)
@@ -139,7 +139,7 @@ test_that("sg_vpop_est works with diag_plots = FALSE", {
     x2 = rnorm(50, mean = 20, sd = 3)
   )
 
-  output <- sg_vpop_est(data = test_data, diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123)
 
   expect_null(output$dplot_cont)
   expect_null(output$dplot_cat)
@@ -155,7 +155,7 @@ test_that("sg_vpop_est works with diag_plots = TRUE", {
     x2 = rnorm(150, mean = 20, sd = 3)
   )
 
-  output <- sg_vpop_est(data = test_data, diag_plots = TRUE, seed = 123, seed_umap = 123)
+  output <- sg_vpop_est(data_i = test_data, diag_plots = TRUE, seed = 123, seed_umap = 123)
 
   expect_true(
     is.null(output$dplot_cont) ||
@@ -178,7 +178,7 @@ test_that("sg_vpop_est converts character columns to factors", {
     stringsAsFactors = FALSE
   )
 
-  output <- sg_vpop_est(data = test_data, diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123)
 
   # The synthetic data should have the same structure
   expect_true(is.data.frame(output$datagen))
@@ -192,7 +192,7 @@ test_that("sg_vpop_est handles minnumlev parameter", {
     low_level = rep(c(1, 2, 3), length.out = 50)  # Only 3 unique values
   )
 
-  output <- sg_vpop_est(data = test_data, minnumlev = 3, diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data_i = test_data, minnumlev = 3, diag_plots = FALSE, seed = 123)
 
   expect_true(is.data.frame(output$datagen))
   expect_equal(ncol(output$datagen), 2)
@@ -205,7 +205,7 @@ test_that("sg_vpop_est handles NA values by removing rows", {
   )
 
   # Should not error, but will remove rows with NA
-  output <- sg_vpop_est(data = test_data, diag_plots = FALSE, seed = 123)
+  output <- sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123)
 
   expect_true(is.data.frame(output$datagen))
   expect_equal(nrow(output$datagen), 45)  # Should match number of non-NA rows
