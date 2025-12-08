@@ -476,3 +476,32 @@ test_that("sg_vpc_vis returns named list matching VAR values", {
   expect_true(is.list(result))
 })
 
+test_that("sg_vpc_vis plot changes when bins change", {
+  skip_if_not_installed("dplyr")
+  skip_if_not_installed("tidyr")
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("purrr")
+  skip_if_not_installed("stringr")
+
+  ds_sim <- create_mock_sim_data()
+  data_i <- create_mock_obs_data()
+  output_names <- create_mock_output_names()
+
+  # Use deterministic kmeans binning (fun_Bin_smrg sets seed internally)
+  p_bins5 <- sg_vpc_vis(ds_sim = ds_sim, data_i = data_i,
+                        output_names = output_names, method = "kmeans",
+                        n_bins = 5, interpolation = FALSE)[[1]]
+  p_bins3 <- sg_vpc_vis(ds_sim = ds_sim, data_i = data_i,
+                        output_names = output_names, method = "kmeans",
+                        n_bins = 3, interpolation = FALSE)[[1]]
+
+  b5 <- ggplot2::ggplot_build(p_bins5)
+  b3 <- ggplot2::ggplot_build(p_bins3)
+
+  # Compare number of unique x positions in the first layer (lines/steps)
+  x_unique_5 <- length(unique(b5$data[[1]]$x))
+  x_unique_3 <- length(unique(b3$data[[1]]$x))
+
+  expect_false(identical(x_unique_5, x_unique_3))
+})
+
