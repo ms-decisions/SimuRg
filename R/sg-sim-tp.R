@@ -1,38 +1,32 @@
 ## Author: Victor Sokolov
 ## First created: 2025-11-13
-## Description:
-## Keywords:
+## Description: Time-profile plotting with optional summary bands
+## Keywords: SimuRg, time profiles, diagnostics
 
-#####--------------- Load functions and libraries ---------------#####
-# library(tidyverse)
-# theme_set(theme_bw())
-# theme_update(panel.grid.minor = element_blank())
-#
-#
-# #####--------------- Read the data ---------------#####
-# ds_sim <- read_csv("sim_timeprof_test.csv", col_types = cols())
-#####--------------- Function body ---------------#####
+
 #' Time-profile plotting with optional summary bands
 #'
 #' Creates a ggplot time-profile plot from longitudinal data with optional
 #' summarization (mean/median/geometric mean), variance bands (SD/SE/IQR),
 #' percentile ribbons, faceting, and log scaling.
 #'
-#' @param ds_i Data frame with source data.
-#' @param x_col Name of x-axis (time) column (default: 'TIME').
-#' @param y_col Name of y-axis (value) column (default: 'VALUE').
-#' @param group_i Primary grouping variable for lines (default: 'VAR').
-#' @param bands_i Character vector of length 2 with column names for custom ymin/ymax ribbons.
-#' @param cent_i Central tendency: one of 'mean', 'median', 'geom_mean', or NULL for raw values.
-#' @param vrns_i Variance band type: one of 'SD', 'SE', 'IQR', or NULL.
-#' @param lperc_i,uperc_i Lower/upper percentiles for percentile ribbons (both must be provided).
-#' @param add_points Numeric > 0 to add points (size).
-#' @param col_i,fill_i,lty_i,shp_i Optional aesthetics (colour, fill, linetype, shape).
-#' @param grid_i,wrap_i Faceting formulas for grid or wrap;
-#' @param free_stat Facet scaling ('free', 'free_x', etc.).
-#' @param wrap_ncol,wrap_nrow Number of columns/rows for facet_wrap.
-#' @param x_min,x_max,y_min,y_max Axis limits (use NA to skip).
-#' @param log_y,log_x Logical; apply log10 scale to y or x.
+#' @inheritParams sg_dummy
+#' @param group_i string. Primary grouping variable for lines. Default is `'VAR'`
+#' @param bands_i vector of characters. Character vector of length 2 with column names for custom ymin/ymax ribbons. Default is `NULL`
+#' @param cent_i string. Central tendency measure. One of `'mean'`, `'median'`, `'geom_mean'`, or `NULL` for raw values. Default is `NULL`
+#' @param vrns_i string. Variance band type. One of `'SD'`, `'SE'`, `'IQR'`, or `NULL`. Default is `NULL`
+#' @param lperc_i numeric. Lower percentile for percentile ribbons (must be provided together with `uperc_i`). Default is `NULL`
+#' @param uperc_i numeric. Upper percentile for percentile ribbons (must be provided together with `lperc_i`). Default is `NULL`
+#' @param add_points numeric. Size of points to add to the plot. If > 0, points will be added. Default is `0`
+#' @param col_i string. Column name for color aesthetic. Default is `NULL`
+#' @param fill_i string. Column name for fill aesthetic. Default is `NULL`
+#' @param lty_i string. Column name for linetype aesthetic. Default is `NULL`
+#' @param shp_i string. Column name for shape aesthetic. Default is `NULL`
+#' @param grid_i string. Faceting formula for `facet_grid` (e.g., `'~VAR'` or `'A~B'`). Default is `NULL`
+#' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`
+#' @param free_stat string. Facet scaling option. One of `"free"`, `"free_x"`, `"free_y"`, or `"fixed"`. Default is `'free'`
+#' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
+#' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
 #'
 #' @return A ggplot object with lines and optional ribbons/points/facets.
 #'
@@ -42,14 +36,24 @@
 #'
 #' @examples
 #' \dontrun{
-#' p <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR')
+#' make_extended_mock_data <- function() {
+#'  data.frame(
+#'    TIME = rep(1:4, times = 6),
+#'    VALUE = rnorm(24, mean = 10, sd = 2),
+#'    VAR = rep(rep(c("A", "B"), each = 4), times = 3),
+#'    Regimen = rep(c("R1", "R2", "R3"), each = 8),
+#'    CAT1 = rep(c("Cat1", "Cat2"), each = 12)
+#'  )
+#' }
+#' ds_sim <- make_extended_mock_data()
+#' p <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR', fill_i = 'VAR', wrap_i = '~VAR', wrap_ncol = 2)
 #' }
 
 #####--------------- Function body ---------------#####
 sg_sim_tp <- function(
   ds_i,
-  x_col = 'TIME',
-  y_col = 'VALUE',
+  time_col = 'TIME',
+  val_col = 'VALUE',
   group_i = 'VAR',
   bands_i = NULL,
   cent_i = NULL,
@@ -66,10 +70,10 @@ sg_sim_tp <- function(
   free_stat = 'free',
   wrap_ncol = NULL,
   wrap_nrow = NULL,
-  x_min = NA,
-  x_max = NA,
-  y_min = NA,
-  y_max = NA,
+  min_x = NA,
+  max_x = NA,
+  min_y = NA,
+  max_y = NA,
   log_y = FALSE,
   log_x = FALSE
 ) {
@@ -83,22 +87,22 @@ sg_sim_tp <- function(
 
   if (needs_summary) {
     # Prepare grouping for summarization
-    group_vars <- c(x_col, group_cols)
+    group_vars <- c(time_col, group_cols)
 
     # Summarize data
     ds_plot <- ds_i %>%
       group_by(across(all_of(group_vars))) %>%
       summarise(
         n = n(),
-        mean_val = if (!is.null(cent_i) && cent_i == "mean") mean(!!sym(y_col), na.rm = TRUE) else NA_real_,
-        median_val = if (!is.null(cent_i) && cent_i == "median") median(!!sym(y_col), na.rm = TRUE) else NA_real_,
-        geom_mean_val = if (!is.null(cent_i) && cent_i == "geom_mean") exp(mean(log(!!sym(y_col)), na.rm = TRUE)) else NA_real_,
-        sd_val = if (!is.null(vrns_i) && vrns_i == "SD") sd(!!sym(y_col), na.rm = TRUE) else NA_real_,
-        se_val = if (!is.null(vrns_i) && vrns_i == "SE") sd(!!sym(y_col), na.rm = TRUE) / sqrt(n()) else NA_real_,
-        q25 = if (!is.null(vrns_i) && vrns_i == "IQR") quantile(!!sym(y_col), 0.25, na.rm = TRUE) else NA_real_,
-        q75 = if (!is.null(vrns_i) && vrns_i == "IQR") quantile(!!sym(y_col), 0.75, na.rm = TRUE) else NA_real_,
-        lperc = if (!is.null(lperc_i)) quantile(!!sym(y_col), lperc_i, na.rm = TRUE) else NA_real_,
-        uperc = if (!is.null(uperc_i)) quantile(!!sym(y_col), uperc_i, na.rm = TRUE) else NA_real_,
+        mean_val = if (!is.null(cent_i) && cent_i == "mean") mean(!!sym(val_col), na.rm = TRUE) else NA_real_,
+        median_val = if (!is.null(cent_i) && cent_i == "median") median(!!sym(val_col), na.rm = TRUE) else NA_real_,
+        geom_mean_val = if (!is.null(cent_i) && cent_i == "geom_mean") exp(mean(log(!!sym(val_col)), na.rm = TRUE)) else NA_real_,
+        sd_val = if (!is.null(vrns_i) && vrns_i == "SD") sd(!!sym(val_col), na.rm = TRUE) else NA_real_,
+        se_val = if (!is.null(vrns_i) && vrns_i == "SE") sd(!!sym(val_col), na.rm = TRUE) / sqrt(n()) else NA_real_,
+        q25 = if (!is.null(vrns_i) && vrns_i == "IQR") quantile(!!sym(val_col), 0.25, na.rm = TRUE) else NA_real_,
+        q75 = if (!is.null(vrns_i) && vrns_i == "IQR") quantile(!!sym(val_col), 0.75, na.rm = TRUE) else NA_real_,
+        lperc = if (!is.null(lperc_i)) quantile(!!sym(val_col), lperc_i, na.rm = TRUE) else NA_real_,
+        uperc = if (!is.null(uperc_i)) quantile(!!sym(val_col), uperc_i, na.rm = TRUE) else NA_real_,
         .groups = 'drop'
       )
 
@@ -151,11 +155,11 @@ sg_sim_tp <- function(
   } else {
     # No summarization needed - use raw data
     ds_plot <- ds_i %>%
-      rename(y_central = !!sym(y_col))
+      rename(y_central = !!sym(val_col))
   }
 
   # Initialize ggplot
-  p <- ggplot(ds_plot, aes(x = !!sym(x_col), y = y_central))
+  p <- ggplot(ds_plot, aes(x = !!sym(time_col), y = y_central))
 
   # Add ribbon for bands_i if specified
   if (!is.null(bands_i) && length(bands_i) == 2) {
@@ -221,22 +225,24 @@ sg_sim_tp <- function(
 
   # Apply log scales
   if (!is.na(log_y) && log_y) {
-    p <- p + scale_y_log10()
+    p <- p + scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                           labels = scales::trans_format("log10", scales::math_format(10^.x)))
   }
 
   if (!is.na(log_x) && log_x) {
-    p <- p + scale_x_log10()
+    p <- p + scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                           labels = scales::trans_format("log10", scales::math_format(10^.x)))
   }
 
   # Apply coordinate limits
   xlim_vec <- c(
-    if (!is.na(x_min)) x_min else NA,
-    if (!is.na(x_max)) x_max else NA
+    if (!is.na(min_x)) min_x else NA,
+    if (!is.na(max_x)) max_x else NA
   )
 
   ylim_vec <- c(
-    if (!is.na(y_min)) y_min else NA,
-    if (!is.na(y_max)) y_max else NA
+    if (!is.na(min_y)) min_y else NA,
+    if (!is.na(max_y)) max_y else NA
   )
 
   if (!all(is.na(xlim_vec)) || !all(is.na(ylim_vec))) {
@@ -250,52 +256,3 @@ sg_sim_tp <- function(
 }
 
 
-#####--------------- Example run ---------------#####
-
-# # Example 1: Simple plot with raw data grouped by VAR
-# p1 <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR')
-#
-# # Example 2: Plot with mean and SD bands
-# p2 <- sg_sim_tp(
-#   ds_i = ds_sim,
-#   cent_i = 'mean',
-#   vrns_i = 'SD',
-#   col_i = 'VAR',
-#   fill_i = 'VAR'
-# )
-#
-# # Example 3: Plot with median and 5th-95th percentile bands
-# p3 <- sg_sim_tp(
-#   ds_i = ds_sim,
-#   cent_i = 'median',
-#   lperc_i = 0.05,
-#   uperc_i = 0.95,
-#   col_i = 'VAR',
-#   fill_i = 'VAR',
-#   wrap_i = '~VAR',
-#   wrap_ncol = 2
-# )
-#
-# # Example 4: Plot grouped by Dose with points and faceting
-# p4 <- sg_sim_tp(
-#   ds_i = ds_sim,
-#   cent_i = 'mean',
-#   vrns_i = 'SE',
-#   col_i = 'Regimen',
-#   fill_i = 'Regimen',
-#   add_points = 2,
-#   grid_i = '~VAR',
-#   log_y = TRUE
-# )
-#
-# # Example 5: Plot with custom axis limits and IQR
-# p5 <- sg_sim_tp(
-#   ds_i = ds_sim,
-#   cent_i = 'median',
-#   vrns_i = 'IQR',
-#   col_i = 'CAT1',
-#   fill_i = 'CAT1',
-#   x_min = 0,
-#   x_max = 100,
-#   y_min = 0
-# )

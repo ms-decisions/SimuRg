@@ -23,6 +23,7 @@
 #' @param data string. Path to the dataset used to fit a model
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
+#' @param ds_i data.frame. The data frame with source data.
 #' @param dt_obs_fl logical. Show observed data points (default: FALSE)
 #' @param dv_col character. Name of DV column in data_i (default: "DV")
 #' @param emp_perc logical. Show empirical percentiles (default: TRUE)
@@ -80,4 +81,5 @@
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
 #' @param thetamat matrix. Named theta matrix. Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
+#' @param val_col string. Name of value column (default: 'VALUE').
 sg_dummy <- function() {}

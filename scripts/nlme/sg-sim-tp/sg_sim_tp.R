@@ -1,7 +1,7 @@
 ## Author: Victor Sokolov
 ## First created: 2025-11-13
-## Description: 
-## Keywords: 
+## Description:
+## Keywords:
 
 #####--------------- Load functions and libraries ---------------#####
 library(tidyverse)
@@ -11,7 +11,7 @@ theme_update(panel.grid.minor = element_blank())
 
 #####--------------- Read the data ---------------#####
 ds_sim <- read_csv("sim_timeprof_test.csv", col_types = cols())
-
+load("data/sim_timeprof.rda")
 
 #####--------------- Function body ---------------#####
 sg_sim_tp <- function(
@@ -41,18 +41,18 @@ sg_sim_tp <- function(
   log_y = FALSE,
   log_x = FALSE
 ) {
-  
+
   # Determine all grouping columns
   group_cols <- unique(c(group_i, col_i, fill_i, lty_i, shp_i))
   group_cols <- group_cols[!is.null(group_cols)]
-  
+
   # Check if summarization is needed
   needs_summary <- !is.null(cent_i) || !is.null(vrns_i) || !is.null(lperc_i) || !is.null(uperc_i)
-  
+
   if (needs_summary) {
     # Prepare grouping for summarization
     group_vars <- c(x_col, group_cols)
-    
+
     # Summarize data
     ds_plot <- ds_i %>%
       group_by(across(all_of(group_vars))) %>%
@@ -69,7 +69,7 @@ sg_sim_tp <- function(
         uperc = if (!is.null(uperc_i)) quantile(!!sym(y_col), uperc_i, na.rm = TRUE) else NA_real_,
         .groups = 'drop'
       )
-    
+
     # Calculate central tendency value
     if (!is.null(cent_i)) {
       if (cent_i == "mean") {
@@ -83,7 +83,7 @@ sg_sim_tp <- function(
       # If no central tendency, use original values (shouldn't happen in summary mode)
       ds_plot <- ds_plot %>% mutate(y_central = mean_val)
     }
-    
+
     # Calculate variance bands if specified
     if (!is.null(vrns_i)) {
       if (vrns_i == "SD") {
@@ -106,7 +106,7 @@ sg_sim_tp <- function(
           )
       }
     }
-    
+
     # Add percentile bands if specified
     if (!is.null(lperc_i) && !is.null(uperc_i)) {
       ds_plot <- ds_plot %>%
@@ -115,16 +115,16 @@ sg_sim_tp <- function(
           y_upper_perc = uperc
         )
     }
-    
+
   } else {
     # No summarization needed - use raw data
     ds_plot <- ds_i %>%
       rename(y_central = !!sym(y_col))
   }
-  
+
   # Initialize ggplot
   p <- ggplot(ds_plot, aes(x = !!sym(x_col), y = y_central))
-  
+
   # Add ribbon for bands_i if specified
   if (!is.null(bands_i) && length(bands_i) == 2) {
     ribbon_mapping <- aes(ymin = !!sym(bands_i[1]), ymax = !!sym(bands_i[2]))
@@ -133,7 +133,7 @@ sg_sim_tp <- function(
     }
     p <- p + geom_ribbon(ribbon_mapping, alpha = 0.3)
   }
-  
+
   # Add ribbon for percentile bands
   if (!is.null(lperc_i) && !is.null(uperc_i) && needs_summary) {
     ribbon_mapping <- aes(ymin = y_lower_perc, ymax = y_upper_perc)
@@ -142,7 +142,7 @@ sg_sim_tp <- function(
     }
     p <- p + geom_ribbon(ribbon_mapping, alpha = 0.3)
   }
-  
+
   # Add ribbon for variance bands
   if (!is.null(vrns_i) && needs_summary) {
     ribbon_mapping <- aes(ymin = y_lower, ymax = y_upper)
@@ -151,7 +151,7 @@ sg_sim_tp <- function(
     }
     p <- p + geom_ribbon(ribbon_mapping, alpha = 0.3)
   }
-  
+
   # Build aesthetic mappings for line
   line_mapping <- aes()
   if (!is.null(col_i)) {
@@ -163,10 +163,10 @@ sg_sim_tp <- function(
   if (length(group_cols) > 0) {
     line_mapping$group <- expr(interaction(!!!syms(group_cols)))
   }
-  
+
   # Add line layer
   p <- p + geom_line(line_mapping, linewidth = 0.8)
-  
+
   # Add points if requested
   if (add_points > 0) {
     point_mapping <- aes()
@@ -178,42 +178,42 @@ sg_sim_tp <- function(
     }
     p <- p + geom_point(point_mapping, size = add_points)
   }
-  
+
   # Add faceting
   if (!is.null(grid_i)) {
     p <- p + facet_grid(as.formula(grid_i), scales = free_stat)
   } else if (!is.null(wrap_i)) {
-    p <- p + facet_wrap(as.formula(wrap_i), scales = free_stat, 
+    p <- p + facet_wrap(as.formula(wrap_i), scales = free_stat,
                         ncol = wrap_ncol, nrow = wrap_nrow)
   }
-  
+
   # Apply log scales
   if (!is.na(log_y) && log_y) {
     p <- p + scale_y_log10()
   }
-  
+
   if (!is.na(log_x) && log_x) {
     p <- p + scale_x_log10()
   }
-  
+
   # Apply coordinate limits
   xlim_vec <- c(
     if (!is.na(x_min)) x_min else NA,
     if (!is.na(x_max)) x_max else NA
   )
-  
+
   ylim_vec <- c(
     if (!is.na(y_min)) y_min else NA,
     if (!is.na(y_max)) y_max else NA
   )
-  
+
   if (!all(is.na(xlim_vec)) || !all(is.na(ylim_vec))) {
     p <- p + coord_cartesian(
       xlim = if (!all(is.na(xlim_vec))) xlim_vec else NULL,
       ylim = if (!all(is.na(ylim_vec))) ylim_vec else NULL
     )
   }
-  
+
   return(p)
 }
 
@@ -225,7 +225,8 @@ p1 <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR')
 
 # Example 2: Plot with mean and SD bands
 p2 <- sg_sim_tp(
-  ds_i = ds_sim,
+  #ds_i = ds_sim,
+  ds_i = sim_timeprof,
   cent_i = 'mean',
   vrns_i = 'SD',
   col_i = 'VAR',
