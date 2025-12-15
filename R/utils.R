@@ -23,6 +23,7 @@
 #' @param data string. Path to the dataset used to fit a model
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
+#' @param ds_i data.frame. The data frame with source data.
 #' @param dt_obs_fl logical. Show observed data points (default: FALSE)
 #' @param dv_col character. Name of DV column in data_i (default: "DV")
 #' @param emp_perc logical. Show empirical percentiles (default: TRUE)
@@ -31,7 +32,10 @@
 #' @param excl_col character vector. Contains column names to exclude from synthesis. Default: \code{NULL}
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
+#' @param fill_i string. Column name for fill aesthetic. Default is `NULL`
 #' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` or `.json` file with sg-fit object is expected
+#' @param free_stat string. Facet scaling option. One of `"free"`, `"free_x"`, `"free_y"`, or `"fixed"`. Default is `'free'`
+#' @param group_i string. Primary grouping variable for lines. Default is `'VAR'`
 #' @param headers list. List with dataframe headers.
 #' @param ncores integer. Number of cores used for calculations. Default is 1
 #' @param id_col character string. Specify the name of the identifier column to exclude from synthesis. Default: \code{NULL}
@@ -45,6 +49,7 @@
 #' @param log_x logical. If `TRUE`, a logarithmic scale is applied to x-axis. Default is `FALSE`
 #' @param log_y logical. If `TRUE`, a logarithmic scale is applied to y-axis. Default is `FALSE`
 #' @param log_axes logical. If `TRUE`, a logarithmic scale is applied to all axes. Default is `FALSE`
+#' @param lty_i string. Column name for linetype aesthetic. Default is `NULL`
 #' @param max_x numeric. X ax maximum limit. Default is `NULL`
 #' @param max_y numeric. Y ax maximum limit. Default is `NULL`
 #' @param maxsteps integer. Maximum number of steps allowed during one call to the solver. Default is 70000
@@ -71,6 +76,7 @@
 #' @param ruv residual error object. Options for residual error used in model fit
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
 #' @param seed integer. Random seed for synthetic data generation reproducibility.Default is \code{123}.
+#' @param shp_i string. Column name for shape aesthetic. Default is `NULL`
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`
 #' @param tdist logical. If `TRUE`, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is `TRUE`
@@ -80,4 +86,8 @@
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
 #' @param thetamat matrix. Named theta matrix. Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
+#' @param val_col string. Name of value column (default: 'VALUE').
+#' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`
+#' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
+#' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
 sg_dummy <- function() {}
