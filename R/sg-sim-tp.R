@@ -11,22 +11,13 @@
 #' percentile ribbons, faceting, and log scaling.
 #'
 #' @inheritParams sg_dummy
-#' @param group_i string. Primary grouping variable for lines. Default is `'VAR'`
 #' @param bands_i vector of characters. Character vector of length 2 with column names for custom ymin/ymax ribbons. Default is `NULL`
 #' @param cent_i string. Central tendency measure. One of `'mean'`, `'median'`, `'geom_mean'`, or `NULL` for raw values. Default is `NULL`
 #' @param vrns_i string. Variance band type. One of `'SD'`, `'SE'`, `'IQR'`, or `NULL`. Default is `NULL`
 #' @param lperc_i numeric. Lower percentile for percentile ribbons (must be provided together with `uperc_i`). Default is `NULL`
 #' @param uperc_i numeric. Upper percentile for percentile ribbons (must be provided together with `lperc_i`). Default is `NULL`
 #' @param add_points numeric. Size of points to add to the plot. If > 0, points will be added. Default is `0`
-#' @param col_i string. Column name for color aesthetic. Default is `NULL`
-#' @param fill_i string. Column name for fill aesthetic. Default is `NULL`
-#' @param lty_i string. Column name for linetype aesthetic. Default is `NULL`
-#' @param shp_i string. Column name for shape aesthetic. Default is `NULL`
 #' @param grid_i string. Faceting formula for `facet_grid` (e.g., `'~VAR'` or `'A~B'`). Default is `NULL`
-#' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`
-#' @param free_stat string. Facet scaling option. One of `"free"`, `"free_x"`, `"free_y"`, or `"fixed"`. Default is `'free'`
-#' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
-#' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
 #'
 #' @return A ggplot object with lines and optional ribbons/points/facets.
 #'
