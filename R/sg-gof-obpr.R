@@ -2,12 +2,16 @@
 ## First created: 2025-09-05
 ## Description: sg-gof-obpr and its helper functions
 ## Keywords: SimuRg, sg-gof-obpr, goodness-of-fit
-#'Create observed vs predicted plot
+#'
+#'Observed vs predicted plot
 #'
 #'
 #' @description
-#' Creates a scatter plot of observed (DV) vs predicted (PRED/IPRED) values
-#' with options for faceting, coloring by covariates, and trend lines.
+#' Function generates observed versus predicted (OBS vs PRED/IPRED) scatter plots,
+#' a fundamental goodness-of-fit diagnostic tool in pharmacometric modeling.
+#' This visualization assesses model adequacy by comparing observed clinical measurements against model-predicted values,
+#' enabling identification of systematic bias, heteroscedasticity, and model misspecification patterns.
+#' Function contains options for faceting, coloring by covariates, and trend lines.
 #'
 #' @inheritParams sg_dummy
 #' @param lab_x X-axis label. Default "Model-predicted values"
@@ -18,14 +22,30 @@
 
 #' @examples
 #' \donttest{
+#' # Basic example with mock data
+#' set.seed(123)  # For reproducibility
+#' mock_obj <- list(
+#'   SDTAB = data.frame(
+#'     ID = rep(1:3, each = 5),
+#'     TIME = rep(c(0, 1, 2, 4, 8), 3),
+#'     DV = rnorm(15, mean = 10, sd = 2),
+#'     PRED = rnorm(15, mean = 10, sd = 1.5),
+#'     IPRED = rnorm(15, mean = 10, sd = 1.2),
+#'     MDV = rep(0, 15)
+#'   ),
+#'   COTAB = data.frame(ID = 1:3, AGE = c(30, 45, 60)),
+#'   CATAB = data.frame(ID = 1:3, RACE = c("Hispanic", "Hispanic", "Asian"))
+#' )
+#'
 #' # Basic plot
-#' p <- sg_gof_obpr("PK.RData")
-#' # With covariates
+#' p <- sg_gof_obpr(mock_obj)
+#'
+#' # With covariates and faceting
 #' p <- sg_gof_obpr(
-#'   "PK.RData",
-#'   cov_cols = "SEX",
-#'   col_i = "SEX",
-#'   facet_i = "SEX"
+#'   mock_obj,
+#'   cov_cols = "RACE",
+#'   col_i = "RACE",
+#'   facet_i = "RACE"
 #' )
 #' }
 #'
@@ -43,7 +63,6 @@ sg_gof_obpr <- function(
 ){
 
   #browser()
-
   is_discrete <- function(x, max_levels = levels_discrete) {
     n_unique <- length(unique(na.omit(x)))
     n_unique <= max_levels
@@ -57,44 +76,88 @@ sg_gof_obpr <- function(
     )
   }
 
-  read_smrg_obj <- function(fpath_i) {
-    if (!file.exists(fpath_i)) {
-      stop("File does not exist: ", fpath_i)
-    }
-
-    ext <- tools::file_ext(fpath_i)
-
-    if (tolower(ext) == "rdata") {
-      result <- get(load(fpath_i))
-    } else if (tolower(ext) == "json") {
-      if (!requireNamespace("jsonlite", quietly = TRUE)) {
-        stop("Package 'jsonlite' is required for reading JSON files.")
-      }
-      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
-
-
-    } else {
-      stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
-    }
-
-    return(result)
-  }
   MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
 
   X <- ifelse(indiv, "IPRED", "PRED")
   smrg_obj <- read_smrg_obj(fpath_i) #get(load(fpath_i))
 
+  # Validate that smrg_obj has SDTAB
+  if (is.null(smrg_obj$SDTAB)) {
+    stop("sg_fit object must contain SDTAB component")
+  }
+
   sdtab <- smrg_obj$SDTAB
 
-  ds_i <- as.data.frame(do.call(rbind, sdtab)) %>%
-    mutate(IPRED = as.numeric(IPRED), PRED = as.numeric(PRED),
-           TIME = as.numeric(TIME), WRES = as.numeric(WRES),
-           IWRES = as.numeric(IWRES), DV = as.numeric(DV),
-           MDV = as.numeric(MDV)) %>%
-    #read_table(fpath_i, skip = 1, col_names = T, col_types = cols()) %>%
-    filter(MDV != 1) %>%
-    mutate_at(vars(IPRED, PRED, DV), function(s){s/sc_factor}) %>%
-    rename_at(vars(one_of(X)), function(n){n = "X"})
+  # Check if SDTAB is empty
+  if (is.data.frame(sdtab) && nrow(sdtab) == 0) {
+    stop("SDTAB is empty (no rows)")
+  }
+  if (is.list(sdtab) && length(sdtab) == 0) {
+    stop("SDTAB is empty (no elements)")
+  }
+
+  # ds_i <- as.data.frame(do.call(rbind, sdtab)) %>%
+  #   mutate(IPRED = as.numeric(IPRED), PRED = as.numeric(PRED),
+  #          TIME = as.numeric(TIME), WRES = as.numeric(WRES),
+  #          IWRES = as.numeric(IWRES), DV = as.numeric(DV),
+  #          MDV = as.numeric(MDV)) %>%
+  #   #read_table(fpath_i, skip = 1, col_names = T, col_types = cols()) %>%
+  #   filter(MDV != 1) %>%
+  #   mutate_at(vars(IPRED, PRED, DV), function(s){s/sc_factor}) %>%
+  #   rename_at(vars(one_of(X)), function(n){n = "X"})
+
+
+
+  # Handle SDTAB as either a data frame or a list of data frames
+  if (is.data.frame(sdtab)) {
+    ds_i <- sdtab
+  } else if (is.list(sdtab)) {
+    ds_i <- as.data.frame(do.call(rbind, sdtab))
+  } else {
+    stop("SDTAB must be a data frame or a list of data frames")
+  }
+
+  # Check for required columns and convert to numeric
+  required_cols <- c("IPRED", "PRED", "TIME", "DV", "MDV")
+  missing_cols <- setdiff(required_cols, colnames(ds_i))
+  if (length(missing_cols) > 0) {
+    stop("SDTAB is missing required columns: ", paste(missing_cols, collapse = ", "))
+  }
+
+  # Convert columns to numeric (only if they exist)
+  ds_i <- ds_i %>%
+    mutate(
+      IPRED = if ("IPRED" %in% colnames(.)) as.numeric(IPRED) else NA_real_,
+      PRED = if ("PRED" %in% colnames(.)) as.numeric(PRED) else NA_real_,
+      TIME = as.numeric(TIME),
+      DV = as.numeric(DV),
+      MDV = as.numeric(MDV)
+    )
+
+  # Add optional columns if they exist
+  if ("WRES" %in% colnames(ds_i)) {
+    ds_i <- ds_i %>% mutate(WRES = as.numeric(WRES))
+  }
+  if ("IWRES" %in% colnames(ds_i)) {
+    ds_i <- ds_i %>% mutate(IWRES = as.numeric(IWRES))
+  }
+
+  ds_i <- ds_i %>%
+    filter(MDV != 1)
+
+  # Apply scaling factor to IPRED, PRED, and DV if they exist
+  scale_cols <- intersect(c("IPRED", "PRED", "DV"), colnames(ds_i))
+  if (length(scale_cols) > 0) {
+    ds_i <- ds_i %>%
+      mutate(across(all_of(scale_cols), ~ .x / sc_factor))
+  }
+
+  # Rename the selected prediction column to "X"
+  if (X %in% colnames(ds_i)) {
+    ds_i <- ds_i %>% rename(X = all_of(X))
+  } else {
+    stop("Column '", X, "' not found in SDTAB. Available columns: ", paste(colnames(ds_i), collapse = ", "))
+  }
 
   if(!is.null(cov_cols)){
     suppressMessages({
