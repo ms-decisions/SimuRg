@@ -42,17 +42,8 @@ sg_gof_par_cov <- function(fpath_i,
                            ptype = "REvsCov",
                            cat_cov = NULL,
                            cont_cov = NULL,
-                           color_palette = c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E",
-                                             "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d", '#844538',
-                                             '#D91477', '#F3A9FF')) {
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-  library(stringr)
-  library(scales)
-  library(grid)
-
-  smrg_obj <- get(load(fpath_i))
+                           color_palette = MSDcol) {
+  smrg_obj <- read_smrg_obj(fpath_i)
 
   patab <- smrg_obj$PATAB
   cotab <- smrg_obj$COTAB

@@ -28,47 +28,6 @@ sg_gof_tp <- function(fpath_i, filt = "T",
                       log_y = F, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
                       cap = "empty circles - observed data\nsolid lines with point - individual predictions\ndashed grey lines with point - population predictions"){
-  read_smrg_obj <- function(fpath_i) {
-    if (!file.exists(fpath_i)) {
-      stop("File does not exist: ", fpath_i)
-    }
-
-    ext <- tools::file_ext(fpath_i)
-
-    if (tolower(ext) == "rdata") {
-      result <- get(load(fpath_i))
-    } else if (tolower(ext) == "json") {
-      if (!requireNamespace("jsonlite", quietly = TRUE)) {
-        stop("Package 'jsonlite' is required for reading JSON files.")
-      }
-      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
-
-      if (class(result$SDTAB) != "data.frame") {
-        result$SDTAB <- do.call(rbind, lapply(result$SDTAB, as.data.frame))
-      }
-      if (class(result$SUMTAB) != "data.frame") {
-        result$SUMTAB <- do.call(bind_rows, lapply(result$SUMTAB, as.data.frame))
-      }
-
-    } else {
-      stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
-    }
-
-    return(result)
-  }
-
-  # if (inherits(fpath_i, "character") ) {
-  #   if (file.exists(fpath_i)) {
-  #     obj <- get(load(fpath_i))
-  #   } else {
-  #     stop("File specified by fpath_i does not exist")
-  #   }
-  #
-  # } else if (inherits(fpath_i, "list")) {
-  #   obj <- fpath_i
-  # } else {
-  #   stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
-  # }
 
   obj1 <- read_smrg_obj(fpath_i)
 

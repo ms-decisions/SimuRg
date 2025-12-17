@@ -51,6 +51,7 @@
 #'
 #' @import dplyr
 #' @import ggplot2
+#' @importFrom jsonlite fromJSON
 #' @importFrom scales pretty_breaks trans_breaks trans_format math_format number_format
 #' @export
 

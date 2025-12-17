@@ -364,7 +364,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     filepath <- sprintf("%s/%s.R", path_to_save_output, project_name)
     # return(simurg_cntrl_file)
   }
-  dir.create(dirname(filepath), showWarnings = FALSE, recursive =T)
+  # dir.create(dirname(filepath), showWarnings = FALSE, recursive =T)
   write(sc_data, filepath)
   print(sprintf("The file for fit was written %s", filepath))
   if (fit & opt_name == "Monolix") {

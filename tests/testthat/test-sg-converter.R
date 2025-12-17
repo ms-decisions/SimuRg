@@ -8,7 +8,8 @@
 ## Description: Basic testing of sg-converter function
 ## Keywords: SimuRg, sg-converter
 test_that("sg-converter works and contains all elements", {
-  test_folder <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/functions/nlme/1.1-sg-fit/monolix/base-model-pk/"
+  test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
+  if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
   pro_name <- "proj-r-solo"
 
   # Просто вызываем функцию и проверяем результат

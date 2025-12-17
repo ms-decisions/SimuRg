@@ -214,22 +214,17 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 
     #browser()
 
-    print(c(1))
     #browser()
     n_bins <- seq(min(ds$TIME, na.rm = T),
                 max(ds$TIME, na.rm = T),
                 length.out = n_bins + 1)
-    print(c(2))
     n_bins <- n_bins[-1]
-    print(c(3))
 
     time_bin <- ds %>%
       select(TIME) %>%
       filter(!is.na(TIME)) %>%
       mutate(BIN = 0) %>%
       unique()
-
-    print(c(4))
 
     time_bin <- time_bin %>%
       mutate(nrow = 1:nrow(.)) %>%
@@ -238,7 +233,6 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
       ungroup() %>%
       select(-nrow)
 
-    print(c(5))
     # for (i in 1:nrow(time_bin)){
     #   time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = T)
     # }
@@ -246,12 +240,9 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
     time_bin <- time_bin %>%
       mutate(BIN = as.factor(BIN))
 
-    print(c(6))
-
     ds_bin <- ds %>%
       left_join(time_bin, by = "TIME")
 
-    print(c(7))
   } else if(method == "custom"){
     n_bins <- c(n_bins, max(ds$TIME, na.rm = T))
 

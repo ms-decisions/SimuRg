@@ -29,17 +29,8 @@
 #' @importFrom stringr str_remove
 #' @export
 sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", output = NULL, npop = 100){
-  if (inherits(fpath_i, "character")) {
-    if (file.exists(fpath_i)) {
-      obj <- get(load(fpath_i))
-    } else {
-      stop("File specified by fpath_i does not exist")
-    }
-  } else if (inherits(fpath_i, "list")) {
-    obj <- fpath_i
-  } else {
-    stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
-  }
+  obj <- read_smrg_obj(fpath_i)
+
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
   data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
