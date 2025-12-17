@@ -91,3 +91,33 @@
 #' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
 #' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
 sg_dummy <- function() {}
+
+read_smrg_obj <- function(fpath_i) {
+  if (inherits(fpath_i, "character")) {
+    if (!file.exists(fpath_i)) {
+      stop("File does not exist: ", fpath_i)
+    }
+
+    ext <- tools::file_ext(fpath_i)
+
+    if (tolower(ext) == "rdata") {
+      result <- get(load(fpath_i))
+    } else if (tolower(ext) == "json") {
+      if (!requireNamespace("jsonlite", quietly = TRUE)) {
+        stop("Package 'jsonlite' is required for reading JSON files.")
+      }
+      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
+    } else {
+      stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
+    }
+
+    return(result)
+  } else if (inherits(fpath_i, "list")) {
+    # fpath_i is already an object (sg_fit object)
+    return(fpath_i)
+  } else if (inherits(fpath_i, "data.frame")) {
+    stop("fpath_i cannot be a data.frame. Provide either a file path (character) or an sg_fit object (list with SDTAB)")
+  } else {
+    stop("fpath_i should be either a file path (character) or an sg_fit object (list). Got: ", class(fpath_i)[1])
+  }
+}
