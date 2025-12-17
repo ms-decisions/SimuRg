@@ -64,16 +64,11 @@ sg_gof_res <- function(
       labels = paste0("Q", 1:n_quant)
     )
   }
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E",
-              "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d", '#844538',
-              '#D91477', '#F3A9FF')
 
   # --- data prep ---
   X <- if (vs_time) "TIME" else if (indiv) "IPRED" else "PRED"
-  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}
-  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
+  smrg_obj <- read_smrg_obj(fpath_i)
 
-  # smrg_obj <- get(load(fpath_i))
   ds_i <- smrg_obj$SDTAB %>%
     filter(MDV != 1) %>%
     mutate_at(vars(TIME, IPRED, PRED, DV), function(s) s / sc_factor) %>%

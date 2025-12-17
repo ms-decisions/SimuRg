@@ -42,14 +42,8 @@
 
 
 sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, plot_type = 'DIST'){
-  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
-
-  # smrg_obj <- get(load(fpath_i))
+  smrg_obj <- read_smrg_obj(fpath_i)
   sdtab_i <- smrg_obj$SDTAB
-
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
-
-
 
   res_for_plot <- sdtab_i %>% select(DVID,all_of(res_type))
   res_for_plot2 <- res_for_plot %>%

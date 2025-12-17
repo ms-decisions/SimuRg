@@ -31,6 +31,7 @@
 #'
 #' @import dplyr
 #' @import ggplot2
+#' @importFrom jsonlite fromJSON
 #' @importFrom scales pretty_breaks trans_breaks trans_format math_format number_format
 #' @export
 
@@ -57,29 +58,6 @@ sg_gof_obpr <- function(
     )
   }
 
-  read_smrg_obj <- function(fpath_i) {
-    if (!file.exists(fpath_i)) {
-      stop("File does not exist: ", fpath_i)
-    }
-
-    ext <- tools::file_ext(fpath_i)
-
-    if (tolower(ext) == "rdata") {
-      result <- get(load(fpath_i))
-    } else if (tolower(ext) == "json") {
-      if (!requireNamespace("jsonlite", quietly = TRUE)) {
-        stop("Package 'jsonlite' is required for reading JSON files.")
-      }
-      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
-
-
-    } else {
-      stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
-    }
-
-    return(result)
-  }
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
 
   X <- ifelse(indiv, "IPRED", "PRED")
   smrg_obj <- read_smrg_obj(fpath_i) #get(load(fpath_i))

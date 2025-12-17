@@ -3,7 +3,9 @@
 ## Description: functions for common internal data structures generation
 ## Keywords: SimuRg, internal data
 
-MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#5839bb", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d")
+MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7",
+            "#3a6eba", "#efdd3c", "#69686d", '#844538', '#D91477', '#F3A9FF')
+
 funSum_sim <- list(mean   = ~mean(., na.rm = T),
                    median = ~median(., na.rm = T),
                    min    = ~min(., na.rm = T),
