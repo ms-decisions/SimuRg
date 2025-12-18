@@ -7,13 +7,12 @@
 #' (e.g., output value at a chosen time or Cmax).
 #'
 #' @param sens_data A data frame containing sensitivity analysis results from sg_localsens_sim()
-#' @param tornado_time Numeric value specifying the time point (in the same units as `TIME`) 
+#' @param tornado_time Numeric value specifying the time point (in the same units as `TIME`)
 #' at which to evaluate the model output for the tornado plot. Defaults to the maximum time in `sens_data` if not specified.
 #' @param metrics Character vector specifying which metrics to include in the tornado plot.
 #'   Supported options are `"value"` (value at `tornado_time`) and `"cmax"` (maximum output). Defaults to `"value"`.
 #' @param ref_data Optional data frame providing reference (baseline) output values,
-#'   formatted similarly to `sens_data`. If `NULL`, the function uses the mid-range parameter value
-#'   (where `PARVAL_NORM` ??? 0.5) as the baseline.
+#'   formatted similarly to `sens_data`. If `NULL`, the function uses the mid-range parameter value as the baseline.
 #' @param log_scale Logical. If `TRUE`, the y-axis of the family-of-curves plot is displayed on a log scale.
 #' @param color_low Character. Color used for the lower parameter bound (default: "#1f77b4").
 #' @param color_high Character. Color used for the upper parameter bound (default: "#ff7f0e").
@@ -48,23 +47,23 @@
 #' @importFrom grid unit
 #' @export
 
-sg_localsens_vis <- function(sens_data, 
+sg_localsens_vis <- function(sens_data,
                              tornado_time = NULL,
                              metrics = "value",
                              ref_data = NULL,
                              log_scale = FALSE,
-                             color_low = "#1f77b4", 
+                             color_low = "#1f77b4",
                              color_high = "#ff7f0e",
                              facet_scales = "free") {
-  
+
   output_var <- unique(sens_data$VAR)
-  
+
   if(is.null(tornado_time)) {
     tornado_time <- max(sens_data$TIME)
   }
-  
+
   foc_plot <- ggplot(data = sens_data) +
-    geom_line(aes(x = TIME, y = VALUE, group = interaction(PARVAL, ID), 
+    geom_line(aes(x = TIME, y = VALUE, group = interaction(PARVAL, ID),
                   color = PARVAL_NORM), alpha = 0.7, size = 0.6) +
     facet_grid(PARNAME ~ ., scales = facet_scales) +
     theme_bw() +
@@ -85,9 +84,9 @@ sg_localsens_vis <- function(sens_data,
       color = "Parameter\nvalue"
     ) +
     scale_color_gradient(
-      low = color_low, 
-      high = color_high, 
-      breaks = c(0, 1), 
+      low = color_low,
+      high = color_high,
+      breaks = c(0, 1),
       labels = c("Lower bound", "Upper bound"),
       guide = guide_colorbar(
         title.theme = element_text(size = 10),
@@ -96,13 +95,13 @@ sg_localsens_vis <- function(sens_data,
         barheight = unit(2, "cm")
       )
     )
-  
+
   if(log_scale) {
     foc_plot <- foc_plot + scale_y_log10()
   }
-  
-  
-  # Tornado plot 
+
+
+  # Tornado plot
   metrics_data <- sens_data %>%
     group_by(PARNAME, PARVAL, PARVAL_NORM) %>%
     summarise(
@@ -110,7 +109,7 @@ sg_localsens_vis <- function(sens_data,
       cmax = max(VALUE, na.rm = TRUE),
       .groups = 'drop'
     )
-  
+
   # Get reference values (either from ref_data or middle parameter value)
   if(!is.null(ref_data)) {
     ref_metrics <- ref_data %>%
@@ -128,7 +127,7 @@ sg_localsens_vis <- function(sens_data,
         .groups = 'drop'
       )
   }
-  
+
   tornado_data <- metrics_data %>%
     group_by(PARNAME) %>%
     filter(PARVAL_NORM %in% c(0, 1)) %>%
@@ -144,7 +143,7 @@ sg_localsens_vis <- function(sens_data,
     # Join with reference values
     left_join(ref_metrics, by = "PARNAME") %>%
     mutate(
-      value_cfb = if_else(METRIC == "value_at_time", 
+      value_cfb = if_else(METRIC == "value_at_time",
                           (VALUE - value_ref) * 100 / value_ref,
                           (VALUE - cmax_ref) * 100 / cmax_ref),
       METRIC = case_when(
@@ -152,19 +151,19 @@ sg_localsens_vis <- function(sens_data,
         METRIC == "cmax" ~ "Cmax"
       )
     )
-  
+
   metric_labels <- c(
     "value" = paste0("Value at t=", tornado_time),
     "cmax" = "Cmax"
   )
-  
+
   selected_metrics <- metric_labels[metrics]
-  tornado_data <- tornado_data %>% 
+  tornado_data <- tornado_data %>%
     filter(METRIC %in% selected_metrics)
-  
-  tornado_plot <- ggplot(tornado_data, 
-                         aes(x = reorder(PARNAME, abs(value_cfb)), 
-                             y = value_cfb, 
+
+  tornado_plot <- ggplot(tornado_data,
+                         aes(x = reorder(PARNAME, abs(value_cfb)),
+                             y = value_cfb,
                              fill = PAR_group)) +
     geom_bar(stat = "identity", position = "identity", alpha = 0.8) +
     facet_grid(METRIC ~ ., scales = facet_scales) +
