@@ -77,8 +77,6 @@ sg_gof_obpr <- function(
     )
   }
 
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
-
   X <- ifelse(indiv, "IPRED", "PRED")
   smrg_obj <- read_smrg_obj(fpath_i) #get(load(fpath_i))
 
@@ -187,7 +185,8 @@ sg_gof_obpr <- function(
           legend.key.size = unit(0.38, "cm"),
           legend.title = element_text(size = 8),
           legend.text = element_text(size = 8),
-          plot.title = element_text(size = 12))
+          plot.title = element_text(size = 12),
+          panel.grid.minor = element_blank())
   )
 
   if(log_axes){
@@ -206,7 +205,7 @@ sg_gof_obpr <- function(
                                    labels = scales::number_format()))
   }
 
-  p_ObPr <- ggplot(data = ds_i, aes(x = X, y = DV)) + p_char
+  p_ObPr <- ggplot(data = ds_i, aes(x = X, y = DV)) + p_char + theme_bw()
 
   if(!is.null(col_i)){
     p_ObPr <- p_ObPr +

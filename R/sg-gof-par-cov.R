@@ -44,11 +44,52 @@ sg_gof_par_cov <- function(fpath_i,
                            cont_cov = NULL,
                            color_palette = MSDcol) {
   smrg_obj <- read_smrg_obj(fpath_i)
-
+  if (is.null(smrg_obj$PATAB) | is.null(smrg_obj$COTAB) | is.null(smrg_obj$CATAB) |
+      is.null(smrg_obj$SUMTAB)) {
+    stop("sg_fit object must contain PATAB, COTAB, CATAB and SUMTAB components")
+  }
   patab <- smrg_obj$PATAB
   cotab <- smrg_obj$COTAB
   catab <- smrg_obj$CATAB
   sumtab <- smrg_obj$SUMTAB
+
+  if (is.data.frame(patab) && nrow(patab) == 0) {
+    stop("PATAB is empty (no rows)")
+  } else if (is.data.frame(cotab) && nrow(cotab) == 0) {
+    stop("COTAB is empty (no rows)")
+  } else if (is.data.frame(catab) && nrow(catab) == 0) {
+    stop("CATAB is empty (no rows)")
+  } else if (is.data.frame(sumtab) && nrow(sumtab) == 0) {
+    stop("SUMTAB is empty (no rows)")
+  }
+
+  if (is.list(patab) && length(patab) == 0) {
+    stop("PATAB is empty (no elements)")
+  } else if (is.list(cotab) && length(cotab) == 0) {
+    stop("COTAB is empty (no elements)")
+  } else if (is.list(catab) && length(catab) == 0) {
+    stop("CATAB is empty (no elements)")
+  } else if (is.list(sumtab) && length(sumtab) == 0) {
+    stop("SUMTAB is empty (no elements)")
+  }
+
+  if (is.data.frame(patab)) { patab <- patab
+  } else if (is.list(patab)) { patab <- as.data.frame(do.call(rbind, patab))
+  } else stop("PATAB must be a data frame or a list of data frames")
+
+  if (is.data.frame(cotab)) { cotab <- cotab
+  } else if (is.list(cotab)) {cotab <- as.data.frame(do.call(rbind, cotab))
+  } else stop("COTAB must be a data frame or a list of data frames")
+
+  if (is.data.frame(catab)) { catab <- catab
+  } else if (is.list(catab)) {catab <- as.data.frame(do.call(rbind, catab))
+  } else stop("CATAB must be a data frame or a list of data frames")
+
+  if (is.data.frame(sumtab)) { sumtab <- sumtab
+  } else if (is.list(sumtab)) {sumtab <- as.data.frame(do.call(rbind, sumtab))
+  } else stop("SUMTAB must be a data frame or a list of data frames")
+
+
 
   # IndPar columns
   typical_pars <- sumtab$PAR[sumtab$TYPE == "Typical values"]
@@ -145,7 +186,8 @@ sg_gof_par_cov <- function(fpath_i,
       theme(
         legend.position = "top",
         strip.text.y = element_text(angle = 0),
-        panel.spacing = unit(0.4, "lines")
+        panel.spacing = unit(0.4, "lines"),
+        panel.grid.minor = element_blank()
       ) +
       guides(color = guide_legend(title = "Cohort")) +
       labs(title = "Random Effects vs Continious Covariates")
@@ -173,7 +215,8 @@ sg_gof_par_cov <- function(fpath_i,
         scale_color_manual(values = c("1" = "firebrick", "2" = "black")) +
         labs(x = "Category", title = "Random Effects vs Categorical Covariates") +
         theme_bw(base_size = 11) +
-        theme(axis.text.x = element_text(angle = 25, hjust = 1, vjust = 1))
+        theme(axis.text.x = element_text(angle = 25, hjust = 1, vjust = 1),
+              panel.grid.minor = element_blank())
     } else p_cat <- NULL
 
     return(list(re_vs_contcov = p_cont, re_vs_catcov = p_cat))

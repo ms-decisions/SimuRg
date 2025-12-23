@@ -33,15 +33,33 @@
 #' @export
 
 sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot_type = 'DIST'){
-  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
-
-  # smrg_obj <- get(load(fpath_i))
-  prm_i <- smrg_obj$COVMAT
+  smrg_obj <- read_smrg_obj(fpath_i)
+  if (is.null(smrg_obj$PATAB) | is.null(smrg_obj$SUMTAB)) {
+    stop("sg_fit object must contain COVMAT, PATAB and SUMTAB components")
+  }
   patab_i <- smrg_obj$PATAB
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
+  sumtab_i <- smrg_obj$SUMTAB
+
+  if (is.data.frame(patab_i) && nrow(patab_i) == 0) {
+    stop("PATAB is empty (no rows)")
+  } else if (is.data.frame(sumtab_i) && nrow(sumtab_i) == 0) stop("SUMTAB is empty (no rows)")
+
+  if (is.list(patab_i) && length(patab_i) == 0) {
+    stop("PATAB is empty (no elements)")
+  } else if (is.list(sumtab_i) && length(sumtab_i) == 0)  stop("SUMTAB is empty (no elements)")
+
+  if (is.data.frame(patab_i)) { patab_i <- patab_i
+  } else if (is.list(patab_i)) { patab_i <- as.data.frame(do.call(rbind, patab_i))
+  } else stop("PATAB must be a data frame or a list of data frames")
+
+  if (is.data.frame(sumtab_i)) { sumtab_i <- sumtab_i
+  } else if (is.list(sumtab_i)) {sumtab_i <- as.data.frame(do.call(rbind, sumtab_i))
+  } else stop("SUMTAB must be a data frame or a list of data frames")
+
+
 
   ### Calculate shrinkage
-  shr_out <- smrg_obj$SUMTAB %>% filter(grepl("_pop$", PAR)) %>% select(ETAshrinkage_sd,VALUE,PAR) %>% mutate(PAR = str_remove(PAR, "_pop$"), Shrinkage = signif(ETAshrinkage_sd,3) )
+  shr_out <- sumtab_i %>% filter(grepl("_pop$", PAR)) %>% select(ETAshrinkage_sd,VALUE,PAR) %>% mutate(PAR = str_remove(PAR, "_pop$"), Shrinkage = signif(ETAshrinkage_sd,3) )
 
   ### Distribution of individual parameters
   if(is.null(eta_seq)){
@@ -53,6 +71,8 @@ sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot
   p_i <- ggplot(data = ind_par_dist, aes(x = value, y = ..density..)) +
     geom_histogram(bins = n_bins, col = "grey25", fill = MSDcol[2]) +
     facet_wrap(~LABEL, scales = "free") +
+    theme_bw() +
+    theme(panel.grid.minor = element_blank()) +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
     scale_x_continuous(name = "Parameter value", breaks = scales::pretty_breaks(7), expand = c(0, 0))
   suppressMessages({
@@ -82,7 +102,8 @@ sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot
       geom_abline(size = 0.5, col = "black", linetype = "dashed") +
       scale_x_continuous(breaks = scales::pretty_breaks(7)) +
       scale_y_continuous(breaks = scales::pretty_breaks(7)) +
-      theme_bw()+
+      theme_bw() +
+      theme(panel.grid.minor = element_blank()) +
       facet_wrap(~PAR, scales = "free")
     }
   })

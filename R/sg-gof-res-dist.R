@@ -43,7 +43,25 @@
 
 sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, plot_type = 'DIST'){
   smrg_obj <- read_smrg_obj(fpath_i)
-  sdtab_i <- smrg_obj$SDTAB
+  if (is.null(smrg_obj$SDTAB)) {
+    stop("sg_fit object must contain SDTAB component")
+  }
+
+  sdtab <- smrg_obj$SDTAB
+
+  if (is.data.frame(sdtab) && nrow(sdtab) == 0) {
+    stop("SDTAB is empty (no rows)")
+  }
+  if (is.list(sdtab) && length(sdtab) == 0) {
+    stop("SDTAB is empty (no elements)")
+  }
+  if (is.data.frame(sdtab)) {
+    sdtab_i <- sdtab
+  } else if (is.list(sdtab)) {
+    sdtab_i <- as.data.frame(do.call(rbind, sdtab))
+  } else {
+    stop("SDTAB must be a data frame or a list of data frames")
+  }
 
   res_for_plot <- sdtab_i %>% select(DVID,all_of(res_type))
   res_for_plot2 <- res_for_plot %>%
@@ -54,6 +72,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
     facet_wrap(DVID~residual_type, scales = "free") +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
     scale_x_continuous(name = 'Residuals', breaks = scales::pretty_breaks(7), expand = c(0, 0))+
+    theme(panel.grid.minor = element_blank()) +
     theme_bw()
   if (ndist) {
 
@@ -100,6 +119,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
       geom_abline(size = 0.5, col = "black", linetype = "dashed") +
       scale_x_continuous(breaks = scales::pretty_breaks(7)) +
       scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+      theme(panel.grid.minor = element_blank()) +
       theme_bw()+
       facet_wrap(DVID ~ residual_type, scales = "free")
   }

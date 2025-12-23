@@ -84,7 +84,7 @@ test_that("sg_vpc_sim errors on invalid fpath_i type", {
 
   expect_error(
     sg_vpc_sim(fpath_i = 123, model = model),
-    "fpath_i object should be either an sg_fit object"
+    "fpath_i should be either a file path (character) or an sg_fit object (list). Got: numeric"
   )
 })
 

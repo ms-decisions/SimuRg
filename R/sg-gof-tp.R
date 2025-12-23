@@ -29,14 +29,32 @@ sg_gof_tp <- function(fpath_i, filt = "T",
                       lab_y = "Plasma concentration, mmol/L",
                       cap = "empty circles - observed data\nsolid lines with point - individual predictions\ndashed grey lines with point - population predictions"){
 
-  obj1 <- read_smrg_obj(fpath_i)
+  smrg_obj <- read_smrg_obj(fpath_i)
+  if (is.null(smrg_obj$SDTAB)) {
+    stop("sg_fit object must contain SDTAB component")
+  }
 
-  ds_tp_pre <- obj1$SDTAB %>%
+  sdtab <- smrg_obj$SDTAB
+
+  if (is.data.frame(sdtab) && nrow(sdtab) == 0) {
+    stop("SDTAB is empty (no rows)")
+  }
+  if (is.list(sdtab) && length(sdtab) == 0) {
+    stop("SDTAB is empty (no elements)")
+  }
+  if (is.data.frame(sdtab)) {
+    ds_i <- sdtab
+  } else if (is.list(sdtab)) {
+    ds_i <- as.data.frame(do.call(rbind, sdtab))
+  } else {
+    stop("SDTAB must be a data frame or a list of data frames")
+  }
+  ds_tp_pre <- ds_i %>%
     filter(if_any(matches("MDV"),  ~.x != 1)) %>%
     #filter(MDV != 1) %>%
     filter(eval(rlang::parse_expr(filt)))
 
-  if ((tsld) & !("ATSLD" %in% colnames(obj1$SDTAB))) {
+  if ((tsld) & !("ATSLD" %in% colnames(ds_i))) {
     stop("No column specified for time since last dose")
   } else if (tsld) {
     ds_tp_pre <- ds_tp_pre %>%
@@ -70,7 +88,8 @@ sg_gof_tp <- function(fpath_i, filt = "T",
       scale_y_continuous(name = lab_y, breaks = scales::pretty_breaks(7)) +
       scale_color_manual(values = MSDcol) +
       facet_wrap(~ID, scales = f_scales) +
-      theme(legend.position = "none") +
+      theme_bw() +
+      theme(legend.position = "none", panel.grid.minor = element_blank()) +
       labs(subtitle = str_c( " (part ", n, " out of ", max(ds_tp_filt$NTILE), ")"),
            caption = cap)
     if(log_y){

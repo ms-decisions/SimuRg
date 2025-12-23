@@ -69,7 +69,27 @@ sg_gof_res <- function(
   X <- if (vs_time) "TIME" else if (indiv) "IPRED" else "PRED"
   smrg_obj <- read_smrg_obj(fpath_i)
 
-  ds_i <- smrg_obj$SDTAB %>%
+  if (is.null(smrg_obj$SDTAB)) {
+    stop("sg_fit object must contain SDTAB component")
+  }
+
+  sdtab <- smrg_obj$SDTAB
+
+  if (is.data.frame(sdtab) && nrow(sdtab) == 0) {
+    stop("SDTAB is empty (no rows)")
+  }
+  if (is.list(sdtab) && length(sdtab) == 0) {
+    stop("SDTAB is empty (no elements)")
+  }
+  if (is.data.frame(sdtab)) {
+    ds_i <- sdtab
+  } else if (is.list(sdtab)) {
+    ds_i <- as.data.frame(do.call(rbind, sdtab))
+  } else {
+    stop("SDTAB must be a data frame or a list of data frames")
+  }
+
+  ds_i <- ds_i %>%
     filter(MDV != 1) %>%
     mutate_at(vars(TIME, IPRED, PRED, DV), function(s) s / sc_factor) %>%
     rename_at(vars(one_of(res_type)), ~"Y") %>%
@@ -108,7 +128,8 @@ sg_gof_res <- function(
             legend.key.size = unit(0.38, "cm"),
             legend.title = element_text(size = 8),
             legend.text = element_text(size = 8),
-            plot.title = element_text(size = 12))
+            plot.title = element_text(size = 12),
+            panel.grid.minor = element_blank())
     )
     if (log_x) {
       p_char <- c(p_char, scale_x_log10(
@@ -119,7 +140,7 @@ sg_gof_res <- function(
       p_char <- c(p_char, scale_x_continuous(breaks = abreaks))
     }
 
-    p_Res <- ggplot(ds_i, aes(x = X, y = Y)) + p_char
+    p_Res <- ggplot(ds_i, aes(x = X, y = Y)) + p_char + theme_bw()
 
     if (!is.null(col_i)) {
       p_Res <- p_Res +
@@ -144,7 +165,8 @@ sg_gof_res <- function(
       scale_x_continuous(name = lab_x, breaks = scales::pretty_breaks(7), expand = c(0, 0)),
       scale_fill_manual(values = rep(MSDcol, 20)),
       coord_cartesian(xlim = c(xmin, xmax)),
-      theme(plot.title = element_text(size = 12))
+      theme(plot.title = element_text(size = 12),
+            panel.grid.minor = element_blank())
     )
 
     if (!is.null(col_i)) {
@@ -152,11 +174,11 @@ sg_gof_res <- function(
         geom_histogram(aes(fill = !!sym(col_i)), bins = n_bins, col = "grey25", alpha = alpha_i, position = "identity") +
         labs(fill = col_lab) +
         guides(fill = guide_legend(override.aes = list(alpha = 1))) +
-        p_char
+        p_char + theme_bw()
     } else {
       p_Res <- ggplot(ds_i, aes(x = Y, y = ..density..)) +
         geom_histogram(bins = n_bins, col = "grey25", fill = MSDcol[2]) +
-        p_char
+        p_char + theme_bw()
     }
     if (addline) {
       p_Res <- p_Res + annotate("line", x = seq(-4, 4, 0.01), y = dnorm(seq(-4, 4, 0.01)), size = 0.8, linetype = "dashed")
@@ -170,6 +192,5 @@ sg_gof_res <- function(
   if (no_leg) {
     p_Res <- p_Res + theme(legend.position = "none")
   }
-
   return(p_Res)
 }
