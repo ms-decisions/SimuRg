@@ -23,12 +23,15 @@ Imports:
     fastDummies,
     forcats,
     ggplot2,
+    philentropy,
     purrr,
+    recipes,
     scales,
     stringr,
     synthpop,
     tidyr,
-    umap
+    umap,
+    uwot
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)

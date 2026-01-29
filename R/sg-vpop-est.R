@@ -2,69 +2,8 @@
 ## First created: 2025-07-17
 ## Description: Covariate simulation from original dataset
 ## Keywords: covariates, simulations
-## Version: v1.1 - add JS and KL metrics, covariate matrix, merge umap
+## Version: v1.1 - add JS metric, covariate matrix, merge umap
 
-#' Perform generation of synthetic dataset for an empirical distribution
-#'
-#' @returns A list containing:
-#' \itemize{
-#'   \item \code{datagen} - Synthetic dataset returned by \code{synthpop::syn()} (data.frame)
-#'   \item \code{exact_dupl_check} - Logical indicating if exact duplicates exist between original and synthetic data
-#'   \item \code{dplot_umap} - ggplot object with combined UMAP visualization comparing original and synthetic data (or \code{NULL} if none)
-#'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
-#'   \item \code{jsd_res} - Weighted mean Jensen–Shannon divergence (JSD) value for categorical variables (numeric)
-#'   \item \code{corr_diff_mean} - Mean absolute difference between original and synthetic correlation matrices (numeric)
-#'   \item \code{corr_diff_max} - Maximum absolute difference between original and synthetic correlation matrices (numeric)
-#'   \item \code{dplot_corr_diff} - ggplot heatmap object showing correlation difference matrix (Synthetic - Original) (or \code{NULL} if none)
-#' }
-#' @inheritParams sg_dummy
-#' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
-#' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
-#' @param minnumlev integer. Threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
-#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
-#' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
-#' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
-#' @param remove_duplicates logical flag. If \code{TRUE}, automatically removes exact duplicates between original and synthetic data by adding controlled noise (optional, default: \code{TRUE})
-#' @param noise_level numeric. Proportion of standard deviation to use when adding noise to continuous variables for duplicate removal. E.g., 0.10 means 10% of SD (optional, default: \code{0.10})
-#' @examples
-#' \dontrun{
-#' library(dplyr)
-#'
-#' # Generate example dataset
-#' data <- data.frame(
-#'   id = 1:150,
-#'   ALB = rnorm(150, mean = 3.5, sd = 0.5),
-#'   ALT = rnorm(150, mean = 50, sd = 20),
-#'   SEX = factor(sample(c("M", "F"), 150, replace = TRUE)),
-#'   RACE = factor(sample(c("White", "Black", "Asian", "Other"), 150, replace = TRUE))
-#' )
-#' output <- sg_vpop_est(data_i = data,#original data
-#'                      id_col = "id", #name of ID column
-#'                       seed = 123,#provide reproducibility
-#'                       seed_umap = 40,#provide reproducibility for umap
-#'                       diag_plots = T)
-#' print(head(output$datagen,10))
-#' print(output$ks_test)
-#' print(output$dplot_umap[[1]])
-#' print(output$dplot_umap)
-#'
-#'}
-#' @import dplyr
-#' @import ggplot2
-#' @importFrom purrr map_dfr map
-#' @importFrom stringr str_c
-#' @importFrom cluster daisy
-#' @importFrom fastDummies dummy_cols
-#' @importFrom synthpop syn
-#' @importFrom umap umap umap.defaults
-#' @importFrom uwot umap_transform
-#' @importFrom tidyr drop_na
-#' @importFrom tibble tibble
-#' @importFrom recipes recipe step_dummy step_center step_scale prep bake
-#' @importFrom philentropy distance
-#' @importFrom scales squish
-#'
-#' @export
 #Comparison of correlation matrices
 compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
 
@@ -80,12 +19,12 @@ compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
 
   # mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx]))
   # return(mean_abs_diff )
-   list(
-     mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx])),
-     max_abs_diff  = max(abs(R_obs[idx] - R_syn[idx])),
-  #   #frobenius     = sqrt(sum((R_obs - R_syn)^2)),
-     R_obs = R_obs,
-     R_syn = R_syn,
+  list(
+    mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx])),
+    max_abs_diff  = max(abs(R_obs[idx] - R_syn[idx])),
+    #   #frobenius     = sqrt(sum((R_obs - R_syn)^2)),
+    R_obs = R_obs,
+    R_syn = R_syn,
     R_diff = R_syn - R_obs
   )
 }
@@ -95,11 +34,6 @@ compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
 #' Orders variables so that highly correlated variables are synthesized in a way
 #' that preserves their relationships. Variables with highest average correlations
 #' are synthesized first.
-#'
-#' @param data Data frame with variables to order
-#' @param var_cont Names of continuous variables
-#' @param var_cat Names of categorical variables
-#' @return Character vector of variable names in optimal order
 create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
   var_all <- c(var_cont, var_cat)
 
@@ -132,16 +66,8 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 }
 
 #' Remove exact duplicates between synthetic and original data by adding noise
-#'
-#' @param data_syn Synthetic dataset
-#' @param data_orig Original dataset
-#' @param var_cont Names of continuous variables
-#' @param var_cat Names of categorical variables
-#' @param noise_level Proportion of SD to use for noise (e.g., 0.10 = 10%)
-#' @param seed Random seed for reproducibility
-#' @return List with cleaned synthetic data and number of duplicates removed
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
-                                     noise_level = 0.10, seed = 123) {
+                                    noise_level = 0.10, seed = 123) {
 
   set.seed(seed)
 
@@ -220,6 +146,68 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
     duplicate_indices = dupl_indices
   ))
 }
+
+#' Perform generation of synthetic dataset for an empirical distribution
+#'
+#' @returns A list containing:
+#' \itemize{
+#'   \item \code{datagen} - Synthetic dataset returned by \code{synthpop::syn()} (data.frame)
+#'   \item \code{exact_dupl_check} - Logical indicating if exact duplicates exist between original and synthetic data
+#'   \item \code{dplot_umap} - ggplot object with combined UMAP visualization comparing original and synthetic data (or \code{NULL} if none)
+#'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables
+#'   \item \code{jsd_res} - Weighted mean Jensen–Shannon divergence (JSD) value for categorical variables (numeric)
+#'   \item \code{corr_diff_mean} - Mean absolute difference between original and synthetic correlation matrices (numeric)
+#'   \item \code{corr_diff_max} - Maximum absolute difference between original and synthetic correlation matrices (numeric)
+#'   \item \code{dplot_corr_diff} - ggplot heatmap object showing correlation difference matrix (Synthetic - Original) (or \code{NULL} if none)
+#' }
+#' @inheritParams sg_dummy
+#' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
+#' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
+#' @param minnumlev integer. Threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
+#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
+#' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
+#' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
+#' @param remove_duplicates logical flag. If \code{TRUE}, automatically removes exact duplicates between original and synthetic data by adding controlled noise (optional, default: \code{TRUE})
+#' @param noise_level numeric. Proportion of standard deviation to use when adding noise to continuous variables for duplicate removal. E.g., 0.10 means 10% of SD (optional, default: \code{0.10})
+#' @examples
+#' \dontrun{
+#' library(dplyr)
+#'
+#' # Generate example dataset
+#' data <- data.frame(
+#'   id = 1:150,
+#'   ALB = rnorm(150, mean = 3.5, sd = 0.5),
+#'   ALT = rnorm(150, mean = 50, sd = 20),
+#'   SEX = factor(sample(c("M", "F"), 150, replace = TRUE)),
+#'   RACE = factor(sample(c("White", "Black", "Asian", "Other"), 150, replace = TRUE))
+#' )
+#' output <- sg_vpop_est(data_i = data,#original data
+#'                      id_col = "id", #name of ID column
+#'                       seed = 123,#provide reproducibility
+#'                       seed_umap = 40,#provide reproducibility for umap
+#'                       diag_plots = T)
+#' print(head(output$datagen,10))
+#' print(output$ks_test)
+#' print(output$dplot_umap[[1]])
+#' print(output$dplot_umap)
+#'
+#'}
+#' @export
+#' @import dplyr
+#' @import ggplot2
+#' @importFrom purrr map_dfr map
+#' @importFrom stringr str_c
+#' @importFrom cluster daisy
+#' @importFrom fastDummies dummy_cols
+#' @importFrom synthpop syn
+#' @importFrom umap umap umap.defaults
+#' @importFrom uwot umap_transform
+#' @importFrom tidyr drop_na
+#' @importFrom tibble tibble
+#' @importFrom recipes recipe step_dummy step_center step_scale prep bake
+#' @importFrom philentropy distance
+#' @importFrom scales squish
+
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
                        excl_col = NULL,seed = NA, seed_umap = NA, palette = NULL,
                        diag_plots = F, show_info=F, remove_duplicates = TRUE,
