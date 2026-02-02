@@ -32,83 +32,112 @@
 #' @importFrom scales pretty_breaks
 #' @export
 
-sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T,plot_type = 'DIST'){
-  smrg_obj <- read_smrg_obj(fpath_i)
-  if (is.null(smrg_obj$PATAB) | is.null(smrg_obj$SUMTAB)) {
-    stop("sg_fit object must contain COVMAT, PATAB and SUMTAB components")
-  }
+sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T, plot_type = 'DIST'){
+  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
+
+  prm_i <- smrg_obj$COVMAT
   patab_i <- smrg_obj$PATAB
-  sumtab_i <- smrg_obj$SUMTAB
+  omegamat_i <- smrg_obj$OMEGAMAT
+  if (plot_type == 'correlations') {
+    if(is.null(eta_seq)){
+      selected_cols <- setdiff(names(patab_i), "ID")
+    } else {
+      selected_cols <- eta_seq
+    }
 
-  if (is.data.frame(patab_i) && nrow(patab_i) == 0) {
-    stop("PATAB is empty (no rows)")
-  } else if (is.data.frame(sumtab_i) && nrow(sumtab_i) == 0) stop("SUMTAB is empty (no rows)")
+    ds_eta <- patab_i %>% select(ID, all_of(selected_cols))
 
-  if (is.list(patab_i) && length(patab_i) == 0) {
-    stop("PATAB is empty (no elements)")
-  } else if (is.list(sumtab_i) && length(sumtab_i) == 0)  stop("SUMTAB is empty (no elements)")
+    lowerFn <- function(data, mapping, method = "lm") {
+      ggplot(data = data, mapping = mapping) +
+        geom_point(alpha = 0.8) +
+        geom_smooth(formula = "y ~ x", method = method, color = MSDcol[3], se = FALSE, linewidth = 1) +
+        geom_smooth(formula = "y ~ x", method = "loess", color = MSDcol[2], se = FALSE, linewidth = 1)
+    }
 
-  if (is.data.frame(patab_i)) { patab_i <- patab_i
-  } else if (is.list(patab_i)) { patab_i <- as.data.frame(do.call(rbind, patab_i))
-  } else stop("PATAB must be a data frame or a list of data frames")
+    diagFn <- function(data, mapping) {
+      ggplot(data = data, mapping = mapping) +
+        geom_histogram(aes(y = after_stat(density)), alpha = 0.6, col = "grey45",
+                       fill = MSDcol[2], bins = 10) +
+        geom_density(alpha = 0.3, col = "black", fill = MSDcol[2]) +
+        geom_vline(xintercept = 0, col = "grey25", linetype = "dotted", linewidth = 0.5)
+    }
 
-  if (is.data.frame(sumtab_i)) { sumtab_i <- sumtab_i
-  } else if (is.list(sumtab_i)) {sumtab_i <- as.data.frame(do.call(rbind, sumtab_i))
-  } else stop("SUMTAB must be a data frame or a list of data frames")
+    upperFn <- function(data, mapping) {
+      GGally::ggally_cor(data = data, mapping = mapping,
+                         size = 4, color = "black")
+    }
 
+    p_i <- GGally::ggpairs(
+      select(ds_eta, -ID),
+      lower = list(continuous = GGally::wrap(lowerFn)),
+      diag = list(continuous = GGally::wrap(diagFn)),
+      upper = list(continuous = GGally::wrap(upperFn))
+    )
 
+    return(p_i)
+  }
 
   ### Calculate shrinkage
-  shr_out <- sumtab_i %>% filter(grepl("_pop$", PAR)) %>% select(ETAshrinkage_sd,VALUE,PAR) %>% mutate(PAR = str_remove(PAR, "_pop$"), Shrinkage = signif(ETAshrinkage_sd,3) )
+  shr_out <- smrg_obj$SUMTAB %>% filter(grepl("^omega_", PAR)) %>% select(ETAshrinkage_sd,VALUE,PAR) %>% mutate(PAR = str_remove(PAR, "^omega_"), Shrinkage = signif(ETAshrinkage_sd,3) )
 
   ### Distribution of individual parameters
   if(is.null(eta_seq)){
     eta_seq <- names(patab_i %>% select(-contains("eta"),-ID))
   }
-  # eta_seq_r<- patab_i %>% select(-contains("eta"),-ID)
-  ind_par_dist <- patab_i %>% select(eta_seq) %>% gather("PAR") %>% left_join(shr_out, by = "PAR") %>% mutate(LABEL = str_c(PAR, "\nShrinkage = ", Shrinkage, "%"))
+
+  ind_par_dist <- patab_i %>% select(all_of(eta_seq)) %>%
+    gather("PAR") %>%
+    left_join(shr_out, by = "PAR") %>%
+    mutate(
+      Shrinkage = ifelse(is.na(Shrinkage), "N/A", Shrinkage),
+      LABEL = str_c(PAR, "\nShrinkage = ", Shrinkage, "%"))
+
 
   p_i <- ggplot(data = ind_par_dist, aes(x = value, y = ..density..)) +
     geom_histogram(bins = n_bins, col = "grey25", fill = MSDcol[2]) +
     facet_wrap(~LABEL, scales = "free") +
-    theme_bw() +
-    theme(panel.grid.minor = element_blank()) +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
     scale_x_continuous(name = "Parameter value", breaks = scales::pretty_breaks(7), expand = c(0, 0))
+
   suppressMessages({
-    if(tdist){
+    # tdist считается только для plot_type = 'DIST'
+    if(tdist && plot_type == 'DIST'){
 
       par_pop <- smrg_obj$SUMTAB %>%
         filter(str_detect(PAR, "_pop$")) %>%
         mutate(PAR = str_remove(PAR, "_pop$")) %>%
-        select(PAR, TV = VALUE)
+        select(PAR, TV = VALUE) %>%
+        filter(PAR %in% eta_seq)  # Фильтруем только нужные параметры
 
-      gen_par_set <- MASS::mvrnorm(100000, rep(0, nrow(par_pop)), smrg_obj$OMEGAMAT) %>%
+      colnames(omegamat_i) <- sub("^omega_", "", colnames(omegamat_i))
+      rownames(omegamat_i) <- sub("^omega_", "", rownames(omegamat_i))
+      rownames(omegamat_i) <- colnames(omegamat_i)
+      omega_subset <- omegamat_i[par_pop$PAR, par_pop$PAR, drop = FALSE]
+
+      gen_par_set <- MASS::mvrnorm(1000, rep(0, nrow(par_pop)), omega_subset) %>%
         as_tibble() %>%
         setNames(par_pop$PAR) %>%
         pivot_longer(cols = everything(), names_to = "PAR", values_to = "ETA") %>%
         left_join(par_pop, by = "PAR") %>%
         mutate(TDIST = TV * exp(ETA)) %>%
-        left_join(ind_par_dist %>% select(PAR,LABEL),relationship = "many-to-many") %>% filter(PAR %in% eta_seq)
-      unique(gen_par_set$PAR)
+        left_join(ind_par_dist %>% select(PAR, LABEL) %>% distinct(), by = "PAR")
+
       p_i <- p_i + geom_density(data = gen_par_set, aes(x = TDIST), size = 0.8, lty = "dashed")
 
     }
     if (plot_type == 'QQ') {
       p_i <- ggplot(ind_par_dist, aes(sample = value)) +
-      stat_qq(size = 1.75, color = MSDcol[1], alpha = 0.8) +
-      stat_qq_line(col = "firebrick") +
-      labs(x = "Theoretical quantiles", y = "Sample quantiles") +
-      geom_abline(size = 0.5, col = "black", linetype = "dashed") +
-      scale_x_continuous(breaks = scales::pretty_breaks(7)) +
-      scale_y_continuous(breaks = scales::pretty_breaks(7)) +
-      theme_bw() +
-      theme(panel.grid.minor = element_blank()) +
-      facet_wrap(~PAR, scales = "free")
+        stat_qq(size = 1.75, color = MSDcol[1], alpha = 0.8) +
+        stat_qq_line(col = "firebrick") +
+        labs(x = "Theoretical quantiles", y = "Sample quantiles") +
+        geom_abline(size = 0.5, col = "black", linetype = "dashed") +
+        scale_x_continuous(breaks = scales::pretty_breaks(7)) +
+        scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+        theme_bw()+
+        facet_wrap(~PAR, scales = "free")
     }
   })
   return(p_i)
-
 }
 
 
