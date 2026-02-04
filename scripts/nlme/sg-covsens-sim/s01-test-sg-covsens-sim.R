@@ -165,6 +165,13 @@ par_pop <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop")) %>% select
 par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
   mutate(value = ifelse(str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"), log(value), value)) %>% deframe()
 
+par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
+mutate(!!value := ifelse(
+  str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"),
+  ifelse(.data[[value]] > 0, log(.data[[value]]), NA_real_),
+  .data[[value]]
+))
+
 ### Reconstruct omega matrix (random effects on K_a and V_pop)
 d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
 m_omega <- diag(d_omega$value, ncol = length(d_omega$value))
