@@ -1,3 +1,18 @@
+# Functions
+funSum_av <- list(mean   = ~mean(.),
+                  median   = ~median(., na.rm = T))
+
+# Function parameters
+quantiles <- c(0.1, 0.9)
+cont_cov_l <- list(
+  NAME = "AGE",
+  UTNAME = NA, #(or NA or NULL if UTNAME should be = NAME),
+  REF = "median", #“median” or user-defined number,
+  NICENAME = "Age, years" #nice name or NULL
+)
+# add check of REF value
+aggr = c("min", "max", "mean")
+
 # Load simurg object with covariates
 fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
 
@@ -5,6 +20,8 @@ obj_data <- read_smrg_obj(fpath_i)
 ds_mod <- obj_data$SDTAB
 par_sum <- obj_data$SUMTAB
 ds_catcov <- obj_data$CATAB
+ds_ccov <- obj_data$COTAB
+data_fin <- ds_ccov %>% left_join(ds_catcov, by = "ID")
 # Model
 mod_fin <- RxODE({
   # Doses in mg
@@ -76,101 +93,28 @@ mod_fin <- RxODE({
 
 
 
-# create_mock_sg_fit <- function() {
-#   list(
-#     SDTAB = data.frame(
-#       ID = rep(1:2, each = 5),
-#       TIME = c(0, 1, 2, 4, 8, 0, 1, 2, 4, 8),
-#       DV = rnorm(10, mean = 10, sd = 2),
-#       MDV = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-#     ),
-#     EVTAB = data.frame(
-#       ID = c(1, 2),
-#       time = c(0, 0),
-#       amt = c(100, 100),
-#       cmt = c(1, 1),
-#       evid = c(1, 1)
-#     ),
-#     SUMTAB = data.frame(
-#       PAR = c("ka_pop", "Cl_pop", "V_pop"),
-#       VALUE = c(1.5, 2.0, 50.0),
-#       TYPE = "Typical values"
-#     ),
-#     OMEGAMAT = matrix(c(0.1, 0, 0, 0, 0.15, 0, 0, 0, 0.2), nrow = 3, ncol = 3),
-#     SIGMAMAT = matrix(c(0.05), nrow = 1, ncol = 1),
-#     COTAB = NULL,
-#     CATAB = NULL
-#   )
-# }
-# EVTAB = data.frame(
-#       ID = c(1, 2),
-#       time = c(0, 0),
-#       amt = c(100, 100),
-#       cmt = c(1, 1),
-#       evid = c(1, 1)
-#     )
-#
-# ds_mod <- data.frame(
-#   ID = rep(1:2, each = 5),
-#   TIME = c(0, 1, 2, 4, 8, 0, 1, 2, 4, 8),
-#   DV = rnorm(10, mean = 10, sd = 2),
-#   MDV = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-#   WTBL = rep(c(75, 60), each = 5),
-#   CRCL = rep(c(95, 72), each = 5),
-#   SEX = rep(c("M", "F"), each = 5),
-#   SEX_M = rep(c(1, 0), each = 5),
-#   RACE = rep(c("White", "Black"), each = 5),
-#   RACE_Black = rep(c(0, 1), each = 5),
-#   RACE_Other = rep(c(0, 0), each = 5)
-# )
-#
-# ## One-compartment oral model with IIV on ka and V, and covariate effects
-# ## Covariates (in event table): WTBL (kg), CRCL (mL/min), SEX_M (0/1), RACE_Black (0/1), RACE_Other (0/1)
-# ## Reference: WTBL = 70 kg, CRCL = 90 mL/min, SEX = F, RACE = White
-# model <- rxode2::rxode2({
-#   # Random effects (passed via omega matrix: omega_ka, omega_V)
-#   ka = ka_pop * exp(omega_ka)
-#   Cl = Cl_pop * (WTBL / 70)^beta_WTBL_Cl * (CRCL / 90)^beta_CRCL_Cl
-#   V  = V_pop * (WTBL / 70)^beta_WTBL_V * exp(omega_V) *
-#     (1 + beta_SEX * SEX_M) * (1 + beta_RACE_Black * RACE_Black + beta_RACE_Other * RACE_Other)
-#   d/dt(Ad) = -ka * Ad
-#   d/dt(Ac) = ka * Ad - Cl/V * Ac
-#   Cc = Ac / V
-# })
-# #path_to_save <- "poppkpd/simulations/"
-#
-# ### Mock population parameters (covariate sensitivity: WTBL, CRCL, SEX, RACE; IIV on K_a, V_pop)
-# par_fin <- tibble(
-#   parameter = c(
-#     "ka_pop", "Cl_pop", "V_pop",
-#     "beta_WTBL_Cl", "beta_WTBL_V", "beta_CRCL_Cl",
-#     "beta_SEX", "beta_RACE_Black", "beta_RACE_Other",
-#     "omega_ka", "omega_V",
-#     "b"
-#   ),
-#   value = c(
-#     1.5, 2.0, 50.0,
-#     0.75, 1.0, 0.5,
-#     -0.15, 0.08, -0.05,
-#     0.25, 0.20,
-#     0.08
-#   )
-# )
-par_fin <- par_sum
+
 
 ### Population parameters
-parameter <- "PAR"
-value <- "VALUE"
-par_pop <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop")) %>% select(all_of(c(parameter, value))) %>% deframe()
-par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
-  mutate(value = ifelse(str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"), log(value), value)) %>% deframe()
+par_fin <- par_sum %>% rename(parameter = PAR, value = VAL)
 
-par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
-mutate(!!value := ifelse(
-  str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"),
-  ifelse(.data[[value]] > 0, log(.data[[value]]), NA_real_),
-  .data[[value]]
-))
+# parameter <- "PAR"
+# value <- "VALUE"
+
+# par_pop <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop")) %>% select(all_of(c(parameter, value))) %>% deframe()
+# par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
+#   mutate(value = ifelse(str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"), log(value), value)) %>% deframe()
+#
+# par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
+# mutate(!!value := ifelse(
+#   str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"),
+#   ifelse(.data[[value]] > 0, log(.data[[value]]), NA_real_),
+#   .data[[value]]
+# ))
+
+par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
+par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
+  mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
 
 ### Reconstruct omega matrix (random effects on K_a and V_pop)
 d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
@@ -218,8 +162,9 @@ m_theta_norm_pop <- m_theta_norm[str_detect(rownames(m_theta_norm), "_pop|beta_"
 ###
 cont_cov <- tribble(
   ~TR,          ~BTR,      ~PAR,
-  "WTBL",       "OWTBL",    c("Vd", "Vp", "CL", "Vmax", "Q")
+  # "WTBL",       "OWTBL",    c("Vd", "Vp", "CL", "Vmax", "Q")
   # "LOG_CSF1",    "CSF1BL",  c("BL_CSF1", "Vd", "CL")
+  "AGE",         "AGE",     c("Vd")
 )
 cat_cov <- tribble(
   ~COV,         ~COVVAL,             ~CATDES,   ~KEY, ~PAR,
@@ -228,17 +173,74 @@ cat_cov <- tribble(
   # "POP",        "cGVHD",             "cGVHD",   1,    c("Vd", "Vmax"),
   # "POP",        "Healthy",           "Healthy", 0,    c("Vd", "Vmax"),
   # "POP",        "Cancer",            "Cancer",  0,    c("Vd", "Vmax"),
-  "ADACAT",     "0",                 "No",      1,    c("CL"),
-  "ADACAT",     "1",                 "Yes",     0,    c("CL")
+  # "ADACAT",     "0",                 "No",      1,    c("CL"),
+  # "ADACAT",     "1",                 "Yes",     0,    c("CL")
+  "CYP2C9_gentyp", "1.1",              "1.1",     1,    c("CL"),
+  "CYP2C9_gentyp", "1.2",              "1.2",     0,    c("CL"),
+  "CYP2C9_gentyp", "1.3",              "1.3",     0,    c("CL"),
+  "CYP2C9_gentyp", "2.2",              "2.2",     0,    c("CL"),
+  "CYP2C9_gentyp", "2.3",              "2.3",     0,    c("CL"),
+  "CYP2C9_gentyp", "3.3",              "3.3",     0,    c("CL")
+
 )
 
 nice_names <- tribble(
   ~COV,        ~NICEN,
-  "WTBL",    "WTBL, kg",
+  # "WTBL",    "WTBL, kg",
   # "LOG_CSF1",  "CSF-1, ng/L",
   # "CMSTCAT",   "Corticosteroids",
   # "POP",   "Population",
-  "ADACAT",    "ADA status",
+  # "ADACAT",    "ADA status",
+    "AGE",      cont_cov_l[[1]],
+  "CYP2C9_gentyp", "CYP2C9 genotype"
 )
 
 ss_cycle <- 10
+fun_stimes_ss <- function(k){c(
+  k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
+  k*4*7*24 + 2*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1))
+)}
+stimes_ss <- fun_stimes_ss(ss_cycle)
+
+## Derive Covariate distributions
+### Continuous covariates
+ID <- "ID"
+CCov_vec <- cont_cov$TR
+CatCov_vec <- cat_cov$COV %>% unique()
+
+ds_cc_tr <- data_fin %>% select(all_of(c(ID)), all_of(cont_cov$TR)) %>% unique() %>%
+  gather("TR", "TVALUE", -all_of(c(ID))) %>% left_join(cont_cov, by = "TR")
+
+ds_cc_btr <- data_fin %>% select(all_of(c(ID)), all_of(cont_cov$BTR)) %>% unique() %>%
+  gather("BTR", "NVALUE", -all_of(c(ID)))
+ds_cc_btr_av <- ds_cc_btr %>% group_by(BTR) %>% summarise_at(vars(NVALUE), funSum_av)
+
+ds_cc <- ds_cc_tr %>%
+  left_join(ds_cc_btr, by = c(ID, "BTR")) %>%
+  left_join(ds_cc_btr_av, by = "BTR") %>%
+  group_by(TR) %>%
+  mutate(
+    LP = quantile(NVALUE, quantiles[[1]]),
+    UP = quantile(NVALUE, quantiles[[2]]),
+    REF = case_when(TR == "WTBL" ~ median(TVALUE), T ~ 0))
+
+if (cont_cov_l$REF == "median"){
+  ds_cc <- ds_cc %>% mutate(REF = median(TVALUE)) %>% ungroup()
+} else {ds_cc <- ds_cc %>% mutate(REF = cont_cov_l$REF)}
+
+
+#ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT)
+ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1), " (median)\n", "[10th percentile: ", round(LP, 1), "; 90th percentile: ", round(UP, 1), "]"), collapse = "\n")) %>% pull(OUT)
+
+# ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT) %>% str_c(., "\nResults shown for a dose calculated for the median (reference) patient")
+
+# How to rewrite???
+cc_to_test <- ds_cc %>% select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>% unique() %>%
+  gather("KEY", "COVVAL", -COV:-median) %>%
+  mutate(BCOVVAL = case_when(COV == "NCMCT" ~ COVVAL + median, COV == "WTBL" ~ COVVAL, T ~ exp(COVVAL)*median))
+
+
+### Categorical covariates
+ds_catc <- data_fin %>% select(all_of(c(ID)), all_of(cat_cov$COV)) %>% unique()
+
+catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %>% unique() %>% left_join(cat_cov, by = c("COV", "COVVAL"))
