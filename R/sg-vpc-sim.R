@@ -6,6 +6,8 @@
 #' Perform simulations for VPC plot
 #'
 #' @inheritParams sg_dummy
+#' @param fpath_i Either a character string specifying the file path to a saved `sg_fit` object (R data file), or a list object containing the `sg_fit` results directly. The object must contain: `SDTAB`, `EVTAB`, `SUMTAB`, `OMEGAMAT`, `SIGMAMAT`, and optionally `COTAB` and `CATAB`
+#' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
 #' @returns A dataset with simulation results
 #' @examples
 #' \dontrun{
@@ -24,19 +26,11 @@
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr
+#' @importFrom stringr str_remove
 #' @export
 sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", output = NULL, npop = 100){
-  if (inherits(fpath_i, "character")) {
-    if (file.exists(fpath_i)) {
-      obj <- get(load(fpath_i))
-    } else {
-      stop("File specified by fpath_i does not exist")
-    }
-  } else if (inherits(fpath_i, "list")) {
-    obj <- fpath_i
-  } else {
-    stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
-  }
+  obj <- read_smrg_obj(fpath_i)
+
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
   data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB

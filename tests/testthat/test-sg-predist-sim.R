@@ -1,4 +1,4 @@
-test_that("sg_sim_vps works ", {
+test_that("sg_predist_sim works ", {
   mod_fin <- RxODE({
     # Doses in mg
     # Time in hours
@@ -38,7 +38,7 @@ test_that("sg_sim_vps works ", {
     CHECKRUV = b;
     Cc_ResErr = Cc + b*Cc;
   })
-  res <- sg_vpc_sim(obj1, mod_fin, output = "Cc")
+  res <- sg_predist_sim(obj1, mod_fin, output = "Cc", npop=100)
   expect_equal(res %>% pull(ID) %>% unique() %>% length(), 100)
   expect_equal(res %>% pull(TIME) %>% unique() %>% length(),
                obj1$SDTAB$TIME %>% unique() %>% length())

@@ -42,14 +42,64 @@
 
 
 sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, plot_type = 'DIST'){
-  if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
+  smrg_obj <- read_smrg_obj(fpath_i)
+  if (is.null(smrg_obj$SDTAB)) {
+    stop("sg_fit object must contain SDTAB component")
+  }
 
-  # smrg_obj <- get(load(fpath_i))
-  sdtab_i <- smrg_obj$SDTAB
+  sdtab <- smrg_obj$SDTAB
 
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
+  if (is.data.frame(sdtab) && nrow(sdtab) == 0) {
+    stop("SDTAB is empty (no rows)")
+  }
+  if (is.list(sdtab) && length(sdtab) == 0) {
+    stop("SDTAB is empty (no elements)")
+  }
+  if (is.data.frame(sdtab)) {
+    sdtab_i <- sdtab
+  } else if (is.list(sdtab)) {
+    sdtab_i <- as.data.frame(do.call(rbind, sdtab))
+  } else {
+    stop("SDTAB must be a data frame or a list of data frames")
+  }
 
+  # Check for required columns and convert to numeric
+  required_cols <- c("DVID", res_type)
+  required_cols <- unique(required_cols)
+  missing_cols <- setdiff(required_cols, colnames(sdtab_i))
+  if (length(missing_cols) > 0) {
+    stop("SDTAB is missing required columns: ", paste(missing_cols, collapse = ", "))
+  }
 
+  # Convert columns to numeric (only if they exist)
+  sdtab_i <- sdtab_i %>%
+    mutate(
+      DVID = if ("DVID" %in% colnames(.)) as.numeric(DVID) else NA_real_
+    )
+
+  # Convert residual columns to numeric
+  for (res_col in res_type) {
+    if (res_col %in% colnames(sdtab_i)) {
+      sdtab_i <- sdtab_i %>% mutate(across(all_of(res_col), as.numeric))
+    }
+  }
+
+  # Add optional columns if they exist
+  if ("WRES" %in% colnames(sdtab_i) && !("WRES" %in% res_type)) {
+    sdtab_i <- sdtab_i %>% mutate(WRES = as.numeric(WRES))
+  }
+  if ("IWRES" %in% colnames(sdtab_i) && !("IWRES" %in% res_type)) {
+    sdtab_i <- sdtab_i %>% mutate(IWRES = as.numeric(IWRES))
+  }
+  if ("CWRES" %in% colnames(sdtab_i) && !("CWRES" %in% res_type)) {
+    sdtab_i <- sdtab_i %>% mutate(CWRES = as.numeric(CWRES))
+  }
+  if ("RES" %in% colnames(sdtab_i) && !("RES" %in% res_type)) {
+    sdtab_i <- sdtab_i %>% mutate(RES = as.numeric(RES))
+  }
+  if ("IRES" %in% colnames(sdtab_i) && !("IRES" %in% res_type)) {
+    sdtab_i <- sdtab_i %>% mutate(IRES = as.numeric(IRES))
+  }
 
   res_for_plot <- sdtab_i %>% select(DVID,all_of(res_type))
   res_for_plot2 <- res_for_plot %>%
@@ -60,40 +110,41 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
     facet_wrap(DVID~residual_type, scales = "free") +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
     scale_x_continuous(name = 'Residuals', breaks = scales::pretty_breaks(7), expand = c(0, 0))+
+    theme(panel.grid.minor = element_blank()) +
     theme_bw()
   if (ndist) {
 
-  # mean_val <- mean(res_for_plot[[res_type]], na.rm = TRUE)
-  # sd_val <- sd(res_for_plot[[res_type]], na.rm = TRUE)
-  #
-  #
-  # x_min <- mean_val - 4 * sd_val
-  # x_max <- mean_val + 4 * sd_val
-  # x_seq <- seq(x_min, x_max, length.out = 1000)
-  # p_i <- p_i + annotate("line", x = x_seq, y = dnorm(x_seq, mean = mean_val, sd = sd_val), linewidth = 0.8, lty = "dashed")
+    # mean_val <- mean(res_for_plot[[res_type]], na.rm = TRUE)
+    # sd_val <- sd(res_for_plot[[res_type]], na.rm = TRUE)
+    #
+    #
+    # x_min <- mean_val - 4 * sd_val
+    # x_max <- mean_val + 4 * sd_val
+    # x_seq <- seq(x_min, x_max, length.out = 1000)
+    # p_i <- p_i + annotate("line", x = x_seq, y = dnorm(x_seq, mean = mean_val, sd = sd_val), linewidth = 0.8, lty = "dashed")
 
 
-  norm_params <- res_for_plot2 %>%
-    group_by(DVID, residual_type) %>%
-    summarise(
-      mean_val = mean(value, na.rm = TRUE),
-      sd_val = sd(value, na.rm = TRUE),
-      min_val = min(value, na.rm = TRUE),
-      max_val = max(value, na.rm = TRUE),
-      .groups = "drop"
-    )
+    norm_params <- res_for_plot2 %>%
+      group_by(DVID, residual_type) %>%
+      summarise(
+        mean_val = mean(value, na.rm = TRUE),
+        sd_val = sd(value, na.rm = TRUE),
+        min_val = min(value, na.rm = TRUE),
+        max_val = max(value, na.rm = TRUE),
+        .groups = "drop"
+      )
 
-  norm_curves <- norm_params %>%
-    group_by(DVID, residual_type) %>%
-    summarise(
-      x = list(seq(min_val - 0.5 * sd_val, max_val + 0.5 * sd_val, length.out = 1000)),
-      y = list(dnorm(x[[1]], mean = mean_val, sd = sd_val)),
-      .groups = "drop"
-    ) %>%
-    unnest(c(x, y))
+    norm_curves <- norm_params %>%
+      group_by(DVID, residual_type) %>%
+      summarise(
+        x = list(seq(min_val - 0.5 * sd_val, max_val + 0.5 * sd_val, length.out = 1000)),
+        y = list(dnorm(x[[1]], mean = mean_val, sd = sd_val)),
+        .groups = "drop"
+      ) %>%
+      unnest(c(x, y))
 
-  p_i <- p_i +  geom_line(data = norm_curves, aes(x = x, y = y),
-                          color = "black", linewidth = 0.8, linetype = "dashed")
+    p_i <- p_i +  geom_line(data = norm_curves, aes(x = x, y = y),
+                            color = "black", linewidth = 0.8, linetype = "dashed")
   }
 
   if (plot_type == 'QQ') {
@@ -106,6 +157,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
       geom_abline(size = 0.5, col = "black", linetype = "dashed") +
       scale_x_continuous(breaks = scales::pretty_breaks(7)) +
       scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+      theme(panel.grid.minor = element_blank()) +
       theme_bw()+
       facet_wrap(DVID ~ residual_type, scales = "free")
   }

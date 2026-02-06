@@ -42,7 +42,45 @@ sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T, plo
   prm_i <- smrg_obj$COVMAT
   patab_i <- smrg_obj$PATAB
   omegamat_i <- smrg_obj$OMEGAMAT
-  MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#14D98E", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d",'#844538', '#D91477','#F3A9FF')
+
+  if (plot_type == 'correlations') {
+    if(is.null(eta_seq)){
+      selected_cols <- setdiff(names(patab_i), "ID")
+    } else {
+      selected_cols <- eta_seq
+    }
+
+    ds_eta <- patab_i %>% select(ID, all_of(selected_cols))
+
+    lowerFn <- function(data, mapping, method = "lm") {
+      ggplot(data = data, mapping = mapping) +
+        geom_point(alpha = 0.8) +
+        geom_smooth(formula = "y ~ x", method = method, color = MSDcol[3], se = FALSE, linewidth = 1) +
+        geom_smooth(formula = "y ~ x", method = "loess", color = MSDcol[2], se = FALSE, linewidth = 1)
+    }
+
+    diagFn <- function(data, mapping) {
+      ggplot(data = data, mapping = mapping) +
+        geom_histogram(aes(y = after_stat(density)), alpha = 0.6, col = "grey45",
+                       fill = MSDcol[2], bins = 10) +
+        geom_density(alpha = 0.3, col = "black", fill = MSDcol[2]) +
+        geom_vline(xintercept = 0, col = "grey25", linetype = "dotted", linewidth = 0.5)
+    }
+
+    upperFn <- function(data, mapping) {
+      GGally::ggally_cor(data = data, mapping = mapping,
+                         size = 4, color = "black")
+    }
+
+    p_i <- GGally::ggpairs(
+      select(ds_eta, -ID),
+      lower = list(continuous = GGally::wrap(lowerFn)),
+      diag = list(continuous = GGally::wrap(diagFn)),
+      upper = list(continuous = GGally::wrap(upperFn))
+    )
+
+    return(p_i)
+  }
 
   if (plot_type == 'correlations') {
     if(is.null(eta_seq)){
@@ -144,5 +182,6 @@ sg_gof_par_dist <- function(fpath_i, eta_seq = NULL, n_bins = 30, tdist = T, plo
     }
   })
   return(p_i)
-}#
+}
+
 

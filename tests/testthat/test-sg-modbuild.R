@@ -4,14 +4,15 @@
 ## Keywords: SimuRg, sg-modbuild, model building
 
 test_that("sg_modbuild creates expected number of files", {
-  folder_path <- str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
+  folder_path <- system.file("extdata", package = "SimuRg")
+    # str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
 
   ### list of paths to structural models
-  mod_lst <- list(str_c(folder_path, "models/model_1c.txt"),
-                  str_c(folder_path, "models/model_2c.txt"))
+  mod_lst <- list(paste(folder_path, "/Models/model_1c.txt", sep = "/"),
+                  paste(folder_path, "/Models/model_2c.txt", sep = ""))
 
   ### path to the dataset
-  data <- str_c(folder_path, "data/dspk-warf.csv")
+  data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
   re_lst_1 <- list(
     list(init = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
                         1, 0, 0, 0, 0,
@@ -83,7 +84,8 @@ test_that("sg_modbuild creates expected number of files", {
             "Vp", c("Normal", "logNormal"), 10, NA, NA, T,
             "Q", "logNormal", 5, NA, NA, T))
 
-  path <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results/"
+  path <- tempdir() #system.file("extdata", package = "SimuRg")
+    # "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results/"
   sg_modbuild(
     mod_lst = mod_lst[1],
     data = data,
@@ -93,12 +95,12 @@ test_that("sg_modbuild creates expected number of files", {
     re_lst = re_lst_1,
     occ_lst = re_lst_1,
     covs_lst = NULL,
-    path ='V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results',
+    path = path,
     project_name = "tests_test_project"
   )
 
   # Проверяем что создался CSV файл с информацией о сценариях
-  expect_true(file.exists(paste0(path, "scenarios_info.csv")))
+  expect_true(file.exists(paste0(path, "/scenarios_info.csv")))
 
   # Проверяем что создались mlxtran файлы
   # В данном случае ожидаем 2 файла (2 варианта RUV: constant + proportional)
