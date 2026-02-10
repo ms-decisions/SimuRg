@@ -96,7 +96,7 @@ mod_fin <- RxODE({
 
 
 ### Population parameters
-par_fin <- par_sum %>% rename(parameter = PAR, value = VAL)
+par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)
 
 # parameter <- "PAR"
 # value <- "VALUE"
@@ -208,6 +208,9 @@ ID <- "ID"
 CCov_vec <- cont_cov$TR
 CatCov_vec <- cat_cov$COV %>% unique()
 
+data_fin <- data_fin %>%
+  mutate(across(all_of(CatCov_vec), as.character))
+
 ds_cc_tr <- data_fin %>% select(all_of(c(ID)), all_of(cont_cov$TR)) %>% unique() %>%
   gather("TR", "TVALUE", -all_of(c(ID))) %>% left_join(cont_cov, by = "TR")
 
@@ -220,9 +223,8 @@ ds_cc <- ds_cc_tr %>%
   left_join(ds_cc_btr_av, by = "BTR") %>%
   group_by(TR) %>%
   mutate(
-    LP = quantile(NVALUE, quantiles[[1]]),
-    UP = quantile(NVALUE, quantiles[[2]]),
-    REF = case_when(TR == "WTBL" ~ median(TVALUE), T ~ 0))
+    LP = quantile(TVALUE, quantiles[[1]]),
+    UP = quantile(TVALUE, quantiles[[2]]))
 
 if (cont_cov_l$REF == "median"){
   ds_cc <- ds_cc %>% mutate(REF = median(TVALUE)) %>% ungroup()
@@ -234,10 +236,18 @@ ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_jo
 
 # ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT) %>% str_c(., "\nResults shown for a dose calculated for the median (reference) patient")
 
-# How to rewrite???
+#Take into account that there are several continuous covariates!!!
+q_ccont <- c(unique(ds_cc$LP), unique(ds_cc$UP), unique(ds_cc$REF))
+
+map_ccont <- function(target_ccont, data) {
+  idx <- which.min(abs(data$AGE - target_ccont))
+  data$AGE[idx]
+}
+
+# Rewrite!!! BCOVVAL- for plot labels of untransformed covariate
 cc_to_test <- ds_cc %>% select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>% unique() %>%
-  gather("KEY", "COVVAL", -COV:-median) %>%
-  mutate(BCOVVAL = case_when(COV == "NCMCT" ~ COVVAL + median, COV == "WTBL" ~ COVVAL, T ~ exp(COVVAL)*median))
+  gather("KEY", "COVVAL", -COV:-median) # %>%
+  # mutate(BCOVVAL = case_when(COV == "NCMCT" ~ COVVAL + median, COV == "WTBL" ~ COVVAL, T ~ exp(COVVAL)*median))
 
 
 ### Categorical covariates
