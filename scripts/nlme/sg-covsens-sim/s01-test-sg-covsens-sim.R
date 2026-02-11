@@ -240,9 +240,17 @@ ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_jo
 q_ccont <- c(unique(ds_cc$LP), unique(ds_cc$UP), unique(ds_cc$REF))
 
 map_ccont <- function(target_ccont, data) {
-  idx <- which.min(abs(data$AGE - target_ccont))
-  data$AGE[idx]
+  idx <- which.min(abs(data$TVALUE - target_ccont))
+  data$NVALUE[idx]
 }
+
+ccont_labels <- sapply(
+  q_ccont,
+  map_ccont,
+  data = ds_cc
+)
+
+names(ccont_labels) <- c("LP", "UP", "REF")
 
 # Rewrite!!! BCOVVAL- for plot labels of untransformed covariate
 cc_to_test <- ds_cc %>% select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>% unique() %>%
