@@ -541,8 +541,12 @@ ds_cc <- ds_cc_tr %>%
   left_join(ds_cc_btr_av, by = "BTR") %>% 
   group_by(TR) %>% 
   mutate(
-    LP = case_when(TR == "NCMCT" ~ quantile(NVALUE, 0.1) - median, TR == "WTBL" ~ quantile(NVALUE, 0.1), T ~ log(quantile(NVALUE, 0.1)/median)), 
-    UP = case_when(TR == "NCMCT" ~ quantile(NVALUE, 0.9) - median, TR == "WTBL" ~ quantile(NVALUE, 0.9), T ~ log(quantile(NVALUE, 0.9)/median)), 
+    LP = case_when(TR == "NCMCT" ~ quantile(NVALUE, 0.1) - median, 
+                   TR == "WTBL" ~ quantile(NVALUE, 0.1), 
+                   T ~ log(quantile(NVALUE, 0.1)/median)), 
+    UP = case_when(TR == "NCMCT" ~ quantile(NVALUE, 0.9) - median, 
+                   TR == "WTBL" ~ quantile(NVALUE, 0.9), 
+                   T ~ log(quantile(NVALUE, 0.9)/median)), 
     REF = case_when(TR == "WTBL" ~ median(TVALUE), T ~ 0)) %>% 
   ungroup()
 
