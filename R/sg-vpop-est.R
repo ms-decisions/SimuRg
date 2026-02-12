@@ -4,6 +4,163 @@
 ## Keywords: covariates, simulations
 ## Version: v1.1 - add JS and KL metrics, covariate matrix, merge umap
 
+
+#Comparison of correlation matrices
+compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
+
+  R_obs <- cor(data_obs[, vars, drop = FALSE],
+               use = "pairwise.complete.obs",
+               method = method)
+
+  R_syn <- cor(data_syn[, vars, drop = FALSE],
+               use = "pairwise.complete.obs",
+               method = method)
+
+  idx <- upper.tri(R_obs, diag = FALSE)
+
+  # mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx]))
+  # return(mean_abs_diff )
+   list(
+     mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx])),
+     max_abs_diff  = max(abs(R_obs[idx] - R_syn[idx])),
+  #   #frobenius     = sqrt(sum((R_obs - R_syn)^2)),
+     R_obs = R_obs,
+     R_syn = R_syn,
+    R_diff = R_syn - R_obs
+  )
+}
+
+#' Create optimal visit sequence based on correlations
+
+create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
+  var_all <- c(var_cont, var_cat)
+
+  # Handle edge cases
+  if (length(var_all) == 0) {
+    warning("No variables provided for visit sequence")
+    return(character(0))
+  }
+
+  if (length(var_cont) == 0 && length(var_cat) > 0) {
+    # Only categorical variables, return as-is
+    return(var_cat)
+  }
+
+  if (length(var_cont) < 2) {
+    # If too few continuous variables, use default order
+    return(var_all)
+  }
+
+  # Calculate correlation matrix for continuous variables
+  if (length(var_cont) >= 2) {
+    cor_matrix <- cor(data[, var_cont, drop = FALSE],
+                      use = "pairwise.complete.obs")
+    # Replace NA with 0 (for variables with no variance)
+    cor_matrix[is.na(cor_matrix)] <- 0
+
+    # Calculate average absolute correlation for each variable
+    avg_abs_corr <- rowMeans(abs(cor_matrix))
+    names(avg_abs_corr) <- var_cont
+
+    # Order continuous variables by average correlation (highest first)
+    var_cont_ordered <- names(sort(avg_abs_corr, decreasing = TRUE))
+  } else {
+    var_cont_ordered <- var_cont
+  }
+
+  # Combine: continuous (ordered) + categorical
+  # Handle both single and multiple categorical variables
+  if (length(var_cat) > 0) {
+    visit_seq <- c(var_cont_ordered, var_cat)
+  } else {
+    visit_seq <- var_cont_ordered
+  }
+
+  return(visit_seq)
+}
+
+#' Remove exact duplicates between synthetic and original data by adding noise
+remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
+                                     noise_level = 0.10, seed = 123) {
+
+  set.seed(seed)
+
+  # Find exact duplicates between synthetic and original
+  common_cols <- intersect(names(data_syn), names(data_orig))
+  data_syn$row_id <- seq_len(nrow(data_syn))
+
+  # Identify which synthetic rows are exact duplicates of original rows
+  dupl_indices <- data_syn %>%
+    dplyr::semi_join(data_orig, by = common_cols) %>%
+    pull(row_id)
+
+  n_duplicates <- length(dupl_indices)
+
+  if (n_duplicates == 0) {
+    data_syn$row_id <- NULL
+    return(list(
+      data_cleaned = data_syn,
+      n_duplicates_removed = 0,
+      duplicate_indices = integer(0)
+    ))
+  }
+
+  cat("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
+
+  # Add noise to continuous variables for duplicate rows
+  if (length(var_cont) > 0) {
+    for (var in var_cont) {
+      if (var %in% names(data_syn)) {
+        # Calculate SD from original data
+        sd_val <- sd(data_orig[[var]], na.rm = TRUE)
+
+        # Add noise only to duplicate rows
+        noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
+        data_syn[dupl_indices, var] <- data_syn[dupl_indices, var] + noise
+
+        # Ensure values stay within reasonable bounds (min/max of original)
+        min_val <- min(data_orig[[var]], na.rm = TRUE)
+        max_val <- max(data_orig[[var]], na.rm = TRUE)
+        data_syn[dupl_indices, var] <- pmin(pmax(data_syn[dupl_indices, var], min_val), max_val)
+      }
+    }
+  }
+
+  # For binary/categorical variables, randomly flip a small proportion
+  if (length(var_cat) > 0) {
+    for (var in var_cat) {
+      if (var %in% names(data_syn)) {
+        levels_var <- levels(data_syn[[var]])
+        n_levels <- length(levels_var)
+
+        # Only perturb if there are at least 2 levels
+        if (n_levels >= 2) {
+          # Randomly select ~20% of duplicate rows to flip for this variable
+          n_to_flip <- max(1, ceiling(0.2 * n_duplicates))
+          rows_to_flip <- sample(dupl_indices, size = n_to_flip)
+
+          # For each selected row, change to a different level
+          for (idx in rows_to_flip) {
+            current_level <- as.character(data_syn[idx, var])
+            other_levels <- setdiff(levels_var, current_level)
+            if (length(other_levels) > 0) {
+              data_syn[idx, var] <- factor(sample(other_levels, 1), levels = levels_var)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  data_syn$row_id <- NULL
+
+  return(list(
+    data_cleaned = data_syn,
+    n_duplicates_removed = n_duplicates,
+    duplicate_indices = dupl_indices
+  ))
+}
+
 #' Perform generation of synthetic datasets for an empirical distribution
 #'
 #' The function operates in two modes:
@@ -87,213 +244,12 @@
 #' @importFrom cluster daisy
 #' @importFrom fastDummies dummy_cols
 #' @importFrom synthpop syn
-#' @importFrom uwot umap umap_transform umap.defaults
+#' @importFrom uwot umap umap_transform
 #' @importFrom tidyr drop_na
 #' @importFrom tibble tibble as_tibble
 #' @importFrom recipes recipe step_dummy step_center step_scale prep bake
 #' @importFrom philentropy distance
 #' @export
-#Comparison of correlation matrices
-compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
-
-  R_obs <- cor(data_obs[, vars, drop = FALSE],
-               use = "pairwise.complete.obs",
-               method = method)
-
-  R_syn <- cor(data_syn[, vars, drop = FALSE],
-               use = "pairwise.complete.obs",
-               method = method)
-
-  idx <- upper.tri(R_obs, diag = FALSE)
-
-  # mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx]))
-  # return(mean_abs_diff )
-   list(
-     mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx])),
-     max_abs_diff  = max(abs(R_obs[idx] - R_syn[idx])),
-  #   #frobenius     = sqrt(sum((R_obs - R_syn)^2)),
-     R_obs = R_obs,
-     R_syn = R_syn,
-    R_diff = R_syn - R_obs
-  )
-}
-
-#' Create optimal visit sequence based on correlations
-#'
-#' Orders variables so that highly correlated variables are synthesized in a way
-#' that preserves their relationships. Variables with highest average correlations
-#' are synthesized first.
-#'
-#' @param data Data frame with variables to order
-#' @param var_cont Names of continuous variables
-#' @param var_cat Names of categorical variables
-#' @return Character vector of variable names in optimal order
-# create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
-#   var_all <- c(var_cont, var_cat)
-#
-#   if (length(var_cont) < 2) {
-#     # If too few continuous variables, use default order
-#     return(var_all)
-#   }
-#
-#   # Calculate correlation matrix for continuous variables
-#   if (length(var_cont) >= 2) {
-#     cor_matrix <- cor(data[, var_cont, drop = FALSE],
-#                       use = "pairwise.complete.obs")
-#     # Replace NA with 0 (for variables with no variance)
-#     cor_matrix[is.na(cor_matrix)] <- 0
-#
-#     # Calculate average absolute correlation for each variable
-#     avg_abs_corr <- rowMeans(abs(cor_matrix))
-#     names(avg_abs_corr) <- var_cont
-#
-#     # Order continuous variables by average correlation (highest first)
-#     var_cont_ordered <- names(sort(avg_abs_corr, decreasing = TRUE))
-#   } else {
-#     var_cont_ordered <- var_cont
-#   }
-#
-#   # Combine: continuous (ordered) + categorical
-#   visit_seq <- c(var_cont_ordered, var_cat)
-#
-#   return(visit_seq)
-# }
-create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
-  var_all <- c(var_cont, var_cat)
-
-  # Handle edge cases
-  if (length(var_all) == 0) {
-    warning("No variables provided for visit sequence")
-    return(character(0))
-  }
-
-  if (length(var_cont) == 0 && length(var_cat) > 0) {
-    # Only categorical variables, return as-is
-    return(var_cat)
-  }
-
-  if (length(var_cont) < 2) {
-    # If too few continuous variables, use default order
-    return(var_all)
-  }
-
-  # Calculate correlation matrix for continuous variables
-  if (length(var_cont) >= 2) {
-    cor_matrix <- cor(data[, var_cont, drop = FALSE],
-                      use = "pairwise.complete.obs")
-    # Replace NA with 0 (for variables with no variance)
-    cor_matrix[is.na(cor_matrix)] <- 0
-
-    # Calculate average absolute correlation for each variable
-    avg_abs_corr <- rowMeans(abs(cor_matrix))
-    names(avg_abs_corr) <- var_cont
-
-    # Order continuous variables by average correlation (highest first)
-    var_cont_ordered <- names(sort(avg_abs_corr, decreasing = TRUE))
-  } else {
-    var_cont_ordered <- var_cont
-  }
-
-  # Combine: continuous (ordered) + categorical
-  # Handle both single and multiple categorical variables
-  if (length(var_cat) > 0) {
-    visit_seq <- c(var_cont_ordered, var_cat)
-  } else {
-    visit_seq <- var_cont_ordered
-  }
-
-  return(visit_seq)
-}
-
-#' Remove exact duplicates between synthetic and original data by adding noise
-#'
-#' @param data_syn Synthetic dataset
-#' @param data_orig Original dataset
-#' @param var_cont Names of continuous variables
-#' @param var_cat Names of categorical variables
-#' @param noise_level Proportion of SD to use for noise (e.g., 0.10 = 10%)
-#' @param seed Random seed for reproducibility
-#' @return List with cleaned synthetic data and number of duplicates removed
-remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
-                                     noise_level = 0.10, seed = 123) {
-
-  set.seed(seed)
-
-  # Find exact duplicates between synthetic and original
-  common_cols <- intersect(names(data_syn), names(data_orig))
-  data_syn$row_id <- seq_len(nrow(data_syn))
-
-  # Identify which synthetic rows are exact duplicates of original rows
-  dupl_indices <- data_syn %>%
-    dplyr::semi_join(data_orig, by = common_cols) %>%
-    pull(row_id)
-
-  n_duplicates <- length(dupl_indices)
-
-  if (n_duplicates == 0) {
-    data_syn$row_id <- NULL
-    return(list(
-      data_cleaned = data_syn,
-      n_duplicates_removed = 0,
-      duplicate_indices = integer(0)
-    ))
-  }
-
-  cat("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
-
-  # Add noise to continuous variables for duplicate rows
-  if (length(var_cont) > 0) {
-    for (var in var_cont) {
-      if (var %in% names(data_syn)) {
-        # Calculate SD from original data
-        sd_val <- sd(data_orig[[var]], na.rm = TRUE)
-
-        # Add noise only to duplicate rows
-        noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
-        data_syn[dupl_indices, var] <- data_syn[dupl_indices, var] + noise
-
-        # Ensure values stay within reasonable bounds (min/max of original)
-        min_val <- min(data_orig[[var]], na.rm = TRUE)
-        max_val <- max(data_orig[[var]], na.rm = TRUE)
-        data_syn[dupl_indices, var] <- pmin(pmax(data_syn[dupl_indices, var], min_val), max_val)
-      }
-    }
-  }
-
-  # For binary/categorical variables, randomly flip a small proportion
-  if (length(var_cat) > 0) {
-    for (var in var_cat) {
-      if (var %in% names(data_syn)) {
-        levels_var <- levels(data_syn[[var]])
-        n_levels <- length(levels_var)
-
-        # Only perturb if there are at least 2 levels
-        if (n_levels >= 2) {
-          # Randomly select ~20% of duplicate rows to flip for this variable
-          n_to_flip <- max(1, ceiling(0.2 * n_duplicates))
-          rows_to_flip <- sample(dupl_indices, size = n_to_flip)
-
-          # For each selected row, change to a different level
-          for (idx in rows_to_flip) {
-            current_level <- as.character(data_syn[idx, var])
-            other_levels <- setdiff(levels_var, current_level)
-            if (length(other_levels) > 0) {
-              data_syn[idx, var] <- factor(sample(other_levels, 1), levels = levels_var)
-            }
-          }
-        }
-      }
-    }
-  }
-
-  data_syn$row_id <- NULL
-
-  return(list(
-    data_cleaned = data_syn,
-    n_duplicates_removed = n_duplicates,
-    duplicate_indices = dupl_indices
-  ))
-}
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
                        excl_col = NULL,seed = NA,
                        seed_umap = NA, palette = NULL,
