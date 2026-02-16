@@ -177,11 +177,12 @@ sg_gof_obpr <- function(
 
   p_char <- list(
     labs(y = ylab, x = xlab),
-    geom_abline(size = 0.5, col = "black", linetype = "dashed"),
+    geom_abline(linewidth = 0.5, col = "black", linetype = "dashed"),
     scale_color_manual(values = rep(MSDcol[c(2, 3, 4, 5, 7, 9, 6, 8, 1)], 30)),
     theme(legend.justification = c("left", "center"),
           legend.box.just = "left",
-          legend.background = element_rect(fill = "white", size = 0.15, linetype = "solid", colour = "black"),
+          legend.background = element_rect(fill = "white", linewidth = 0.15,
+                                           linetype = "solid", colour = "black"),
           legend.key.size = unit(0.38, "cm"),
           legend.title = element_text(size = 8),
           legend.text = element_text(size = 8),
@@ -199,9 +200,9 @@ sg_gof_obpr <- function(
                   labels = scales::trans_format("log10", scales::math_format(10^.x))))
   } else {
     p_char <- c(p_char,
-                scale_x_continuous(lim = lim_obpr, breaks = abreaks,
+                scale_x_continuous(limits = lim_obpr, breaks = abreaks,
                                    labels = scales::number_format()),
-                scale_y_continuous(lim = lim_obpr, breaks = abreaks,
+                scale_y_continuous(limits = lim_obpr, breaks = abreaks,
                                    labels = scales::number_format()))
   }
 
@@ -214,7 +215,9 @@ sg_gof_obpr <- function(
       labs(col = col_lab)
 
     if(addline){ p_ObPr <- p_ObPr + geom_line(aes(col = !!sym(col_i), group = ID), lwd = 0.4, alpha = alpha_i) }
-    if(smooth){ p_ObPr <- p_ObPr + geom_smooth(aes(col = !!sym(col_i), group = !!sym(col_i)), formula = "y ~ x", method = "loess", size = 1.2, se = F) }
+    if(smooth){ p_ObPr <- p_ObPr + geom_smooth(aes(col = !!sym(col_i), group = !!sym(col_i)),
+                                               formula = "y ~ x", method = "loess",
+                                               linewidth = 1.2, se = F) }
 
   } else {
     p_ObPr <- p_ObPr +
@@ -223,7 +226,8 @@ sg_gof_obpr <- function(
       labs(col = col_lab)
 
     if(addline){ p_ObPr <- p_ObPr + geom_line(aes(group = ID), col = MSDcol[1], lwd = 0.4, alpha = alpha_i) }
-    if(smooth){ p_ObPr <- p_ObPr + geom_smooth(formula = "y ~ x", method = "loess", size = 1.2, se = F, col = MSDcol[3]) }
+    if(smooth){ p_ObPr <- p_ObPr + geom_smooth(formula = "y ~ x", method = "loess",
+                                               linewidth = 1.2, se = F, col = MSDcol[3]) }
   }
 
   if(!is.null(facet_i)){

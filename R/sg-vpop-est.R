@@ -175,8 +175,8 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #'   \item \code{seed} - Random seed used to generate this dataset (integer or NA)
 #'   \item \code{exact_dupl_check} - Logical indicating if exact duplicates exist between original and synthetic data
 #'   \item \code{dplot_umap} - ggplot object with combined UMAP visualization comparing original and synthetic data (or \code{NULL} if diag_plots=FALSE)
-#'   \item \code{ks_test} - Tibble with Kolmogorov–Smirnov p-values and statuses for continuous variables (or \code{NULL} if no continuous variables)
-#'   \item \code{jsd_res} - Weighted mean Jensen–Shannon divergence (JSD) value for categorical variables (numeric or \code{NULL} if no categorical variables)
+#'   \item \code{ks_test} - Tibble with Kolmogorov-Smirnov p-values and statuses for continuous variables (or \code{NULL} if no continuous variables)
+#'   \item \code{jsd_res} - Weighted mean Jensen-Shannon divergence (JSD) value for categorical variables (numeric or \code{NULL} if no categorical variables)
 #'   \item \code{corr_diff_mean} - Mean absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
 #'   \item \code{corr_diff_max} - Maximum absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
 #'   \item \code{dplot_corr_diff} - ggplot heatmap object showing correlation difference matrix (Synthetic - Original) (or \code{NULL} if diag_plots=FALSE or no continuous variables)
@@ -186,7 +186,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @inheritParams sg_dummy
 #' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
 #' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
-#' @param minnumlev integer. Threshold; numeric variables with ≤ \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
+#' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
 #' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}), generates a single dataset with this seed (fixed seed mode). If \code{NA}, uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{NA})
 #' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
 #' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
@@ -534,7 +534,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         ks_result <- suppressWarnings(ks.test(x, y))
         if (has_ties) {
           warning(
-            "Kolmogorov–Smirnov test for variable '", var,
+            "Kolmogorov-Smirnov test for variable '", var,
             "' may be approximate due to ties in the data",
             call. = FALSE
           )
@@ -561,7 +561,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
     if (length(var_cat)>0){
       n_levels <- c()
-      # Jensen–Shannon (JS) divergence
+      # Jensen-Shannon (JS) divergence
       jsd_by_var <- sapply(var_cat, function(var) {
 
         # Align category levels

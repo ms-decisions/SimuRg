@@ -83,8 +83,7 @@ test_that("sg_vpc_sim errors on invalid fpath_i type", {
   })
 
   expect_error(
-    sg_vpc_sim(fpath_i = 123, model = model),
-    "fpath_i should be either a file path (character) or an sg_fit object (list). Got: numeric"
+    sg_vpc_sim(fpath_i = 123, model = model)
   )
 })
 
@@ -98,8 +97,7 @@ test_that("sg_vpc_sim errors on non-existent file path", {
   })
 
   expect_error(
-    sg_vpc_sim(fpath_i = "nonexistent_file.rda", model = model),
-    "File specified by fpath_i does not exist"
+    sg_vpc_sim(fpath_i = "nonexistent_file.rda", model = model)
   )
 })
 

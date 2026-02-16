@@ -68,11 +68,11 @@
 #' )
 #' }
 #'
-#' @import tidyverse
+#' @import dplyr
 #' @importFrom readr write_csv
 #' @export
 #' @importFrom jsonlite fromJSON
-#' @import tidyverse
+#' @import dplyr
 #' @export
 
 sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,

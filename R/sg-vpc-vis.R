@@ -6,50 +6,50 @@
 #' Add Percentile Lines to VPC Plot
 #'
 #' Internal helper function
-add_percentile_lines <- function(plot, line_data, ci_data, show_ci, interpolation) {
+add_percentile_lines <- function(plot_i, line_data, ci_data, show_ci, interpolation) {
 
   if (interpolation) {
     # Use smooth lines
-    plot <- plot +
+    plot_i <- plot_i +
       geom_line(data = line_data,
                 aes(x = TIME_BIN, y = OBS, group = interaction(PI, TYPE), lty = TYPE),
-                col = "royalblue", size = 0.8)
+                col = "royalblue", linewidth = 0.8)
 
     if (show_ci) {
-      plot <- plot +
+      plot_i <- plot_i +
         geom_ribbon(data = ci_data %>% filter(PI != "median"),
                     aes(x = TIME_BIN, ymin = theor_LCI, ymax = theor_UCI,
                         group = PI, fill = CI_label),
-                    col = NA, size = 1, alpha = 0.3) +
+                    col = NA, linewidth = 1, alpha = 0.3) +
         geom_ribbon(data = ci_data %>% filter(PI == "median"),
                     aes(x = TIME_BIN, ymin = theor_LCI, ymax = theor_UCI,
                         group = PI, fill = CI_label),
-                    col = NA, size = 1, alpha = 0.3)
+                    col = NA, linewidth = 1, alpha = 0.3)
     }
 
   } else {
     # Use step rectangles
-    plot <- plot +
+    plot_i <- plot_i +
       geom_line(data = line_data,
                 aes(x = TIME_BIN, y = OBS, group = interaction(PI, TYPE), lty = TYPE),
-                col = "royalblue", size = 0.8)
+                col = "royalblue", linewidth = 0.8)
 
     if (show_ci) {
-      plot <- plot +
+      plot_i <- plot_i +
         geom_rect(data = ci_data %>% filter(PI != "median"),
                   aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
                       ymin = theor_LCI, ymax = theor_UCI,
                       group = PI, fill = CI_label),
-                  col = NA, size = 1, alpha = 0.3) +
+                  col = NA, linewidth = 1, alpha = 0.3) +
         geom_rect(data = ci_data %>% filter(PI == "median"),
                   aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
                       ymin = theor_LCI, ymax = theor_UCI,
                       group = PI, fill = CI_label),
-                  col = NA, size = 1, alpha = 0.3)
+                  col = NA, linewidth = 1, alpha = 0.3)
     }
   }
 
-  return(plot)
+  return(plot_i)
 }
 #' Create VPC Plot
 #'

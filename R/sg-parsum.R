@@ -6,7 +6,7 @@
 #' Extract parameter summary (theta, eta, SE, RSE, CI, CV, shrinkage)
 #'
 #' @inheritParams sg_dummy
-#' @param cap string. Plot caption. Default is "empty circles - observed data\n solid lines with point - individual predictions\n dashed grey lines with point - population predictions"
+#' @param cap string. Plot caption. Default is "empty circles - observed data solid lines with point - individual predictions dashed grey lines with point - population predictions"
 #' @returns A table with parameter summary
 #' @examples
 #' \dontrun{

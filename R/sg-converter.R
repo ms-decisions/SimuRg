@@ -43,12 +43,12 @@
 #' metrics.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Convert Monolix project results
-#' results <- sg_converter(
-#'   folder_path = "./models/monolix/base-model-pk/",
-#'   proj_name = "Warfarin_PK"
-#' )
+#' test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
+#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
+#' pro_name <- "proj-r-solo"
+#' result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
 #' save(results, file = "./models/simurg_object/Warfarin_PK.RData")
 #' # Access individual predictions
 #' head(results$SDTAB)
@@ -624,8 +624,8 @@ sg_converter <- function(folder_path, proj_name){
   catab_cols <- col_map_df %>% filter(use == "identifier" | (use == "covariate" & type == "categorical")) %>% select(COL) %>% pull()
   regtab_cols <- col_map_df %>% filter(use %in% c("identifier", "time", "regressor")) %>% select(COL) %>% pull()
 
-  if (length(cotab_cols) > 1) {cotab <- data_file_mod %>% select(cotab_cols) %>% unique()} else {cotab <- data.frame()}
-  if (length(catab_cols) > 1) {catab <- data_file_mod %>% select(catab_cols) %>% unique()} else {catab <- data.frame()}
+  if (length(cotab_cols) > 1) {cotab <- data_file_mod %>% select(all_of(cotab_cols)) %>% unique()} else {cotab <- data.frame()}
+  if (length(catab_cols) > 1) {catab <- data_file_mod %>% select(all_of(catab_cols)) %>% unique()} else {catab <- data.frame()}
   if (length(regtab_cols) > 2) {regtab <- data_file_mod %>% select(regtab_cols) %>% unique()} else {regtab <- data.frame()}
 
 

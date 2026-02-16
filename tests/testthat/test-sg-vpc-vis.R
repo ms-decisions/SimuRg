@@ -100,6 +100,7 @@ test_that("sg_vpc_vis errors on invalid binning method", {
                method = "invalid_method")
   }, error = function(e) NULL)
 
+
   # If it doesn't error, it should still produce output (method validation may be in helper)
   if (!is.null(result)) {
     expect_true(is.list(result))
