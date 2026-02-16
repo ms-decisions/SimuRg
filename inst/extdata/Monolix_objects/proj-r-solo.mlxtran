@@ -1,0 +1,79 @@
+<DATAFILE>
+
+[FILEINFO]
+file='../datasets/dspk-warf.csv'
+delimiter = comma
+header={ID, TIME, DV, DVID, DVNAME, CMT, ADM, AMT, EVID, MDV, AGE, AGE_centered, SEX, WEIGHT, BMI, CLCR, CYP2C9_gentyp, VKORC1_gentyp, G1_1, G1_2, G1_3, G2_2, G2_3, G3_3, GG, AG, AA}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+DV = {use=observation, yname='1', type=continuous}
+DVID = {use=observationtype}
+AMT = {use=amount}
+EVID = {use=eventidentifier}
+MDV = {use=missingdependentvariable}
+AGE = {use=covariate, type=continuous}
+AGE_centered = {use=covariate, type=continuous}
+SEX = {use=covariate, type=categorical}
+WEIGHT = {use=covariate, type=continuous}
+BMI = {use=covariate, type=continuous}
+CLCR = {use=covariate, type=continuous}
+CYP2C9_gentyp = {use=covariate, type=categorical}
+VKORC1_gentyp = {use=covariate, type=categorical}
+
+[SETTINGS]
+dataType = {'1'=plasma}
+
+<MODEL>
+
+[COVARIATE]
+input = {AGE, AGE_centered, BMI, CLCR, WEIGHT, CYP2C9_gentyp, SEX, VKORC1_gentyp}
+
+CYP2C9_gentyp = {type=categorical, categories={'1.1', '1.2', '1.3', '2.2', '2.3', '3.3'}}
+SEX = {type=categorical, categories={'0', '1'}}
+VKORC1_gentyp = {type=categorical, categories={'AA', 'AG', 'GG'}}
+
+[INDIVIDUAL]
+input = {Cl_pop, omega_Cl, V_pop, omega_V, ka_pop, omega_ka}
+
+DEFINITION:
+Cl = {distribution=logNormal, typical=Cl_pop, sd=omega_Cl}
+V = {distribution=logNormal, typical=V_pop, sd=omega_V}
+ka = {distribution=logNormal, typical=ka_pop, sd=omega_ka}
+
+[LONGITUDINAL]
+input = {b}
+
+file = '../models/model_PK_1c.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=Cc, errorModel=proportional(b)}
+
+<FIT>
+data = '1'
+model = y1
+
+<PARAMETER>
+Cl_pop = {value=0.5, method=MLE}
+V_pop = {value=50, method=MLE}
+b = {value=0.3, method=MLE}
+c = {value=1, method=FIXED}
+ka_pop = {value=0.1, method=MLE}
+omega_Cl = {value=1, method=MLE}
+omega_V = {value=1, method=MLE}
+omega_ka = {value=1, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(run = false,method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, residualsscatter, residualsdistribution, randomeffects, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'proj-r-solo'
+

@@ -3,9 +3,6 @@
 ## Description: functions for vpc visualisation
 ## Keywords: SimuRg, vpc, diagnostics
 
-#' Add Percentile Lines to VPC Plot
-#'
-#' Internal helper function
 add_percentile_lines <- function(plot_i, line_data, ci_data, show_ci, interpolation) {
 
   if (interpolation) {
@@ -51,10 +48,7 @@ add_percentile_lines <- function(plot_i, line_data, ci_data, show_ci, interpolat
 
   return(plot_i)
 }
-#' Create VPC Plot
-#'
-#' Internal function to generate the VPC ggplot object
-#'
+
 create_vpc_plot <- function(pred_int_median_emp_mod,
                             pred_int_ci_mod,
                             data_obs,
@@ -170,10 +164,7 @@ create_vpc_plot <- function(pred_int_median_emp_mod,
 
   return(vpc_plot)
 }
-#' Function for data binning
-#'
-#' Internal function to generate the VPC ggplot object
-#'
+
 fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "custom")){
 
   #browser()

@@ -21,14 +21,14 @@
 #'   # Concentration calculations
 #'   Cc = Ac / V
 #' })
-#' sg_vpc_sim(obj1, mod_fin, output = "Cc")
+#' sg_vpc_sim(obj1, mod_fin, outputs = "Cc")
 #'}
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr
 #' @importFrom stringr str_remove
 #' @export
-sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", output = NULL, npop = 100){
+sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop = 100){
   obj <- read_smrg_obj(fpath_i)
 
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
@@ -46,7 +46,7 @@ sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", output = NULL, npop = 
     ev_tab.i <- ev_tab %>% filter(ID == id_seq.i) %>%
       rename(DEFID = ID) %>% mutate(id = 1)
     sim.i <- sg_sim(model = model, et = ev_tab.i, stimes = data_fin.noex.i,
-                    output = output, theta = par_fin_tv, omega = obj$OMEGAMAT,
+                    outputs = outputs, theta = par_fin_tv, omega = obj$OMEGAMAT,
                     sigma = obj$SIGMAMAT, covs = covs_i, npop = npop,
                     addcov = F, ncores = parallel::detectCores()-1) %>%
       mutate(ID = id_seq.i)

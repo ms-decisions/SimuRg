@@ -5,7 +5,7 @@
 ## Version: v1.1 - add JS and KL metrics, covariate matrix, merge umap
 
 
-#Comparison of correlation matrices
+# Comparison of correlation matrices
 compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
 
   R_obs <- cor(data_obs[, vars, drop = FALSE],
@@ -30,7 +30,7 @@ compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
   )
 }
 
-#' Create optimal visit sequence based on correlations
+# Create optimal visit sequence based on correlations
 
 create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
   var_all <- c(var_cont, var_cat)
@@ -79,7 +79,7 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
   return(visit_seq)
 }
 
-#' Remove exact duplicates between synthetic and original data by adding noise
+# Remove exact duplicates between synthetic and original data by adding noise
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
 

@@ -5,7 +5,6 @@
 
 test_that("sg_modbuild creates expected number of files", {
   folder_path <- system.file("extdata", package = "SimuRg")
-    # str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
 
   ### list of paths to structural models
   mod_lst <- list(paste(folder_path, "/Models/model_1c.txt", sep = "/"),
@@ -85,7 +84,6 @@ test_that("sg_modbuild creates expected number of files", {
             "Q", "logNormal", 5, NA, NA, T))
 
   path <- tempdir() #system.file("extdata", package = "SimuRg")
-    # "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results/"
   sg_modbuild(
     mod_lst = mod_lst[1],
     data = data,
@@ -114,6 +112,9 @@ test_that("sg_modbuild creates expected number of files", {
   csv_content <- read_csv(paste0(path, "/scenarios_info.csv"))
   # expect_gt(nrow(csv_content), 0)
   expect_equal(nrow(csv_content), 768) # 2 сценария
+  clr_files <- list.files(path, full.names = TRUE)
+  unlink(clr_files, recursive = TRUE, force = TRUE)
+  # file.remove(clr_files)
 
 
 })

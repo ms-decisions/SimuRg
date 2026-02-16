@@ -10,8 +10,8 @@
 #' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
 #' @examples
 #' \dontrun{
-#'  model <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/models/pk_1cmp.txt"
-#'  data <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"
+#'  model <- system.file("extdata", "models", "model_PK_1c.txt", package = "SimuRg")
+#'  data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
 #'
 #'  headers <- list(list(name = "ID", use = "identifier", type = NULL),
 #'                  list(name = "TIME", use = "time", type = NULL),
@@ -33,7 +33,8 @@
 #'                   "ka", "logNormal", 0.2, NA, NA, T
 #'  )
 #'
-#'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc", ERR = "combined1", INIT = c(1, 1), EST = c(T, T), BLQM = NULL)
+#'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
+#'              ERR = "combined1", INIT = c(1, 1), EST = c(T, T), BLQM = NULL)
 #'
 #'  re <- list(init = tribble(~Cl, ~Vd, ~ka,
 #'                            1, 0, 0,
@@ -52,12 +53,15 @@
 #'                            NA, NA, NA,
 #'                            NA, NA, NA,
 #'                            NA, NA, NA) %>% as.matrix())
-#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear", TRANS = "median", INIT = 1, EST = T),
+#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear",
+#'                    TRANS = "median", INIT = 1, EST = T),
 #'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = T))
+#'  output_path <- tempdir()
+#'  fitter_path <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
 #'  result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
-#'  project_name = "my_project", fit = T,
-#'  path_to_save_output =  "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/my_project/",
-#'  path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
+#'                   project_name = "my_project", fit = T,
+#'                   path_to_save_output =  output_path,
+#'                   path_to_fitter = fitter_path)
 #' }
 #' @import sys
 #' @export

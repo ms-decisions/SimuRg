@@ -46,7 +46,8 @@
 #' \dontrun{
 #' # Convert Monolix project results
 #' test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
-#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
+#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
+#'   test_folder <- str_c(test_folder, "/")
 #' pro_name <- "proj-r-solo"
 #' result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
 #' save(results, file = "./models/simurg_object/Warfarin_PK.RData")

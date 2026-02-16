@@ -12,7 +12,8 @@
 #' @returns A list of plots with predicted time profiles, faceted by id
 #' @examples
 #' \dontrun{
-#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"))
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
+#'                         package = "SimuRg"))
 #' plot_list <- sg_gof_tp(fpath_i)
 #' print(plot_list[[1]])
 #' }
@@ -28,7 +29,11 @@ sg_gof_tp <- function(fpath_i, filt = "T",
                       tsld = F, f_scales = "free",
                       log_y = F, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
-                      cap = "empty circles - observed data\nsolid lines with point - individual predictions\ndashed grey lines with point - population predictions"){
+                      cap = str_c("empty circles - observed data\n",
+                                  "solid lines with point - ",
+                                  "individual predictions\n",
+                                  "dashed grey lines with",
+                                  "point - population predictions")){
 
   smrg_obj <- read_smrg_obj(fpath_i)
   if (is.null(smrg_obj$SDTAB)) {
