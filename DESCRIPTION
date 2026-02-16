@@ -1,6 +1,6 @@
 Package: SimuRg
 Title: R package for builidng and simulating from ode-based pharuse
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
     person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
@@ -9,13 +9,13 @@ Authors@R: c(
     person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut"),
     person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role = "aut")
   )
-Description: The package includes all functions needed to develop, validate and simulate from PK/PD models
-License: Commercial
+Description: The package includes all functions needed to develop, validate and simulate from PK/PD models.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
-    rxode2,
+    GGally,
     testthat (>= 3.0.0)
 Imports: 
     cluster,
@@ -23,15 +23,22 @@ Imports:
     fastDummies,
     forcats,
     ggplot2,
+    jsonlite,
+    MASS,
     philentropy,
     purrr,
+    readr,
     recipes,
+    rlang,
+    rxode2,
     scales,
     stringr,
     synthpop,
+    sys,
+    tibble,
     tidyr,
-    umap,
-    uwot
+    uwot,
+    zoo
 Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)

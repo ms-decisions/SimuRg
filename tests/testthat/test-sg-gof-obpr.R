@@ -43,14 +43,14 @@ create_mock_sg_fit_gof <- function() {
   set.seed(123)
   list(
     SDTAB = data.frame(
-      ID = rep(1:3, each = 5),
-      TIME = rep(c(0, 1, 2, 4, 8), 3),
-      DV = rnorm(15, mean = 10, sd = 2),
-      PRED = rnorm(15, mean = 10, sd = 1.5),
-      IPRED = rnorm(15, mean = 10, sd = 1.2),
-      MDV = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-      WRES = rnorm(15, mean = 0, sd = 1),
-      IWRES = rnorm(15, mean = 0, sd = 1)
+      ID = rep(1:3, each = 10),
+      TIME = rep(c(0, 1, 2, 4, 8, 10, 13, 24, 48, 72), 3),
+      DV = rnorm(30, mean = 10, sd = 2),
+      PRED = rnorm(30, mean = 10, sd = 1.5),
+      IPRED = rnorm(30, mean = 10, sd = 1.2),
+      MDV = rep(0, 30),
+      WRES = rnorm(30, mean = 0, sd = 1),
+      IWRES = rnorm(30, mean = 0, sd = 1)
     ),
     COTAB = data.frame(
       ID = 1:3,

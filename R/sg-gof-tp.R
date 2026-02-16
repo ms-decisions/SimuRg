@@ -6,7 +6,7 @@
 #' Plot time profiles of the fitted data
 #'
 #' @inheritParams sg_dummy
-#' @param cap string. Plot caption. Default is "empty circles - observed data\n solid lines with point - individual predictions\n dashed grey lines with point - population predictions"
+#' @param cap string. Plot caption. Default is "empty circles - observed data solid lines with point - individual predictions dashed grey lines with point - population predictions"
 #' @param lab_x string. X-ax label. Default is "Time since first dose, h"
 #' @param lab_y string. Y-ax label. Default is "Plasma concentration, mmol/L"
 #' @returns A list of plots with predicted time profiles, faceted by id
@@ -20,6 +20,7 @@
 #' @import ggplot2
 #' @importFrom scales pretty_breaks trans_format
 #' @importFrom forcats fct_inorder
+#' @importFrom zoo na.locf
 #' @importFrom purrr map
 #' @import stringr
 #' @export

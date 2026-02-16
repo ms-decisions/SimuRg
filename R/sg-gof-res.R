@@ -21,13 +21,13 @@
 #' \donttest{
 #' # Basic residuals vs time
 #' sg_gof_res(
-#'   fpath_i = paste0("functions/nlme/3.4-sg-gof-res/simurg-object/Warfarin_PK.RData"),
+#'   fpath_i = system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"),
 #'   res_type = "IWRES",
 #'   vs_time = TRUE
 #' )
 #' # IWRES dist
 #' sg_gof_res(
-#'   fpath_i = paste0("functions/nlme/3.4-sg-gof-res/simurg-object/Warfarin_PK.RData"),
+#'   fpath_i =  system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"),
 #'   res_type = "IWRES",
 #'   cov_cols = "SEX",
 #'   dens = T,
@@ -92,8 +92,8 @@ sg_gof_res <- function(
   ds_i <- ds_i %>%
     filter(MDV != 1) %>%
     mutate_at(vars(TIME, IPRED, PRED, DV), function(s) s / sc_factor) %>%
-    rename_at(vars(one_of(res_type)), ~"Y") %>%
-    rename_at(vars(one_of(X)), ~"X")
+    rename_at(vars(any_of(res_type)), ~"Y") %>%
+    rename_at(vars(any_of(X)), ~"X")
 
   # --- covariates ---
   if (!is.null(cov_cols)) {
@@ -118,13 +118,14 @@ sg_gof_res <- function(
     # scatter vs time/pred
     p_char <- list(
       labs(y = lab_y, x = lab_x),
-      geom_hline(yintercept = c(-2, 2), col = "firebrick", size = 0.5, linetype = "dashed"),
-      geom_hline(yintercept = 0, col = "black", size = 0.7, linetype = "dashed"),
+      geom_hline(yintercept = c(-2, 2), col = "firebrick", linewidth = 0.5, linetype = "dashed"),
+      geom_hline(yintercept = 0, col = "black", linewidth = 0.7, linetype = "dashed"),
       scale_y_continuous(breaks = scales::pretty_breaks(7), limits = c(ymin, ymax)),
       scale_color_manual(values = rep(MSDcol, 20)),
       theme(legend.justification = c("left", "center"),
             legend.box.just = "left",
-            legend.background = element_rect(fill = "white", size = 0.15, linetype = "solid", colour = "black"),
+            legend.background = element_rect(fill = "white", linewidth = 0.15,
+                                             linetype = "solid", colour = "black"),
             legend.key.size = unit(0.38, "cm"),
             legend.title = element_text(size = 8),
             legend.text = element_text(size = 8),
@@ -181,7 +182,8 @@ sg_gof_res <- function(
         p_char + theme_bw()
     }
     if (addline) {
-      p_Res <- p_Res + annotate("line", x = seq(-4, 4, 0.01), y = dnorm(seq(-4, 4, 0.01)), size = 0.8, linetype = "dashed")
+      p_Res <- p_Res + annotate("line", x = seq(-4, 4, 0.01), y = dnorm(seq(-4, 4, 0.01)),
+                                linewidth = 0.8, linetype = "dashed")
     }
   }
 

@@ -108,7 +108,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
   p_i <- ggplot(data = res_for_plot2, aes(x = value, y = ..density..)) +
     geom_histogram(bins = n_bins, col = "grey25", fill = MSDcol[2]) +
     facet_wrap(DVID~residual_type, scales = "free") +
-    scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), lim = c(0, NA)) +
+    scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), limits = c(0, NA)) +
     scale_x_continuous(name = 'Residuals', breaks = scales::pretty_breaks(7), expand = c(0, 0))+
     theme(panel.grid.minor = element_blank()) +
     theme_bw()
@@ -154,7 +154,7 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
       stat_qq(size = 1.75, color = MSDcol[1], alpha = 0.8) +
       stat_qq_line(col = "firebrick") +
       labs(x = "Theoretical quantiles", y = "Sample quantiles") +
-      geom_abline(size = 0.5, col = "black", linetype = "dashed") +
+      geom_abline(linewidth = 0.5, col = "black", linetype = "dashed") +
       scale_x_continuous(breaks = scales::pretty_breaks(7)) +
       scale_y_continuous(breaks = scales::pretty_breaks(7)) +
       theme(panel.grid.minor = element_blank()) +

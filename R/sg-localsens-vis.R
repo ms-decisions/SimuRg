@@ -64,7 +64,7 @@ sg_localsens_vis <- function(sens_data,
 
   foc_plot <- ggplot(data = sens_data) +
     geom_line(aes(x = TIME, y = VALUE, group = interaction(PARVAL, ID),
-                  color = PARVAL_NORM), alpha = 0.7, size = 0.6) +
+                  color = PARVAL_NORM), alpha = 0.7, linewidth = 0.6) +
     facet_grid(PARNAME ~ ., scales = facet_scales) +
     theme_bw() +
     theme(

@@ -21,5 +21,5 @@ funSum_sim <- list(mean   = ~mean(., na.rm = T),
                    P90    = ~quantile(., 0.90, na.rm = T),
                    P95    = ~quantile(., 0.95, na.rm = T),
                    P975   = ~quantile(., 0.975, na.rm = T),
-                   geom_mean = ~exp(mean(log(.), na.rm = T)),
+                   geom_mean = ~exp(mean(log(.[. > 0]), na.rm = T)),
                    CV     = ~sd(., na.rm = T)/mean(., na.rm = T)*100)

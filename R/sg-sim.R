@@ -98,7 +98,7 @@ sg_sim <- function(model, et, stimes = NULL, output = NULL, theta = NULL,
   sim_i_ind <- sim_i %>% as_tibble()
   if(!"id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, id = 1) }
   if(!"sim.id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, sim.id = 1) }
-  sim_i_ind <- sim_i_ind %>% gather("VAR", "VALUE", -one_of("id", "sim.id", "time", "POPN"))
+  sim_i_ind <- sim_i_ind %>% gather("VAR", "VALUE", -any_of(c("id", "sim.id", "time", "POPN")))
   if(!is.null(output)){sim_i_ind <- sim_i_ind %>% filter( VAR %in% output )}
   #
   #   sim_i_aggr_id <- NULL; sim_i_aggr_tot <- NULL
@@ -115,11 +115,13 @@ sg_sim <- function(model, et, stimes = NULL, output = NULL, theta = NULL,
     sim_i_out <- sim_i_ind %>% group_by(time, VAR) %>% summarise_at(vars(VALUE), funSum_sim) %>% ungroup()
   }
   if(!is.null(keep) & !is.null(sim_i_out) & ("id" %in% colnames(sim_i_out))){
-    suppressMessages(sim_i_out <- left_join(sim_i_out, unique(select(et, id, all_of(keep))), by = "id"))
+    suppressMessages(sim_i_out <- left_join(sim_i_out, unique(select(et, id, all_of(keep))),
+                                            by = "id", relationship = "many-to-many"))
   }
 
   if(addcov & !is.null(covs) & !is.null(sim_i_out) & ("id" %in% colnames(sim_i_out))){
-    suppressMessages(sim_i_out <- left_join(sim_i_out, unique(select(et_i_cov, id, all_of(covs)))))
+    suppressMessages(sim_i_out <- left_join(sim_i_out, unique(select(et_i_cov, id, all_of(covs))),
+                                            relationship = "many-to-many"))
   }
 
   lookup <- c(TIME = "time", ID = "id")

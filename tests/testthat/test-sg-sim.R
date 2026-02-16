@@ -108,7 +108,7 @@ test_that("simulations work", {
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
                  output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  omega = omega, sigma = sigma,
-                 nsub = 10, aggr = "ID"))
+                 npop = 10, aggr = "ID"))
 
   ### Uncertainty
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
@@ -116,13 +116,13 @@ test_that("simulations work", {
                  thetamat = thetamat, npop = 10, aggr = "ID"))
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
                  output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 thetamat = thetamat, nsub = 10, npop = 10, aggr = "ID"))
+                 thetamat = thetamat, npop = 100, aggr = "ID"))
 
   ### BSV, RUV, Uncertainty
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
                  output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  omega = omega, sigma = sigma, thetamat = thetamat,
-                 nsub = 10, npop = 10, aggr = "ID"))
+                 npop = 100, aggr = "ID"))
 
   ### Time-varying covariates
   expect_no_error(sg_sim(model = mod_ex, et = et_tvar_cov, output = c("Cc", "IGFRCOV", "CL"),
