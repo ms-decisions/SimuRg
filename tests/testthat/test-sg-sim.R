@@ -97,22 +97,22 @@ test_that("simulations work", {
   #####--------------- Simulations ---------------#####
   ### Basic
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = "Cc", covs = c("IGFR", "POPN")))
+                 outputs = "Cc", covs = c("IGFR", "POPN")))
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
                  covs = c("IGFR", "POPN")))
 
   ### BSV and RUV
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
+                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  omega = omega, sigma = sigma))
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
+                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  omega = omega, sigma = sigma,
                  npop = 10, aggr = "ID"))
 
   ### Uncertainty
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
+                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  thetamat = thetamat, npop = 10, aggr = "ID"))
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
                  output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
@@ -120,11 +120,11 @@ test_that("simulations work", {
 
   ### BSV, RUV, Uncertainty
   expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
+                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
                  omega = omega, sigma = sigma, thetamat = thetamat,
                  npop = 100, aggr = "ID"))
 
   ### Time-varying covariates
-  expect_no_error(sg_sim(model = mod_ex, et = et_tvar_cov, output = c("Cc", "IGFRCOV", "CL"),
+  expect_no_error(sg_sim(model = mod_ex, et = et_tvar_cov, outputs = c("Cc", "IGFRCOV", "CL"),
                  covs = c("IGFR", "POPN")))
 })
