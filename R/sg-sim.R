@@ -17,11 +17,84 @@
 #'     \item{VALUE}{Optional. Simulated value. Returned when no aggregation applied}
 #'     \item{mean, median, ...}{Optional. Aggregated statistic of simulated values. Returned when aggregation is applied}
 #'     \item{COV1, ...COVn}{Optional. Covariates value. Returned when `addcov` is `TRUE`}
-#'     \item{KKEP1, ...KEEPn}{Optional. Columns that were specified in the `keep` argument}
+#'     \item{KEEP1, ...KEEPn}{Optional. Columns that were specified in the `keep` argument}
 #'  }
 #' @examples
 #' \dontrun{
-#'   #####--------------- Set up event tables ---------------#####
+#' #####--------------- Set up event tables ---------------#####
+#' mod_ex <- RxODE({
+#'   # Doses in mg
+#'   # Time in hours
+#'   ### Parameter values
+#'   # Typical
+#'   POPCL = 5;
+#'   POPVC = 180;
+#'   POPQ = 7;
+#'   POPVP = 52;
+#'   POPKTR = 6;
+#'   FBIOPAR = 1;
+
+#'   # Covariate coefficients
+#'   POPIGFRCOV = 0.8;
+#'   POPPATCOVCLGR1 = 0.85;
+#'   POPPATCOVCLGR2 = 0.85;
+#'   POPPATCOVCLGR3 = 0.85;
+#'   POPPATCOVCLGR4 = 0.85;
+
+#'   # Random effects
+#'   PPVCL = 0;
+#'   PPVVC = 0;
+#'   PPVKTR = 0;
+
+#'   # Residual error
+#'   RUV = 0;
+
+#'   ### Covariates
+#'   PATCOVCL = 1
+#'   if(POPN == 1){PATCOVCL = POPPATCOVCLGR1}
+#'   if(POPN == 2){PATCOVCL = POPPATCOVCLGR2}
+#'   if(POPN == 3){PATCOVCL = POPPATCOVCLGR3}
+#'   if(POPN == 4){PATCOVCL = POPPATCOVCLGR4}
+#'   IGFRCOV = (IGFR/112)^POPIGFRCOV
+
+#'   ## Parameters
+#'   CL = POPCL * IGFRCOV * PATCOVCL * exp(PPVCL);
+#'   VC = POPVC * exp(PPVVC);
+#'   Q = POPQ;
+#'   VP = POPVP;
+#'   KTR = POPKTR * exp(PPVKTR);
+
+#'   ### Explicit functions
+#'   Cc = Ac/VC;                 # nmol/L
+#'   Cp = Ap/VP;                 # nmol/L
+
+#'   ### Initial conditions
+#'   At1(0) = 0;         # mg
+#'   At2(0) = 0;         # mg
+#'   At3(0) = 0;         # mg
+#'   At4(0) = 0;         # mg
+#'   At5(0) = 0;         # mg
+#'   At6(0) = 0;         # mg
+#'   Ad(0) = 0;          # mg
+#'   Ac(0) = 0;          # mg
+#'   Ap(0) = 0;          # mg
+
+#'   ### ODEs
+#'   d/dt(At1) = - KTR*At1;
+#'   d/dt(At2) = KTR*At1 - KTR*At2;
+#'   d/dt(At3) = KTR*At2 - KTR*At3;
+#'   d/dt(At4) = KTR*At3 - KTR*At4;
+#'   d/dt(At5) = KTR*At4 - KTR*At5;
+#'   d/dt(At6) = KTR*At5 - KTR*At6;
+#'   d/dt(Ad) = KTR*At6 - KTR*Ad;
+#'   d/dt(Ac) = KTR*Ad - CL*Cc - Q*(Cc - Cp);
+#'   d/dt(Ap) = Q*(Cc - Cp);
+
+#'   FBIO = FBIOPAR
+#'   f(At1) = FBIO*1000000/505;
+#'   CHECKRUV = RUV;
+#'   Cc_ResErr = Cc + RUV*Cc;
+#' })
 #'   et_base <- tribble(
 #'     ~id, ~time, ~evid, ~cmt, ~amt, ~addl, ~ii, ~IGFR, ~POPN,
 #'     1,   0,     1,     1,    10,   2,     24,  112,   1
@@ -42,37 +115,37 @@
 #'   stimes <- seq(0, 168, 0.1)
 #'
 #'   ### Basic simulations
-#'   sim1 <- sg_sim(mod_ex, et_base, stimes, output = "Cc", covs = c("IGFR", "POPN"))
+#'   sim1 <- sg_sim(mod_ex, et_base, stimes, outputs = "Cc", covs = c("IGFR", "POPN"))
 #'   sim2 <- sg_sim(mod_ex, et_base, stimes, covs = c("IGFR", "POPN"))
 #'
 #'   ### BSV and RUV
-#'   sim3 <- sg_sim(mod_ex, et_base, stimes, output = c("Cc", "Cc_ResErr"),
+#'   sim3 <- sg_sim(mod_ex, et_base, stimes, outputs = c("Cc", "Cc_ResErr"),
 #'                  covs = c("IGFR", "POPN"), omega = omega, sigma = sigma)
-#'   sim4 <- sg_sim(mod_ex, et_base, stimes, output = c("Cc", "Cc_ResErr"),
+#'   sim4 <- sg_sim(mod_ex, et_base, stimes, outputs = c("Cc", "Cc_ResErr"),
 #'                  covs = c("IGFR", "POPN"), omega = omega, sigma = sigma, nsub = 10,
 #'                  aggr = "ID")
 #'   ### Uncertainty
-#'   sim5 <- sg_sim(mod_ex, et_base, stimes, output = c("Cc", "Cc_ResErr"),
+#'   sim5 <- sg_sim(mod_ex, et_base, stimes, outputs = c("Cc", "Cc_ResErr"),
 #'                  covs = c("IGFR", "POPN"), thetamat = thetamat, npop = 10,
 #'                  aggr = "ID") #
-#'   sim6 <- sg_sim(mod_ex, et_base, stimes, output = c("Cc", "Cc_ResErr"),
+#'   sim6 <- sg_sim(mod_ex, et_base, stimes, outputs = c("Cc", "Cc_ResErr"),
 #'                  covs = c("IGFR", "POPN"), thetamat = thetamat, nsub = 10,
 #'                  npop = 10, aggr = "ID")
 #'
 #'   ### BSV, RUV, Uncertainty
-#'   sim7 <- sg_sim(mod_ex, et_base, stimes, output = c("Cc", "Cc_ResErr"),
+#'   sim7 <- sg_sim(mod_ex, et_base, stimes, outputs = c("Cc", "Cc_ResErr"),
 #'                  covs = c("IGFR", "POPN"), omega = omega, sigma = sigma,
 #'                  thetamat = thetamat, nsub = 10, npop = 10, aggr = "ID")
 #'
 #'   ### Time-varying covariates
-#'   sim8 <- sg_sim(mod_ex, et_tvar_cov, output = c("Cc", "IGFRCOV", "CL"),
+#'   sim8 <- sg_sim(mod_ex, et_tvar_cov, outputs = c("Cc", "IGFRCOV", "CL"),
 #'                  covs = c("IGFR", "POPN"))
 #' }
 #' @import rxode2
 #' @importFrom purrr map
 #' @import dplyr
 #' @export
-sg_sim <- function(model, et, stimes = NULL, output = NULL, theta = NULL,
+sg_sim <- function(model, et, stimes = NULL, outputs = NULL, theta = NULL,
                    omega = NULL, sigma = NULL, sigmaDf = NULL, sigmaLower = -Inf,
                    sigmaUpper = Inf, thetamat = NULL, covs = NULL,
                    npop = 1, nsub = 1, aggr = NULL, addcov = T, keep = NULL,
