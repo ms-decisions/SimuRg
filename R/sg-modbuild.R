@@ -57,7 +57,7 @@
 #' library(dplyr)
 #' folder_path <- system.file("extdata", package = "SimuRg")
 #' mod_lst <- list(paste(folder_path, "/models/model_PK_1c.txt", sep = "/"),
-#'                   paste(folder_path, "/models/model_PK_2c.txt", sep = ""))
+#'                   paste(folder_path, "/models//model_PK_2c.txt", sep = ""))
 #'
 #' ### path to the dataset
 #' data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
@@ -148,9 +148,11 @@
 #'  re_lst = re_lst_1,
 #'  occ_lst = re_lst_1,
 #'  covs_lst = NULL,
-#'  path = path,
+#'  path = paste0(path, "\\"),
 #'  project_name = "tests_test_project"
-#')
+#' )
+#' clr_files <- list.files(path, full.names = TRUE)
+#' unlink(clr_files, recursive = TRUE, force = TRUE)
 #' }
 #'
 #' @import dplyr
@@ -159,7 +161,6 @@
 #' @importFrom jsonlite fromJSON
 #' @import dplyr
 #' @export
-
 sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
                         occ_lst, covs_lst=NULL, task_lst = NULL, opt_name = "Simurg",
                         path=getwd(), project_name = "my_project") {

@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-modbuild, model building
 
 test_that("sg_modbuild creates expected number of files", {
+
   folder_path <- system.file("extdata", package = "SimuRg")
 
   ### list of paths to structural models
@@ -93,7 +94,7 @@ test_that("sg_modbuild creates expected number of files", {
     re_lst = re_lst_1,
     occ_lst = re_lst_1,
     covs_lst = NULL,
-    path = path,
+    path = paste0(path, "\\"),
     project_name = "tests_test_project"
   )
 
@@ -114,7 +115,6 @@ test_that("sg_modbuild creates expected number of files", {
   expect_equal(nrow(csv_content), 768) # 2 сценария
   clr_files <- list.files(path, full.names = TRUE)
   unlink(clr_files, recursive = TRUE, force = TRUE)
-  # file.remove(clr_files)
 
 
 })

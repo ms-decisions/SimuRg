@@ -27,6 +27,7 @@
 #' @importFrom purrr map_dfr
 #' @import dplyr
 #' @importFrom stringr str_remove
+#' @importFrom rlang .data
 #' @export
 sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop = 100){
   obj <- read_smrg_obj(fpath_i)
