@@ -487,7 +487,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     n_dupl_removed <- 0
 
     if (dupl_check_before){
-      warning("Exact duplicates found between original and synthetic data.")
+      #warning("Exact duplicates found between original and synthetic data.")
 
       # Remove duplicates if requested
       if (remove_duplicates) {
@@ -523,40 +523,78 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
     if (length(var_cont)>0){
       # Get Kolmogorov-Smirnov test
-      ks_results <- map_dfr(var_cont, function(var) {
-        x <- data_i[[var]]
-        y <- data_syn[[var]]
+      # ks_results <- map_dfr(var_cont, function(var) {
+      #   x <- data_i[[var]]
+      #   y <- data_syn[[var]]
+      #
+      #   # Detect ties across combined samples; ks.test assumes continuous data
+      #   has_ties <- any(duplicated(c(x, y)))
+      #
+      #   # Suppress the default ks.test warning about ties and emit a custom one instead
+      #   ks_result <- suppressWarnings(ks.test(x, y))
+      #   if (has_ties) {
+      #     warning(
+      #       "Kolmogorov-Smirnov test for variable '", var,
+      #       "' may be approximate due to ties in the data",
+      #       call. = FALSE
+      #     )
+      #   }
+      #   p_val <- ks_result$p.value
+      #
+      #   # Format p-value as character to ensure consistent type for bind_rows
+      #   if (p_val < 0.01) {
+      #     p_val_formatted <- "<0.01"
+      #   } else {
+      #     p_val_formatted <- as.character(round(p_val, 4))
+      #   }
+      #
+      #   tibble(
+      #     variable = var,
+      #     p.value = p_val_formatted,
+      #     status = ifelse(p_val > 0.05, "similar", "different")
+      #   )
+      # })
 
-        # Detect ties across combined samples; ks.test assumes continuous data
-        has_ties <- any(duplicated(c(x, y)))
+      ks_results <- suppressWarnings({
+        map_dfr(var_cont, function(var) {
+          x <- data_i[[var]]
+          y <- data_syn[[var]]
 
-        # Suppress the default ks.test warning about ties and emit a custom one instead
-        ks_result <- suppressWarnings(ks.test(x, y))
-        if (has_ties) {
-          warning(
-            "Kolmogorov-Smirnov test for variable '", var,
-            "' may be approximate due to ties in the data",
-            call. = FALSE
+          # Detect ties across combined samples; ks.test assumes continuous data
+          has_ties <- any(duplicated(c(x, y)))
+
+          # Suppress the default ks.test warning about ties and emit a custom one instead
+          ks_result <- ks.test(x, y)
+          if (has_ties) {
+            warning(
+              "Kolmogorov-Smirnov test for variable '", var,
+              "' may be approximate due to ties in the data",
+              call. = FALSE
+            )
+          }
+          p_val <- ks_result$p.value
+
+          # Format p-value as character to ensure consistent type for bind_rows
+          if (p_val < 0.01) {
+            p_val_formatted <- "<0.01"
+          } else {
+            p_val_formatted <- as.character(round(p_val, 4))
+          }
+
+          tibble(
+            variable = var,
+            p.value = p_val_formatted,
+            status = ifelse(p_val > 0.05, "similar", "different")
           )
-        }
-        p_val <- ks_result$p.value
-
-        # Format p-value as character to ensure consistent type for bind_rows
-        if (p_val < 0.01) {
-          p_val_formatted <- "<0.01"
-        } else {
-          p_val_formatted <- as.character(round(p_val, 4))
-        }
-
-        tibble(
-          variable = var,
-          p.value = p_val_formatted,
-          status = ifelse(p_val > 0.05, "similar", "different")
-        )
+        })
       })
 
-      #Comparison of correlation matrices
-      corr_diff <- compare_cor_matrices(data_i, data_syn, var_cont, method = "kendall")
+
+
+      #Comparison of correlation matrices (requires at least 2 variables)
+      if (length(var_cont) > 1) {
+        corr_diff <- compare_cor_matrices(data_i, data_syn, var_cont, method = "kendall")
+      }
     }
 
     if (length(var_cat)>0){
@@ -680,6 +718,8 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         })
 
         #Heat map for corr_diff R_diff (using ggplot2 for better visualization)
+        # Only create heatmap if there are at least 2 continuous variables
+        if (length(var_cont) > 1 && !is.null(corr_diff)) {
         corr_diff_df <- as.data.frame(as.table(corr_diff$R_diff))
         colnames(corr_diff_df) <- c("Var1", "Var2", "R_diff")
 
@@ -704,6 +744,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
             axis.text.x = element_text(angle = 45, hjust = 1),
             legend.position = "right"
           )
+        }
       }
 
       if (length(var_cat)>0){
