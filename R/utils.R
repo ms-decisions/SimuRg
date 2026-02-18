@@ -92,6 +92,28 @@
 #' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
 sg_dummy <- function() {}
 
+#' Ensure SimuRg object table components are single data frames
+#'
+#' Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
+#' when needed. Idempotent if already data frames.
+
+smrg_ensure_tables_df <- function(obj) {
+  table_names <- c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")
+  for (nm in table_names) {
+    x <- obj[[nm]]
+    if (is.null(x)) next
+    if (is.data.frame(x)) next
+    if (!is.list(x) || length(x) == 0) next
+    # List of rows (each element is a list or atomic vector)
+    if (is.list(x[[1]]) && !is.data.frame(x[[1]])) {
+      obj[[nm]] <- as.data.frame(do.call(rbind, lapply(x, as.data.frame)))
+    } else {
+      obj[[nm]] <- as.data.frame(x)
+    }
+  }
+  obj
+}
+
 read_smrg_obj <- function(fpath_i) {
   if (inherits(fpath_i, "character")) {
     if (!file.exists(fpath_i)) {
@@ -106,15 +128,19 @@ read_smrg_obj <- function(fpath_i) {
       if (!requireNamespace("jsonlite", quietly = TRUE)) {
         stop("Package 'jsonlite' is required for reading JSON files.")
       }
-      result <- jsonlite::fromJSON(fpath_i, simplifyVector = FALSE)
+      # simplifyVector = TRUE, simplifyDataFrame = TRUE so SDTAB and other
+      # array-of-objects become single data frames
+      result <- jsonlite::fromJSON(fpath_i, simplifyVector = TRUE, simplifyDataFrame = TRUE)
+      # Ensure known table components are data frames (in case of list of rows)
+      result <- smrg_ensure_tables_df(result)
     } else {
       stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
     }
 
     return(result)
   } else if (inherits(fpath_i, "list")) {
-    # fpath_i is already an object (sg_fit object)
-    return(fpath_i)
+    # fpath_i is already an object (sg_fit object); ensure tables are data frames
+    return(smrg_ensure_tables_df(fpath_i))
   } else if (inherits(fpath_i, "data.frame")) {
     stop("fpath_i cannot be a data.frame. Provide either a file path (character) or an sg_fit object (list with SDTAB)")
   } else {
