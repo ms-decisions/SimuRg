@@ -2,7 +2,35 @@
 funSum_av <- list(mean   = ~mean(.),
                   median   = ~median(., na.rm = T))
 
-# Function parameters
+fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
+  et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
+    cc_ds_n <- cc_ds_i %>% filter(COV == n)
+
+    et_scov_n <- seq(nrow(cc_ds_n)) %>% map_dfr(function(m){
+      row_m <- cc_ds_n %>% filter(row_number() == m)
+
+      et_scov_m <- et_base_i %>%
+        mutate_at(vars(all_of(row_m$COV)), function(k){k = row_m$COVVAL})
+      if(!cat){
+        et_scov_m <- et_scov_m %>% bind_cols(select(row_m, COV, PAR, BTR, KEY, COVVAL, BCOVVAL))
+      } else {
+        et_scov_m <- et_scov_m %>% bind_cols(select(row_m, COV, PAR, KEY, COVVAL, CATDES))
+      }
+
+      return(et_scov_m)
+
+    }) %>% mutate(id = row_number())
+
+    return(et_scov_n)
+  })
+  names(et_scov_i) <- unique(cc_ds_i$COV)
+  return(et_scov_i)
+}
+
+
+
+
+# sg_covsens_sim Function parameters
 quantiles <- c(0.1, 0.9)
 cont_cov_l <- list(
   NAME = "AGE",
@@ -262,3 +290,17 @@ cc_to_test <- ds_cc %>% select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>
 ds_catc <- data_fin %>% select(all_of(c(ID)), all_of(cat_cov$COV)) %>% unique()
 
 catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %>% unique() %>% left_join(cat_cov, by = c("COV", "COVVAL"))
+
+
+## Event table
+et_base <- tribble(
+  ~id, ~time, ~evid, ~cmt, ~amt, ~addl, ~ii, ~IGFR, ~POPN,
+  1,   0,     1,     1,    10,   2,     24,  112,   1
+)
+
+et_tvar_cov <- bind_rows(
+  et_base,
+  tibble(id = 1, time = seq(0, 96, 0.5), evid = 0, cmt = 0, amt = 0, addl = 0, ii = 0, IGFR = 112, POPN = 1)
+) %>% mutate(IGFR = ifelse(time > 24, 30, IGFR))
+
+
