@@ -27,25 +27,35 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
   return(et_scov_i)
 }
 
-
-
-
-# sg_covsens_sim Function parameters
+# Function parameters
 quantiles <- c(0.1, 0.9)
 cont_cov_l <- list(
-  NAME = "AGE",
-  UTNAME = NA, #(or NA or NULL if UTNAME should be = NAME),
-  REF = "median", #“median” or user-defined number,
-  NICENAME = "Age, years" #nice name or NULL
+  LG_AGE = list(
+    NAME = "LG_AGE",
+    UTNAME = "AGE", #(or NA or NULL if UTNAME should be = NAME),
+    REF = "median", #“median” or user-defined number,
+    NICENAME = "Age, years" #nice name or NULL
+  ),
+  LG_WEIGHT = list(
+    NAME = "LG_WEIGHT",
+    UTNAME = "WEIGHT", #(or NA or NULL if UTNAME should be = NAME),
+    REF = "median", #“median” or user-defined number,
+    NICENAME = "Weight, kg" #nice name or NULL
+  )
 )
+
+cat_cov_vec <- c("Sex" = "SEX", "CYP2C9 genotype" = "CYP2C9")
+
 # add check of REF value
 aggr = c("min", "max", "mean")
 
 # Load simurg object with covariates
-fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
+#fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
+#fpath_i <- system.file("extdata", "simurg_object", "run_4cov_smrg_results.json", package = "SimuRg")
+fpath_i <- system.file("extdata", "simurg_object", "run_4cov_smrg_results.json", package = "SimuRg")
 
 obj_data <- read_smrg_obj(fpath_i)
-ds_mod <- obj_data$SDTAB
+ds_mod <-  obj_data$SDTAB
 par_sum <- obj_data$SUMTAB
 ds_catcov <- obj_data$CATAB
 ds_ccov <- obj_data$COTAB
@@ -68,14 +78,17 @@ mod_fin <- RxODE({
 
   # Covariate effect
   # Continuous
-  beta_V_AGE = 0.00472;
+  beta_CL_LG_AGE = 0.49990114;
+  beta_Vd_LG_WEIGHT = 0.60529433;
 
   # Categorical
-  beta_Cl_CYP2C9_gentyp_1_2 = -0.287;
-  beta_Cl_CYP2C9_gentyp_1_3 = -0.566;
-  beta_Cl_CYP2C9_gentyp_2_2 = -1.09;
-  beta_Cl_CYP2C9_gentyp_2_3 = -0.730;
-  beta_Cl_CYP2C9_gentyp_3_3 = -2.45;
+  beta_Cl_CYP2C9_1_2 = -0.339;
+  beta_Cl_CYP2C9_1_3 = -0.574;
+  beta_Cl_CYP2C9_2_2 = -1.079;
+  beta_Cl_CYP2C9_2_3 = -0.745;
+  beta_Cl_CYP2C9_3_3 = -2.13;
+
+  beta_ka_SEX_1 = -0.12198035;
 
   # Residual error
   Cc_b = 0;
@@ -86,22 +99,25 @@ mod_fin <- RxODE({
   CL_tv = exp(CL_pop);
 
   CL_multiplier = 1.0;  # Default/reference
+  ka_multiplier = 1.0;
 
-  if (CYP2C9_gentyp == 1.2) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_gentyp_1_2);
-  } else if (CYP2C9_gentyp == 1.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_gentyp_1_3);
-  } else if (CYP2C9_gentyp == 2.2) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_gentyp_2_2);
-  } else if (CYP2C9_gentyp == 2.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_gentyp_2_3);
-  } else if (CYP2C9_gentyp == 3.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_gentyp_3_3);
+  if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+
+  if (CYP2C9  == 1.2) {
+    CL_multiplier = exp(beta_Cl_CYP2C9_1_2);
+  } else if (CYP2C9  == 1.3) {
+    CL_multiplier = exp(beta_Cl_CYP2C9_1_3);
+  } else if (CYP2C9  == 2.2) {
+    CL_multiplier = exp(beta_Cl_CYP2C9_2_2);
+  } else if (CYP2C9 == 2.3) {
+    CL_multiplier = exp(beta_Cl_CYP2C9_2_3);
+  } else if (CYP2C9 == 3.3) {
+    CL_multiplier = exp(beta_Cl_CYP2C9_3_3);
   }
 
-  ka = ka_tv*exp(omega_ka);
-  Vd = exp(beta_V_AGE * AGE + omega_Vd); #Vd_tv*exp(omega_Vd);
-  CL = CL_tv*CL_multiplier*exp(omega_CL);
+  ka = ka_tv*ka_multiplier*exp(omega_ka);
+  Vd = Vd_tv*exp(beta_Vd_LG_WEIGHT * LG_WEIGHT + omega_Vd); #Vd_tv*exp(omega_Vd);
+  CL = CL_tv*CL_multiplier*exp(beta_CL_LG_AGE * LG_AGE + omega_CL);
 
 
   ### Explicit functions
@@ -117,28 +133,10 @@ mod_fin <- RxODE({
 
   Cc_ResErr = Cc*(1 + Cc_b);
 })
-# Helper function to create mock sg_fit object
-
-
-
 
 
 ### Population parameters
 par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)
-
-# parameter <- "PAR"
-# value <- "VALUE"
-
-# par_pop <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop")) %>% select(all_of(c(parameter, value))) %>% deframe()
-# par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
-#   mutate(value = ifelse(str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"), log(value), value)) %>% deframe()
-#
-# par_fin_tv <- par_fin %>% filter(str_detect(.data[[parameter]], "_pop$") | str_detect(.data[[parameter]], "^beta_")) %>% select(all_of(c(parameter, value))) %>%
-# mutate(!!value := ifelse(
-#   str_detect(.data[[parameter]], "_pop$") & !str_detect(.data[[parameter]], "^beta_"),
-#   ifelse(.data[[value]] > 0, log(.data[[value]]), NA_real_),
-#   .data[[value]]
-# ))
 
 par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
 par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
@@ -192,7 +190,8 @@ cont_cov <- tribble(
   ~TR,          ~BTR,      ~PAR,
   # "WTBL",       "OWTBL",    c("Vd", "Vp", "CL", "Vmax", "Q")
   # "LOG_CSF1",    "CSF1BL",  c("BL_CSF1", "Vd", "CL")
-  "AGE",         "AGE",     c("Vd")
+  "LG_AGE",         "AGE",     c("CL"),
+  "LG_WEIGHT",     "WEIGHT",     c("Vd")
 )
 cat_cov <- tribble(
   ~COV,         ~COVVAL,             ~CATDES,   ~KEY, ~PAR,
@@ -203,12 +202,14 @@ cat_cov <- tribble(
   # "POP",        "Cancer",            "Cancer",  0,    c("Vd", "Vmax"),
   # "ADACAT",     "0",                 "No",      1,    c("CL"),
   # "ADACAT",     "1",                 "Yes",     0,    c("CL")
-  "CYP2C9_gentyp", "1.1",              "1.1",     1,    c("CL"),
-  "CYP2C9_gentyp", "1.2",              "1.2",     0,    c("CL"),
-  "CYP2C9_gentyp", "1.3",              "1.3",     0,    c("CL"),
-  "CYP2C9_gentyp", "2.2",              "2.2",     0,    c("CL"),
-  "CYP2C9_gentyp", "2.3",              "2.3",     0,    c("CL"),
-  "CYP2C9_gentyp", "3.3",              "3.3",     0,    c("CL")
+  "CYP2C9",        "1.1",              "1.1",     1,    c("CL"),
+  "CYP2C9",         "1.2",              "1.2",     0,    c("CL"),
+  "CYP2C9",        "1.3",              "1.3",     0,    c("CL"),
+  "CYP2C9",        "2.2",              "2.2",     0,    c("CL"),
+  "CYP2C9",        "2.3",              "2.3",     0,    c("CL"),
+  "CYP2C9",        "3.3",              "3.3",     0,    c("CL"),
+  "SEX",           "0",                 "0",      1,    c("ka"),
+  "SEX",           "1",                 "1",      0,    c("ka")
 
 )
 
@@ -219,8 +220,10 @@ nice_names <- tribble(
   # "CMSTCAT",   "Corticosteroids",
   # "POP",   "Population",
   # "ADACAT",    "ADA status",
-    "AGE",      cont_cov_l[[1]],
-  "CYP2C9_gentyp", "CYP2C9 genotype"
+    "LG_AGE",      cont_cov_l[["LG_AGE"]][["NICENAME"]],
+    "LG_WEIGHT",      cont_cov_l[["LG_WEIGHT"]][["NICENAME"]],
+  "CYP2C9",      "CYP2C9 genotype",
+  "SEX",         "Sex"
 )
 
 ss_cycle <- 10
@@ -254,9 +257,20 @@ ds_cc <- ds_cc_tr %>%
     LP = quantile(TVALUE, quantiles[[1]]),
     UP = quantile(TVALUE, quantiles[[2]]))
 
-if (cont_cov_l$REF == "median"){
-  ds_cc <- ds_cc %>% mutate(REF = median(TVALUE)) %>% ungroup()
-} else {ds_cc <- ds_cc %>% mutate(REF = cont_cov_l$REF)}
+
+
+# Build per-covariate REF lookup from cont_cov_l
+ref_lookup <- map_dfr(cont_cov_l, function(cov) {
+  tibble(TR = cov$NAME, REF_spec = cov$REF)
+})
+
+# Add REF column: use median(TVALUE) when REF_spec == "median", else use the numeric value
+ds_cc <- ds_cc %>%
+  left_join(ref_lookup, by = "TR") %>%
+  group_by(TR) %>%
+  mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+  select(-REF_spec) %>%
+  ungroup()
 
 
 #ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT)
@@ -264,33 +278,53 @@ ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_jo
 
 # ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT) %>% str_c(., "\nResults shown for a dose calculated for the median (reference) patient")
 
+# Calculate low and upper quantile values for Back transformed covariates
 #Take into account that there are several continuous covariates!!!
-q_ccont <- c(unique(ds_cc$LP), unique(ds_cc$UP), unique(ds_cc$REF))
-
 map_ccont <- function(target_ccont, data) {
   idx <- which.min(abs(data$TVALUE - target_ccont))
   data$NVALUE[idx]
 }
+ccont_lab_list <- list()
+for (i in c(1:length(cont_cov_l))){
+  ds_cc_i <- ds_cc %>% filter(TR == cont_cov_l[[i]]$NAME)
+q_ccont <- c(unique(ds_cc_i$LP), unique(ds_cc_i$UP), unique(ds_cc_i$REF))
 
 ccont_labels <- sapply(
   q_ccont,
   map_ccont,
-  data = ds_cc
+  data = ds_cc_i
 )
 
-names(ccont_labels) <- c("LP", "UP", "REF")
+names(ccont_labels) <- c("LP_BTR", "UP_BTR", "REF_BTR")
+ccont_lab_list[[cont_cov_l[[i]]$NAME]] <- ccont_labels
+}
 
-# Rewrite!!! BCOVVAL- for plot labels of untransformed covariate
-cc_to_test <- ds_cc %>% select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>% unique() %>%
-  gather("KEY", "COVVAL", -COV:-median) # %>%
-  # mutate(BCOVVAL = case_when(COV == "NCMCT" ~ COVVAL + median, COV == "WTBL" ~ COVVAL, T ~ exp(COVVAL)*median))
+# Convert ccont_lab_list to a long data frame for joining: COV + KEY -> BCOVVAL
+ccont_lab_df <- map_dfr(names(ccont_lab_list), function(cov_name) {
+  vals <- ccont_lab_list[[cov_name]]
+  tibble(
+    COV     = cov_name,
+    KEY     = c("LP",       "UP",       "REF"),
+    BCOVVAL = as.numeric(vals[c("LP_BTR", "UP_BTR", "REF_BTR")])
+  )
+})
 
+cc_to_test <- ds_cc %>%
+  select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
+  unique() %>%
+  gather("KEY", "COVVAL", -COV:-median) %>%
+  left_join(ccont_lab_df, by = c("COV", "KEY"))
+
+cc_to_test <- ds_cc %>%
+  select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
+  unique() %>%
+  gather("KEY", "COVVAL", -COV:-median) %>%
+  left_join(ccont_lab_df, by = c("COV", "KEY"))
 
 ### Categorical covariates
 ds_catc <- data_fin %>% select(all_of(c(ID)), all_of(cat_cov$COV)) %>% unique()
 
 catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %>% unique() %>% left_join(cat_cov, by = c("COV", "COVVAL"))
-
 
 ## Event table
 et_base <- tribble(
@@ -302,5 +336,3 @@ et_tvar_cov <- bind_rows(
   et_base,
   tibble(id = 1, time = seq(0, 96, 0.5), evid = 0, cmt = 0, amt = 0, addl = 0, ii = 0, IGFR = 112, POPN = 1)
 ) %>% mutate(IGFR = ifelse(time > 24, 30, IGFR))
-
-
