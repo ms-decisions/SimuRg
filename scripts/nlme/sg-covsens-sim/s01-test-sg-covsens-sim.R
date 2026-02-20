@@ -1,4 +1,22 @@
 # Functions
+funSum_sim <- list(mean   = ~mean(.),
+                   median = ~median(.),
+                   min    = ~min(.),
+                   max    = ~max(.),
+                   sd     = ~sd(.),
+                   P025   = ~quantile(., 0.025),
+                   P05    = ~quantile(., 0.05),
+                   P10    = ~quantile(., 0.10),
+                   P15   = ~quantile(., 0.15),
+                   P25    = ~quantile(., 0.25),
+                   P75    = ~quantile(., 0.75),
+                   P85   = ~quantile(., 0.85),
+                   P90    = ~quantile(., 0.90),
+                   P95    = ~quantile(., 0.95),
+                   P975   = ~quantile(., 0.975),
+                   geom_mean = ~exp(mean(log(.), na.rm = T)),
+                   CV     = ~sd(., na.rm = T)/mean(., na.rm = T)*100)
+
 funSum_av <- list(mean   = ~mean(.),
                   median   = ~median(., na.rm = T))
 
@@ -36,12 +54,16 @@ fun_ForSim <- function(mod_i, et_i, s_times_i = NULL, vars_i = NULL, theta_i = N
                        aggr_id = F, aggr_tot = F, keep = NULL, cov_i = NULL, addcov = T, ncores = 1){
 
   #Test
-  mod_i = mod_fin; et_i = et_i; s_times_i = stime_exp; vars_i = var_exp; theta_i = par_fin_tv;
-  thetamat_i = m_theta_norm_pop; cov_i = covs_i; nrep = nsim;
-  keep = keep_i;
-  omega_i = NULL; sigma_i = NULL; thetamat_i = NULL
-  thlow = -Inf; aggr_id = F; aggr_tot = F;
-  addcov = T; ncores = 1
+  # mod_i = mod_fin; et_i = et_i; s_times_i = stime_exp;
+  # vars_i = var_exp;
+  # theta_i = par_fin_tv;
+  # thetamat_i = m_theta_norm_pop; cov_i = covs_i; nrep = nsim;
+  # keep = keep_i;
+  # omega_i = NULL; sigma_i = NULL; thetamat_i = NULL
+  # thlow = -Inf;
+  # aggr_id = F;
+  # aggr_tot = F;
+  # addcov = T; ncores = 1
 
 
   et_i_m <- et_i %>% et()
@@ -64,7 +86,8 @@ fun_ForSim <- function(mod_i, et_i, s_times_i = NULL, vars_i = NULL, theta_i = N
   if(!is.null(vars_i)){sim_i_ind <- sim_i_ind %>% filter( VAR %in% vars_i )}
 
   sim_i_aggr_id <- NULL; sim_i_aggr_tot <- NULL
-  sim_i_out <- list(IND = sim_i_ind, AGGR_ID = sim_i_aggr_id, AGGR_TOT = sim_i_aggr_tot)
+  #sim_i_out <- list(IND = sim_i_ind, AGGR_ID = sim_i_aggr_id, AGGR_TOT = sim_i_aggr_tot)
+  sim_i_out <- list(IND = sim_i_ind, AGGR_ID = NULL, AGGR_TOT = NULL)
 
   if(aggr_id){
     sim_i_out$AGGR_ID <- sim_i_ind %>% group_by(id, time, VAR) %>% summarise_at(vars(VALUE), funSum_sim) %>% ungroup()
@@ -88,7 +111,8 @@ fun_ForSim <- function(mod_i, et_i, s_times_i = NULL, vars_i = NULL, theta_i = N
   return(sim_i_out)
 }
 
-fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 1000, stime_exp = NULL, var_exp = "Cc_mgL"){
+fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL, var_exp = "Cc") #nsim=1000
+  {
 
 
   #Test
@@ -96,7 +120,8 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 1000
   covs_i = nice_names$COV
   expos = T
   stime_exp = stimes_ss
-  cat = F; expos = F; covs_i = NULL; nsim = 1000; var_exp = "Cc_mgL"
+  cat = F; nsim = 200;
+  var_exp = "Cc"
 
 
   keep_i <- c("Regimen", "KEY", "COV", "COVVAL")
@@ -127,7 +152,16 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 1000
       mutate(PCH = 100*(VALUE - REFVAL)/REFVAL)
 
     out_i <- sim_i_ch %>% group_by_at(vars(all_of(c("VAR", keep_i, covs_i)))) %>% summarise_at(vars(PCH), funSum_sim) %>% ungroup()
-  }) %>% left_join(nice_names, by = "COV")
+
+    # Ensure BCOVVAL is added from et_i if not already present (for continuous covariates)
+    if(!cat && "BCOVVAL" %in% names(et_i)){
+      if(!"BCOVVAL" %in% names(out_i)){
+        bcovval_lookup <- et_i %>% select(KEY, COV, COVVAL, BCOVVAL) %>% unique()
+        out_i <- out_i %>% left_join(bcovval_lookup, by = c("KEY", "COV", "COVVAL"))
+      }
+    }
+
+    })  #%>% left_join(nice_names, by = "COV")
 
   if(!cat){
     sens_out <- sens_i %>% select(NICEN, VAR, KEY, mean:P975, Regimen, COVVAL:BCOVVAL) %>% mutate(KEY = ifelse(KEY == "LP", "10th perc.", "90th perc."), LAB = str_c(NICEN, "\n", KEY, " (", round(BCOVVAL, 1), ")"))
@@ -459,7 +493,7 @@ ets_catc <- fun_EtCC(ev_t_base, catc_to_test, T)
 
 # fn_m_theta_norm_pop_id <- str_c(path_to_save, "m_theta_norm_pop_id.Rdata")
 # if(!file.exists(fn_m_theta_norm_pop_id) | overwrite){
-  m_theta_norm_pop_id <- MASS::mvrnorm(1000, par_fin_tv, m_theta_norm_pop) %>% as.data.frame()
+  m_theta_norm_pop_id <- MASS::mvrnorm(100, par_fin_tv, m_theta_norm_pop) %>% as.data.frame() #MASS::mvrnorm(1000, par_fin_tv, m_theta_norm_pop)
 #   save(m_theta_norm_pop_id, file = fn_m_theta_norm_pop_id)
 # }
 # load(fn_m_theta_norm_pop_id)
@@ -501,6 +535,16 @@ ets_catc <- fun_EtCC(ev_t_base, catc_to_test, T)
       fun_CovSens(ets_cc, covs_i = nice_names$COV, expos = T, stime_exp = stimes_ss) %>% mutate(Type = "Continuous"),
       fun_CovSens(ets_catc, covs_i = nice_names$COV, cat = T, expos = T, stime_exp = stimes_ss) %>% mutate(Type = "Categorical")
     ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
+
+    et_sim_i = ets_cc
+    covs_i = nice_names$COV
+    expos = T
+    stime_exp = stimes_ss
+    cat = F; nsim = 200;
+    var_exp = "Cc"
+    p <- fun_CovSens(ets_cc, covs_i = nice_names$COV, expos = T, stime_exp = stimes_ss) %>% mutate(Type = "Continuous")
+
+
 ## Visualization
     p_cov_sens_exp <- ggplot(data = filter(out_cov_exp_sens, VAR != "Cmin, ug/mL"), aes(x = LAB, y = mean, ymin = P05, ymax = P95, col = Type)) +
       annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.8, ymax = 1.25, fill = "firebrick", alpha = 0.2) +
