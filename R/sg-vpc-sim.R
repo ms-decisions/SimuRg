@@ -10,9 +10,9 @@
 #' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
 #' @returns A dataset with simulation results
 #' @examples
-#' \dontrun{
-#' library(tidyverse)
+#' \donttest{
 #' library(rxode2)
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' mod_fin <- rxode2({
 #'   # Differential equations
 #'   d/dt(Ad) = -ka * Ad
@@ -21,8 +21,8 @@
 #'   # Concentration calculations
 #'   Cc = Ac / V
 #' })
-#' sg_vpc_sim(obj1, mod_fin, outputs = "Cc")
-#'}
+#' sg_vpc_sim(fpath_i, mod_fin, outputs = "Cc")
+#' }
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr

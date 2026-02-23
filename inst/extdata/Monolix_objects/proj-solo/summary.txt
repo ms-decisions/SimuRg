@@ -1,0 +1,108 @@
+********************************************************************************
+*                           proj-r-solo.mlxtran                                *
+*                            at                                                *
+*                           Monolix version : 2023R1                           *
+********************************************************************************
+
+
+ESTIMATION OF THE POPULATION PARAMETERS ________________________________________
+
+Fixed Effects ----------------------------     se_sa    rse(%)
+ka_pop   :                          0.0715   0.00218      3.05
+V_pop    :                              20     0.481       2.4
+Cl_pop   :                           0.279    0.0121      4.35
+
+Standard Deviation of the Random Effects -
+omega_ka :                             0.3    0.0219      7.28
+omega_V  :                           0.237    0.0176      7.45
+omega_Cl :                           0.434    0.0308       7.1
+
+Error Model Parameters -------------------
+b        :                          0.0575   0.00112      1.95
+
+Elapsed time (seconds):      3.1
+Exploratory phase iterations:      210 (Autostop)
+Smoothing phase iterations:        143 (Autostop)
+
+ _______________________________________________________________________________
+
+
+
+ESTIMATION OF THE INDIVIDUAL PARAMETERS ________________________________________
+
+
+Estimation of the individual parameters by Conditional Distribution ------------
+           min        Q1    median        Q3       max
+ka :    0.0434    0.0605    0.0711    0.0863     0.141
+V  :      11.9      17.5      19.8      22.9      36.6
+Cl :    0.0565     0.219     0.287     0.391     0.616
+
+Elapsed time (seconds):      1.1
+Iterations:      167 (Autostop)
+
+ -------------------------------------------------------------------------------
+
+
+Estimation of the individual parameters by Conditional Mode --------------------
+           min        Q1    median        Q3       max
+ka :    0.0425    0.0602    0.0709    0.0862     0.139
+V  :      14.2      17.5      19.7        23        36
+Cl :    0.0627     0.217     0.287     0.392     0.618
+
+Elapsed time (seconds):    0.082
+
+ -------------------------------------------------------------------------------
+
+ _______________________________________________________________________________
+
+
+
+ESTIMATION OF THE FISHER INFORMATION MATRIX ____________________________________
+
+
+Estimation of the Fisher information matrix by Stochastic Approximation --------
+
+Correlation Matrix :
+  ka_pop         1
+   V_pop  0.026351         1
+  Cl_pop-0.0022154-0.0019997         1
+omega_ka -0.010872 -0.012131 0.0027028         1
+ omega_V  0.002441-0.0063975-0.0014863 0.0057552         1
+omega_Cl 0.0054524 0.0062411-0.0079973 -0.0013360.00052641         1
+       b 0.0031799 0.0096103 0.0026141-0.0099621 -0.026731-0.0031638         1
+
+                               min       max   max/min
+Eigen values           :      0.97         1       1.1
+
+Elapsed time (seconds):      0.4
+Iterations:       50 (Autostop)
+
+ -------------------------------------------------------------------------------
+
+ _______________________________________________________________________________
+
+
+
+ESTIMATION OF THE LOG-LIKELIHOOD _______________________________________________
+
+                                                            (is)
+-2 x log-likelihood                       (OFV) :      -10244.49
+Akaike Information Criteria               (AIC) :      -10230.49
+Corrected Bayesian Information Criteria  (BICc) :      -10201.16
+Bayesian Information Criteria             (BIC) :      -10212.25
+
+Elapsed time                          (seconds) :           6.10
+CPU time                              (seconds) :           6.00
+MonteCarlo size (is):    10000 (Fixed number of iterations)
+
+
+[Importance Sampling] Standard error        : 1.194
+                      Sampling distribution : T-distribution with 5 degrees of freedom
+
+ _______________________________________________________________________________
+
+DATASET INFORMATION
+Number of individuals: 100
+Number of observations (1): 1600
+Number of doses: 100
+

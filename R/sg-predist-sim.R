@@ -3,9 +3,9 @@
 #' @inheritParams sg_dummy
 #' @returns A dataset with simulation results
 #' @examples
-#' \dontrun{
-#' library(tidyverse)
+#' \donttest{
 #' library(rxode2)
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' mod_fin <- rxode2({
 #'   # Differential equations
 #'   d/dt(Ad) = -ka * Ad
@@ -13,7 +13,7 @@
 #'   # Concentration calculations
 #'   Cc = Ac / V
 #' })
-#' sg_predist_sim(obj1, mod_fin, outputs = "Cc")
+#' sg_predist_sim(fpath_i, mod_fin, outputs = "Cc")
 #' }
 #' @import rxode2
 #' @importFrom purrr map_dfr

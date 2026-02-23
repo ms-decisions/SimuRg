@@ -11,12 +11,10 @@
 #' @param lab_y string. Y-ax label. Default is "Plasma concentration, mmol/L"
 #' @returns A list of plots with predicted time profiles, faceted by id
 #' @examples
-#' \dontrun{
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
-#'                         package = "SimuRg"))
+#'                         package = "SimuRg")
 #' plot_list <- sg_gof_tp(fpath_i)
 #' print(plot_list[[1]])
-#' }
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom scales pretty_breaks trans_format

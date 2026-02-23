@@ -196,7 +196,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @param nds integer. Number of synthetic datasets to generate in search mode. Ignored in fixed seed mode (optional, default: \code{1})
 #' @param tg_corrdif numeric. Target maximum absolute correlation difference threshold for dataset selection in search mode. Ignored in fixed seed mode (optional, default: \code{0.1})
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(dplyr)
 #'
 #' # Generate example dataset
