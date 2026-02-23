@@ -19,6 +19,7 @@
 #'
 #' @examples
 #' \donttest{
+#' library(ggplot2)
 #' # Basic residuals vs time
 #' sg_gof_res(
 #'   fpath_i = system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"),
@@ -30,10 +31,10 @@
 #'   fpath_i =  system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"),
 #'   res_type = "IWRES",
 #'   cov_cols = "SEX",
-#'   dens = T,
+#'   dens = TRUE,
 #'   lab_x = "IWRES",
 #'   facet_i = "SEX",
-#'   addline = T) + labs(subtitle = "Individual")
+#'   addline = TRUE) + labs(subtitle = "Individual")
 #' }
 #'
 #' @import dplyr
@@ -47,7 +48,7 @@ sg_gof_res <- function(
     lab_y = NULL, lab_x = NULL, col_i = NULL, col_lab = NULL,
     facet_i = NULL, f_scales = "fixed",
     dens = FALSE, n_bins = 50,
-    ymin = NA, ymax = NA, xmin = NA, xmax = NA, no_leg = FALSE,
+    min_y = NA, max_y = NA, min_x = NA, max_x = NA, no_leg = FALSE,
     n_quantiles = 3, levels_discrete = 10
 ) {
 
@@ -120,7 +121,7 @@ sg_gof_res <- function(
       labs(y = lab_y, x = lab_x),
       geom_hline(yintercept = c(-2, 2), col = "firebrick", linewidth = 0.5, linetype = "dashed"),
       geom_hline(yintercept = 0, col = "black", linewidth = 0.7, linetype = "dashed"),
-      scale_y_continuous(breaks = scales::pretty_breaks(7), limits = c(ymin, ymax)),
+      scale_y_continuous(breaks = scales::pretty_breaks(7), limits = c(min_y, max_y)),
       scale_color_manual(values = rep(MSDcol, 20)),
       theme(legend.justification = c("left", "center"),
             legend.box.just = "left",
@@ -162,10 +163,10 @@ sg_gof_res <- function(
   } else {
     # histogram/density of residuals
     p_char <- list(
-      scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), limits = c(0, ymax)),
+      scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), limits = c(0, max_y)),
       scale_x_continuous(name = lab_x, breaks = scales::pretty_breaks(7), expand = c(0, 0)),
       scale_fill_manual(values = rep(MSDcol, 20)),
-      coord_cartesian(xlim = c(xmin, xmax)),
+      coord_cartesian(xlim = c(min_x, max_x)),
       theme(plot.title = element_text(size = 12),
             panel.grid.minor = element_blank())
     )

@@ -58,7 +58,7 @@
 sg_gof_obpr <- function(
     fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
     smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
-    xlab = "Model-predicted values", ylab = "Observed values", col_i = NULL, col_lab = NULL,
+    lab_x = "Model-predicted values", lab_y = "Observed values", col_i = NULL, col_lab = NULL,
     facet_i = NULL, f_scales = "fixed",
     no_leg = F, n_quantiles = 3, levels_discrete = 10
 ){
@@ -176,7 +176,7 @@ sg_gof_obpr <- function(
   lim_obpr <- c(min(ds_i$X, ds_i$DV), max(ds_i$X, ds_i$DV))
 
   p_char <- list(
-    labs(y = ylab, x = xlab),
+    labs(y = lab_y, x = lab_x),
     geom_abline(linewidth = 0.5, col = "black", linetype = "dashed"),
     scale_color_manual(values = rep(MSDcol[c(2, 3, 4, 5, 7, 9, 6, 8, 1)], 30)),
     theme(legend.justification = c("left", "center"),

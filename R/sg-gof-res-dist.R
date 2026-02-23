@@ -21,19 +21,19 @@
 #'
 #' @return A `ggplot` object.
 #' @examples
-#' \dontrun{
 #' # Plot the distribution of individual weighted residuals (IWRES)
 #' # as histograms with overlaid normal curves for each DVID
-#' sg_gof_res_dist(fpath_i = "PK.RData", res_type = "IWRES")
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
+#'                         package = "SimuRg")
+#' sg_gof_res_dist(fpath_i = fpath_i, res_type = "IWRES")
 #'
 #' # Generate QQ-plots to visually assess normality of standard residuals (RES)
 #' # stratified by DVID
-#' sg_gof_res_dist(fpath_i = "PK.RData", res_type = "RES", plot_type = "QQ")
+#' sg_gof_res_dist(fpath_i = fpath_i, res_type = "RES", plot_type = "QQ")
 #'
 #' # Multiple residual types can be specified (e.g., IWRES and IRES);
 #' # the function will produce plots for each residual type across all DVID groups
-#' sg_gof_res_dist(fpath_i = "PK.RData", res_type = c("IWRES", "IRES"))
-#' }
+#' sg_gof_res_dist(fpath_i = fpath_i, res_type = c("IWRES", "IRES"))
 #' @import dplyr
 #' @import tidyr
 #' @import ggplot2

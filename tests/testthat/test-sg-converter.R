@@ -6,7 +6,8 @@
 test_that("sg-converter works and contains all elements", {
   skip_if(T)
   test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
-  if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
+  if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
+    test_folder <- str_c(test_folder, "/")
   pro_name <- "proj-r-solo"
 
   # Simple function call

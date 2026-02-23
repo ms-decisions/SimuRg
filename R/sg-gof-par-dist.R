@@ -23,13 +23,12 @@
 #'
 #'
 #' @examples
-#' \dontrun{
 #' # Basic usage
-#' sg_gof_par_dist(fpath_i = "PK.RData")
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
+#' sg_gof_par_dist(fpath_i = fpath_i)
 #'
 #' # Only for specific parameters
-#' sg_gof_par_dist(fpath_i = "~/Simurg_function/Warfarin_PK.RData", eta_seq = c("ka", "Cl"))
-#' }
+#' sg_gof_par_dist(fpath_i = fpath_i, eta_seq = c("ka", "Cl"))
 #' @import dplyr
 #' @importFrom MASS mvrnorm
 #' @import ggplot2

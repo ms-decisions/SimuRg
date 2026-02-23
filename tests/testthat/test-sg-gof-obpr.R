@@ -321,7 +321,7 @@ test_that("sg_gof_obpr handles custom axis labels", {
   skip_if_not_installed("dplyr")
 
   mock_obj <- create_mock_sg_fit_gof()
-  p <- sg_gof_obpr(mock_obj, xlab = "Predicted (ng/mL)", ylab = "Observed (ng/mL)")
+  p <- sg_gof_obpr(mock_obj, lab_x = "Predicted (ng/mL)", lab_y = "Observed (ng/mL)")
 
   expect_s3_class(p, "ggplot")
 
