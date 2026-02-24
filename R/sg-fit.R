@@ -368,7 +368,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     simurg_cntrl_file <- toJSON(simurg_cntrl_list, pretty = TRUE)
     sc_data <- simurg_cntrl_file
 
-    filepath <- sprintf("%s/%s.R", path_to_save_output, project_name)
+    filepath <- sprintf("%s/%s.mlxtran", path_to_save_output, project_name)
     # return(simurg_cntrl_file)
   }
   # dir.create(dirname(filepath), showWarnings = FALSE, recursive =T)
@@ -379,12 +379,18 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
                recursive = T)
     curr_dir <- getwd()
     setwd(dirname(path_to_fitter))
-    int_res <- system(sprintf('"%s" --no-gui -p %s -o %s -t monolix', #--mode none
-                              path_to_fitter, path.expand(filepath),
-                              path.expand(file.path(path_to_save_output, project_name))), wait = F)
-    setwd(curr_dir)
-    Sys.sleep(10)
+    int_res <- system(sprintf('%s --no-gui -p %s -o %s -t monolix', #--mode none
+                              path_to_fitter, path.expand(file.path(curr_dir, filepath)),
+                              path.expand(file.path(curr_dir, path_to_save_output,
+                                                    project_name))), wait = F)
 
+    fit_end <- F
+    while (!fit_end) {
+      output_files <- list.files(path.expand(file.path(path_to_save_output, project_name)))
+      if (("summary.txt" %in% output_files)) fit_end <- T
+    }
+    print("fit ended")
+    setwd(curr_dir)
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
     # } else if (fit & opt_name == "Simurg") {
     # int_res <- system(sprintf('%s --no-gui -p "%s" --mode none -o "%s"',
