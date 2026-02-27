@@ -132,6 +132,19 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`
 #' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
 #' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
+#' #' @param method Character string. `"PRCC"` or `"eFAST"`.
+#' @param model Model object passed to `sg_sim()`.
+#' @param params Character vector of parameter names to vary.
+#' @param par_bounds Tibble/data.frame with columns `PAR`, `LB`, `UB`.
+#' @param n_sim Integer. Number of samples (LHS size for PRCC, base frequency size for eFAST).
+#' @param stimes Numeric vector of simulation times.
+#' @param output Character vector of outputs to keep. Passed to `sg_sim()`.
+#' @param stat_comp Character vector of summary statistics to compute.
+#'        Supported internally: `"mean","median","min","max","sd","cmax","SS"`.
+#' @param et Event table passed to `sg_sim()`.
+#' @param theta Named numeric vector of baseline parameters. Default NULL.
+#'        Parameters listed in `params` are replaced by sampled values.
+#' @param cov Covariates passed to `sg_sim()`. Default NULL.
 sg_dummy <- function(
     ...,
   abreaks = scales::pretty_breaks(7),
