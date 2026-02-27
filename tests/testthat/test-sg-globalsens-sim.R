@@ -76,6 +76,7 @@ mod_ex <- RxODE({
   CHECKRUV = RUV;
   Cc_ResErr = Cc + RUV*Cc;
 })
+source("inst/extdata/RxODE_model/example_rxode_model.R")
 et_base <- tribble(
   ~id, ~time, ~evid, ~cmt, ~amt, ~addl, ~ii, ~IGFR, ~POPN,
   1,   0,     1,     1,    10,   2,     24,  112,   1

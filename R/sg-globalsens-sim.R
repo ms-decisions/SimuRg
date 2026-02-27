@@ -34,6 +34,54 @@
 #'   \item{bounds}{
 #'     Parameter bounds used in the analysis.
 #'   }
+#' @examples
+#' \donttest{
+#' # Example model
+#'source("inst/extdata/RxODE_model/example_rxode_model.R") # mod_ex
+#'
+#'
+#' # Set up event table
+#' et_base <- tribble(
+#'   ~id, ~time, ~evid, ~cmt, ~amt, ~addl, ~ii, ~IGFR, ~POPN,
+#'   1,   0,     1,     1,    10,   2,     24,  112,   1
+#' )
+#'
+#' # Define parameter bounds
+#' inits <- rxInits(mod_ex)
+#' par_bounds <- tibble::tibble(
+#'   PAR = c("POPCL", "POPVC"),
+#'   LB  = inits[c("POPCL", "POPVC")] * (1 - 0.9),
+#'   UB  = inits[c("POPCL", "POPVC")] * (1 + 0.9)
+#' )
+#'
+#' # Run eFAST sensitivity analysis
+#' res_efast <- sg_globalsens_sim(
+#'   method = c("eFAST"),
+#'   model = mod_ex,
+#'   params = c("POPCL"),
+#'   par_bounds = par_bounds,
+#'   n_sim = 100,
+#'   stimes = seq(0, 168, 10),
+#'   output = "Cc",
+#'   cov = c("IGFR", "POPN"),
+#'   et = et_base,
+#'   stat_comp = c("mean")
+#' )
+#'
+#' # Run PRCC sensitivity analysis
+#' res_prcc <- sg_globalsens_sim(
+#'   method = c("PRCC"),
+#'   model = mod_ex,
+#'   params = c("POPCL", "POPVC"),
+#'   par_bounds = par_bounds,
+#'   n_sim = 100,
+#'   stimes = seq(0, 168, 10),
+#'   output = "Cc",
+#'   cov = c("IGFR", "POPN"),
+#'   et = et_base,
+#'   stat_comp = c("mean")
+#' )
+#' }
 #'
 #'
 #'
