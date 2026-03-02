@@ -1,21 +1,21 @@
-#' Plot Random Effects or Individual Parameters vs Covariates
+#' Plot random effects or individual parameters vs covariates
 #'
 #' Generates ggplot2 visualizations for either random effects (RE) or individual parameters (IndPar)
 #' versus continuous or categorical covariates from a Simurg object.
 #'
-#' @param fpath_i Character. Path to the `.RData` file containing the Simurg object.
+#' @inheritParams sg_dummy
 #' @param ptype Character. Type of plot: `"REvsCov"` for random effects or `"IndParvsCov"` for individual parameters.
 #' @param cat_cov Optional tibble with categorical covariates. Must have columns `COV` and optionally `COVNAME` for labels.
 #' @param cont_cov Optional tibble with continuous covariates. Must have columns `COV` and optionally `COVNAME` for labels.
 #' @param color_palette Character vector. Colors used in plots.
 #'
-#' @return A list of ggplot objects. For `"REvsCov"`, returns `re_vs_contcov` and `re_vs_catcov`.
-#'         For `"IndParvsCov"`, returns `ipar_vs_contcov` and `ipar_vs_catcov`.
+#' @return A list of ggplot objects. Returns versus continious covariates
+#' `vs_contcov` and versus categorical covariates `vs_catcov` plots.
 #'
 #' @examples
 #' \dontrun{
 #' cont_cov <- tibble(
-#'   COV = c("AGE", "WTBL"),
+#'   COV = c("AGE", "WEIGHT"),
 #'   COVNAME = c("Age, years", "Body weight, kg")
 #' )
 #' cat_cov <- tibble(
@@ -28,8 +28,8 @@
 #'   cont_cov = cont_cov,
 #'   cat_cov = cat_cov
 #' )
-#' p$ipar_vs_contcov
-#' p$ipar_vs_catcov
+#' p$vs_contcov
+#' p$vs_catcov
 #' }
 #'
 #' @import dplyr
@@ -135,7 +135,7 @@ sg_gof_par_cov <- function(fpath_i,
       ) %>%
       mutate(
         PEARS = sprintf("r = %.2f\np = %.3f", r, p),
-        SIGNPEARS = if_else(p < 0.05, "black", "firebrick")
+        SIGNPEARS = if_else(p < 0.05, "firebrick", "black")
       )
   }
 
@@ -212,18 +212,21 @@ sg_gof_par_cov <- function(fpath_i,
                    hjust = -0.1, vjust = 1.1, show.legend = FALSE, size = 2.5) +
         facet_grid(PNAME ~ COVNAME, scales = "free", switch = "y") +
         scale_y_continuous(breaks = pretty_breaks(7), name = "Random effect", position = "right") +
-        scale_color_manual(values = c("1" = "firebrick", "2" = "black")) +
+        scale_color_manual(values = c("1" = "black", "2" = "firebrick")) +
         labs(x = "Category", title = "Random Effects vs Categorical Covariates") +
         theme_bw(base_size = 11) +
         theme(axis.text.x = element_text(angle = 25, hjust = 1, vjust = 1),
               panel.grid.minor = element_blank())
     } else p_cat <- NULL
 
-    return(list(re_vs_contcov = p_cont, re_vs_catcov = p_cat))
+    return(list(vs_contcov = p_cont, vs_catcov = p_cat))
 
   } else if (ptype == "IndParvsCov") {
+
+    indpar_cols <- intersect(indpar_cols, gsub("^eta_", "", eta_cols))
+
     # Individual parameter vs Continuous Covariates
-    if (length(contcov_cols) > 0) {
+    if ((length(contcov_cols) > 0) && (length(indpar_cols) > 0)) {
     ind_long <- df %>%
       select(ID, COHORTC, all_of(indpar_cols), all_of(contcov_cols)) %>%
       pivot_longer(cols = all_of(indpar_cols), names_to = "PNAME", values_to = "VALUE") %>%
@@ -244,7 +247,6 @@ sg_gof_par_cov <- function(fpath_i,
         hjust = -0.1, vjust = 1.1, show.legend = FALSE, size = 2.5
       ) +
       geom_point(aes(color = COHORTC), size = 1.5, alpha = 0.7, show.legend = FALSE) +
-      geom_hline(yintercept = 0, col = "grey25", lty = "dotted", linewidth = 0.5) +
       geom_smooth(method = "lm", formula = y ~ x, color = color_palette[3], se = FALSE) +
       facet_grid(PNAME ~ COVNAME, scales = "free", switch = "y") +
       scale_x_continuous(breaks = pretty_breaks(7), name = "Covariate value") +
@@ -260,7 +262,7 @@ sg_gof_par_cov <- function(fpath_i,
       labs(title = "Individual Parameters vs Continious Covariates")
   } else p_cont <- NULL
   # IndPar vs Categorical Covariates
-  if (length(catcov_cols) > 0) {
+  if ((length(catcov_cols) > 0) && (length(indpar_cols) > 0)) {
     ind_cat <- df %>%
       select(ID, COHORTC, all_of(indpar_cols), all_of(catcov_cols)) %>%
       mutate(across(all_of(catcov_cols), as.character))  %>%
@@ -273,19 +275,18 @@ sg_gof_par_cov <- function(fpath_i,
     # Plot IndParvsCatCov
     p_cat <- ggplot(ind_cat, aes(x = as.factor(COVVAL), y = VALUE)) +
       geom_boxplot(fill = color_palette[1], alpha = 0.5, outlier.colour = color_palette[3], outlier.shape = 3) +
-      geom_hline(yintercept = 0, col = "grey25", lty = "dotted", linewidth = 0.5) +
       geom_label(data = unique(select(ind_cat, PNAME, COV, COVNAME, PVAL, LARGPVAL)),
                  aes(x = -Inf, y = Inf, label = PVAL, col = LARGPVAL),
                  hjust = -0.1, vjust = 1.1, show.legend = FALSE, size = 2.5) +
       facet_grid(PNAME ~ COVNAME, scales = "free", switch = "y") +
       scale_y_continuous(breaks = pretty_breaks(7), name = "Individual parameter", position = "right") +
-      scale_color_manual(values = c("1" = "firebrick", "2" = "black")) +
+      scale_color_manual(values = c("1" = "black", "2" = "firebrick")) +
       labs(x = "Category", title = "Individual Parameters vs Categorical Covariates") +
       theme_bw(base_size = 11) +
       theme(axis.text.x = element_text(angle = 25, hjust = 1, vjust = 1))
   } else p_cat <- NULL
 
-  return(list(ipar_vs_contcov = p_cont, ipar_vs_catcov = p_cat))
+  return(list(vs_contcov = p_cont, vs_catcov = p_cat))
 
   }
 }
