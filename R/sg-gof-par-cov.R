@@ -13,7 +13,7 @@
 #' `vs_contcov` and versus categorical covariates `vs_catcov` plots.
 #'
 #' @examples
-#' \dontrun{
+#' library(tibble)
 #' cont_cov <- tibble(
 #'   COV = c("AGE", "WEIGHT"),
 #'   COVNAME = c("Age, years", "Body weight, kg")
@@ -22,8 +22,9 @@
 #'   COV = c("SEX", "VKORC1_gentyp"),
 #'   COVNAME = c("Sex, M/F", "VKORC1 genotype")
 #' )
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' p <- sg_gof_par_cov(
-#'   fpath_i = "simurg-object/Warfarin_PK.RData",
+#'   fpath_i = fpath_i,
 #'   ptype = "IndParvsCov",
 #'   cont_cov = cont_cov,
 #'   cat_cov = cat_cov

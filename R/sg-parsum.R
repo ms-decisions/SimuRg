@@ -6,14 +6,11 @@
 #' Extract parameter summary (theta, eta, SE, RSE, CI, CV, shrinkage)
 #'
 #' @inheritParams sg_dummy
-#' @param cap string. Plot caption. Default is "empty circles - observed data solid lines with point - individual predictions dashed grey lines with point - population predictions"
 #' @returns A table with parameter summary
 #' @examples
-#' \dontrun{
-#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg"))
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sum_tab <- sg_parsum(fpath_i)
 #' print(sum_tab)
-#' }
 #' @import dplyr
 #' @import stringr
 #' @export

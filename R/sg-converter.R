@@ -43,22 +43,22 @@
 #' metrics.
 #'
 #' @examples
-#' \dontrun{
+#' library(stringr)
 #' # Convert Monolix project results
 #' test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
-#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
-#' pro_name <- "proj-r-solo"
+#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
+#'   test_folder <- str_c(test_folder, "/")
+#' pro_name <- "proj-solo"
 #' result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
-#' save(results, file = "./models/simurg_object/Warfarin_PK.RData")
+#' # save(results, file = "./models/simurg_object/Warfarin_PK.RData")
 #' # Access individual predictions
-#' head(results$SDTAB)
+#' head(result$SDTAB)
 #'
 #' # View parameter estimates
-#' print(results$SUMTAB)
+#' print(result$SUMTAB)
 #'
 #' # Check objective function value
-#' print(results$OFV)
-#' }
+#' print(result$OFV)
 #'
 #' @importFrom readr read_csv cols parse_number
 #' @importFrom stringr str_c
