@@ -182,17 +182,33 @@ cont_cov_l <- list(
     NAME = "LG_AGE",
     UTNAME = "AGE", #(or NA or NULL if UTNAME should be = NAME),
     REF = "median", #“median” or user-defined number,
-    NICENAME = "Age, years" #nice name or NULL
+    NICENAME = "Age, years", #nice name or NULL,
+    par_vec = c("CL")
   ),
   LG_WEIGHT = list(
     NAME = "LG_WEIGHT",
     UTNAME = "WEIGHT", #(or NA or NULL if UTNAME should be = NAME),
     REF = "median", #“median” or user-defined number,
-    NICENAME = "Weight, kg" #nice name or NULL
+    NICENAME = "Weight, kg",
+    par_vec = c("Vd") #c("Vd", "CL") #nice name or NULL
+  )
+)
+#cat_cov_vec <- c("Sex" = "SEX", "CYP2C9 genotype" = "CYP2C9")
+cat_cov_l <- list(
+  SEX = list(
+    NAME = "SEX",
+    NICENAME = "Sex", #nice name or NULL,
+    REF = "0", # NULL or user-defined value,
+    par_vec = c("ka")
+  ),
+  CYP2C9 = list(
+    NAME = "CYP2C9",
+    NICENAME = "CYP2C9 genotype", #nice name or NULL
+    REF = "1.2", # NULL or user-defined value,
+    par_vec = c("CL") #c("Vd", "CL")
   )
 )
 
-cat_cov_vec <- c("Sex" = "SEX", "CYP2C9 genotype" = "CYP2C9")
 
 # add check of REF value
 aggr = c("min", "max", "mean")
@@ -230,10 +246,10 @@ mod_fin <- RxODE({
   beta_Vd_LG_WEIGHT = 0.60529433;
 
   # Categorical
-  beta_Cl_CYP2C9_1_2 = -0.339;
-  beta_Cl_CYP2C9_1_3 = -0.574;
-  beta_Cl_CYP2C9_2_2 = -1.079;
-  beta_Cl_CYP2C9_2_3 = -0.745;
+  beta_CL_CYP2C9_1_2 = -0.339;
+  beta_CL_CYP2C9_1_3 = -0.574;
+  beta_CL_CYP2C9_2_2 = -1.079;
+  beta_CL_CYP2C9_2_3 = -0.745;
   beta_Cl_CYP2C9_3_3 = -2.13;
 
   beta_ka_SEX_1 = -0.12198035;
@@ -252,15 +268,15 @@ mod_fin <- RxODE({
   if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
 
   if (CYP2C9  == 1.2) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_1_2);
+    CL_multiplier = exp(beta_CL_CYP2C9_1_2);
   } else if (CYP2C9  == 1.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_1_3);
+    CL_multiplier = exp(beta_CL_CYP2C9_1_3);
   } else if (CYP2C9  == 2.2) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_2_2);
+    CL_multiplier = exp(beta_CL_CYP2C9_2_2);
   } else if (CYP2C9 == 2.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_2_3);
+    CL_multiplier = exp(beta_CL_CYP2C9_2_3);
   } else if (CYP2C9 == 3.3) {
-    CL_multiplier = exp(beta_Cl_CYP2C9_3_3);
+    CL_multiplier = exp(beta_CL_CYP2C9_3_3);
   }
 
   ka = ka_tv*ka_multiplier*exp(omega_ka);
@@ -334,32 +350,57 @@ colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
 m_theta_norm_pop <- m_theta_norm[str_detect(rownames(m_theta_norm), "_pop|beta_"), str_detect(colnames(m_theta_norm), "_pop|beta_")]
 
 ###
-cont_cov <- tribble(
-  ~TR,          ~BTR,      ~PAR,
-  # "WTBL",       "OWTBL",    c("Vd", "Vp", "CL", "Vmax", "Q")
-  # "LOG_CSF1",    "CSF1BL",  c("BL_CSF1", "Vd", "CL")
-  "LG_AGE",         "AGE",     c("CL"),
-  "LG_WEIGHT",     "WEIGHT",     c("Vd")
-)
-cat_cov <- tribble(
-  ~COV,         ~COVVAL,             ~CATDES,   ~KEY, ~PAR,
-  # "CMSTCAT",    "0",                 "No",      1,    c("Vd"),
-  # "CMSTCAT",    "1",                 "Yes",     0,    c("Vd"),
-  # "POP",        "cGVHD",             "cGVHD",   1,    c("Vd", "Vmax"),
-  # "POP",        "Healthy",           "Healthy", 0,    c("Vd", "Vmax"),
-  # "POP",        "Cancer",            "Cancer",  0,    c("Vd", "Vmax"),
-  # "ADACAT",     "0",                 "No",      1,    c("CL"),
-  # "ADACAT",     "1",                 "Yes",     0,    c("CL")
-  "CYP2C9",        "1.1",              "1.1",     1,    c("CL"),
-  "CYP2C9",         "1.2",              "1.2",     0,    c("CL"),
-  "CYP2C9",        "1.3",              "1.3",     0,    c("CL"),
-  "CYP2C9",        "2.2",              "2.2",     0,    c("CL"),
-  "CYP2C9",        "2.3",              "2.3",     0,    c("CL"),
-  "CYP2C9",        "3.3",              "3.3",     0,    c("CL"),
-  "SEX",           "0",                 "0",      1,    c("ka"),
-  "SEX",           "1",                 "1",      0,    c("ka")
+# cont_cov <- tribble(
+#   ~TR,          ~BTR,      ~PAR,
+#   # "WTBL",       "OWTBL",    c("Vd", "Vp", "CL", "Vmax", "Q")
+#   # "LOG_CSF1",    "CSF1BL",  c("BL_CSF1", "Vd", "CL")
+#   "LG_AGE",         "AGE",     c("CL"),
+#   "LG_WEIGHT",     "WEIGHT",     c("Vd")
+# )
 
-)
+cont_cov <- map_dfr(cont_cov_l, function(x) {
+  tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+})
+
+cat_cov_vec <- map_chr(cat_cov_l, function(x) x$NAME)
+
+cat_unique <- map(cat_cov_vec, function(x){
+  ds_catcov[[x]] %>% unique()
+})
+names(cat_unique) <- cat_cov_vec
+
+# Build cat_cov automatically from cat_cov_l, cat_cov_vec and cat_unique
+cat_cov <- map_dfr(cat_cov_vec, function(x) {
+  vals <- as.character(cat_unique[[x]])
+  ref  <- cat_cov_l[[x]]$REF
+  tibble(
+    COV    = x,
+    COVVAL = vals,
+    CATDES = vals,
+    KEY    = as.integer(vals == ref),
+    PAR    = list(cat_cov_l[[x]]$par_vec)
+  )
+})
+
+# cat_cov <- tribble(
+#   ~COV,         ~COVVAL,             ~CATDES,   ~KEY, ~PAR,
+#   # "CMSTCAT",    "0",                 "No",      1,    c("Vd"),
+#   # "CMSTCAT",    "1",                 "Yes",     0,    c("Vd"),
+#   # "POP",        "cGVHD",             "cGVHD",   1,    c("Vd", "Vmax"),
+#   # "POP",        "Healthy",           "Healthy", 0,    c("Vd", "Vmax"),
+#   # "POP",        "Cancer",            "Cancer",  0,    c("Vd", "Vmax"),
+#   # "ADACAT",     "0",                 "No",      1,    c("CL"),
+#   # "ADACAT",     "1",                 "Yes",     0,    c("CL")
+#   "CYP2C9",        "1.1",              "1.1",     1,    c("CL"),
+#   "CYP2C9",        "1.2",              "1.2",     0,    c("CL"),
+#   "CYP2C9",        "1.3",              "1.3",     0,    c("CL"),
+#   "CYP2C9",        "2.2",              "2.2",     0,    c("CL"),
+#   "CYP2C9",        "2.3",              "2.3",     0,    c("CL"),
+#   "CYP2C9",        "3.3",              "3.3",     0,    c("CL"),
+#   "SEX",           "0",                 "0",      1,    c("ka"),
+#   "SEX",           "1",                 "1",      0,    c("ka")
+#
+# )
 
 nice_names <- tribble(
   ~COV,        ~NICEN,
