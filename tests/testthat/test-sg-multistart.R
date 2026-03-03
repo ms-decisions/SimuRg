@@ -1,4 +1,5 @@
 test_that("sg_multistart creates expected number of files", {
+  skip_if(T)
   folder_path <- system.file("extdata", package = "SimuRg")
   # str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
 

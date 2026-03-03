@@ -31,7 +31,6 @@
 #' )
 #' p$vs_contcov
 #' p$vs_catcov
-#' }
 #'
 #' @import dplyr
 #' @import tidyr

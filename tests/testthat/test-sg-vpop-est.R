@@ -4,9 +4,9 @@
 ## Keywords: SimuRg, sg-vpop-est
 
 test_that("sg-vpop-est file load works", {
-  #skip_if(T)
-  fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  load(fpath_i)
+
+  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
+  # load(fpath_i)
   output <- sg_vpop_est(data_i = data_pbc, diag_plots = TRUE, id_col = "id",
                         excl_col = "years", seed = 123)
 
@@ -54,8 +54,8 @@ test_that("sg_vpop_est returns correct structure with simple continuous data", {
   #   x1 = rnorm(200, mean = 10, sd = 2),
   #   x2 = rnorm(200, mean = 20, sd = 3)
   # )
-  fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  load(fpath_i)
+  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
+  # load(fpath_i)
   test_data <- data_pbc %>% select(years, age)
 
   output <-

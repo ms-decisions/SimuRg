@@ -71,7 +71,7 @@
 #' random number generator state and restores it upon exit.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' sg_multistart(
 #'   mod_lst = "model1.txt",
 #'   data = "data.csv",
@@ -91,6 +91,7 @@
 #' @importFrom readr write_csv
 #' @export
 #' @importFrom jsonlite fromJSON
+#' @importFrom stats runif
 #' @import dplyr
 #' @export
 

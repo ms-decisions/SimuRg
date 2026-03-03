@@ -37,7 +37,9 @@
 #' @examples
 #' \donttest{
 #' # Example model
-#'source("inst/extdata/RxODE_model/example_rxode_model.R") # mod_ex
+#' library(rxode2)
+#' library(tibble)
+#' source(system.file("extdata", "RxODE_model", "example_rxode_model.R", package = "SimuRg")) # mod_ex
 #'
 #'
 #' # Set up event table
@@ -85,7 +87,9 @@
 #'
 #'
 #'
-#' @import dplyr tidyr purrr lhs sensitivity ppcor
+#' @import dplyr tidyr purrr ppcor
+#' @importFrom sensitivity fast99 tell
+#' @importFrom lhs randomLHS
 #' @export
 
 sg_globalsens_sim <- function(method = c("PRCC", "eFAST"),
@@ -167,7 +171,7 @@ sg_globalsens_sim <- function(method = c("PRCC", "eFAST"),
     sg_sim(
       model = model,
       stimes = stimes,
-      output = output,
+      outputs = output,
       theta = theta_i,
       covs = cov,
       et = et

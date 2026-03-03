@@ -30,3 +30,4 @@ test_that("sg-converter fails gracefully", {
     "cannot open"
   )
 })
+

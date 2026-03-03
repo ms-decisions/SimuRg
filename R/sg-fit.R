@@ -6,7 +6,7 @@
 #' Run fit with monolix/simurg/nonmem fitter
 #'
 #' @inheritParams sg_dummy
-#' @param model string. Path to MLXTRAN file with model structure. This should be a valid file path pointing to a model file that defines the pharmacokinetic/pharmacodynamic model structure
+#' @param model string. Path to a txt file file with model structure in Monolix syntax. This should be a valid file path pointing to a model file that defines the pharmacokinetic/pharmacodynamic model structure
 #' @param theta tibble or data.frame. Should contain the following columns:
 #'   * `NAME` - string, parameter name. Should match names specified in the model file
 #'   * `TRANS` - string, parameter transformation type. Can be: `"normal"`, `"logNormal"`, `"logitNormal"`
@@ -14,6 +14,7 @@
 #'   * `LB` - numeric, lower bound for logit transformation, `NA` for other transformations
 #'   * `UB` - numeric, upper bound for logit transformation,  `NA` for other transformation
 #'   * `EST` - logical, whether to estimate this parameter.
+#' @param max_wait_time numeric. Maximum time in seconds to wait for fit results to complete. Default is 3600 seconds (1 hour). Set to `Inf` for no timeout.
 #' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
 #' @examples
 #' \donttest{
@@ -42,7 +43,7 @@
 #'                   "Vd", "logNormal", 20, NA, NA, TRUE,
 #'                   "ka", "logNormal", 0.2, NA, NA, TRUE
 #'  )
-#'
+#'  # Examples of random effect model specification
 #'  # Single observation (legacy format):
 #'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
 #'              ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL)
@@ -54,6 +55,20 @@
 #'    list(YNAME = "y2", DVID = 2, TRANS = "normal", PRED = "EFF",
 #'         ERR = "proportional", INIT = c(0.1), EST = c(TRUE), BLQM = NULL)
 #'  )
+#'
+#'  # Example of random effects (RE) specification.
+#'  #
+#'  # init matrix: provides the initial values for the random effects.
+#'  # est matrix: controls how each random effect is handled:
+#'  #   TRUE  - the random effect will be estimated,
+#'  #   FALSE - the random effect will be fixed at its initial value,
+#'  #   NA    - no random effect will be applied.
+#'  #
+#'  # To fit a model without random effects, set all entries in the
+#'  # est matrix to NA.
+#'  #
+#'  # The same logic applies to the between-occasion variability
+#'  # matrix (occ).
 #'
 #'  re <- list(init = tribble(~Cl, ~Vd, ~ka,
 #'                            1, 0, 0,
@@ -77,6 +92,14 @@
 #'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE))
 #'  output_path <- str_c(tempdir(), "/")
 #'  fitter_path <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
+#'  # Examples of task_opt parameter
+#'
+#'  task_opt <-  paste("populationParameters()", "individualParameters()",
+#'                     "logLikelihood()", sep = "\n")
+#'  task_opt_lin <-  paste("populationParameters()", "individualParameters()",
+#'                         "fim(method = Linearization)",
+#'                         "logLikelihood(method = Linearization)", sep = "\n")
+#'
 #'  result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
 #'                   project_name = "my_project", fit = FALSE, # set fit = TRUE for fit
 #'                   path_to_save_output =  output_path,
@@ -86,7 +109,8 @@
 #' @export
 sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name,
                    task_opt = NULL, opt_name = "Monolix", fit = F,
-                   path_to_save_output = NULL, path_to_fitter = NULL){
+                   path_to_save_output = NULL, path_to_fitter = NULL,
+                   max_wait_time = 3600){
   sc_data <- ""
   res_fit <- NULL
   model <- normalizePath(model)
@@ -428,8 +452,15 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     setwd(curr_dir)
     Sys.sleep(10)
     ended <- "LogLikelihood" %in% list.files(path_to_save_output1)
+    start_time <- Sys.time()
     while (!ended) {
       ended <-"LogLikelihood" %in% list.files(path_to_save_output1)
+      elapsed_time <- as.numeric(Sys.time() - start_time, units = "secs")
+      if (elapsed_time > max_wait_time) {
+        warning(sprintf("Timeout reached: Waited %d seconds for Monolix fit to complete. LogLikelihood file not found.", max_wait_time))
+        break
+      }
+      Sys.sleep(1)  # Sleep 1 second between checks to avoid busy waiting
     }
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
     # } else if (fit & opt_name == "Simurg") {
