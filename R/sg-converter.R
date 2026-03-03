@@ -710,8 +710,8 @@ sg_converter <- function(folder_path, proj_name){
   ## patab and sumtab compiling
 
 
-  eta_i <- read_csv(str_c(folder_path, proj_name, "./IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
-  indpar_i <- read_csv(str_c(folder_path, proj_name, "./IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
+  eta_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
+  indpar_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
 
   if (any(grepl("_mode$", colnames(indpar_i)))){suffix <- "_mode"} else {suffix <- "_SAEM"}
   eta_clnms <- c("id", str_c(eta_params, suffix))
@@ -749,9 +749,9 @@ sg_converter <- function(folder_path, proj_name){
 
   ## covmat and corrmat compiling
 
-  fi_files <- list.files(str_c(folder_path, proj_name, "./FisherInformation"))
-  corr_path <- str_c(folder_path, proj_name, "./FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
-  cov_path <- str_c(folder_path, proj_name, "./FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
+  fi_files <- list.files(str_c(folder_path, proj_name, "/FisherInformation"))
+  corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
+  cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
   covmat_dt <- read_csv(cov_path, col_types = cols(), col_names = F)
   colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
