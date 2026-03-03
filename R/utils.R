@@ -3,7 +3,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "COVNAME", "COVVAL", "CV", "CV % (95% CI)", "CWRES",
                          "DT_label", "DV", "DVID", "EST", "Estimate", "ETA",
                          "ETAshrinkage_sd", "ETAshrinkage_var", "EVID", "ID",
-                         "INIT", "IPRED", "IRES",
+                         "First order", "INIT", "IPRED", "IRES",
                          "IWRES", "LABEL", "LARGPVAL", "LCI",  "MDV", "METRIC",
                          "NAME", "NAME_INIT", "NTILE", "OCCMAN", "PAR", "PAR1",
                          "PAR2", "PAR_NAME", "Parameter", "PARVAL", "PAR_group",
@@ -11,9 +11,9 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "PPRED", "PPRED_bin", "PRED", "PVAL", "Project_name",
                          "R_diff", "RES", "RSE", "RUVpars", "Run_ID", "SE",
                          "SIGNPEARS", "Shrinkage", "Shrinkage_var", "Shrinkage (var), %",
-                         "Source", "TDIST", "TIME", "TIME_BIN", "TIME_BIN_max",
+                         "Source", "STAT", "TDIST", "TIME", "TIME_BIN", "TIME_BIN_max",
                          "TIME_BIN_max_prev", "TIME_BIN_min", "TIME_BIN_min_next",
-                         "TRANS", "TSLD", "TV", "TYPE", "UCI", "VALUE", "VAR",
+                         "TRANS", "TSLD", "Total order", "TV", "TYPE", "UCI", "VALUE", "VAR",
                          "Var1", "Var2", "Var_epsilon", "Var_mc", "Var_total",
                          "WRES", "X", "Y", "aov", "as.formula", "category", "cmax",
                          "cmax_ref", "combn", "cor", "cor.test", "data", "density",
@@ -25,7 +25,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "pi_u", "pi_u_ci_l", "pi_u_ci_u", "pi_u_median", "popPred",
                          "q25", "q75", "quantile", "r", "read.csv", "reorder",
                          "residual_type", "rnorm", "row_id", "sd", "sd_val",
-                         "se_val", "setNames", "theor_median", "time", "toJSON",
+                         "se_val", "setNames", "sim.id", "theor_median", "time", "toJSON",
                          "type", "use", "uperc","value", "value_at_time",
                          "value_cfb", "value_ref", "var", "x", "y", "y_central",
                          "y_lower", "y_lower_perc", "y_upper", "y_upper_perc"))
@@ -132,7 +132,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #'   * `"DIST"` (default) - histogram of individual parameters,
 #'   * `"QQ"` - QQ-plot of individual parameters
 #' @param pred.corr logical. Apply prediction correction. Default is `FALSE`
-#' @param project_name string. The name of the project. This will be used as the base name for output files and directories
+#' @param project_name string. The name of the Monolix project without file extension. This will be used as the base name for output files and directories
 #' @param re random effects object. Contains options for random effects in model fit. Should be a list containing:
 #'   * `init` - matrix, initial values for the variance-covariance matrix of random effects. Rows and columns should correspond to parameters defined in theta. Diagonal elements represent variances, off-diagonal elements represent covariances. Use 0 for no variability
 #'   * `est` - matrix, logical matrix of same dimensions as `init` specifying which variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` to not use this random effect
@@ -158,7 +158,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param sigma matrix. Named sigma covariance or Cholesky decomposition of a covariance matrix. Defult is `NULL`
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`
-#' @param task_opt string. Additional task options to be passed to the fitting software. For Monolix, this can include specific task configurations or optimization settings. When `NULL`, default tasks (populationParameters, individualParameters, fim, logLikelihood) will be used. Default is `NULL`
+#' @param task_opt string. Additional task options to be passed to the fitting software. For Monolix, this can include specific task configurations or optimization settings. When `NULL`, default tasks (populationParameters, individualParameters, fim, logLikelihood) will be used.  Default is `NULL`
 #' @param tdist logical. If `TRUE`, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is `TRUE`
 #' @param time_col string. The column to use as a time column. Currently, can be only `TIME`. Default is `TIME`
 #' @param theor_perc logical. Show theoretical percentiles. Default is `TRUE`
@@ -170,7 +170,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param wrap_i string. Faceting formula for `facet_wrap`. Default is `NULL`
 #' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
 #' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
-#' #' @param method Character string. `"PRCC"` or `"eFAST"`.
+#' @param method Character string. `"PRCC"` or `"eFAST"`.
 #' @param model Model object passed to `sg_sim()`.
 #' @param params Character vector of parameter names to vary.
 #' @param par_bounds Tibble/data.frame with columns `PAR`, `LB`, `UB`.
@@ -194,6 +194,7 @@ sg_dummy <- function(
   atol = 1e-8,
   cap,
   cov_cols,
+  cov,
   covint = "locf",
   ciLow = 0.025,
   ciUp = 0.975,
@@ -240,6 +241,7 @@ sg_dummy <- function(
   model,
   n_bins = 30,
   n_quantiles = 3,
+  n_sim,
   no_leg = FALSE,
   npop = 1,
   nsub = 1,
@@ -247,8 +249,11 @@ sg_dummy <- function(
   opt_name = "Monolix",
   omega,
   outputs = NULL,
+  output = NULL,
   path_to_fitter = NULL,
   path_to_save_output = NULL,
+  par_bounds,
+  params =NULL,
   piLow = 0.10,
   piUp = 0.90,
   plot_type = "DIST",
@@ -264,6 +269,7 @@ sg_dummy <- function(
   sigma = NULL,
   shp_i = NULL,
   smooth = TRUE,
+  stat_comp = NULL,
   stimes = NULL,
   task_opt = NULL,
   tdist = TRUE,
@@ -279,10 +285,10 @@ sg_dummy <- function(
   wrap_nrow = NULL
 ) {}
 
-#' Ensure SimuRg object table components are single data frames
-#'
-#' Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
-#' when needed. Idempotent if already data frames.
+# Ensure SimuRg object table components are single data frames
+#
+# Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
+# when needed. Idempotent if already data frames.
 
 smrg_ensure_tables_df <- function(obj) {
   table_names <- c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")

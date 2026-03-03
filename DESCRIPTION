@@ -1,6 +1,6 @@
 Package: SimuRg
 Title: R package for builidng and simulating from ode-based pharuse
-Version: 0.1.4
+Version: 0.1.5
 Authors@R: c(
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
     person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
