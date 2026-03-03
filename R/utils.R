@@ -82,7 +82,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #'   * `name` - string, column name in the dataset
 #'   * `use` - string, column usage type. Valid values include:
 #'     - "identifier" for subject ID columns
-#'     - "time" for time columns  
+#'     - "time" for time columns
 #'     - "observation" for dependent variable columns
 #'     - "observationtype" for observation type identifier
 #'     - "administration" for administration route
@@ -90,7 +90,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #'     - "eventidentifier" for event ID
 #'     - "missingdependentvariable" for missing DV flag
 #'     - "covariate" for covariate columns
-#'   * `type` - string or NULL, data type specification. For observations use "continuous", for covariates use "continuous" or "categorical". Can be NULL for non-covariate columns
+#'   * `type` - string or NULL, data type specification. For observations use "continuous", "count/categorical" or "event", depending on the nature of observations. For covariates use "continuous" or "categorical". Can be NULL for non-covariate columns
 #' @param ncores integer. Number of cores used for calculations. Default is 1
 #' @param id_col character string. Specify the name of the identifier column to exclude from synthesis. Default: \code{NULL}
 #' @param indiv logical. If `TRUE` uses individual predictions (`"IPRED"`); otherwise uses population predictions (`"PRED"`). Default is `TRUE`
@@ -117,7 +117,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param nsub integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1
 #' @param occ interoccasion variability object. Object to set properties of interoccasion variability. Should be a list containing:
 #'   * `init` - matrix, initial values for the interoccasion variance-covariance matrix. Same structure as `re$init` but for occasion-to-occasion variability. Use 0 for no interoccasion variability
-#'   * `est` - matrix, logical matrix specifying which interoccasion variance-covariance elements to estimate. Use TRUE to estimate, FALSE to fix, NA for elements not applicable. Typically all elements are NA when no interoccasion variability is modeled
+#'   * `est` - matrix, logical matrix specifying which interoccasion variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` for elements not applicable. Typically all elements are NA when no interoccasion variability is modeled
 #' @param omega named mztrix or vector. Matrix
 #' @param opt_name string. Specify the optimizer/fitter to use for model fitting. Currently supported options:
 #'   * `"Monolix"` - uses Monolix Suite for population pharmacokinetic modeling (generates .mlxtran files)
@@ -135,21 +135,22 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param project_name string. The name of the project. This will be used as the base name for output files and directories
 #' @param re random effects object. Contains options for random effects in model fit. Should be a list containing:
 #'   * `init` - matrix, initial values for the variance-covariance matrix of random effects. Rows and columns should correspond to parameters defined in theta. Diagonal elements represent variances, off-diagonal elements represent covariances. Use 0 for no variability
-#'   * `est` - matrix, logical matrix of same dimensions as `init` specifying which variance-covariance elements to estimate. Use TRUE to estimate, FALSE to fix, NA for off-diagonal elements that are constrained by symmetry
+#'   * `est` - matrix, logical matrix of same dimensions as `init` specifying which variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` to not use this random effect
 #' @param rtol numeric. A numberic relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
 #' @param run_id integer. Tested model ID. Default is 1.
 #' @param ruv residual error object. Options for residual error used in model fit. Should be a list containing:
-#'   * `YNAME` - string, output name
+#'   * `YNAME` - string, output name. Typically `"y1"`, `"y2"`,...
 #'   * `DVID` - numeric, observation type identifier corresponding to DVID column values
-#'   * `TRANS` - string, residual error distribution
+#'   * `TRANS` - string, residual error distribution. Can be: `"normal"`, `"logNormal"`, `"logitNormal"`
 #'   * `PRED` - string, prediction variable name from the model
 #'   * `ERR` - string, error model type. Options include:
 #'     - "constant" for additive error
-#'     - "proportional" for proportional error  
+#'     - "proportional" for proportional error
 #'     - "combined1" for combined additive and proportional error
 #'   * `INIT` - numeric vector, initial values for error parameters (length depends on error model)
 #'   * `EST` - logical vector, whether to estimate each error parameter (same length as INIT)
 #'   * `BLQM` - below limit of quantification method (can be NULL)
+#'  For several observation types list of lists should be provided: one residual error (ruv) object for each observations
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
 #' @param scale numeric named vector. Scaling for ode parameters of the system. The names must correspond to the parameter identifiers in the ODE specification. Each of the ODE variables will be divided by the scaling factor. Default is `NULL`
 #' @param seed integer. Random seed for synthetic data generation reproducibility.Default is \code{123}.
@@ -162,14 +163,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param time_col string. The column to use as a time column. Currently, can be only `TIME`. Default is `TIME`
 #' @param theor_perc logical. Show theoretical percentiles. Default is `TRUE`
 #' @param theor_percCI logical. Show CI around theoretical percentiles. Default is `TRUE`
-#' @param theta named vector or data.frame. Values of population parameters to simulate with. When using data.frame format (recommended for `sg_fit`), should contain the following columns:
-#'   * `NAME` - string, parameter name
-#'   * `TRANS` - string, parameter transformation type
-#'   * `INIT` - numeric, initial value for the parameter
-#'   * `LB` - numeric, lower bound for parameter estimation (can be NA for no bound)
-#'   * `UB` - numeric, upper bound for parameter estimation (can be NA for no bound)  
-#'   * `EST` - logical, whether to estimate this parameter
-#'   Default is `NULL`
+#' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
 #' @param thetamat matrix. Named theta matrix. Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
 #' @param val_col string. Name of value column. Default is `VALUE`
