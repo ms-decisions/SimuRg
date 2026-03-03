@@ -57,7 +57,7 @@
 #' library(dplyr)
 #' folder_path <- system.file("extdata", package = "SimuRg")
 #' mod_lst <- list(paste(folder_path, "/models/model_PK_1c.txt", sep = "/"),
-#'                   paste(folder_path, "/models//model_PK_2c.txt", sep = ""))
+#'                   paste(folder_path, "/models/model_PK_2c.txt", sep = ""))
 #'
 #' ### path to the dataset
 #' data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
