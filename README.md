@@ -4,7 +4,7 @@
 
 **SimuRg** provides a comprehensive workflow for non-linear mixed-effects model
 development in pharmacometrics. The package provides the entire modeling pipeline:
-from model calibration with Monolix fitter and output processing to goodness-of-fit 
+from model calibration with Monolix fitter(2023) and output processing to goodness-of-fit 
 visualization, simulation, and sensitivity analysis. To use Monolix, it should 
 be installed. 
 

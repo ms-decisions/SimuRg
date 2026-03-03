@@ -1,3 +1,11 @@
+# SimuRg 0.1.4(2026-02-24)
+## Documentation
+* Examples in documentation fix
+* Warfarin, sim_timeprof and data_pbc datasets documentation addition
+
+## Bug fixes
+* `sg_fit()` now waits for `summary.txt` filecreation, before calling `sg_converter()` 
+
 # SimuRg 0.1.3 (2026-02-17)
 
 ## NEW FEATURES
