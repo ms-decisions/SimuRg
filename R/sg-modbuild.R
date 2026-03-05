@@ -54,18 +54,105 @@
 #'
 #' @examples
 #' \donttest{
-#' sg_modbuild(
-#'   mod_lst = list("model1.txt", "model2.txt"),
-#'   data = "data.csv",
-#'   headers = list(ID = "ID", TIME = "TIME", DV = "DV"),
-#'   ruv_lst = ruv_lst_1,
-#'   theta_lst = theta_list,
-#'   re_lst = re_list,
-#'   occ_lst = occ_list,
-#'   covs_lst = covs_list,
-#'   path = "results/",
-#'   project_name = "test_project"
+#' library(dplyr)
+#' folder_path <- system.file("extdata", package = "SimuRg")
+#' mod_lst <- list(paste(folder_path, "/models/model_PK_1c.txt", sep = "/"),
+#'                   paste(folder_path, "/models/model_PK_2c.txt", sep = ""))
+#'
+#' ### path to the dataset
+#' data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
+#' re_lst_1 <- list(
+#'               list(init = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                     1, 0, 0, 0, 0,
+#'                                     0, 1, 0, 0, 0,
+#'                                     0, 0, 1, 0, 0,
+#'                                     0, 0, 0, 1, 0,
+#'                                     0, 0, 0, 0, 1) %>% as.matrix(),
+#'                     est = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                     TRUE, NA, NA, NA, NA,
+#'                                     NA, TRUE, NA, NA, NA,
+#'                                     NA, NA, TRUE, NA, NA,
+#'                                     NA, NA, NA, TRUE, NA,
+#'                                     NA, NA, NA, NA, TRUE) %>% as.matrix(),
+#'                     block = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                       FALSE, NA, NA, NA, NA,
+#'                                       NA, FALSE, NA, NA, NA,
+#'                                       NA, NA, TRUE, NA, NA,
+#'                                       NA, NA, NA, FALSE, NA,
+#'                                       NA, NA, NA, NA, FALSE) %>% as.matrix())
+#'            )
+#' headers <- list(list(name = "ID", use = "identifier", type = NULL),
+#'                list(name = "TIME", use = "time", type = NULL),
+#'                list(name = "DV", use = "observation", type = "continuous"),
+#'                list(name = "DVID", use = "observationtype", type = NULL),
+#'                list(name = "ADM", use = "administration", type = NULL),
+#'                list(name = "AMT", use = "amount", type = NULL),
+#'                list(name = "EVID", use = "eventidentifier", type = NULL),
+#'                list(name = "MDV", use = "missingdependentvariable", type = NULL),
+#'                list(name = "AGE", use = "covariate", type = "continuous"),
+#'                list(name = "AGE_centered", use = "covariate", type = "continuous"),
+#'                list(name = "SEX", use = "covariate", type = "categorical"),
+#'                list(name = "WEIGHT", use = "covariate", type = "continuous"),
+#'                list(name = "BMI", use = "covariate", type = "continuous"))
+#'
+#' ruv_lst_2 <- list(
+#'   # structural model 1
+#'  list(
+#'    list(YNAME = "y1",
+#'         DVID = 1,
+#'         TRANS = "normal",
+#'         PRED = "Cc",
+#'         ERR = list("constant", "proportional", "combined1"),
+#'          # options to test (can be length = 1, i.e., "constant" or "combined1")
+#'         INIT = list(1, 1, c(1, 1)),
+#'          # options to test (can be length = 1, i.e., 1 or c(1, 1))
+#'         EST = list(TRUE, TRUE, c(TRUE, TRUE)))
+#'         # options to test (can be length = 1, i.e., T or c(T, T))BLQM = NULL))
+#'  ),
+#'  # structural model 2
+#'  list(
+#'    list(YNAME = "y1",
+#'         DVID = 1,
+#'         TRANS = "normal",
+#'         PRED = "Cc",
+#'         ERR = list("constant", "proportional"),
+#'         # options to test (can be length = 1, i.e., "constant" or "combined1")
+#'         INIT = list(1, 1), # options to test (can be length = 1, i.e., 1 or c(1, 1))
+#'         EST = list(TRUE, TRUE))
+#'          # options to test (can be length = 1, i.e., T or c(T, T))BLQM = NULL))
+#'  )
 #' )
+#'
+#' theta_lst_2 <- list(
+#'  # structural model 1
+#'  tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+#'          "Cl", "logNormal", 0.2, NA, NA, TRUE,
+#'          "Vd", "logNormal", 20, NA, NA, TRUE,
+#'          "ka", "logNormal", 0.2, NA, NA, TRUE),
+#'  # structural model 2
+#'  tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+#'          "Cl", "logNormal", 0.2, NA, NA, TRUE,
+#'          "Vd", c("Normal", "logNormal"), c(10, 20, 30), NA, NA, TRUE,
+#'          "ka", "logNormal", c(0.2, 0.1, 0.5), NA, NA, TRUE,
+#'          # INIT could be length > 1
+#'          "Vp", c("Normal", "logNormal"), 10, NA, NA, TRUE,
+#'          "Q", "logNormal", 5, NA, NA, TRUE))
+#'
+#' path <- tempdir() #system.file("extdata", package = "SimuRg")
+#' sg_modbuild(
+#'  mod_lst = mod_lst[1],
+#'  data = data,
+#'  headers = headers,
+#'  ruv_lst = ruv_lst_2,
+#'  theta_lst = theta_lst_2,
+#'  re_lst = re_lst_1,
+#'  occ_lst = re_lst_1,
+#'  covs_lst = NULL,
+#'  path = paste0(path, "\\"),
+#'  project_name = "tests_test_project"
+#' )
+#' clr_files <- list.files(path, full.names = TRUE)
+#' unlink(clr_files, recursive = TRUE, force = TRUE)
 #' }
 #'
 #' @import dplyr
@@ -74,7 +161,6 @@
 #' @importFrom jsonlite fromJSON
 #' @import dplyr
 #' @export
-
 sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
                         occ_lst, covs_lst=NULL, task_lst = NULL, opt_name = "Simurg",
                         path=getwd(), project_name = "my_project") {

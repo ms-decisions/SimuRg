@@ -102,12 +102,14 @@
 #'
 #'   et_tvar_cov <- bind_rows(
 #'     et_base,
-#'     tibble(id = 1, time = seq(0, 96, 0.5), evid = 0, cmt = 0, amt = 0, addl = 0, ii = 0, IGFR = 112, POPN = 1)
+#'     tibble(id = 1, time = seq(0, 96, 0.5), evid = 0, cmt = 0, amt = 0,
+#'     addl = 0, ii = 0, IGFR = 112, POPN = 1)
 #'   ) %>% mutate(IGFR = ifelse(time > 24, 30, IGFR))
 #'
 #'
 #'   #####--------------- Set up parameters ---------------#####
-#'   omega <- matrix(c(0.2, 0.1, 0, 0.1, 0.2, 0, 0, 0, 0.2), nrow = 3, byrow = T); colnames(omega) <- c("PPVCL", "PPVVC", "PPVKTR")
+#'   omega <- matrix(c(0.2, 0.1, 0, 0.1, 0.2, 0, 0, 0, 0.2), nrow = 3, byrow = T);
+#'   colnames(omega) <- c("PPVCL", "PPVVC", "PPVKTR")
 #'   sigma <- matrix(0.1); colnames(sigma) <- "RUV"
 #'   thetamat <- omega; colnames(thetamat) <- c("POPCL", "POPVC", "POPKTR")
 #'
@@ -146,11 +148,10 @@
 #' @import dplyr
 #' @export
 sg_sim <- function(model, et, stimes = NULL, outputs = NULL, theta = NULL,
-                   omega = NULL, sigma = NULL, sigmaDf = NULL, sigmaLower = -Inf,
-                   sigmaUpper = Inf, thetamat = NULL, covs = NULL,
+                   omega = NULL, sigma = NULL, thetamat = NULL, covs = NULL,
                    npop = 1, nsub = 1, aggr = NULL, addcov = T, keep = NULL,
-                   scale = NULL, method = "lsoda", covint = "locf", inits = NULL,
-                   ncores = 1, atol = 1e-8, rtol = 1e-6, maxstep = 70000){
+                   scale = NULL, covint = "locf", inits = NULL,
+                   ncores = 1, atol = 1e-8, rtol = 1e-6, ...){
   et_i_m <- et %>% et()
   if(!is.null(stimes)){ et_i_m <- et_i_m %>% add.sampling(stimes) }
   if(!is.null(covs)){
@@ -162,17 +163,18 @@ sg_sim <- function(model, et, stimes = NULL, outputs = NULL, theta = NULL,
       et_i_m <- et_i_m %>% bind_cols(et_i_cov %>% select(-id))
     }
   }
-  sim_i <- rxode2::rxSolve(model, events = et_i_m, params = theta, omega = omega, inits = inits,
-                   sigma = sigma, thetaMat = thetamat,nStud = npop, nSub = nsub,
+  sim_i <- rxode2::rxSolve(model, events = et_i_m, params = theta, omega = omega,
+                           inits = inits,
+                   sigma = sigma, thetaMat = thetamat, nStud = npop, nSub = nsub,
                    covsInterpolation = covint, cores = ncores,
                    simVariability = T, atol = atol, rtol = rtol,
-                   maxsteps = maxstep)
+                   ...)
 
   sim_i_ind <- sim_i %>% as_tibble()
   if(!"id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, id = 1) }
   if(!"sim.id" %in% colnames(sim_i_ind)){ sim_i_ind <- mutate(sim_i_ind, sim.id = 1) }
   sim_i_ind <- sim_i_ind %>% gather("VAR", "VALUE", -any_of(c("id", "sim.id", "time", "POPN")))
-  if(!is.null(output)){sim_i_ind <- sim_i_ind %>% filter( VAR %in% output )}
+  if(!is.null(outputs)){sim_i_ind <- sim_i_ind %>% filter( VAR %in% outputs )}
   #
   #   sim_i_aggr_id <- NULL; sim_i_aggr_tot <- NULL
   #   sim_i_out <- list(IND = sim_i_ind, AGGR_ID = sim_i_aggr_id, AGGR_TOT = sim_i_aggr_tot)

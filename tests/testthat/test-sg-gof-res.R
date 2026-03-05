@@ -16,7 +16,8 @@ test_that("sg-gof-res does not work", {
 
 test_that("sg-gof-res file load", {
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
-  x <- sg_gof_res(fpath_i, res_type = "IWRES", log_x = TRUE, addline = T, dens =T, no_leg = T, cov_cols = 'AGE', col_i = 'AGE')
+  x <- sg_gof_res(fpath_i, res_type = "IWRES", log_x = TRUE, addline = T, dens =T,
+                  no_leg = T, cov_cols = 'AGE', col_i = 'AGE')
   expect_true(inherits(x, "ggplot"))
   expect_snapshot(ggplot2::layer_data(x))
 })
@@ -77,7 +78,7 @@ test_that("sg-gof-res works with list input", {
 test_that("sg-gof-res handles axis limits", {
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 
-  x <- sg_gof_res(fpath_i, res_type = "IWRES", ymin = -5, ymax = 5, xmin = 0, xmax = 100)
+  x <- sg_gof_res(fpath_i, res_type = "IWRES", min_y = -5, max_y = 5, min_x = 0, max_x = 100)
   expect_true(inherits(x, "ggplot"))
 })
 

@@ -4,12 +4,12 @@
 ## Keywords: SimuRg, sg-modbuild, model building
 
 test_that("sg_modbuild creates expected number of files", {
+
   folder_path <- system.file("extdata", package = "SimuRg")
-    # str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
 
   ### list of paths to structural models
-  mod_lst <- list(paste(folder_path, "/Models/model_1c.txt", sep = "/"),
-                  paste(folder_path, "/Models/model_2c.txt", sep = ""))
+  mod_lst <- list(paste(folder_path, "/models/model_PK_1c.txt", sep = "/"),
+                  paste(folder_path, "/models/model_PK_2c.txt", sep = "/"))
 
   ### path to the dataset
   data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
@@ -85,7 +85,6 @@ test_that("sg_modbuild creates expected number of files", {
             "Q", "logNormal", 5, NA, NA, T))
 
   path <- tempdir() #system.file("extdata", package = "SimuRg")
-    # "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results/"
   sg_modbuild(
     mod_lst = mod_lst[1],
     data = data,
@@ -95,7 +94,7 @@ test_that("sg_modbuild creates expected number of files", {
     re_lst = re_lst_1,
     occ_lst = re_lst_1,
     covs_lst = NULL,
-    path = path,
+    path = paste0(path, "\\"),
     project_name = "tests_test_project"
   )
 
@@ -114,6 +113,8 @@ test_that("sg_modbuild creates expected number of files", {
   csv_content <- read_csv(paste0(path, "/scenarios_info.csv"))
   # expect_gt(nrow(csv_content), 0)
   expect_equal(nrow(csv_content), 768) # 2 сценария
+  clr_files <- list.files(path, full.names = TRUE)
+  unlink(clr_files, recursive = TRUE, force = TRUE)
 
 
 })

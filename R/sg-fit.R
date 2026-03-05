@@ -6,12 +6,23 @@
 #' Run fit with monolix/simurg/nonmem fitter
 #'
 #' @inheritParams sg_dummy
-#' @param model path to MLXTRAN file with model structure
+#' @param model string. Path to a txt file file with model structure in Monolix syntax. This should be a valid file path pointing to a model file that defines the pharmacokinetic/pharmacodynamic model structure
+#' @param theta tibble or data.frame. Should contain the following columns:
+#'   * `NAME` - string, parameter name. Should match names specified in the model file
+#'   * `TRANS` - string, parameter transformation type. Can be: `"normal"`, `"logNormal"`, `"logitNormal"`
+#'   * `INIT` - numeric, initial value for the parameter
+#'   * `LB` - numeric, lower bound for logit transformation, `NA` for other transformations
+#'   * `UB` - numeric, upper bound for logit transformation,  `NA` for other transformation
+#'   * `EST` - logical, whether to estimate this parameter.
+#' @param max_wait_time numeric. Maximum time in seconds to wait for fit results to complete. Default is 3600 seconds (1 hour). Set to `Inf` for no timeout.
 #' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
 #' @examples
-#' \dontrun{
-#'  model <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/models/pk_1cmp.txt"
-#'  data <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"
+#' \donttest{
+#' library(tibble)
+#' library(dplyr)
+#' library(stringr)
+#'  model <- system.file("extdata", "models", "model_PK_1c.txt", package = "SimuRg")
+#'  data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
 #'
 #'  headers <- list(list(name = "ID", use = "identifier", type = NULL),
 #'                  list(name = "TIME", use = "time", type = NULL),
@@ -28,21 +39,45 @@
 #'                  list(name = "BMI", use = "covariate", type = "continuous"))
 #'
 #'  theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
-#'                   "Cl", "logNormal", 0.2, NA, NA, T,
-#'                   "Vd", "logNormal", 20, NA, NA, T,
-#'                   "ka", "logNormal", 0.2, NA, NA, T
+#'                   "Cl", "logNormal", 0.2, NA, NA, TRUE,
+#'                   "Vd", "logNormal", 20, NA, NA, TRUE,
+#'                   "ka", "logNormal", 0.2, NA, NA, TRUE
+#'  )
+#'  # Examples of random effect model specification
+#'  # Single observation (legacy format):
+#'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
+#'              ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL)
+#'
+#'  # Multiple observations (recommended format):
+#'  ruv <- list(
+#'    list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
+#'         ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL),
+#'    list(YNAME = "y2", DVID = 2, TRANS = "normal", PRED = "EFF",
+#'         ERR = "proportional", INIT = c(0.1), EST = c(TRUE), BLQM = NULL)
 #'  )
 #'
-#'  ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc", ERR = "combined1", INIT = c(1, 1), EST = c(T, T), BLQM = NULL)
+#'  # Example of random effects (RE) specification.
+#'  #
+#'  # init matrix: provides the initial values for the random effects.
+#'  # est matrix: controls how each random effect is handled:
+#'  #   TRUE  - the random effect will be estimated,
+#'  #   FALSE - the random effect will be fixed at its initial value,
+#'  #   NA    - no random effect will be applied.
+#'  #
+#'  # To fit a model without random effects, set all entries in the
+#'  # est matrix to NA.
+#'  #
+#'  # The same logic applies to the between-occasion variability
+#'  # matrix (occ).
 #'
 #'  re <- list(init = tribble(~Cl, ~Vd, ~ka,
 #'                            1, 0, 0,
 #'                            0, 0, 0,
 #'                            0, 0, 1) %>% as.matrix(),
 #'             est = tribble(~Cl, ~Vd, ~ka,
-#'                           T, NA, NA,
+#'                           TRUE, NA, NA,
 #'                           NA, NA, NA,
-#'                           NA, NA, T) %>% as.matrix())
+#'                           NA, NA, TRUE) %>% as.matrix())
 #'
 #'  occ <- list(init = tribble(~Cl, ~Vd, ~ka,
 #'                             0, 0, 0,
@@ -52,23 +87,37 @@
 #'                            NA, NA, NA,
 #'                            NA, NA, NA,
 #'                            NA, NA, NA) %>% as.matrix())
-#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear", TRANS = "median", INIT = 1, EST = T),
-#'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = T))
+#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear",
+#'                    TRANS = "median", INIT = 1, EST = TRUE),
+#'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE))
+#'  output_path <- str_c(tempdir(), "/")
+#'  fitter_path <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
+#'  # Examples of task_opt parameter
+#'
+#'  task_opt <-  paste("populationParameters()", "individualParameters()",
+#'                     "logLikelihood()", sep = "\n")
+#'  task_opt_lin <-  paste("populationParameters()", "individualParameters()",
+#'                         "fim(method = Linearization)",
+#'                         "logLikelihood(method = Linearization)", sep = "\n")
+#'
 #'  result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
-#'  project_name = "my_project", fit = T,
-#'  path_to_save_output =  "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/my_project/",
-#'  path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
+#'                   project_name = "my_project", fit = FALSE, # set fit = TRUE for fit
+#'                   path_to_save_output =  output_path,
+#'                   path_to_fitter = fitter_path)
 #' }
 #' @import sys
 #' @export
-
 sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name,
                    task_opt = NULL, opt_name = "Monolix", fit = F,
-                   path_to_save_output = NULL, path_to_fitter = NULL){
+                   path_to_save_output = NULL, path_to_fitter = NULL,
+                   max_wait_time = 3600){
   sc_data <- ""
   res_fit <- NULL
+  model <- normalizePath(model)
+  data <- normalizePath(data)
   if (is.null(path_to_save_output)) path_to_save_output <-  file.path(getwd(), project_name)
   if (is.null(path_to_fitter)) path_to_fitter <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
+
   if (opt_name == "Monolix") {
     # Read the data file to get column names
     data_df <- read.csv(data, nrows = 1)  # Read just the header row
@@ -177,52 +226,63 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     individual_input_section <- paste(individual_input_params, collapse = ", ")
 
     # Create longitudinal definition using ruv and observation information
-    # Find observation headers
-    observation_headers <- headers[sapply(headers, function(x) x$use == "observation")]
+    # Handle both single ruv object and list of ruv objects for backward compatibility
+    if (!is.null(ruv$YNAME)) {
+      # Single ruv object (old format) - convert to list format
+      ruv <- list(ruv)
+    }
+
     longitudinal_definitions <- character()
     longitudinal_input_params <- character()
 
-    for (obs_header in observation_headers) {
-      obs_name <- obs_header$name
-      obs_yname <- unique_categories[1]  # Use the first category for now
+    for (ruv_entry in ruv) {
+      # Get the output name from ruv_entry
+      output_name <- ruv_entry$YNAME
+      pred_name <- ruv_entry$PRED
+      err_model <- ruv_entry$ERR
+      trans_type <- ruv_entry$TRANS
 
-      # Create output name (y1, y2, etc.)
-      output_name <- paste0("y", obs_yname)
-
-      # Get error model parameters based on ruv$ERR
-      err_model <- ruv$ERR
+      # Create error parameters using PRED name as VARNAME
       if (grepl("constant", err_model, ignore.case = TRUE)) {
-        error_params <- paste0("a", obs_yname)
-        longitudinal_input_params <- c(longitudinal_input_params, paste0("a", obs_yname))
+        error_params <- paste0(pred_name, "_a")
+        longitudinal_input_params <- c(longitudinal_input_params, paste0(pred_name, "_a"))
       } else if (grepl("proportional", err_model, ignore.case = TRUE)) {
-        error_params <- paste0("b", obs_yname)
-        longitudinal_input_params <- c(longitudinal_input_params, paste0("b", obs_yname))
+        error_params <- paste0(pred_name, "_b")
+        longitudinal_input_params <- c(longitudinal_input_params, paste0(pred_name, "_b"))
       } else if (grepl("combined", err_model, ignore.case = TRUE)) {
-        error_params <- paste0("a", obs_yname, ", b", obs_yname)
-        longitudinal_input_params <- c(longitudinal_input_params, paste0("a", obs_yname), paste0("b", obs_yname))
+        error_params <- paste0(pred_name, "_a, ", pred_name, "_b")
+        longitudinal_input_params <- c(longitudinal_input_params, paste0(pred_name, "_a"), paste0(pred_name, "_b"))
       } else {
-        error_params <- paste0("a", obs_yname)  # Default to constant
-        longitudinal_input_params <- c(longitudinal_input_params, paste0("a", obs_yname))
+        error_params <- paste0(pred_name, "_a")  # Default to constant
+        longitudinal_input_params <- c(longitudinal_input_params, paste0(pred_name, "_a"))
       }
 
       # Create definition line
-      definition_line <- paste0(output_name, " = {distribution=", ruv$TRANS, ", prediction=", ruv$PRED, ", errorModel=", err_model, "(", error_params, ")}")
+      definition_line <- paste0(output_name, " = {distribution=", trans_type, ", prediction=", pred_name, ", errorModel=", err_model, "(", error_params, ")}")
       longitudinal_definitions <- c(longitudinal_definitions, definition_line)
     }
     longitudinal_definition_section <- paste(longitudinal_definitions, collapse = "\n")
     longitudinal_input_section <- paste(longitudinal_input_params, collapse = ", ")
 
     # Create FIT section using observation ynames and output names
-    observation_ynames <- sapply(observation_headers, function(x) {
-      obs_yname <- unique_categories[1]  # Use the first category for now
-      paste0("'", obs_yname, "'")
-    })
-    fit_data_section <- paste(observation_ynames, collapse = ", ")
+    # Handle both single ruv object and list of ruv objects for backward compatibility
+    ruv_list <- if (!is.null(ruv$YNAME)) list(ruv) else ruv
 
-    output_names <- sapply(observation_headers, function(x) {
-      obs_yname <- unique_categories[1]  # Use the first category for now
-      paste0("y", obs_yname)
-    })
+    # Extract ynames from ruv entries
+    observation_ynames <- character()
+    output_names <- character()
+
+    for (ruv_entry in ruv_list) {
+      # Add DVID to fit data section
+      dvid <- ruv_entry$DVID
+      observation_ynames <- c(observation_ynames, paste0("'", dvid, "'"))
+
+      # Add YNAME to fit model section
+      yname <- ruv_entry$YNAME
+      output_names <- c(output_names, yname)
+    }
+
+    fit_data_section <- paste(observation_ynames, collapse = ", ")
     fit_model_section <- paste(output_names, collapse = ", ")
 
     # Create PARAMETER section using theta and ruv
@@ -240,40 +300,47 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       parameter_definitions <- c(parameter_definitions, parameter_line)
     }
 
-    # Add error model parameters
-    obs_yname <- unique_categories[1]  # Use the first category for now
-    err_model <- ruv$ERR
+    # Add error model parameters for multiple observation types
+    # Handle both single ruv object and list of ruv objects for backward compatibility
+    ruv_list <- if (is.null(ruv[[1]]$YNAME)) list(ruv) else ruv
 
-    if (grepl("constant", err_model, ignore.case = TRUE)) {
-      param_name <- paste0("a", obs_yname)
-      param_value <- ruv$INIT[1]
-      param_est <- ruv$EST[1]
-      method <- ifelse(param_est, "MLE", "FIXED")
-      parameter_line <- paste0(param_name, " = {value=", param_value, ", method=", method, "}")
-      parameter_definitions <- c(parameter_definitions, parameter_line)
-    } else if (grepl("proportional", err_model, ignore.case = TRUE)) {
-      param_name <- paste0("b", obs_yname)
-      param_value <- ruv$INIT[1]
-      param_est <- ruv$EST[1]
-      method <- ifelse(param_est, "MLE", "FIXED")
-      parameter_line <- paste0(param_name, " = {value=", param_value, ", method=", method, "}")
-      parameter_definitions <- c(parameter_definitions, parameter_line)
-    } else if (grepl("combined", err_model, ignore.case = TRUE)) {
-      # Add constant parameter
-      param_name_a <- paste0("a", obs_yname)
-      param_value_a <- ruv$INIT[1]
-      param_est_a <- ruv$EST[1]
-      method_a <- ifelse(param_est_a, "MLE", "FIXED")
-      parameter_line_a <- paste0(param_name_a, " = {value=", param_value_a, ", method=", method_a, "}")
-      parameter_definitions <- c(parameter_definitions, parameter_line_a)
+    for (ruv_entry in ruv_list) {
+      pred_name <- ruv_entry$PRED
+      err_model <- ruv_entry$ERR
+      init_values <- ruv_entry$INIT
+      est_flags <- ruv_entry$EST
 
-      # Add proportional parameter
-      param_name_b <- paste0("b", obs_yname)
-      param_value_b <- ruv$INIT[2]
-      param_est_b <- ruv$EST[2]
-      method_b <- ifelse(param_est_b, "MLE", "FIXED")
-      parameter_line_b <- paste0(param_name_b, " = {value=", param_value_b, ", method=", method_b, "}")
-      parameter_definitions <- c(parameter_definitions, parameter_line_b)
+      if (grepl("constant", err_model, ignore.case = TRUE)) {
+        param_name <- paste0(pred_name, "_a")
+        param_value <- init_values[1]
+        param_est <- est_flags[1]
+        method <- ifelse(param_est, "MLE", "FIXED")
+        parameter_line <- paste0(param_name, " = {value=", param_value, ", method=", method, "}")
+        parameter_definitions <- c(parameter_definitions, parameter_line)
+      } else if (grepl("proportional", err_model, ignore.case = TRUE)) {
+        param_name <- paste0(pred_name, "_b")
+        param_value <- init_values[1]
+        param_est <- est_flags[1]
+        method <- ifelse(param_est, "MLE", "FIXED")
+        parameter_line <- paste0(param_name, " = {value=", param_value, ", method=", method, "}")
+        parameter_definitions <- c(parameter_definitions, parameter_line)
+      } else if (grepl("combined", err_model, ignore.case = TRUE)) {
+        # Add constant parameter
+        param_name_a <- paste0(pred_name, "_a")
+        param_value_a <- init_values[1]
+        param_est_a <- est_flags[1]
+        method_a <- ifelse(param_est_a, "MLE", "FIXED")
+        parameter_line_a <- paste0(param_name_a, " = {value=", param_value_a, ", method=", method_a, "}")
+        parameter_definitions <- c(parameter_definitions, parameter_line_a)
+
+        # Add proportional parameter
+        param_name_b <- paste0(pred_name, "_b")
+        param_value_b <- init_values[2]
+        param_est_b <- est_flags[2]
+        method_b <- ifelse(param_est_b, "MLE", "FIXED")
+        parameter_line_b <- paste0(param_name_b, " = {value=", param_value_b, ", method=", method_b, "}")
+        parameter_definitions <- c(parameter_definitions, parameter_line_b)
+      }
     }
 
     # Add omega parameters using re$init and re$est
@@ -306,7 +373,12 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     full_parameter_section <- paste(parameter_section, c_parameter_section, sep = "\n")
 
     # Set parameters
-    tasks_section <- "populationParameters()\nindividualParameters()\nfim()\nlogLikelihood()"
+    if (is.null(task_opt)) {
+      tasks_section <- "populationParameters()\nindividualParameters()\nfim()\nlogLikelihood()"
+    } else {
+      task_section <- task_opt
+    }
+
     # Create the mlxtran string structure
     mlxtran_string <- paste0(
       "<DATAFILE>\n\n",
@@ -370,14 +442,26 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
   if (fit & opt_name == "Monolix") {
     dir.create(file.path(path_to_save_output, project_name), showWarnings = FALSE,
                recursive = T)
+    path_to_save_output1 <- normalizePath(file.path(path_to_save_output, project_name))
+    filepath <- normalizePath(filepath)
     curr_dir <- getwd()
     setwd(dirname(path_to_fitter))
-    int_res <- system(sprintf('"%s" --no-gui -p %s -o %s -t monolix', #--mode none
+    int_res <- system(sprintf('%s --no-gui -p %s -o %s -t monolix', #--mode none
                               path_to_fitter, path.expand(filepath),
-                              path.expand(file.path(path_to_save_output, project_name))), wait = F)
+                              path_to_save_output1), wait = F)
     setwd(curr_dir)
     Sys.sleep(10)
-
+    ended <- "LogLikelihood" %in% list.files(path_to_save_output1)
+    start_time <- Sys.time()
+    while (!ended) {
+      ended <-"LogLikelihood" %in% list.files(path_to_save_output1)
+      elapsed_time <- as.numeric(Sys.time() - start_time, units = "secs")
+      if (elapsed_time > max_wait_time) {
+        warning(sprintf("Timeout reached: Waited %d seconds for Monolix fit to complete. LogLikelihood file not found.", max_wait_time))
+        break
+      }
+      Sys.sleep(1)  # Sleep 1 second between checks to avoid busy waiting
+    }
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
     # } else if (fit & opt_name == "Simurg") {
     # int_res <- system(sprintf('%s --no-gui -p "%s" --mode none -o "%s"',

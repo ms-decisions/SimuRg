@@ -43,22 +43,22 @@
 #' metrics.
 #'
 #' @examples
-#' \dontrun{
+#' library(stringr)
 #' # Convert Monolix project results
 #' test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
-#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/") test_folder <- str_c(test_folder, "/")
-#' pro_name <- "proj-r-solo"
+#' if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
+#'   test_folder <- str_c(test_folder, "/")
+#' pro_name <- "proj-solo"
 #' result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
-#' save(results, file = "./models/simurg_object/Warfarin_PK.RData")
+#' # save(results, file = "./models/simurg_object/Warfarin_PK.RData")
 #' # Access individual predictions
-#' head(results$SDTAB)
+#' head(result$SDTAB)
 #'
 #' # View parameter estimates
-#' print(results$SUMTAB)
+#' print(result$SUMTAB)
 #'
 #' # Check objective function value
-#' print(results$OFV)
-#' }
+#' print(result$OFV)
 #'
 #' @importFrom readr read_csv cols parse_number
 #' @importFrom stringr str_c
@@ -645,8 +645,12 @@ sg_converter <- function(folder_path, proj_name){
   sdtab <- unique(dvid_map_df$model) %>% map_dfr(function(y_name) {
 
     if (length(dvid_map_df$model) == 1) {y_name_i <- ""; dvid_i <- 1} else {y_name_i <- str_c("_", y_name); dvid_i <- dvid_map_df$data[dvid_map_df$model == y_name] %>% as.numeric()}
+    recode_vector <- c(
+      "ID" = "id",
+      "TIME" = "time"
+    )
     pred_dt_i <- read_csv(str_c(folder_path, proj_name, "/predictions",y_name_i, ".txt"), col_types = cols()) %>%
-      rename(ID = id, TIME = time)
+      rename(any_of(recode_vector))
 
     # if there is no DVID column?
     obs_data_i <- data_file_mod %>% filter(DVID == dvid_i) %>%
@@ -683,7 +687,7 @@ sg_converter <- function(folder_path, proj_name){
       rename(PRED = popPred,
              IPRED = str_c("indivPred", suffix), #indivPred_mode,
              IWRES = str_c("indWRes", suffix), #indWRes_mode,
-             DV = y_name) %>%
+             DV = all_of(y_name)) %>%
       mutate(RES = PRED - DV, IRES = IPRED - DV,
              DVID = dvid_i)
 
@@ -710,8 +714,8 @@ sg_converter <- function(folder_path, proj_name){
   ## patab and sumtab compiling
 
 
-  eta_i <- read_csv(str_c(folder_path, proj_name, "./IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
-  indpar_i <- read_csv(str_c(folder_path, proj_name, "./IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
+  eta_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
+  indpar_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
 
   if (any(grepl("_mode$", colnames(indpar_i)))){suffix <- "_mode"} else {suffix <- "_SAEM"}
   eta_clnms <- c("id", str_c(eta_params, suffix))
@@ -749,9 +753,9 @@ sg_converter <- function(folder_path, proj_name){
 
   ## covmat and corrmat compiling
 
-  fi_files <- list.files(str_c(folder_path, proj_name, "./FisherInformation"))
-  corr_path <- str_c(folder_path, proj_name, "./FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
-  cov_path <- str_c(folder_path, proj_name, "./FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
+  fi_files <- list.files(str_c(folder_path, proj_name, "/FisherInformation"))
+  corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
+  cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
   covmat_dt <- read_csv(cov_path, col_types = cols(), col_names = F)
   colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
