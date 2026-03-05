@@ -60,6 +60,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #'   * `REF` - numeric, reference value for categorical covariates
 #'   * `INIT` - numeric, initial value for the covariate effect parameter
 #'   * `EST` - logical, whether to estimate the covariate effect
+#'   Can be `NULL`, if no covariates are used. Default is `NULL`
 #' @param data string. Path to the dataset used to fit a model. Should be a CSV file containing the pharmacokinetic/pharmacodynamic data with appropriate column structure matching the headers specification
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates

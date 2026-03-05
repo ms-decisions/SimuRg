@@ -113,6 +113,9 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
                    max_wait_time = 3600){
   sc_data <- ""
   res_fit <- NULL
+  if (!file.exists(model))stop(paste("Error: model file does not exist:", model))
+  if (!file.exists(data))stop(paste("Error: data file does not exist:", data))
+
   model <- normalizePath(model)
   data <- normalizePath(data)
   if (is.null(path_to_save_output)) path_to_save_output <-  file.path(getwd(), project_name)
