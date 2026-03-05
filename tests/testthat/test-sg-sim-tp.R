@@ -6,20 +6,6 @@ library(testthat)
 theme_set(theme_bw())
 theme_update(panel.grid.minor = element_blank())
 
-# load("data/sim_timeprof.rda")
-# p1 <- sg_sim_tp(ds_i = sim_timeprof, group_i = 'VAR', col_i = 'VAR')
-# # Example 3: Plot with median and 5th-95th percentile bands
-# p3 <- sg_sim_tp(
-#   ds_i = sim_timeprof,
-#   cent_i = 'mean',
-#   lperc_i = 0.05,
-#   uperc_i = 0.95,
-#   col_i = 'VAR',
-#   fill_i = 'VAR',
-#   wrap_i = '~VAR',
-#   wrap_ncol = 2
-# )
-
 # Helper: small mock dataset
 make_mock_data <- function() {
   set.seed(123)  # For reproducibility
