@@ -3,6 +3,33 @@
 ## Description: Simulation for covariate sensitivity analysis
 ## Keywords: covariates, simulations, sensitivity
 
+###-----Functions----####
+
+funSum_sim <- list(mean   = ~mean(., na.rm = TRUE),
+                   median = ~median(., na.rm = TRUE),
+                   min    = ~min(., na.rm = TRUE),
+                   max    = ~max(., na.rm = TRUE),
+                   sd     = ~sd(., na.rm = TRUE),
+                   P025   = ~quantile(., 0.025, na.rm = TRUE),
+                   P05    = ~quantile(., 0.05,  na.rm = TRUE),
+                   P10    = ~quantile(., 0.10,  na.rm = TRUE),
+                   P15    = ~quantile(., 0.15,  na.rm = TRUE),
+                   P25    = ~quantile(., 0.25,  na.rm = TRUE),
+                   P75    = ~quantile(., 0.75,  na.rm = TRUE),
+                   P85    = ~quantile(., 0.85,  na.rm = TRUE),
+                   P90    = ~quantile(., 0.90,  na.rm = TRUE),
+                   P95    = ~quantile(., 0.95,  na.rm = TRUE),
+                   P975   = ~quantile(., 0.975, na.rm = TRUE),
+                   geom_mean = ~exp(mean(suppressWarnings(log(.)), na.rm = TRUE)),
+                   CV     = ~sd(., na.rm = TRUE)/mean(., na.rm = TRUE)*100)
+
+funSum_av <- list(mean   = ~mean(.),
+                  median   = ~median(., na.rm = T))
+
+funSum_exp <- list(`Cavg,`   = ~mean(., na.rm = TRUE),
+                   `Cmin`    = ~min(., na.rm = TRUE),
+                   `Cmax`    = ~max(., na.rm = TRUE))
+
 fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
     cc_ds_n <- cc_ds_i %>% filter(COV == n)
@@ -28,7 +55,20 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
   return(et_scov_i)
 }
 
-fun_CovSens_v2 <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 1000, stime_exp = NULL, var_exp = c("Cc_mgL"), m_theta = m_theta_norm_pop_id){
+fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL,
+                        var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
+{
+
+
+  #Test
+  # et_sim_i = ets_cc
+  # covs_i = nice_names$COV
+  # expos = T
+  # stime_exp = stimes_ss
+  # cat = F; nsim = 5;
+  # var_exp = "Cc"
+
+
   keep_i <- c("Regimen", "KEY", "COV", "COVVAL")
   if(!cat){
     keep_i <- c(keep_i, "BTR", "BCOVVAL")
@@ -37,106 +77,326 @@ fun_CovSens_v2 <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 1
   }
 
   sens_i <- et_sim_i %>% map_dfr(function(et_i){
+    #Test
+    #et_i <- et_sim_i[[1]]
+
     if(!expos){
       par_i <- unique(et_i$PAR)
       if(is.list(par_i)){ par_i <- par_i[[1]] }
-      sim_i <- unique(et_i$id) %>% map_dfr(function(id_i){
-
-        et_ii <- et_i %>% filter(id == id_i) %>% merge(m_theta) %>% mutate(id = 1:nrow(.))
-
-        et_ii <- et_ii %>% mutate(NUM = rep(1:10, 100))
-        sim_i <- unique(et_ii)$NUM %>% map_dfr(function(num){
-
-          et_iii <- et_ii %>% filter(NUM == num)
-          sim_i <- fun_ForSim(mod_fin, et_iii, 0, vars_i = par_i, theta_i = NULL, thetamat_i = NULL, cov_i = c(covs_i, colnames(m_theta)), nrep = 1, keep = keep_i)$IND %>% mutate(sim.id = id, id = id_i)
-
-        })
-
-
-      })
-
+      sim_i <- sg_sim(mod_fin, et_i, 0, outputs = par_i, theta = par_fin_tv,
+                      thetamat = m_theta_norm_pop, covs = covs_i, npop = nsim, keep = keep_i)
     } else {
+      sim_raw <- sg_sim(mod_fin, et_i, stime_exp, outputs = var_exp, theta = par_fin_tv,
+                        thetamat = m_theta_norm_pop, covs = covs_i, npop = nsim,
+                        keep = keep_i, ncores = max(1, parallel::detectCores()-2))
 
-      sim_i <- unique(et_i$id) %>% map_dfr(function(id_i){
+      message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
+                      sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
+                      100 * mean(is.na(sim_raw$VALUE))))
 
-        et_ii <- et_i %>% filter(id == id_i) %>% merge(m_theta) %>% mutate(id = 1:nrow(.))
-        et_ii <- unique(et_ii) %>% mutate(NUM = rep(1:10, 100))
-        sim_ii <- unique(et_ii$NUM) %>% map_dfr(function(num){
-          print(num)
-          et_iii <- et_ii %>% filter(NUM == num)
+      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
+      stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
+      funSum_exp_i <- funSum_exp[unname(aggr_map[aggr])]
 
-          sim_ii <- fun_ForSim(mod_fin, et_iii, stime_exp, vars_i = var_exp, theta_i = NULL, thetamat_i = NULL, cov_i = c(covs_i, colnames(m_theta)), nrep = 1, keep = keep_i, ncores = parallel::detectCores())$IND %>% mutate(sim.id = id, id = id_i)
-
-
-          sim_ii_cc <- sim_ii %>%
-            group_by_at(vars(all_of(c("sim.id", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp) %>% ungroup()
-
-
-          sim_ii_mod <- sim_ii_cc %>%
-            gather("VAR", "VALUE", -all_of(c("sim.id", keep_i, covs_i)))
-
-          return(sim_ii_mod)
-
-        })
-
-
-
-      })
+      sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
+      sim_i <- sim_i %>%
+        group_by_at(vars(all_of(c("sim.id", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
+        gather("VAR", "VALUE", -all_of(c("sim.id", keep_i, covs_i)))
 
     }
 
-    #log(VALUE) ~ KEY
-    #if (mean_type == "mean") {
-    sim_i_ref <- sim_i %>% filter(KEY == "REF" | KEY == 1) %>% select(sim.id, VAR, REFVAL = VALUE)
-    sim_i_ch <- sim_i %>% filter(KEY != "REF" & KEY != 1) %>% left_join(sim_i_ref, by = c("sim.id", "VAR")) %>%
-      mutate(PCH = 100*(VALUE - REFVAL)/REFVAL#,
-             #LR = log(VALUE)/log(REFVAL)
-      )
 
-    #log
+
+    sim_i <- sim_i %>% mutate(VALUE = as.numeric(VALUE))
+
+    # sim_i_ref <- sim_i %>% filter(KEY == "REF" | KEY == 1) %>% select(sim.id, VAR, REFVAL = VALUE)
+    # sim_i_ch <- sim_i %>% filter(KEY != "REF" & KEY != 1) %>% left_join(sim_i_ref, by = c("sim.id", "VAR")) %>%
+    #   mutate(PCH = 100*(VALUE - REFVAL)/REFVAL)
+    sim_i_ref <- sim_i %>% filter(KEY == "REF" | KEY == 1) %>% select(sim.id, Regimen, VAR, REFVAL = VALUE)
+    sim_i_ch <- sim_i %>% filter(KEY != "REF" & KEY != 1) %>% left_join(sim_i_ref, by = c("sim.id", "Regimen", "VAR")) %>%
+      mutate(PCH = 100*(VALUE - REFVAL)/REFVAL)
+
 
     out_i <- sim_i_ch %>% group_by_at(vars(all_of(c("VAR", keep_i, covs_i)))) %>% summarise_at(vars(PCH), funSum_sim) %>% ungroup()
 
-    #out_i_gmr <- sim_i_ch %>% group_by_at(vars(all_of(c("VAR", keep_i, covs_i)))) %>% summarise_at(vars(LR), funSum_sim) %>% ungroup() %>% select(all_of(c("VAR", keep_i, covs_i)), GMR = mean, GMR05 = P05, GMR95 = P95) #%>%
-    # mutate(GMR = exp(GMR), GMR05 = exp(GMR05), GMR95 = exp(GMR95))
-
-    #out_i_gmr2 <- sim_i_ch %>% group_by_at(vars(all_of(c("VAR", keep_i, covs_i)))) %>% summarise_at(vars(VALUE, REFVAL), funSum_sim) %>% ungroup() %>% mutate(GMR2 = VALUE_mean/REFVAL_mean, GMR205 = VALUE_P05/REFVAL_P05, GMR295 = VALUE_P95/REFVAL_P95) %>% select(all_of(c("VAR", keep_i, covs_i)), GMR2, GMR205, GMR295)
-
-    if(!cat){
-      out_i_gmr3 <- sim_i %>% mutate(KEY = factor(KEY, levels = c("REF", "LP", "UP")))
-    } else {
-      out_i_gmr3 <- sim_i %>% mutate(KEY = factor(KEY, levels = c(1, 0)))
+    # Ensure BCOVVAL is added from et_i if not already present (for continuous covariates)
+    if(!cat && "BCOVVAL" %in% names(et_i)){
+      if(!"BCOVVAL" %in% names(out_i)){
+        bcovval_lookup <- et_i %>% select(KEY, COV, COVVAL, BCOVVAL) %>% unique()
+        out_i <- out_i %>% left_join(bcovval_lookup, by = c("KEY", "COV", "COVVAL"))
+      }
     }
+    out_i
 
-    out_i_gmr3_res <- unique(out_i_gmr3$VAR) %>% map_dfr(function(var){
-
-      ds_var <- out_i_gmr3 %>% filter(VAR == var)
-      mod_i <- aov(log(VALUE) ~ KEY, data = ds_var)
-
-      out_i <- tibble(
-        VALUE = coef(mod_i), SE = vcov(mod_i) %>% diag() %>% sqrt(), LCI = VALUE - SE*qnorm(0.90), UCI = VALUE + SE*qnorm(0.90)
-      )%>% mutate_all(exp) %>%
-        mutate(KEY = levels(fct_drop(ds_var$KEY)), VAR = var) %>%
-        slice(2:nrow(.)) %>% rename(GMR = VALUE, GMR05 = LCI, GMR95 = UCI)
-
-      if (cat) {out_i <- out_i %>% mutate(KEY = as.numeric(KEY))}
-
-      return(out_i)
-
-    })
-
-
-    #out_i <- left_join(out_i, out_i_gmr) %>% left_join(., out_i_gmr2) %>% left_join(., out_i_gmr3_res)
-    out_i <- left_join(out_i, out_i_gmr3_res)
-
-  }) %>% left_join(nice_names, by = "COV")
-
+  })  %>% left_join(nice_names, by = "COV")
 
   if(!cat){
-    sens_out <- sens_i %>% select(NICEN, VAR, KEY, mean:GMR95, Regimen, COVVAL:BCOVVAL) %>% mutate(KEY = ifelse(KEY == "LP", "10th perc.", "90th perc."), LAB = str_c(NICEN, "\n", KEY, " (", round(BCOVVAL, 1), ")"))
+    sens_out <- sens_i %>% select(NICEN, VAR, KEY, mean:P975, Regimen, COVVAL:BCOVVAL) %>% mutate(KEY = ifelse(KEY == "LP", "10th perc.", "90th perc."), LAB = str_c(NICEN, "\n", KEY, " (", round(BCOVVAL, 1), ")"))
   } else {
-    sens_out <- sens_i %>% select(NICEN, VAR, CATDES, mean:GMR95, Regimen) %>% mutate(LAB = str_c(NICEN, " (", CATDES, ")"))
+    sens_out <- sens_i %>% select(NICEN, VAR, CATDES, mean:P975, Regimen) %>% mutate(LAB = str_c(NICEN, " (", CATDES, ")"))
   }
   sens_out <- sens_out %>% mutate_at(vars(mean:P975), function(p){p/100+1})
   return(sens_out)
+}
+#####
+
+sg_covsens_sim <- function(fpath_i, mod_fin, stimes_ss, ev_t_input, Nsim = 5,
+                           cont_cov_l, cat_cov_l,  quantiles,
+                           var_expos = "Cc", aggr = c("min", "max", "mean")){
+
+  obj_data <- read_smrg_obj(fpath_i)
+  ds_mod <-  obj_data$SDTAB
+  par_sum <- obj_data$SUMTAB
+  ds_catcov <- obj_data$CATAB
+  ds_ccov <- obj_data$COTAB
+  data_fin <- ds_ccov %>% left_join(ds_catcov, by = "ID")
+
+  ### Population parameters
+  par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)
+
+  par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
+  par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
+    mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+
+  ### Reconstruct omega matrix (random effects on K_a and V_pop)
+  d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
+  m_omega <- diag(d_omega$value, ncol = length(d_omega$value))
+  colnames(m_omega) <- d_omega$parameter; rownames(m_omega) <- d_omega$parameter
+  m_omega_full <- m_omega
+
+  corr_set <- par_fin %>% filter(str_detect(parameter, "corr_"))
+  if(nrow(corr_set) > 0){
+    corr_set <- corr_set %>%
+      separate(parameter, c("TYPE", "PAR1", "PAR2"), "_") %>%
+      select(PAR1, PAR2, value) %>%
+      mutate_at(vars(PAR1, PAR2), function(x){str_c("omega_", x)})
+
+    omega_corr <- m_omega
+    diag(omega_corr) <- rep(1, ncol(m_omega))
+    for(i in 1:nrow(corr_set)){
+      cs_i <- corr_set[i, ]
+      omega_corr[cs_i$PAR1, cs_i$PAR2] <- cs_i$value
+      omega_corr[cs_i$PAR2, cs_i$PAR1] <- cs_i$value
+    }
+
+    m_omega_full <- m_omega %*% omega_corr %*% m_omega
+  }
+
+  ### Reconstruct residual error model matrix
+  d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
+  m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
+  colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
+
+  ### Mock Fisher information covariance (same parameter order as par_fin; symmetric pos-def)
+  pnames <- par_fin$parameter
+  npar   <- length(pnames)
+  set.seed(1)
+  m_cov  <- matrix(0.02, npar, npar)
+  diag(m_cov) <- 0.05 + runif(npar, 0, 0.05)
+  m_cov  <- (m_cov + t(m_cov)) / 2
+  est_covmat <- as_tibble(cbind(X1 = pnames, as.data.frame(m_cov)))
+  names(est_covmat)[-1] <- pnames
+
+  m_theta_norm <- est_covmat %>% select_if(is.numeric) %>% as.matrix()
+  colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
+  m_theta_norm_pop <- m_theta_norm[str_detect(rownames(m_theta_norm), "_pop|beta_"), str_detect(colnames(m_theta_norm), "_pop|beta_")]
+
+  #####----Covariate tables----####
+  # Continuous covariates table
+  cont_cov_vec <- map_chr(cont_cov_l, function(x) x$NAME)
+
+  cont_cov <- map_dfr(cont_cov_l, function(x) {
+    tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+  })
+
+  # Categorical covariates table
+  cat_cov_vec <- map_chr(cat_cov_l, function(x) x$NAME)
+
+  cat_unique <- map(cat_cov_vec, function(x){
+    ds_catcov[[x]] %>% unique()
+  })
+  names(cat_unique) <- cat_cov_vec
+
+  # Build cat_cov automatically from cat_cov_l, cat_cov_vec and cat_unique
+  cat_cov <- map_dfr(cat_cov_vec, function(x) {
+    vals <- as.character(cat_unique[[x]])
+    #ref  <- cat_cov_l[[x]]$REF
+    ref <- if (is.null(cat_cov_l[[x]]$REF)) {
+      as.character(levels(factor(data_fin[[cat_cov_l[[x]]$NAME]]))[1])
+    } else {
+      cat_cov_l[[x]]$REF
+    }
+    tibble(
+      COV    = x,
+      COVVAL = vals,
+      CATDES = vals,
+      KEY    = as.integer(vals == ref),
+      PAR    = list(cat_cov_l[[x]]$par_vec)
+    )
+  })
+
+  nice_names_cont <- map_dfr(cont_cov_vec, function(x) {
+    tibble(COV = x, NICEN = cont_cov_l[[x]][["NICENAME"]])
+  })
+  nice_names_cat <- map_dfr(cat_cov_vec, function(x) {
+    tibble(COV = x, NICEN = cat_cov_l[[x]][["NICENAME"]])
+  })
+  nice_names <- rbind(nice_names_cont,nice_names_cat)
+
+  ## Derive Covariate distributions
+  ### Continuous covariates
+  ID <- "ID"
+  CCov_vec <- cont_cov$TR
+  CatCov_vec <- cat_cov$COV %>% unique()
+
+  data_fin <- data_fin %>%
+    mutate(across(all_of(CatCov_vec), as.character))
+
+  ds_cc_tr <- data_fin %>% select(all_of(c(ID)), all_of(cont_cov$TR)) %>% unique() %>%
+    gather("TR", "TVALUE", -all_of(c(ID))) %>% left_join(cont_cov, by = "TR")
+
+  ds_cc_btr <- data_fin %>% select(all_of(c(ID)), all_of(cont_cov$BTR)) %>% unique() %>%
+    gather("BTR", "NVALUE", -all_of(c(ID)))
+  ds_cc_btr_av <- ds_cc_btr %>% group_by(BTR) %>% summarise_at(vars(NVALUE), funSum_av)
+
+  ds_cc <- ds_cc_tr %>%
+    left_join(ds_cc_btr, by = c(ID, "BTR")) %>%
+    left_join(ds_cc_btr_av, by = "BTR") %>%
+    group_by(TR) %>%
+    mutate(
+      LP = quantile(TVALUE, quantiles[[1]]),
+      UP = quantile(TVALUE, quantiles[[2]]))
+
+
+
+  # Build per-covariate REF lookup from cont_cov_l
+  ref_lookup <- map_dfr(cont_cov_l, function(cov) {
+    tibble(TR = cov$NAME, REF_spec = cov$REF)
+  })
+
+  # Add REF column: use median(TVALUE) when REF_spec == "median", else use the numeric value
+  ds_cc <- ds_cc %>%
+    left_join(ref_lookup, by = "TR") %>%
+    group_by(TR) %>%
+    mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    select(-REF_spec) %>%
+    ungroup()
+
+
+  #ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT)
+  ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1), " (median)\n", "[10th percentile: ", round(LP, 1), "; 90th percentile: ", round(UP, 1), "]"), collapse = "\n")) %>% pull(OUT)
+
+  # ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT) %>% str_c(., "\nResults shown for a dose calculated for the median (reference) patient")
+
+  # Calculate low and upper quantile values for Back transformed covariates
+  #Take into account that there are several continuous covariates!!!
+  map_ccont <- function(target_ccont, data) {
+    idx <- which.min(abs(data$TVALUE - target_ccont))
+    data$NVALUE[idx]
+  }
+  ccont_lab_list <- list()
+  for (i in c(1:length(cont_cov_l))){
+    ds_cc_i <- ds_cc %>% filter(TR == cont_cov_l[[i]]$NAME)
+    q_ccont <- c(unique(ds_cc_i$LP), unique(ds_cc_i$UP), unique(ds_cc_i$REF))
+
+    ccont_labels <- sapply(
+      q_ccont,
+      map_ccont,
+      data = ds_cc_i
+    )
+
+    names(ccont_labels) <- c("LP_BTR", "UP_BTR", "REF_BTR")
+    ccont_lab_list[[cont_cov_l[[i]]$NAME]] <- ccont_labels
+  }
+
+  # Convert ccont_lab_list to a long data frame for joining: COV + KEY -> BCOVVAL
+  ccont_lab_df <- map_dfr(names(ccont_lab_list), function(cov_name) {
+    vals <- ccont_lab_list[[cov_name]]
+    tibble(
+      COV     = cov_name,
+      KEY     = c("LP",       "UP",       "REF"),
+      BCOVVAL = as.numeric(vals[c("LP_BTR", "UP_BTR", "REF_BTR")])
+    )
+  })
+
+  cc_to_test <- ds_cc %>%
+    select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
+    unique() %>%
+    gather("KEY", "COVVAL", -COV:-median) %>%
+    left_join(ccont_lab_df, by = c("COV", "KEY"))
+
+  ### Categorical covariates
+  ds_catc <- data_fin %>% select(all_of(c(ID)), all_of(cat_cov$COV)) %>% unique()
+
+  catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %>% unique() %>% left_join(cat_cov, by = c("COV", "COVVAL"))
+
+  # Reference values for continuous covariates: log-scale (NAME) and back-transformed (UTNAME)
+  cont_cov_ref <- do.call(c, unname(map(cont_cov_l, function(cov) {
+    ref_row <- cc_to_test %>% filter(COV == cov$NAME, KEY == "REF")
+    ut_name <- if (is.null(cov$UTNAME) || is.na(cov$UTNAME)) cov$NAME else cov$UTNAME
+    setNames(
+      list(ref_row %>% pull(COVVAL), ref_row %>% pull(BCOVVAL)),
+      c(cov$NAME, ut_name)
+    )
+  })))
+  cont_cov_ref <- cont_cov_ref[!duplicated(names(cont_cov_ref))]
+
+
+  # Reference values for categorical covariates: use REF if defined, else first factor level
+  cat_cov_ref <- setNames(
+    map(cat_cov_l, function(cov) {
+      if (is.null(cov$REF)) {
+        as.character(levels(factor(data_fin[[cov$NAME]]))[1])
+      } else {
+        cov$REF
+      }
+    }),
+    map_chr(cat_cov_l, ~ .x$NAME)
+  )
+
+  all_cov_ref <- c(cont_cov_ref, cat_cov_ref)
+
+  # Combine with event table
+  ev_t_base <- ev_t_input %>%
+    mutate(!!!all_cov_ref)
+
+  ets_cc <- fun_EtCC(ev_t_base, cc_to_test)
+  ets_catc <- fun_EtCC(ev_t_base, catc_to_test, T)
+
+  # Simulate covariate distributions
+  # fn_m_theta_norm_pop_id <- str_c(path_to_save, "m_theta_norm_pop_id.Rdata")
+  # if(!file.exists(fn_m_theta_norm_pop_id) | overwrite){
+  m_theta_norm_pop_id <- MASS::mvrnorm(100, par_fin_tv, m_theta_norm_pop) %>% as.data.frame() #MASS::mvrnorm(1000, par_fin_tv, m_theta_norm_pop)
+  #   save(m_theta_norm_pop_id, file = fn_m_theta_norm_pop_id)
+  # }
+  # load(fn_m_theta_norm_pop_id)
+
+  # Sensitivity of model parameters to covariate values
+  #fn_covsens_par <- str_c(path_to_save, "sim_covsens_par.Rdata")
+  #if(!file.exists(fn_covsens_par) | overwrite){
+  out_cov_par_sens <- bind_rows(
+    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = Nsim) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = Nsim, cat = T) %>% mutate(Type = "Categorical")
+  ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
+  # save(out_cov_par_sens, file = fn_covsens_par)
+  #}
+  #load(fn_covsens_par)
+
+  ## Summary of sensitivity of model parameters to covariate values
+  t_cov_sens_par <- out_cov_par_sens %>% mutate_at(vars(mean:P975), signif, 3) %>%
+    mutate(`90%CI` = str_c(P05, ", ", P95), KEY = ifelse(is.na(KEY), "Category", KEY), BCOVVAL = as.character(BCOVVAL), BCOVVAL = ifelse(is.na(BCOVVAL), CATDES, BCOVVAL)) %>%
+    select(Parameter = VAR, Covariate = NICEN, `Cov. percentile` = KEY, `Cov. value` = BCOVVAL, Mean = mean, `90%CI`)
+
+  # Sensitivity of exposure parameters to covariate values
+  out_cov_exp_sens <- bind_rows(
+    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = Nsim, expos = T, stime_exp = stimes_ss,
+                var_exp = var_expos, aggr = aggr) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = Nsim, cat = T, expos = T, stime_exp = stimes_ss,
+                var_exp = var_expos, aggr = aggr) %>% mutate(Type = "Categorical")
+  ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
+
+  covsens_res = list(out_cov_par_sens, t_cov_sens_par, out_cov_exp_sens)
+
+  return(covsens_res)
+
 }

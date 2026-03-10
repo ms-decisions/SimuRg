@@ -20,9 +20,14 @@ funSum_sim <- list(mean   = ~mean(., na.rm = TRUE),
 funSum_av <- list(mean   = ~mean(.),
                   median   = ~median(., na.rm = T))
 
-funSum_exp <- list(`Cavg, ug/mL`   = ~mean(., na.rm = TRUE),
-                   `Cmin, ug/mL`    = ~min(., na.rm = TRUE),
-                   `Cmax, ug/mL`    = ~max(., na.rm = TRUE))
+funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
+                   `Cmin`    = ~min(., na.rm = TRUE),
+                   `Cmax`    = ~max(., na.rm = TRUE))
+
+
+# funSum_exp <- list(`Cavg, ug/mL`   = ~mean(., na.rm = TRUE),
+#                    `Cmin, ug/mL`    = ~min(., na.rm = TRUE),
+#                    `Cmax, ug/mL`    = ~max(., na.rm = TRUE))
 
 fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
@@ -122,17 +127,19 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
 #   return(sim_i_out)
 # }
 
-fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 5, stime_exp = NULL, var_exp = "Cc") #nsim=1000
+fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 5, stime_exp = NULL,
+                        var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
   {
 
 
   #Test
-  # et_sim_i = ets_cc
-  # covs_i = nice_names$COV
-  # expos = T
-  # stime_exp = stimes_ss
-  # cat = F; nsim = 5;
-  # var_exp = "Cc"
+  et_sim_i = ets_cc
+  covs_i = nice_names$COV
+  expos = T
+  stime_exp = stimes_ss
+  cat = F; nsim = 5;
+  var_exp = "Cc"
+  aggr = c("min")
 
 
   keep_i <- c("Regimen", "KEY", "COV", "COVVAL")
@@ -144,7 +151,7 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 5, s
 
   sens_i <- et_sim_i %>% map_dfr(function(et_i){
     #Test
-    #et_i <- et_sim_i[[1]]
+    et_i <- et_sim_i[[1]]
 
       if(!expos){
       par_i <- unique(et_i$PAR)
@@ -155,10 +162,27 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 5, s
       sim_raw <- sg_sim(mod_fin, et_i, stime_exp, outputs = var_exp, theta = par_fin_tv,
                         thetamat = m_theta_norm_pop, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
+
       message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
                       sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
                       100 * mean(is.na(sim_raw$VALUE))))
-      sim_i <- sim_raw
+
+      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
+      stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
+      funSum_exp_i <- funSum_exp[unname(aggr_map[aggr])]
+
+      sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
+      sim_i <- sim_i %>%
+        group_by_at(vars(all_of(c("sim.id", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
+        gather("VAR", "VALUE", -all_of(c("sim.id", keep_i, covs_i)))
+
+#
+#       sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
+#       sim_i <-  sim_i %>%
+#         group_by_at(vars(all_of(c("sim.id", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp) %>% ungroup() %>%
+#         gather("VAR", "VALUE", -all_of(c("sim.id", keep_i, covs_i)))
+
+
       # sim_i <- sg_sim(mod_fin, et_i, stime_exp, outputs = var_exp, theta = par_fin_tv,
       #                 thetamat = m_theta_norm_pop, covs = covs_i, npop = nsim,
       #                 keep = keep_i, ncores = max(1, parallel::detectCores()-2)) %>%
@@ -574,8 +598,8 @@ catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %
 #              LG_WEIGHT = 1, LG_AGE = 1, AGE = unique(select(data_fin, ID, AGE )) %>% pull(AGE) %>% median(),
 #              SEX = "0", CYP2C9 = "1.1",
 #              amt = Dose*WEIGHT)
-# Reference values for continuous covariates: log-scale (NAME) and back-transformed (UTNAME)
 
+# Reference values for continuous covariates: log-scale (NAME) and back-transformed (UTNAME)
 cont_cov_ref <- do.call(c, unname(map(cont_cov_l, function(cov) {
   ref_row <- cc_to_test %>% filter(COV == cov$NAME, KEY == "REF")
   ut_name <- if (is.null(cov$UTNAME) || is.na(cov$UTNAME)) cov$NAME else cov$UTNAME
