@@ -513,13 +513,16 @@ sg_converter <- function(folder_path, proj_name){
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))
   end_idx_data <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_data)[1]
   data_path <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
-    str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>% str_replace_all("'", "")
+    str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>%
+    str_remove("^\\{path=") %>% str_remove("\\}\\s*$") %>%        # Monolix 2024: file={path='...'} -> bare path
+    str_replace_all("'", "")
   if (!file.exists(data_path)) data_path <- str_c(folder_path, data_path)
   data_file <- read_csv(data_path)
 
   ## info about columns mapping
   start_idx_col_map <- which(str_detect(contr_obj, fixed("[CONTENT]")))
-  end_idx_col_map <- which(str_detect(contr_obj, "\\[.*\\]") & seq_along(contr_obj) > start_idx_col_map)[1]
+  end_idx_col_map <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                             seq_along(contr_obj) > start_idx_col_map)[1]
   dt_col_map <- contr_obj[(start_idx_col_map + 1):(end_idx_col_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
 
 
