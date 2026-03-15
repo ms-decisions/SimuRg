@@ -94,7 +94,7 @@ mod_fin <- RxODE({
   beta_CL_CYP2C9_1_3 = -0.574;
   beta_CL_CYP2C9_2_2 = -1.079;
   beta_CL_CYP2C9_2_3 = -0.745;
-  beta_Cl_CYP2C9_3_3 = -2.13;
+  beta_CL_CYP2C9_3_3 = -2.13;
 
   beta_ka_SEX_1 = -0.12198035;
 
@@ -142,6 +142,88 @@ mod_fin <- RxODE({
   Cc_ResErr = Cc*(1 + Cc_b);
 })
 
+####------ Alternative model: PK + PD (Emax), var_output as vector ------####
+# Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
+# so that var_output = c("Cc", "Effect") can be tested
+mod_fin_2 <- RxODE({
+  # Doses in mg
+  # Time in hours
+
+  ### PK parameters
+  ka_pop = 0.073;
+  Vd_pop = 14.8;
+  CL_pop = 0.347;
+
+  omega_ka = 0;
+  omega_Vd = 0;
+  omega_CL = 0;
+
+  # Continuous covariate effects
+  beta_CL_LG_AGE    = 0.49990114;
+  beta_Vd_LG_WEIGHT = 0.60529433;
+
+  # Categorical covariate effects
+  beta_CL_CYP2C9_1_2 = -0.339;
+  beta_CL_CYP2C9_1_3 = -0.574;
+  beta_CL_CYP2C9_2_2 = -1.079;
+  beta_CL_CYP2C9_2_3 = -0.745;
+  beta_CL_CYP2C9_3_3 = -2.13;
+
+  beta_ka_SEX_1 = -0.12198035;
+
+  # Residual error
+  Cc_b = 0;
+
+  ### PD parameters (Emax model for anticoagulant effect, e.g. INR-like)
+  E0    = 1.0;   # Baseline effect (INR at zero drug)
+  Emax  = 3.5;   # Maximum drug-induced increase in effect
+  EC50  = 0.8;   # Concentration producing 50% of Emax (mg/L)
+  gamma = 1.0;   # Hill coefficient
+
+  ### PK: typical values and multipliers
+  ka_tv = exp(ka_pop);
+  Vd_tv = exp(Vd_pop);
+  CL_tv = exp(CL_pop);
+
+  CL_multiplier = 1.0;
+  ka_multiplier = 1.0;
+
+  if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+
+  if (CYP2C9 == 1.2) {
+    CL_multiplier = exp(beta_CL_CYP2C9_1_2);
+  } else if (CYP2C9 == 1.3) {
+    CL_multiplier = exp(beta_CL_CYP2C9_1_3);
+  } else if (CYP2C9 == 2.2) {
+    CL_multiplier = exp(beta_CL_CYP2C9_2_2);
+  } else if (CYP2C9 == 2.3) {
+    CL_multiplier = exp(beta_CL_CYP2C9_2_3);
+  } else if (CYP2C9 == 3.3) {
+    CL_multiplier = exp(beta_CL_CYP2C9_3_3);
+  }
+
+  ka = ka_tv * ka_multiplier * exp(omega_ka);
+  Vd = Vd_tv * exp(beta_Vd_LG_WEIGHT * LG_WEIGHT + omega_Vd);
+  CL = CL_tv * CL_multiplier * exp(beta_CL_LG_AGE * LG_AGE + omega_CL);
+
+  ### Explicit functions
+  Cc = Ac / Vd;
+  Cc_ResErr = Cc * (1 + Cc_b);
+
+  # PD output: Emax model driven by plasma concentration
+  Effect = E0 + Emax * Cc^gamma / (EC50^gamma + Cc^gamma);
+
+  ### Initial conditions
+  Ad(0) = 0;
+  Ac(0) = 0;
+
+  ### Differential equations
+  d/dt(Ad) = -ka * Ad;
+  d/dt(Ac) =  ka * Ad - CL * Cc;
+})
+
+
+
 ss_cycle <- 10
 fun_stimes_ss <- function(k){c(
   k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
@@ -156,6 +238,7 @@ output_01 <- sg_covsens_sim(fpath_i, ds_parest=NULL, ds_cov=NULL, mod_fin, stime
                          Nsim=10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
                          var_output = "Cc")
+write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
 output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin,
@@ -164,3 +247,11 @@ output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin
                             Nsim=10,
                             cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
                             var_output = "Cc")
+
+# Test: var_output as a 2-element vector — both PK (Cc) and PD (Effect) outputs
+output_03 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin,
+                            mod_fin = mod_fin_2, stimes_ss, ev_t_input,
+                            est_covmat = est_covmat,
+                            Nsim = 10,
+                            cont_cov_l, cat_cov_l, quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
+                            var_output = c("Cc", "Effect"))
