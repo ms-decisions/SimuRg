@@ -151,7 +151,7 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 5, s
 
   sens_i <- et_sim_i %>% map_dfr(function(et_i){
     #Test
-    et_i <- et_sim_i[[1]]
+    #et_i <- et_sim_i[[1]]
 
       if(!expos){
       par_i <- unique(et_i$PAR)
