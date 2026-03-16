@@ -275,7 +275,7 @@ output_01 <- sg_covsens_sim(fpath_i, ds_parest=NULL, ds_cov=NULL, mod_fin, stime
                          Nsim=10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
                          var_output = "Cc")
-write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
+#write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
 output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
