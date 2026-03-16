@@ -46,21 +46,46 @@ aggr = c("max")
 # Load simurg object with covariates
 #fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
 #fpath_i <- system.file("extdata", "simurg_object", "run_4cov_smrg_results.json", package = "SimuRg")
-#fpath_i <- system.file("extdata", "simurg_object", "run_4cov_smrg_results.json", package = "SimuRg")
-fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim","run_4cov_smrg_results.json", package = "SimuRg")
+#fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim","run_4cov_smrg_results.json", package = "SimuRg")
 
+### --- One-time: recode CYP2C9 and save modified JSON --- ###
+# Run this block once to produce the modified JSON, then switch to the
+# "Load pre-modified JSON" block below for subsequent runs.
+if (FALSE) {
+  fpath_orig <- system.file("scripts", "nlme", "sg-covsens-sim",
+                            "run_4cov_smrg_results.json", package = "SimuRg")
+  obj_data <- read_smrg_obj(fpath_orig)
+
+  ds_catcov <- obj_data$CATAB
+  ds_catcov <- ds_catcov %>% mutate(CYP2C9 = case_when(
+    CYP2C9 == 1.1 ~ 0,
+    CYP2C9 == 1.2 ~ 1,
+    CYP2C9 == 1.3 ~ 2,
+    CYP2C9 == 2.2 ~ 3,
+    CYP2C9 == 2.3 ~ 4,
+    CYP2C9 == 3.3 ~ 5,
+    TRUE ~ CYP2C9
+  ))
+  obj_data$CATAB <- ds_catcov
+
+  fpath_mod <- file.path(dirname(fpath_orig), "run_4cov_smrg_results_mod.json")
+  jsonlite::write_json(obj_data, fpath_mod, pretty = TRUE, auto_unbox = TRUE)
+  message("Modified JSON written to: ", fpath_mod)
+}
+
+### --- Load pre-modified JSON --- ###
+fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
+                       "run_4cov_smrg_results_mod.json", package = "SimuRg")
 obj_data <- read_smrg_obj(fpath_i)
-#ds_mod <-  obj_data$SDTAB
 par_sum <- obj_data$SUMTAB
-par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)#Exemplar table with parameters
-
+par_fin_i <- par_sum %>% rename(parameter = PAR, value = VALUE) #Exemplar table with parameters
 ds_catcov <- obj_data$CATAB
-ds_ccov <- obj_data$COTAB
+ds_ccov   <- obj_data$COTAB
 
-data_fin <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with covariate values
+data_fin_i <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with covariate values
 
 ### Mock Fisher information covariance (same parameter order as par_fin; symmetric pos-def)
-pnames <- par_fin$parameter
+pnames <- par_fin_i$parameter
 npar   <- length(pnames)
 set.seed(1)
 m_cov  <- matrix(0.02, npar, npar)
@@ -111,15 +136,15 @@ mod_fin <- RxODE({
 
   if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
 
-  if (CYP2C9  == 1.2) {
+  if (CYP2C9 == 1) {
     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
-  } else if (CYP2C9  == 1.3) {
+  } else if (CYP2C9 == 2) {
     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
-  } else if (CYP2C9  == 2.2) {
+  } else if (CYP2C9 == 3) {
     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
-  } else if (CYP2C9 == 2.3) {
+  } else if (CYP2C9 == 4) {
     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
-  } else if (CYP2C9 == 3.3) {
+  } else if (CYP2C9 == 5) {
     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
   }
 
@@ -190,17 +215,29 @@ mod_fin_2 <- RxODE({
 
   if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
 
-  if (CYP2C9 == 1.2) {
+  if (CYP2C9 == 1) {
     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
-  } else if (CYP2C9 == 1.3) {
+  } else if (CYP2C9 == 2) {
     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
-  } else if (CYP2C9 == 2.2) {
+  } else if (CYP2C9 == 3) {
     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
-  } else if (CYP2C9 == 2.3) {
+  } else if (CYP2C9 == 4) {
     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
-  } else if (CYP2C9 == 3.3) {
+  } else if (CYP2C9 == 5) {
     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
   }
+
+  # if (CYP2C9 == 1.2) {
+  #   CL_multiplier = exp(beta_CL_CYP2C9_1_2);
+  # } else if (CYP2C9 == 1.3) {
+  #   CL_multiplier = exp(beta_CL_CYP2C9_1_3);
+  # } else if (CYP2C9 == 2.2) {
+  #   CL_multiplier = exp(beta_CL_CYP2C9_2_2);
+  # } else if (CYP2C9 == 2.3) {
+  #   CL_multiplier = exp(beta_CL_CYP2C9_2_3);
+  # } else if (CYP2C9 == 3.3) {
+  #   CL_multiplier = exp(beta_CL_CYP2C9_3_3);
+  # }
 
   ka = ka_tv * ka_multiplier * exp(omega_ka);
   Vd = Vd_tv * exp(beta_Vd_LG_WEIGHT * LG_WEIGHT + omega_Vd);
@@ -241,7 +278,7 @@ output_01 <- sg_covsens_sim(fpath_i, ds_parest=NULL, ds_cov=NULL, mod_fin, stime
 write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
-output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin,
+output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
                             mod_fin, stimes_ss, ev_t_input,
                             est_covmat = est_covmat,
                             Nsim=10,
@@ -249,7 +286,7 @@ output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin
                             var_output = "Cc")
 
 # Test: var_output as a 2-element vector — both PK (Cc) and PD (Effect) outputs
-output_03 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin, ds_cov = data_fin,
+output_03 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
                             mod_fin = mod_fin_2, stimes_ss, ev_t_input,
                             est_covmat = est_covmat,
                             Nsim = 10,
