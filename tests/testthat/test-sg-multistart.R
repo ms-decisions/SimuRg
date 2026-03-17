@@ -1,31 +1,29 @@
 test_that("sg_multistart creates expected number of files", {
-  skip_if(T)
-  folder_path <- system.file("extdata", package = "SimuRg")
   # str_c("V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/")
+  folder_path <- system.file("extdata", package = "SimuRg")
 
-  mod <- paste(folder_path, "/Models/model_1c.txt", sep = "/")
-
+  mod <- paste(folder_path, "/models/model_PK_1c.txt", sep = "/")
   ### path to the dataset
   data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
 
   re <- list(init = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
-                        1, 0, 0, 0, 0,
-                        0, 1, 0, 0, 0,
-                        0, 0, 1, 0, 0,
-                        0, 0, 0, 1, 0,
-                        0, 0, 0, 0, 1) %>% as.matrix(),
-         est = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
-                       T, NA, NA, NA, NA,
-                       NA, T, NA, NA, NA,
-                       NA, NA, T, NA, NA,
-                       NA, NA, NA, T, NA,
-                       NA, NA, NA, NA, T) %>% as.matrix(),
-         block =tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
-                        F, NA, NA, NA, NA,
-                        NA, F, NA, NA, NA,
-                        NA, NA, T, NA, NA,
-                        NA, NA, NA, F, NA,
-                        NA, NA, NA, NA, F) %>% as.matrix())
+                            1, 0, 0, 0, 0,
+                            0, 1, 0, 0, 0,
+                            0, 0, 1, 0, 0,
+                            0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 1) %>% as.matrix(),
+             est = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+                           T, NA, NA, NA, NA,
+                           NA, T, NA, NA, NA,
+                           NA, NA, T, NA, NA,
+                           NA, NA, NA, T, NA,
+                           NA, NA, NA, NA, T) %>% as.matrix(),
+             block =tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+                            F, NA, NA, NA, NA,
+                            NA, F, NA, NA, NA,
+                            NA, NA, T, NA, NA,
+                            NA, NA, NA, F, NA,
+                            NA, NA, NA, NA, F) %>% as.matrix())
 
   headers <- list(list(name = "ID", use = "identifier", type = NULL),
                   list(name = "TIME", use = "time", type = NULL),
@@ -42,9 +40,9 @@ test_that("sg_multistart creates expected number of files", {
                   list(name = "BMI", use = "covariate", type = "continuous"))
 
   theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
-            "Cl", "logNormal", 0.2, NA, NA, T,
-            "Vd", "logNormal", 20, NA, NA, T,
-            "ka", "logNormal", 0.2, NA, NA, T)
+                   "Cl", "logNormal", 0.2, NA, NA, T,
+                   "Vd", "logNormal", 20, NA, NA, T,
+                   "ka", "logNormal", 0.2, NA, NA, T)
 
   theta_intervals <- list(
     Cl = c(0.25*theta$INIT[theta$NAME == "Cl"], 4*theta$INIT[theta$NAME == "Cl"]),
@@ -55,12 +53,12 @@ test_that("sg_multistart creates expected number of files", {
   path <- tempdir()# tempdir() #system.file("extdata", package = "SimuRg")
 
   ruv <- list(YNAME = "y1",
-           DVID = 1,
-           TRANS = "normal",
-           PRED = "Cc",
-           ERR = "proportional",
-           INIT = 1,
-           EST = T)
+              DVID = 1,
+              TRANS = "normal",
+              PRED = "Cc",
+              ERR = "proportional",
+              INIT = 1,
+              EST = T)
 
   n_starts <- 20
 
@@ -91,6 +89,9 @@ test_that("sg_multistart creates expected number of files", {
   csv_content <- read_csv(paste0(path, "/multistart_info.csv"))
   # expect_gt(nrow(csv_content), 0)
   expect_equal(nrow(csv_content), n_starts)
+  # Clear tempdir
+  clr_files <- list.files(path, full.names = TRUE)
+  unlink(clr_files, recursive = TRUE, force = TRUE)
 
 
 })
