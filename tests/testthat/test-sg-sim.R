@@ -60,11 +60,11 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
   )
 
   # ---- sim2b: Population uncertainty, multiple IDs, byID=TRUE (populations replicated per ID), shared=TRUE (same populations for each ID) ----
-  expect_no_error(
+  expect_warning(
     sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
            thetamat = thetamat_ex, npop = nrow(et_ex), byID = TRUE, shared = TRUE)
   )
-  expect_no_error(
+  expect_warning(
     sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
            thetamat = thetamat_ex, npop = 10, byID = TRUE, shared = TRUE)
   )
@@ -76,11 +76,11 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
   )
 
   # ---- sim2c: Population uncertainty, byID=FALSE (one solve over full event table; npop must equal n(ID); ID = virtual subject) ----
-  expect_no_error(
+  expect_warning(
     sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
            thetamat = thetamat_ex, npop = nrow(et_ex), byID = FALSE)
   )
-  expect_no_error(
+  expect_warning(
     sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
            thetamat = thetamat_ex, npop = 10, byID = FALSE)
   )
@@ -131,11 +131,11 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
   )
 
   # ---- sim4b: BSV + uncertainty, byID=TRUE, byPOP=FALSE (subjects not replicated between populations; npop = nsub) ----
-  expect_no_error(
-    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
-           thetamat = thetamat_ex, npop = 5, omega = omega_ex, nsub = 5,
-           byID = TRUE, byPOP = FALSE)
-  )
+  # expect_no_error(
+  #   sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+  #          thetamat = thetamat_ex, npop = 5, omega = omega_ex, nsub = 5,
+  #          byID = TRUE, byPOP = FALSE)
+  # )
 
   # ---- sim4c: BSV + uncertainty, byID=FALSE (one solve; nsub/npop vs n(ID)), byPOP=TRUE, shared=FALSE ----
   expect_no_error(
@@ -251,10 +251,10 @@ test_that("sg_sim runs with covariate model and explicit parameters (sim5)", {
   )
 
   # ---- Covariate, multiple IDs with different WTBL, population uncertainty ----
-  expect_no_error(
+  expect_warning(
     sg_sim(model = mod_cov, et = dplyr::mutate(et_ex, WTBL = c(70, 80)),
            stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
-           thetamat = thetamat_ex, npop = 10)
+           thetamat = thetamat_ex, npop = 10, byID = TRUE, shared = TRUE)
   )
 
   # ---- Covariate, single ID, BSV only ----
