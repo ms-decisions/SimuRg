@@ -3,7 +3,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "COVNAME", "COVVAL", "CV", "CV % (95% CI)", "CWRES",
                          "DT_label", "DV", "DVID", "EST", "Estimate", "ETA",
                          "ETAshrinkage_sd", "ETAshrinkage_var", "EVID", "ID",
-                         "INIT", "IPRED", "IRES",
+                         "First order", "INIT", "IPRED", "IRES",
                          "IWRES", "LABEL", "LARGPVAL", "LCI",  "MDV", "METRIC",
                          "NAME", "NAME_INIT", "NTILE", "OCCMAN", "PAR", "PAR1",
                          "PAR2", "PAR_NAME", "Parameter", "PARVAL", "PAR_group",
@@ -11,9 +11,9 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "PPRED", "PPRED_bin", "PRED", "PVAL", "Project_name",
                          "R_diff", "RES", "RSE", "RUVpars", "Run_ID", "SE",
                          "SIGNPEARS", "Shrinkage", "Shrinkage_var", "Shrinkage (var), %",
-                         "Source", "TDIST", "TIME", "TIME_BIN", "TIME_BIN_max",
+                         "Source", "STAT", "TDIST", "TIME", "TIME_BIN", "TIME_BIN_max",
                          "TIME_BIN_max_prev", "TIME_BIN_min", "TIME_BIN_min_next",
-                         "TRANS", "TSLD", "TV", "TYPE", "UCI", "VALUE", "VAR",
+                         "TRANS", "TSLD", "Total order", "TV", "TYPE", "UCI", "VALUE", "VAR",
                          "Var1", "Var2", "Var_epsilon", "Var_mc", "Var_total",
                          "WRES", "X", "Y", "aov", "as.formula", "category", "cmax",
                          "cmax_ref", "combn", "cor", "cor.test", "data", "density",
@@ -25,7 +25,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
                          "pi_u", "pi_u_ci_l", "pi_u_ci_u", "pi_u_median", "popPred",
                          "q25", "q75", "quantile", "r", "read.csv", "reorder",
                          "residual_type", "rnorm", "row_id", "sd", "sd_val",
-                         "se_val", "setNames", "theor_median", "time", "toJSON",
+                         "se_val", "setNames", "sim.id", "theor_median", "time", "toJSON",
                          "type", "use", "uperc","value", "value_at_time",
                          "value_cfb", "value_ref", "var", "x", "y", "y_central",
                          "y_lower", "y_lower_perc", "y_upper", "y_upper_perc"))
@@ -52,8 +52,16 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param ciUp numeric. Upper confidence interval bound. Default is 0.975
 #' @param col_i string. Column name for color
 #' @param col_lab string. Label for color legend
-#' @param covs list of covariate structures. List object for covariates specification
-#' @param data string. Path to the dataset used to fit a model
+#' @param covs list of covariate structures. List object for covariates specification. Each element should be a list containing covariate relationship definitions with the following structure:
+#'   * `PAR` - string, name of the parameter to which covariate effect is applied
+#'   * `COVNAME` - string, name of the covariate column in the dataset
+#'   * `FUNC` - string, functional form of the covariate effect
+#'   * `TRANS` - string, transformation applied to covariate
+#'   * `REF` - numeric, reference value for categorical covariates
+#'   * `INIT` - numeric, initial value for the covariate effect parameter
+#'   * `EST` - logical, whether to estimate the covariate effect
+#'   Can be `NULL`, if no covariates are used. Default is `NULL`
+#' @param data string. Path to the dataset used to fit a model. Should be a CSV file containing the pharmacokinetic/pharmacodynamic data with appropriate column structure matching the headers specification
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
 #' @param ds_i data.frame. The data frame with source data.
@@ -61,17 +69,29 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param dv_col character. Name of DV column in data_i. Default is`DV`
 #' @param emp_perc logical. Show empirical percentiles. Default is `TRUE`
 #' @param et data.frame. Event table
-#' @param eta_seq vector of strings. Character vector of parameter names to be plotted (e.g., `c("ka", "Cl")`). If `NULL`, all parameters be included. Default is `NULL`
+#' @param eta_seq vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param excl_col character vector. Contains column names to exclude from synthesis. Default: \code{NULL}
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
 #' @param fill_i string. Column name for fill aesthetic. Default is `NULL`
 #' @param filt string. Provide a filter to apply. Default is `"T"`
-#' @param fit logical. If`TRUE`, fit will be performed. Default is `FALSE`
+#' @param fit logical. If `TRUE`, the model fitting will be executed immediately using the specified fitter. If `FALSE`, only the fit configuration file will be generated without running the fit. Set to `FALSE` for file preparation only, or `TRUE` to run the complete fitting process. Default is `FALSE`
 #' @param fpath_i string or sg-fit object. If the string is given, the path to `.Rdata` or `.json` file with sg-fit object is expected
 #' @param free_stat string. Facet scaling option. One of `"free"`, `"free_x"`, `"free_y"`, or `"fixed"`. Default is `'free'`
 #' @param group_i string. Primary grouping variable for lines. Default is `'VAR'`
-#' @param headers list. List with dataframe headers.
+#' @param headers list. List with dataframe headers specification. Each element should be a list containing column information with the following structure:
+#'   * `name` - string, column name in the dataset
+#'   * `use` - string, column usage type. Valid values include:
+#'     - "identifier" for subject ID columns
+#'     - "time" for time columns
+#'     - "observation" for dependent variable columns
+#'     - "observationtype" for observation type identifier
+#'     - "administration" for administration route
+#'     - "amount" for dose amount
+#'     - "eventidentifier" for event ID
+#'     - "missingdependentvariable" for missing DV flag
+#'     - "covariate" for covariate columns
+#'   * `type` - string or NULL, data type specification. For observations use "continuous", "count/categorical" or "event", depending on the nature of observations. For covariates use "continuous" or "categorical". Can be NULL for non-covariate columns
 #' @param ncores integer. Number of cores used for calculations. Default is 1
 #' @param id_col character string. Specify the name of the identifier column to exclude from synthesis. Default: \code{NULL}
 #' @param indiv logical. If `TRUE` uses individual predictions (`"IPRED"`); otherwise uses population predictions (`"PRED"`). Default is `TRUE`
@@ -96,31 +116,50 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param no_leg logical. If `TRUE`, no legend will be displayed. Default is `FALSE`
 #' @param npop integer. Number of population replicates. Default is 1
 #' @param nsub integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1
-#' @param occ interoccasion variability object. Object to set properties of interoccasion variability
+#' @param occ interoccasion variability object. Object to set properties of interoccasion variability. Should be a list containing:
+#'   * `init` - matrix, initial values for the interoccasion variance-covariance matrix. Same structure as `re$init` but for occasion-to-occasion variability. Use 0 for no interoccasion variability
+#'   * `est` - matrix, logical matrix specifying which interoccasion variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` for elements not applicable. Typically all elements are NA when no interoccasion variability is modeled
 #' @param omega named mztrix or vector. Matrix
-#' @param opt_name string. Specify the optimizer to use. Currently, only `"Monolix"` is avaliable. Default is `"Monolix"`
+#' @param opt_name string. Specify the optimizer/fitter to use for model fitting. Currently supported options:
+#'   * `"Monolix"` - uses Monolix Suite for population pharmacokinetic modeling (generates .mlxtran files)
+#'   * `"Simurg"` - uses SimuRg internal fitter (generates .R files with JSON control structure)
+#'   Default is `"Monolix"`
 #' @param outputs vector of strings. Names of the model variabeles to output. If `NULL`, all varaibles returned. Default is `NULL`
-#' @param path_to_save_output string. Path to save fit output files. If `NULL`, current working directroy will be used. Default is `NULL`
-#' @param path_to_fitter string. The path to the program fitter. If `NULL`, "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat" will be used. Defult is `NULL`
+#' @param path_to_save_output string. Path to save fit output files. Should be a valid directory path where the fit results and project files will be saved. If `NULL`, current working directory will be used. Default is `NULL`
+#' @param path_to_fitter string. The path to the program fitter executable. For Monolix, this should point to the monolix.bat file. If `NULL`, "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat" will be used as default. Default is `NULL`
 #' @param piLow numeric. Lower prediction interval bound. Default is 0.10
 #' @param piUp numeric. Upper prediction interval bound Default is 0.90
 #' @param plot_type Character. Type of plot to produce:
 #'   * `"DIST"` (default) - histogram of individual parameters,
 #'   * `"QQ"` - QQ-plot of individual parameters
 #' @param pred.corr logical. Apply prediction correction. Default is `FALSE`
-#' @param project_name string. The name of the project.
-#' @param re random effects object. Contains options for random effects in model fit
-#' @param rtol numeric. A numeric relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
+#' @param project_name string. The name of the Monolix project without file extension. This will be used as the base name for output files and directories
+#' @param re random effects object. Contains options for random effects in model fit. Should be a list containing:
+#'   * `init` - matrix, initial values for the variance-covariance matrix of random effects. Rows and columns should correspond to parameters defined in theta. Diagonal elements represent variances, off-diagonal elements represent covariances. Use 0 for no variability
+#'   * `est` - matrix, logical matrix of same dimensions as `init` specifying which variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` to not use this random effect
+#' @param rtol numeric. A numberic relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
 #' @param run_id integer. Tested model ID. Default is 1.
-#' @param ruv residual error object. Options for residual error used in model fit
+#' @param ruv residual error object. Options for residual error used in model fit. Should be a list containing:
+#'   * `YNAME` - string, output name. Typically `"y1"`, `"y2"`,...
+#'   * `DVID` - numeric, observation type identifier corresponding to DVID column values
+#'   * `TRANS` - string, residual error distribution. Can be: `"normal"`, `"logNormal"`, `"logitNormal"`
+#'   * `PRED` - string, prediction variable name from the model
+#'   * `ERR` - string, error model type. Options include:
+#'     - "constant" for additive error
+#'     - "proportional" for proportional error
+#'     - "combined1" for combined additive and proportional error
+#'   * `INIT` - numeric vector, initial values for error parameters (length depends on error model)
+#'   * `EST` - logical vector, whether to estimate each error parameter (same length as INIT)
+#'   * `BLQM` - below limit of quantification method (can be NULL)
+#'  For several observation types list of lists should be provided: one residual error (ruv) object for each observations
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
-#' @param scale numeric named vector. Scaling for ode parameters of the system. The names must correspond to the parameter identifiers in the ODE specification. Each of the ODE variables will be divided by the scaling factor. For example scale=c(center=2) will divide the center ODE variable by 2. Defult is `NULL`
+#' @param scale numeric named vector. Scaling for ode parameters of the system. The names must correspond to the parameter identifiers in the ODE specification. Each of the ODE variables will be divided by the scaling factor. Default is `NULL`
 #' @param seed integer. Random seed for synthetic data generation reproducibility.Default is \code{123}.
 #' @param shp_i string. Column name for shape aesthetic. Default is `NULL`
 #' @param sigma matrix. Named sigma covariance or Cholesky decomposition of a covariance matrix. Defult is `NULL`
 #' @param smooth logical. Add LOESS smooth line. Default is `TRUE`
 #' @param stimes vector of numeric. Sampling time points. Default is `NULL`
-#' @param task_opt string. Options to be passed to Monolix fit. Default is `NULL`
+#' @param task_opt string. Additional task options to be passed to the fitting software. For Monolix, this can include specific task configurations or optimization settings. When `NULL`, default tasks (populationParameters, individualParameters, fim, logLikelihood) will be used.  Default is `NULL`
 #' @param tdist logical. If `TRUE`, overlay theoretical parameter distributions based on population mean and OMEGA matrix. Default is `TRUE`
 #' @param time_col string. The column to use as a time column. Currently, can be only `TIME`. Default is `TIME`
 #' @param theor_perc logical. Show theoretical percentiles. Default is `TRUE`
@@ -129,9 +168,22 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param thetamat matrix. Named variance-covariance matrix (for parameters brought to normal distribution). Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
 #' @param val_col string. Name of value column. Default is `VALUE`
-#' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`
+#' @param wrap_i string. Faceting formula for `facet_wrap`. Default is `NULL`
 #' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`
 #' @param wrap_nrow integer. Number of rows for `facet_wrap`. Default is `NULL`
+#' @param method Character string. `"PRCC"` or `"eFAST"`.
+#' @param model Model object passed to `sg_sim()`.
+#' @param params Character vector of parameter names to vary.
+#' @param par_bounds Tibble/data.frame with columns `PAR`, `LB`, `UB`.
+#' @param n_sim Integer. Number of samples (LHS size for PRCC, base frequency size for eFAST).
+#' @param stimes Numeric vector of simulation times.
+#' @param output Character vector of outputs to keep. Passed to `sg_sim()`.
+#' @param stat_comp Character vector of summary statistics to compute.
+#'        Supported internally: `"mean","median","min","max","sd","cmax","SS"`.
+#' @param et Event table passed to `sg_sim()`.
+#' @param theta Named numeric vector of baseline parameters. Default NULL.
+#'        Parameters listed in `params` are replaced by sampled values.
+#' @param cov Covariates passed to `sg_sim()`. Default NULL.
 sg_dummy <- function(
     ...,
   abreaks = scales::pretty_breaks(7),
@@ -143,6 +195,7 @@ sg_dummy <- function(
   atol = 1e-8,
   cap,
   cov_cols,
+  cov,
   covint = "locf",
   ciLow = 0.025,
   ciUp = 0.975,
@@ -189,6 +242,7 @@ sg_dummy <- function(
   model,
   n_bins = 30,
   n_quantiles = 3,
+  n_sim,
   no_leg = FALSE,
   npop = 1,
   nsub = 1,
@@ -196,8 +250,11 @@ sg_dummy <- function(
   opt_name = "Monolix",
   omega,
   outputs = NULL,
+  output = NULL,
   path_to_fitter = NULL,
   path_to_save_output = NULL,
+  par_bounds,
+  params =NULL,
   piLow = 0.10,
   piUp = 0.90,
   plot_type = "DIST",
@@ -213,6 +270,7 @@ sg_dummy <- function(
   sigma = NULL,
   shp_i = NULL,
   smooth = TRUE,
+  stat_comp = NULL,
   stimes = NULL,
   task_opt = NULL,
   tdist = TRUE,
@@ -228,10 +286,10 @@ sg_dummy <- function(
   wrap_nrow = NULL
 ) {}
 
-#' Ensure SimuRg object table components are single data frames
-#'
-#' Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
-#' when needed. Idempotent if already data frames.
+# Ensure SimuRg object table components are single data frames
+#
+# Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
+# when needed. Idempotent if already data frames.
 
 smrg_ensure_tables_df <- function(obj) {
   table_names <- c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")

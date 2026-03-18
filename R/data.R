@@ -75,20 +75,3 @@ funSum_sim <- list(mean   = ~mean(., na.rm = T),
 #' }
 "data_pbc"
 
-#' Simulated time profile dataset
-#'
-#' Simulated pharmacokinetic time profile data with concentration measurements and covariates.
-#'
-#' @format ## `sim_timeprof`
-#' A data frame with 2000 rows and 9 columns:
-#' \describe{
-#'   \item{ID}{identifier of the individual}
-#'   \item{TIME}{time points}
-#'   \item{VAR}{variable name (type of measurement)}
-#'   \item{VALUE}{concentration value}
-#'   \item{Regimen}{dosing regimen description}
-#'   \item{Dose}{dose amount}
-#'   \item{WTBL}{weight baseline}
-#'   \item{CAT1}{categorical covariate}
-#' }
-"sim_timeprof"

@@ -1,0 +1,23 @@
+DESCRIPTION:
+The 2 comp. PK model with dose-dependent bioavailability.
+
+[LONGITUDINAL]
+input = {ka, Cl, V1, Q, V2}
+
+PK:
+; Parameter transformations
+V = V1
+k12 = Q/V1
+k21 = Q/V2
+
+; PK model definition
+Cc = pkmodel(ka, V, Cl, k12, k21)
+
+;;; Priors
+MW = 627.57    					; g/mol for INCB161734 
+
+;;; Explicit functions
+Cc_nM = Cc/MW*1000000				; nmol/L
+
+OUTPUT:
+output = {Cc_nM}

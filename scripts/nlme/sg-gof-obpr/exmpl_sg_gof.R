@@ -1,60 +1,7 @@
-## Author: Ugolkov Yaroslav
-## First created: 2025-09-05
-## Description: sg-gof-obpr and its helper functions
-## Keywords: SimuRg, sg-gof-obpr, goodness-of-fit
-#'
-#'Observed vs predicted plot
-#'
-#'
-#' @description
-#' Function generates observed versus predicted (OBS vs PRED/IPRED) scatter plots,
-#' a fundamental goodness-of-fit diagnostic tool in pharmacometric modeling.
-#' This visualization assesses model adequacy by comparing observed clinical measurements against model-predicted values,
-#' enabling identification of systematic bias, heteroscedasticity, and model misspecification patterns.
-#' Function contains options for faceting, coloring by covariates, and trend lines.
-#'
-#' @inheritParams sg_dummy
-#' @param lab_x X-axis label. Default "Model-predicted values"
-#' @param lab_y Y-axis label. Default "Observed values"
-#'
-#' @return A ggplot2 object
-#'
-
-#' @examples
-#' \donttest{
-#' # Basic example with mock data
-#' set.seed(123)  # For reproducibility
-#' mock_obj <- list(
-#'   SDTAB = data.frame(
-#'     ID = rep(1:3, each = 5),
-#'     TIME = rep(c(0, 1, 2, 4, 8), 3),
-#'     DV = rnorm(15, mean = 10, sd = 2),
-#'     PRED = rnorm(15, mean = 10, sd = 1.5),
-#'     IPRED = rnorm(15, mean = 10, sd = 1.2),
-#'     MDV = rep(0, 15)
-#'   ),
-#'   COTAB = data.frame(ID = 1:3, AGE = c(30, 45, 60)),
-#'   CATAB = data.frame(ID = 1:3, RACE = c("Hispanic", "Hispanic", "Asian"))
-#' )
-#'
-#' # Basic plot
-#' p <- sg_gof_obpr(mock_obj)
-#'
-#' # With covariates and faceting
-#' p <- sg_gof_obpr(
-#'   mock_obj,
-#'   cov_cols = "RACE",
-#'   col_i = "RACE",
-#'   facet_i = "RACE"
-#' )
-#' }
-#'
-#' @import dplyr
-#' @import ggplot2
-#' @importFrom jsonlite fromJSON
-#' @importFrom scales pretty_breaks trans_breaks trans_format math_format number_format
-#' @export
-
+library(tidyverse)
+# library(rxode2)
+# library(SimuRg)
+devtools::load_all()
 sg_gof_obpr <- function(
     fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
     smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
@@ -242,4 +189,79 @@ sg_gof_obpr <- function(
 
   return(p_ObPr + p_char)
 }
+smrg <- read_smrg_obj(fpath)
+#### AV tests ####
+fpath <- "../1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL.RData"
+# Basic plot
+p0 <- sg_gof_obpr(fpath_i = fpath)
+p0
+# With categorical covariate and faceting
+p1 <- sg_gof_obpr(
+  fpath_i = fpath,
+  cov_cols = "FEMALE",
+  col_i = "FEMALE",
+  col_lab = "Female",
+  facet_i = "FEMALE",
+  addline = F,
+  f_scales = "free_x",
+  lab_y = "X-axis",
+  lab_x = "Y-axis",
+  #no_leg = T
+  #abreaks = seq(0, 70, 5)
+  #smooth = F,
+  #log_axes = T
+  #alpha_i = 0.1
+)
+
+p1
+# With several covariates and faceting
+p3 <- sg_gof_obpr(
+  fpath_i = fpath,
+  cov_cols = c("FEMALE", "SLE"),
+  #col_i = "FEMALE",
+  #col_lab = "Female",
+  facet_i = "SLE",
+  addline = F,
+  f_scales = "free",
+  #no_leg = T
+  #abreaks = seq(0, 70, 5)
+  #smooth = F,
+  #log_axes = T
+  #alpha_i = 0.1
+)
+p3
+# With continuous covariate and faceting
+p4 <- sg_gof_obpr(
+  fpath_i = fpath,
+  cov_cols = c("WT"),
+  #col_i = "FEMALE",
+  #col_lab = "Female",
+  facet_i = "WT",
+  addline = F,
+  f_scales = "free",
+  #no_leg = T
+  #abreaks = seq(0, 70, 5)
+  #smooth = F,
+  #log_axes = T
+  #alpha_i = 0.1
+)
+p4
+# With continuous covariate and faceting
+p5 <- sg_gof_obpr(
+  fpath_i = fpath,
+  cov_cols = c("WT"),
+  col_i = "WT",
+  col_lab = "Weight",
+  facet_i = "WT",
+  addline = F,
+  f_scales = "free",
+  n_quantiles = 4
+  #no_leg = T
+  #abreaks = seq(0, 70, 5)
+  #smooth = F,
+  #log_axes = T
+  #alpha_i = 0.1
+)
+p5
+
 
