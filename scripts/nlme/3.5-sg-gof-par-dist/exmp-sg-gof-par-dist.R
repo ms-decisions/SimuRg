@@ -23,33 +23,18 @@
 #'
 #'
 #' @examples
-#' # Basic usage: distribution plots for all parameters
+#' # Basic usage
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sg_gof_par_dist(fpath_i = fpath_i)
 #'
-#' # Distribution plots for selected parameters (natural scale)
+#' # Only for specific parameters
 #' sg_gof_par_dist(fpath_i = fpath_i, par_seq = c("ka", "Cl"))
-#'
-#' # Distribution plots with theoretical densities disabled
-#' sg_gof_par_dist(fpath_i = fpath_i, tdist = FALSE)
-#'
-#' # Distribution plots for ETA
-#' sg_gof_par_dist(fpath_i = fpath_i, par_seq = c("eta_ka", "eta_Cl"), par_type = "RE")
-#'
-#' # Q-Q plots for all ETA parameters
-#' sg_gof_par_dist(fpath_i = fpath_i, plot_type = "QQ")
-#'
-#' # Q-Q plot for a specific ETA parameter
-#' sg_gof_par_dist(fpath_i = fpath_i, plot_type = "QQ", par_seq = "eta_ka")
-#'
-#' # Correlation matrix for selected parameters
-#' sg_gof_par_dist(fpath_i = fpath_i, plot_type = "correlations")
-#'
-#' @import dplyr
+#' @import dplyr, y
 #' @importFrom MASS mvrnorm
 #' @import ggplot2
 #' @importFrom scales pretty_breaks
 #' @export
+devtools::load_all()
 
 sg_gof_par_dist <- function(fpath_i, par_seq = NULL,par_type = "Ind", n_bins = 30, tdist = T, plot_type = 'DIST'){
   if (inherits(fpath_i, "character")) {smrg_obj <- get(load(fpath_i))}  else if (inherits(fpath_i, "list")) {    smrg_obj <- fpath_i  } else {    	stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")  }
@@ -226,13 +211,13 @@ sg_gof_par_dist <- function(fpath_i, par_seq = NULL,par_type = "Ind", n_bins = 3
       LABEL = str_c(PAR, "\nShrinkage = ", Shrinkage, "%"))
 
 
-  p_i <- ggplot(data = ind_par_dist, aes(x = value)) +
-    geom_histogram(aes(y = after_stat(density)),
-                   bins = n_bins,
-                   col = "grey25",
-                   fill = MSDcol[2]) +
-    theme_bw()+
-    facet_wrap(~PAR, scales = "free") +
+    p_i <- ggplot(data = ind_par_dist, aes(x = value)) +
+      geom_histogram(aes(y = after_stat(density)),
+                     bins = n_bins,
+                     col = "grey25",
+                     fill = MSDcol[2]) +
+      theme_bw()+
+      facet_wrap(~PAR, scales = "free") +
     scale_y_continuous(name = "Density", breaks = scales::pretty_breaks(7), expand = c(0, 0), limits = c(0, NA)) +
     scale_x_continuous(name = "Parameter value", breaks = scales::pretty_breaks(7), expand = c(0, 0))
 
@@ -353,3 +338,32 @@ sg_gof_par_dist <- function(fpath_i, par_seq = NULL,par_type = "Ind", n_bins = 3
   })
   return(p_i)
 }
+
+
+### Alinas code ####
+project_name <- "1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL"
+project_name_wo_cov <- "1cmt-RE-ka-Vd-CL-prop"
+load(str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name, ".RData"))
+# Basic plot
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name, ".RData"),
+                tdist =  T)
+
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name_wo_cov, ".RData"),
+                      #n_bins = 10,
+                      par_seq = c("eta_CL", "eta_Vd", "eta_ka"),
+                      par_type = "RE",
+                      tdist =  T)
+
+# Plot with prespecified parameters
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name, ".RData"), par_seq = c("CL", "Vd"))
+
+# QQ plot
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name, ".RData"), par_seq = c("L"), plot_type = "QQ")
+
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name_wo_cov, ".RData"), plot_type = "QQ")
+
+# correlations
+sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name, ".RData"), par_seq = c("CL", "Vd"), plot_type = "correlations")
+
+ sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name_wo_cov, ".RData"), plot_type = "correlations")
+
