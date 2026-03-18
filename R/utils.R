@@ -110,7 +110,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param pred.corr logical. Apply prediction correction. Default is `FALSE`
 #' @param project_name string. The name of the project.
 #' @param re random effects object. Contains options for random effects in model fit
-#' @param rtol numeric. A numberic relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
+#' @param rtol numeric. A numeric relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
 #' @param run_id integer. Tested model ID. Default is 1.
 #' @param ruv residual error object. Options for residual error used in model fit
 #' @param sc_factor numeric. Scaling factor for DV/PRED/IPRED values. Default is 1 (no scaling)
@@ -126,7 +126,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param theor_perc logical. Show theoretical percentiles. Default is `TRUE`
 #' @param theor_percCI logical. Show CI around theoretical percentiles. Default is `TRUE`
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
-#' @param thetamat matrix. Named theta matrix. Default is `NULL`
+#' @param thetamat matrix. Named variance-covariance matrix (for parameters brought to normal distribution). Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
 #' @param val_col string. Name of value column. Default is `VALUE`
 #' @param wrap_i string. Faceting formula for `facet_wrap` (e.g., `'~VAR'`). Default is `NULL`

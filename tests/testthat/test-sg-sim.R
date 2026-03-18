@@ -1,130 +1,286 @@
-test_that("simulations work", {
-  mod_ex <- RxODE({
-    # Doses in mg
-    # Time in hours
+## Scenarios aligned with roxygen @examples in R/sg-sim.R
+## All inputs (model, theta, thetamat, omega, sigma) are explicit R objects — no file uploads.
+##
+## Test structure:
+##   (1) Base 1-compartment PK, no covariate — sim1, sim2a–c, sim3a–b, sim4a–d, parameter override.
+##   (2) 1-compartment PK with WTBL covariate on Vd — covs/keep and covariate + variability (sim5).
 
-    ### Parameter values
-    # Typical
-    POPCL = 5;
-    POPVC = 180;
-    POPQ = 7;
-    POPVP = 52;
-    POPKTR = 6;
-    FBIOPAR = 1;
-
-    # Covariate coefficients
-    POPIGFRCOV = 0.8;
-    POPPATCOVCLGR1 = 0.85;
-    POPPATCOVCLGR2 = 0.85;
-    POPPATCOVCLGR3 = 0.85;
-    POPPATCOVCLGR4 = 0.85;
-
-    # Random effects
-    PPVCL = 0;
-    PPVVC = 0;
-    PPVKTR = 0;
-
-    # Residual error
-    RUV = 0;
-
-    ### Covariates
-    PATCOVCL = 1
-    if(POPN == 1){PATCOVCL = POPPATCOVCLGR1}
-    if(POPN == 2){PATCOVCL = POPPATCOVCLGR2}
-    if(POPN == 3){PATCOVCL = POPPATCOVCLGR3}
-    if(POPN == 4){PATCOVCL = POPPATCOVCLGR4}
-    IGFRCOV = (IGFR/112)^POPIGFRCOV
-
-    ### Parameters
-    CL = POPCL * IGFRCOV * PATCOVCL * exp(PPVCL);
-    VC = POPVC * exp(PPVVC);
-    Q = POPQ;
-    VP = POPVP;
-    KTR = POPKTR * exp(PPVKTR);
-
-    ### Explicit functions
-    Cc = Ac/VC;                 # nmol/L
-    Cp = Ap/VP;                 # nmol/L
-
-    ### Initial conditions
-    At1(0) = 0;         # mg
-    At2(0) = 0;         # mg
-    At3(0) = 0;         # mg
-    At4(0) = 0;         # mg
-    At5(0) = 0;         # mg
-    At6(0) = 0;         # mg
-    Ad(0) = 0;          # mg
-    Ac(0) = 0;          # mg
-    Ap(0) = 0;          # mg
-
-    ### ODEs
-    d/dt(At1) = - KTR*At1;
-    d/dt(At2) = KTR*At1 - KTR*At2;
-    d/dt(At3) = KTR*At2 - KTR*At3;
-    d/dt(At4) = KTR*At3 - KTR*At4;
-    d/dt(At5) = KTR*At4 - KTR*At5;
-    d/dt(At6) = KTR*At5 - KTR*At6;
-    d/dt(Ad) = KTR*At6 - KTR*Ad;
-    d/dt(Ac) = KTR*Ad - CL*Cc - Q*(Cc - Cp);
-    d/dt(Ap) = Q*(Cc - Cp);
-
-    FBIO = FBIOPAR
-    f(At1) = FBIO*1000000/505;
-    CHECKRUV = RUV;
-    Cc_ResErr = Cc + RUV*Cc;
+test_that("sg_sim runs with 1-compartment model and explicit parameters", {
+  # ---- Model: 1-compartment PK, no covariate ----
+  mod <- rxode2::rxode2({
+    ka_pop = 0.1;
+    Vd_pop = 10;
+    CL_pop = 0.5;
+    omega_ka = 0;
+    omega_Vd = 0;
+    omega_CL = 0;
+    Cc_b = 0;
+    ka_tv = exp(ka_pop);
+    Vd_tv = exp(Vd_pop);
+    CL_tv = exp(CL_pop);
+    ka <- ka_tv * exp(omega_ka);
+    Vd <- Vd_tv * exp(omega_Vd);
+    CL <- CL_tv * exp(omega_CL);
+    Cc = Ac / Vd;
+    Ad(0) = 0;
+    Ac(0) = 0;
+    d/dt(Ad) = -ka * Ad;
+    d/dt(Ac) = ka * Ad - CL * Cc;
+    Cc_ResErr = Cc * (1 + Cc_b);
   })
 
+  et_ex <- tibble::tribble(
+    ~ID, ~TIME, ~EVID, ~CMT, ~AMT,
+    1, 0, 1, 1, 10,
+    2, 0, 1, 1, 50
+  )
+  stimes_ex <- seq(0, 24, 0.1)
+  output_ex <- c("Ac", "Ad", "Cc", "Cc_ResErr")
+  theta_ex <- c(ka_pop = log(0.1), Vd_pop = log(10), CL_pop = log(0.5))
+  thetamat_ex <- matrix(c(0.05, 0.01, 0, 0.01, 0.05, 0, 0, 0, 0.05), nrow = 3, byrow = TRUE)
+  rownames(thetamat_ex) <- colnames(thetamat_ex) <- c("ka_pop", "Vd_pop", "CL_pop")
+  omega_ex <- matrix(c(0.2, 0.05, 0, 0.05, 0.2, 0, 0, 0, 0.2), nrow = 3, byrow = TRUE)
+  rownames(omega_ex) <- colnames(omega_ex) <- c("omega_ka", "omega_Vd", "omega_CL")
+  sigma_ex <- matrix(0.1)
+  rownames(sigma_ex) <- colnames(sigma_ex) <- "Cc_b"
 
-  #####--------------- Set up event tables ---------------#####
-  et_base <- tribble(
-    ~id, ~time, ~evid, ~cmt, ~amt, ~addl, ~ii, ~IGFR, ~POPN,
-    1,   0,     1,     1,    10,   2,     24,  112,   1
+  # ---- sim1: No variability (theta only); single solve, no thetamat/omega ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex, outputs = output_ex)
   )
 
-  et_tvar_cov <- bind_rows(
-    et_base,
-    tibble(id = 1, time = seq(0, 96, 0.5), evid = 0, cmt = 0, amt = 0, addl = 0, ii = 0, IGFR = 112, POPN = 1)
-  ) %>% mutate(IGFR = ifelse(time > 24, 30, IGFR))
+  # ---- sim2a: Population uncertainty, single scenario (ID) ----
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1), stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1), stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10)
+  )
 
+  # ---- sim2b: Population uncertainty, multiple IDs, byID=TRUE (populations replicated per ID), shared=TRUE (same populations for each ID) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = nrow(et_ex), byID = TRUE, shared = TRUE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, byID = TRUE, shared = TRUE)
+  )
 
-  #####--------------- Set up parameters ---------------#####
-  theta <- c(POPCL = 4, POPVC = 100)
-  omega <- matrix(c(0.2, 0.1, 0, 0.1, 0.2, 0, 0, 0, 0.2), nrow = 3, byrow = T); colnames(omega) <- c("PPVCL", "PPVVC", "PPVKTR")
-  sigma <- matrix(0.1); colnames(sigma) <- "RUV"
-  thetamat <- omega; colnames(thetamat) <- c("POPCL", "POPVC", "POPKTR")
+  # ---- Population uncertainty, multiple IDs, byID=TRUE shared=FALSE (separate pop per ID) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = nrow(et_ex), byID = TRUE, shared = FALSE)
+  )
 
+  # ---- sim2c: Population uncertainty, byID=FALSE (one solve over full event table; npop must equal n(ID); ID = virtual subject) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = nrow(et_ex), byID = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, byID = FALSE)
+  )
 
-  #####--------------- Simulations ---------------#####
-  ### Basic
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 outputs = "Cc", covs = c("IGFR", "POPN")))
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 covs = c("IGFR", "POPN")))
+  # ---- Between-subject variability (BSV), single ID ----
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1), stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1), stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = 10)
+  )
 
-  ### BSV and RUV
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 omega = omega, sigma = sigma))
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 omega = omega, sigma = sigma,
-                 npop = 10, aggr = "ID"))
+  # ---- BSV, multiple IDs, byID=TRUE shared=TRUE ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = 10, byID = TRUE, shared = TRUE)
+  )
 
-  ### Uncertainty
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 thetamat = thetamat, npop = 10, aggr = "ID"))
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 output = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 thetamat = thetamat, npop = 100, aggr = "ID"))
+  # ---- sim3a: BSV, multiple IDs, byID=TRUE (subjects replicated per ID), shared=FALSE (separate subjects per ID) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = 10, byID = TRUE, shared = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = 5, byID = TRUE, shared = FALSE)
+  )
 
-  ### BSV, RUV, Uncertainty
-  expect_no_error(sg_sim(model = mod_ex, et = et_base, stimes = seq(0, 168, 0.1),
-                 outputs = c("Cc", "Cc_ResErr"), covs = c("IGFR", "POPN"),
-                 omega = omega, sigma = sigma, thetamat = thetamat,
-                 npop = 100, aggr = "ID"))
+  # ---- sim3b: BSV, byID=FALSE (one solve over full event table; nsub must equal n(ID); ID = virtual subject) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           omega = omega_ex, nsub = nrow(et_ex), byID = FALSE)
+  )
 
-  ### Time-varying covariates
-  expect_no_error(sg_sim(model = mod_ex, et = et_tvar_cov, outputs = c("Cc", "IGFRCOV", "CL"),
-                 covs = c("IGFR", "POPN")))
+  # ---- Both thetamat and omega, byID=FALSE (nsub = n(ID)) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, omega = omega_ex, nsub = nrow(et_ex), byID = FALSE)
+  )
+
+  # ---- sim4a: BSV + uncertainty, byID=TRUE (pop/subjects replicated per ID), byPOP=TRUE (subjects replicated per population), shared=FALSE ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, omega = omega_ex, nsub = 5,
+           byID = TRUE, byPOP = TRUE, shared = FALSE)
+  )
+
+  # ---- sim4b: BSV + uncertainty, byID=TRUE, byPOP=FALSE (subjects not replicated between populations; npop = nsub) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 5, omega = omega_ex, nsub = 5,
+           byID = TRUE, byPOP = FALSE)
+  )
+
+  # ---- sim4c: BSV + uncertainty, byID=FALSE (one solve; nsub/npop vs n(ID)), byPOP=TRUE, shared=FALSE ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, omega = omega_ex, nsub = 5,
+           byID = FALSE, byPOP = TRUE, shared = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, omega = omega_ex, nsub = 2,
+           byID = FALSE, byPOP = TRUE, shared = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 2, omega = omega_ex, nsub = 10,
+           byID = FALSE, byPOP = TRUE, shared = FALSE)
+  )
+
+  # ---- sim4d: BSV + uncertainty, byID=FALSE (one solve; nsub and npop equal n(ID)), byPOP=FALSE (npop = nsub) ----
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = nrow(et_ex), omega = omega_ex, nsub = nrow(et_ex),
+           byID = FALSE, byPOP = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 10, omega = omega_ex, nsub = 5,
+           byID = FALSE, byPOP = FALSE)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex,
+           thetamat = thetamat_ex, npop = 2, omega = omega_ex, nsub = 2,
+           byID = FALSE, byPOP = FALSE)
+  )
+
+  # ---- Parameter override in event table (Vd_pop, omega_Vd) ----
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(Vd_pop = 2),
+           stimes = stimes_ex, theta = theta_ex, thetamat = thetamat_ex, npop = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(Vd_pop = 2),
+           stimes = stimes_ex, theta = theta_ex, thetamat = thetamat_ex, npop = 10)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(Vd_pop = 2),
+           stimes = stimes_ex, theta = theta_ex, omega = omega_ex, nsub = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(Vd_pop = 2),
+           stimes = stimes_ex, theta = theta_ex, omega = omega_ex, nsub = 10)
+  )
+  expect_no_error(
+    sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1) %>%
+             dplyr::mutate(Vd_pop = 2, omega_Vd = 0.5),
+           stimes = stimes_ex, theta = theta_ex, omega = omega_ex, nsub = 10)
+  )
+})
+
+test_that("sg_sim runs with covariate model and explicit parameters (sim5)", {
+  # ---- Model: 1-compartment PK with WTBL covariate on Vd (Vd_tv = exp(Vd_pop) * (WTBL/70)^beta_WTBL_Vd_pop) ----
+  mod_cov <- rxode2::rxode2({
+    ka_pop = 0.1;
+    Vd_pop = 10;
+    CL_pop = 0.5;
+    beta_WTBL_Vd_pop = 0;
+    omega_ka = 0;
+    omega_Vd = 0;
+    omega_CL = 0;
+    Cc_b = 0;
+    ka_tv = exp(ka_pop);
+    Vd_tv = exp(Vd_pop) * (WTBL / 70)^beta_WTBL_Vd_pop;
+    CL_tv = exp(CL_pop);
+    ka <- ka_tv * exp(omega_ka);
+    Vd <- Vd_tv * exp(omega_Vd);
+    CL <- CL_tv * exp(omega_CL);
+    Cc = Ac / Vd;
+    Ad(0) = 0;
+    Ac(0) = 0;
+    d/dt(Ad) = -ka * Ad;
+    d/dt(Ac) = ka * Ad - CL * Cc;
+    Cc_ResErr = Cc * (1 + Cc_b);
+  })
+
+  et_ex <- tibble::tribble(
+    ~ID, ~TIME, ~EVID, ~CMT, ~AMT,
+    1, 0, 1, 1, 10,
+    2, 0, 1, 1, 50
+  )
+  stimes_ex <- seq(0, 24, 0.1)
+  theta_ex <- c(ka_pop = log(0.1), Vd_pop = log(10), CL_pop = log(0.5))
+  thetamat_ex <- matrix(c(0.05, 0.01, 0, 0.01, 0.05, 0, 0, 0, 0.05), nrow = 3, byrow = TRUE)
+  rownames(thetamat_ex) <- colnames(thetamat_ex) <- c("ka_pop", "Vd_pop", "CL_pop")
+  omega_ex <- matrix(c(0.2, 0.05, 0, 0.05, 0.2, 0, 0, 0, 0.2), nrow = 3, byrow = TRUE)
+  rownames(omega_ex) <- colnames(omega_ex) <- c("omega_ka", "omega_Vd", "omega_CL")
+  theta_cov <- c(theta_ex, beta_WTBL_Vd_pop = 0.5)
+
+  # ---- sim5: Covariate (WTBL); pass covs and keep so WTBL is used and returned ----
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           thetamat = thetamat_ex, npop = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           thetamat = thetamat_ex, npop = 5)
+  )
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           thetamat = thetamat_ex, npop = 10)
+  )
+
+  # ---- Covariate, multiple IDs with different WTBL, population uncertainty ----
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::mutate(et_ex, WTBL = c(70, 80)),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           thetamat = thetamat_ex, npop = 10)
+  )
+
+  # ---- Covariate, single ID, BSV only ----
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           omega = omega_ex, nsub = 1)
+  )
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           omega = omega_ex, nsub = 10)
+  )
+
+  # ---- Covariate + uncertainty + BSV, byID=TRUE byPOP=TRUE shared=FALSE ----
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::filter(et_ex, ID == 1) %>% dplyr::mutate(WTBL = 70),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           thetamat = thetamat_ex, npop = 5, omega = omega_ex, nsub = 3,
+           byID = TRUE, byPOP = TRUE, shared = FALSE)
+  )
+
+  # ---- Covariate, multiple IDs, byID=TRUE shared=FALSE with omega ----
+  expect_no_error(
+    sg_sim(model = mod_cov, et = dplyr::mutate(et_ex, WTBL = c(70, 80)),
+           stimes = stimes_ex, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+           omega = omega_ex, nsub = 5, byID = TRUE, shared = FALSE)
+  )
 })
