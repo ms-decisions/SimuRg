@@ -70,6 +70,13 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param emp_perc logical. Show empirical percentiles. Default is `TRUE`
 #' @param et data.frame. Event table
 #' @param eta_seq vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
+#' @param par_seq vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
+#' @param par_type Character string specifying the type of parameters used for
+#'   theoretical distribution overlay (only relevant when `plot_type = 'DIST'`
+#'   and `tdist = TRUE`). If 'Ind' - Individual (default), distributions are shown on the
+#'   natural parameter scale assuming log-normal variability. If 'RE' - Random Effect, distributions are shown on the ETA scale,
+#'   assuming a normal distribution with mean zero and covariance defined
+#'   by `$OMEGAMAT`, without transformation.
 #' @param excl_col character vector. Contains column names to exclude from synthesis. Default: \code{NULL}
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
@@ -211,6 +218,8 @@ sg_dummy <- function(
   emp_perc = TRUE,
   et,
   eta_seq = NULL,
+  par_seq = NULL,
+  par_type = "Ind",
   excl_col = NULL,
   f_scales = "fixed",
   facet_i,
