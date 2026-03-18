@@ -1,43 +1,44 @@
+mod_fin <- RxODE({
+  # Doses in mg
+  # Time in hours
+
+  ### Parameter values
+  # Typical
+  Cl_pop = 5;
+  V_pop = 180;
+
+  ka_pop = 6;
+
+
+  # Random effects
+  omega_Cl = 0;
+  omega_V = 0;
+  omega_ka = 0;
+
+  # Residual error
+  b = 0;
+
+  ### Parameters
+  Cl = Cl_pop * exp(omega_Cl);
+  V = V_pop * exp(omega_V);
+  ka = ka_pop * exp(omega_ka);
+
+  ### Explicit functions
+  Cc = Ac/V;                 # nmol/L
+
+  ### Initial conditions
+  Ad(0) = 0;          # mg
+  Ac(0) = 0;          # mg
+
+  ### ODEs
+  d/dt(Ad) = - ka*Ad;
+  d/dt(Ac) = ka*Ad - Cl*Cc ;
+
+  CHECKRUV = b;
+  Cc_ResErr = Cc + b*Cc;
+})
+
 test_that("sg_sim_vps works ", {
-  mod_fin <- RxODE({
-    # Doses in mg
-    # Time in hours
-
-    ### Parameter values
-    # Typical
-    Cl_pop = 5;
-    V_pop = 180;
-
-    ka_pop = 6;
-
-
-    # Random effects
-    omega_Cl = 0;
-    omega_V = 0;
-    omega_ka = 0;
-
-    # Residual error
-    b = 0;
-
-    ### Parameters
-    Cl = Cl_pop * exp(omega_Cl);
-    V = V_pop * exp(omega_V);
-    ka = ka_pop * exp(omega_ka);
-
-    ### Explicit functions
-    Cc = Ac/V;                 # nmol/L
-
-    ### Initial conditions
-    Ad(0) = 0;          # mg
-    Ac(0) = 0;          # mg
-
-    ### ODEs
-    d/dt(Ad) = - ka*Ad;
-    d/dt(Ac) = ka*Ad - Cl*Cc ;
-
-    CHECKRUV = b;
-    Cc_ResErr = Cc + b*Cc;
-  })
   res <- sg_vpc_sim(obj1, mod_fin, output = "Cc")
   expect_equal(res %>% pull(ID) %>% unique() %>% length(), 100)
   expect_equal(res %>% pull(TIME) %>% unique() %>% length(),
@@ -76,28 +77,18 @@ create_mock_sg_fit <- function() {
 test_that("sg_vpc_sim errors on invalid fpath_i type", {
   skip_if_not_installed("rxode2")
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
-
   expect_error(
-    sg_vpc_sim(fpath_i = 123, model = model)
+    sg_vpc_sim(fpath_i = 123, model = mod_fin)
   )
 })
 
 test_that("sg_vpc_sim errors on non-existent file path", {
   skip_if_not_installed("rxode2")
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
+
 
   expect_error(
-    sg_vpc_sim(fpath_i = "nonexistent_file.rda", model = model)
+    sg_vpc_sim(fpath_i = "nonexistent_file.rda", model = mod_fin)
   )
 })
 
@@ -113,18 +104,13 @@ test_that("sg_vpc_sim accepts list object as fpath_i", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
 
   mock_obj <- create_mock_sg_fit()
 
   # This test may fail if sg_sim has additional requirements
   # but it validates the input handling
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, npop = 10)
   }, error = function(e) {
     # If sg_sim fails due to model complexity, that's okay for this test
     # We're mainly testing that the function accepts the list input
@@ -147,11 +133,6 @@ test_that("sg_vpc_sim handles custom time_col parameter", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
 
   mock_obj <- create_mock_sg_fit()
   # Rename TIME column
@@ -159,7 +140,7 @@ test_that("sg_vpc_sim handles custom time_col parameter", {
   mock_obj$SDTAB$TIME <- NULL
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, time_col = "TAD", npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, time_col = "TAD", npop = 10)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {
@@ -176,16 +157,10 @@ test_that("sg_vpc_sim handles output parameter", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
-
   mock_obj <- create_mock_sg_fit()
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, output = "Cc", npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, output = "Cc", npop = 10)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {
@@ -202,16 +177,10 @@ test_that("sg_vpc_sim handles npop parameter", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
-
   mock_obj <- create_mock_sg_fit()
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, npop = 5)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, npop = 5)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {
@@ -230,11 +199,6 @@ test_that("sg_vpc_sim handles optional COTAB and CATAB", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
 
   mock_obj <- create_mock_sg_fit()
   # Add optional covariates
@@ -249,7 +213,7 @@ test_that("sg_vpc_sim handles optional COTAB and CATAB", {
   )
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, npop = 10)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {
@@ -266,11 +230,6 @@ test_that("sg_vpc_sim filters MDV correctly", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
 
   mock_obj <- create_mock_sg_fit()
   # Add some MDV=1 rows (should be filtered out)
@@ -285,7 +244,7 @@ test_that("sg_vpc_sim filters MDV correctly", {
   )
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, npop = 10)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {
@@ -304,16 +263,11 @@ test_that("sg_vpc_sim returns data frame with ID column", {
     skip("sg_sim function not available")
   }
 
-  model <- rxode2::rxode2({
-    d/dt(Ad) = -ka * Ad
-    d/dt(Ac) = ka * Ad - Cl/V * Ac
-    Cc = Ac / V
-  })
 
   mock_obj <- create_mock_sg_fit()
 
   result <- tryCatch({
-    sg_vpc_sim(fpath_i = mock_obj, model = model, npop = 10)
+    sg_vpc_sim(fpath_i = mock_obj, model = mod_fin, npop = 10)
   }, error = function(e) NULL)
 
   if (!is.null(result)) {

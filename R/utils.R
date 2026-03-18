@@ -165,7 +165,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "ANOVA", "ATS
 #' @param theor_perc logical. Show theoretical percentiles. Default is `TRUE`
 #' @param theor_percCI logical. Show CI around theoretical percentiles. Default is `TRUE`
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
-#' @param thetamat matrix. Named theta matrix. Default is `NULL`
+#' @param thetamat matrix. Named variance-covariance matrix (for parameters brought to normal distribution). Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
 #' @param val_col string. Name of value column. Default is `VALUE`
 #' @param wrap_i string. Faceting formula for `facet_wrap`. Default is `NULL`

@@ -41,14 +41,15 @@ sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop =
   covs_i <- covs_i[covs_i != "ID"]
   id_seq <- unique(data_fin.noex$ID)
   par_fin_tv <- obj$SUMTAB %>% filter(TYPE == "Typical values") %>%
-    select(PAR, VALUE) %>% mutate(PAR = str_remove(PAR, "_pop")) %>% deframe()
+    select(PAR, VALUE) %>% #mutate(PAR = str_remove(PAR, "_pop")) %>%
+    deframe()
   sim_vpc_full <- id_seq %>% map_dfr(function(id_seq.i){
     data_fin.noex.i <- data_fin.noex %>% filter(ID == id_seq.i) %>% pull(time)
     ev_tab.i <- ev_tab %>% filter(ID == id_seq.i) %>%
       rename(DEFID = ID) %>% mutate(id = 1)
     sim.i <- sg_sim(model = model, et = ev_tab.i, stimes = data_fin.noex.i,
                     outputs = outputs, theta = par_fin_tv, omega = obj$OMEGAMAT,
-                    sigma = obj$SIGMAMAT, covs = covs_i, npop = npop,
+                    sigma = obj$SIGMAMAT, covs = covs_i, nsub = npop, byID = TRUE,
                     addcov = F, ncores = parallel::detectCores()-1) %>%
       mutate(ID = id_seq.i)
     return(sim.i)
