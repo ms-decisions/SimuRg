@@ -78,5 +78,5 @@ sg_vpc_sim <- function(fpath_i, mod_fin, time_col = "TIME", output = NULL, nrep 
   })
   return(sim_vpc_full)
 }
-res <- sg_vpc_sim(obj1, mod_fin, output = "Cc")
+res <- sg_vpc_sim(obj1, mod_fin, output = "Cc_ResErr")
 

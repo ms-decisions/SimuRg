@@ -346,7 +346,7 @@ sg_vpc_vis <- function(ds_sim,
                        strat_by_dose = NULL) {
 
   # Check input dataset for required columns
-  required_ds_sim_cols <- c("id", "ID", "TIME", "VAR", "VALUE")
+  required_ds_sim_cols <- c("sim.id", "ID", "TIME", "VAR", "VALUE")
   missing_ds_sim_cols <- setdiff(required_ds_sim_cols, colnames(ds_sim))
   if (length(missing_ds_sim_cols) > 0) {
     stop(
