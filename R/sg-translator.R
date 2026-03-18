@@ -1,4 +1,4 @@
-## Author: Victor Sokolov (with AI assistance)
+## Author: Victor Sokolov
 ## First created: 2026-03-05
 ## Description: Translate structural models between rxode2 and MLXTRAN syntax
 ## Keywords: SimuRg, monolix, rxode2, translator, converter
