@@ -72,19 +72,82 @@
 #'
 #' @examples
 #' \dontrun{
+#' library(dplyr)
+#' folder_path <- system.file("extdata", package = "SimuRg")
+#'
+#' mod <- paste(folder_path, "/models/model_PK_1c.txt", sep = "/")
+#'
+#' data <- paste(folder_path, "datasets", "dspk-warf.csv", sep = "/")
+#' re <- list(init = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                     1, 0, 0, 0, 0,
+#'                                     0, 1, 0, 0, 0,
+#'                                     0, 0, 1, 0, 0,
+#'                                     0, 0, 0, 1, 0,
+#'                                     0, 0, 0, 0, 1) %>% as.matrix(),
+#'                     est = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                     TRUE, NA, NA, NA, NA,
+#'                                     NA, TRUE, NA, NA, NA,
+#'                                     NA, NA, TRUE, NA, NA,
+#'                                     NA, NA, NA, TRUE, NA,
+#'                                     NA, NA, NA, NA, TRUE) %>% as.matrix(),
+#'                     block = tribble(~Cl, ~Vd, ~ka, ~Vp, ~Q,
+#'                                       FALSE, NA, NA, NA, NA,
+#'                                       NA, FALSE, NA, NA, NA,
+#'                                       NA, NA, TRUE, NA, NA,
+#'                                       NA, NA, NA, FALSE, NA,
+#'                                       NA, NA, NA, NA, FALSE) %>% as.matrix())
+#'
+#' headers <- list(list(name = "ID", use = "identifier", type = NULL),
+#'                list(name = "TIME", use = "time", type = NULL),
+#'                list(name = "DV", use = "observation", type = "continuous"),
+#'                list(name = "DVID", use = "observationtype", type = NULL),
+#'                list(name = "ADM", use = "administration", type = NULL),
+#'                list(name = "AMT", use = "amount", type = NULL),
+#'                list(name = "EVID", use = "eventidentifier", type = NULL),
+#'                list(name = "MDV", use = "missingdependentvariable", type = NULL),
+#'                list(name = "AGE", use = "covariate", type = "continuous"),
+#'                list(name = "AGE_centered", use = "covariate", type = "continuous"),
+#'                list(name = "SEX", use = "covariate", type = "categorical"),
+#'                list(name = "WEIGHT", use = "covariate", type = "continuous"),
+#'                list(name = "BMI", use = "covariate", type = "continuous"))
+#'
+#' theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+#'                    "Cl", "logNormal", 0.2, NA, NA, T,
+#'                    "Vd", "logNormal", 20, NA, NA, T,
+#'                    "ka", "logNormal", 0.2, NA, NA, T)
+#'
+#' theta_intervals <- list(
+#'   Cl = c(0.25*theta$INIT[theta$NAME == "Cl"], 4*theta$INIT[theta$NAME == "Cl"]),
+#'   #Vd = c(0.5*theta$INIT[theta$NAME == "Vd"], 2*theta$INIT[theta$NAME == "Vd"]),
+#'   ka   = c(1.25*theta$INIT[theta$NAME == "ka"], 1.5*theta$INIT[theta$NAME == "ka"])
+#' )
+#'
+#' ruv <- list(YNAME = "y1",
+#'             DVID = 1,
+#'             TRANS = "normal",
+#'             PRED = "Cc",
+#'             ERR = "proportional",
+#'             INIT = 1,
+#'             EST = T)
+#'
+#' n_starts <- 20
+#'
+#' path <- tempdir() #system.file("extdata", package = "SimuRg")
 #' sg_multistart(
-#'   mod_lst = "model1.txt",
-#'   data = "data.csv",
-#'   headers = list(ID = "ID", TIME = "TIME", DV = "DV"),
+#'   mod = mod,
+#'   data = data,
+#'   headers = headers,
 #'   ruv = ruv,
 #'   theta = theta,
 #'   re = re,
-#'   occ = occ,
-#'   covs_lst = covs_list,
-#'   n_start = 15,
-#'   path = "results/",
-#'   project_name = "test_project"
+#'   occ = re,
+#'   n_starts = n_starts,
+#'   theta_intervals = theta_intervals,
+#'   path = path,
+#'   project_name = "multistart_test_project"
 #' )
+#' clr_files <- list.files(path, full.names = TRUE)
+#' unlink(clr_files, recursive = TRUE, force = TRUE)
 #' }
 #'
 #' @import dplyr
@@ -241,4 +304,3 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
     write(sg_result_mod, str_c(path, paste0(project_name,'_',i),'.mlxtran'))
   }
 }
-
