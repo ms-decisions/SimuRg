@@ -1,3 +1,18 @@
+# SimuRg 0.1.6 (2026-03-19)
+
+## New features
+* `sg_multistart()` function for model assessment was added to the package
+* `sg_covsensns_sim()` function was added for covariate sensitivity
+* `sg_sim()` function was extended to work with maltiple simulations scenarios
+* `sg_translator()` function for model syntax translation from rxode to mlxtran and vice versa was added
+* `sg_converter()` function now works with Monolix 2023 and 2024 versions
+
+## Bug fixes 
+* `sg_pgof_par_dist()` errors with correlation plots was fixed
+
+## Documentation
+* package description is now avaliable after calling `help(SimuRg)`
+
 # SimuRg 0.1.5(2026-03-03)
 ## New features
 * `sg_globalsens_sim()` function for global sensetivity analysis was added to the package
