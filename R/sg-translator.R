@@ -46,21 +46,38 @@
 #' are expanded to explicit ODEs when converted to rxode2.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Convert rxode2 model to MLXTRAN ODE format
-#' sg_translator("model_PK_hv_iv.txt", to = "mlxtran",
-#'               output_path = "model_PK_hv_iv_mlx.txt",
+#' rxode_model_hv_iv <- system.file("extdata", "models", "rxode",
+#'                                  "model_PK_hv_iv.txt", package = "SimuRg")
+#' rxode_model_1c <- system.file("extdata", "models", "rxode",
+#'                               "model_PK_1c.txt", package = "SimuRg")
+#' monolix_model_hv_iv <- system.file("extdata", "models", "monolix",
+#'                                    "model_PK_hv_iv.txt", package = "SimuRg")
+#' monolix_model_1c <- system.file("extdata", "models", "monolix",
+#'                                 "model_PK_1c.txt", package = "SimuRg")
+#'
+#' path_to_save <- tempdir()
+#'
+#' sg_translator(rxode_model_hv_iv, to = "mlxtran",
+#'               output_path = normalizePath(file.path(path_to_save,
+#'                                                     "model_PK_hv_iv_mlx.txt"),
+#'                                           mustWork = FALSE),
 #'               output_vars = "Cc_mgL",
 #'               dm_list = list(cmt = 1, adm = 1), stiff = TRUE)
 #'
 #' # Convert rxode2 model to MLXTRAN with pkmodel macros
-#' sg_translator("model_PK_1c.txt", to = "mlxtran",
-#'               output_path = "model_PK_1c_mlx.txt",
+#' sg_translator(rxode_model_1c, to = "mlxtran",
+#'               output_path = normalizePath(file.path(path_to_save,
+#'                                                     "model_PK_1c_mlx.txt"),
+#'                                           mustWork = FALSE),
 #'               output_vars = "Cc_nM", macros = TRUE)
 #'
 #' # Convert MLXTRAN model to rxode2
 #' sg_translator("model_PK_hv_iv.txt", to = "rxode",
-#'               output_path = "model_PK_hv_iv_rx.txt")
+#'               output_path = normalizePath(file.path(path_to_save,
+#'                                                     "model_PK_hv_iv_rx.txt"),
+#'                                            mustWork = FALSE))
 #' }
 #'
 #' @export
@@ -68,6 +85,10 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
                           regressors = NULL, output_vars = NULL,
                           macros = TRUE, stiff = TRUE) {
 
+  input_path <- normalizePath(input_path, mustWork = F)
+  if(!file.exists(input_path)) {
+    stop("Input model file does not exist. Check file existance or try to use absolute path")
+  }
   raw <- readLines(input_path, warn = FALSE)
   lines <- stringr::str_trim(raw, side = "right")
   is_mlxtran <- any(stringr::str_detect(lines, "^\\s*\\[LONGITUDINAL\\]"))
@@ -351,7 +372,8 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
   result <- c(result, "# [MODEL]")
 
   if (!is.null(pkmodel_line)) {
-    result <- c(result, .tr_expand_pkmodel(pkmodel_line, pkmodel_output_var, pk_equations, eq_raw))
+    result <- c(result, .tr_expand_pkmodel(pkmodel_line, pkmodel_output_var,
+                                           pk_equations, eq_raw))
   } else if (length(absorption_macros) > 0) {
     result <- c(result, .tr_expand_type2(
       absorption_macros, peripheral_macros, elimination_macros,
@@ -505,8 +527,10 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
 .tr_convert_inline_if_rx_to_mlx <- function(line) {
   var_name <- stringr::str_extract(line, "^\\w+")
   cond <- stringr::str_match(line, "if\\s*\\((.+?)\\)\\s*\\{")[, 2]
-  if_expr <- stringr::str_match(line, "\\{\\s*([^}]+?)\\s*\\}")[, 2] %>% stringr::str_trim()
-  else_expr <- stringr::str_match(line, "else\\s*\\{\\s*([^}]+?)\\s*\\}")[, 2] %>% stringr::str_trim()
+  if_expr <- stringr::str_match(line, "\\{\\s*([^}]+?)\\s*\\}")[, 2] %>%
+    stringr::str_trim()
+  else_expr <- stringr::str_match(line, "else\\s*\\{\\s*([^}]+?)\\s*\\}")[, 2] %>%
+    stringr::str_trim()
 
   c(
     paste0("if ", cond),
@@ -826,11 +850,13 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
 
   if (use_pkmodel) {
     result <- c(result, "PK:")
-    result <- c(result, .tr_build_pkmodel(ode_states, model_section, f_map, alag_map, eq_body))
+    result <- c(result, .tr_build_pkmodel(ode_states, model_section, f_map,
+                                          alag_map, eq_body))
   } else {
     result <- c(result, "PK:")
     for (j in seq_along(ode_states)) {
-      result <- c(result, paste0("compartment(cmt = ", j, ", amount = ", ode_states[j], ")"))
+      result <- c(result, paste0("compartment(cmt = ", j, ", amount = ",
+                                 ode_states[j], ")"))
     }
 
     if (!is.null(dm_list)) {
@@ -842,7 +868,8 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
 
         iv_str <- paste0("iv(cmt = ", cmt_num, ", adm = ", adm_num)
         if (!is.null(f_map[[state]])) iv_str <- paste0(iv_str, ", p = ", f_map[[state]])
-        if (!is.null(alag_map[[state]])) iv_str <- paste0(iv_str, ", Tlag = ", alag_map[[state]])
+        if (!is.null(alag_map[[state]])) iv_str <- paste0(iv_str, ", Tlag = ",
+                                                          alag_map[[state]])
         iv_str <- paste0(iv_str, ")")
 
         if (!is.null(f_comments[[state]]) && f_comments[[state]] != "") {

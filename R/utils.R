@@ -228,10 +228,10 @@ sg_dummy <- function(
   wrap_nrow = NULL
 ) {}
 
-#' Ensure SimuRg object table components are single data frames
-#'
-#' Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
-#' when needed. Idempotent if already data frames.
+# Ensure SimuRg object table components are single data frames
+#
+# Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
+# when needed. Idempotent if already data frames.
 
 smrg_ensure_tables_df <- function(obj) {
   table_names <- c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")

@@ -43,6 +43,7 @@
 #' metrics.
 #'
 #' @examples
+#' \donttest{
 #' library(stringr)
 #' # Convert Monolix project results
 #' test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
@@ -59,7 +60,7 @@
 #'
 #' # Check objective function value
 #' print(result$OFV)
-#'
+#'}
 #' @importFrom readr read_csv cols parse_number
 #' @importFrom stringr str_c
 #' @import tibble
@@ -506,8 +507,12 @@ sg_converter <- function(folder_path, proj_name){
     return(pred_data)
   }
 #### main function ####
+  input_path <- normalizePath(str_c(folder_path, proj_name, ".mlxtran"), mustWork = F)
+  if(!file.exists(input_path)) {
+    stop("Project file does not exist. Check file existance or try to use absolute path")
+  }
 
-  contr_obj <- readLines(str_c(folder_path, proj_name, ".mlxtran"))
+  contr_obj <- readLines(input_path)
 
   ## info about datafile
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))
