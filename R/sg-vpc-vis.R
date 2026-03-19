@@ -307,6 +307,11 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #' @param strat_by_dose character. Variable name for dose stratification (default: NULL)
 #'
 #' @return List of ggplot objects, one for each output variable
+#' @details
+#' For now, the model in the example is NOT the generalized model object (GMO),
+#' as the parameters in generalized fit object are backtransformed, and,
+#' therefore, not transformed in the model. This issue will be fixed in the next
+#' versions of SimuRg package
 #'
 #' @examples
 #' \donttest{
@@ -322,9 +327,9 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #'   omega_Cl = 0;
 #'
 #'   b = 0;
-#'   ka_tv = exp(ka_pop);
-#'   V_tv = exp(V_pop);
-#'   Cl_tv = exp(Cl_pop);
+#'   ka_tv = ka_pop;
+#'   V_tv = V_pop;
+#'   Cl_tv = Cl_pop;
 #'
 #'   ka = ka_tv * exp(omega_ka);
 #'   V = V_tv * exp(omega_V);

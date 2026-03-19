@@ -2,7 +2,8 @@
 ## First created: 2025-08-25
 ## Description: functions for internal data preparation
 ## Keywords: SimuRg, internal data
-
+library(SimuRg)
+library(rxode2)
 mod_ex <- RxODE({
   # Doses in mg
   # Time in hours
@@ -78,7 +79,11 @@ mod_ex <- RxODE({
   Cc_ResErr = Cc + RUV*Cc;
 })
 
+folder_path <- file.path("inst", "extdata", "Monolix_objects")
+proj_name <- "proj-solo"
+obj1 <- sg_converter(folder_path = str_c(folder_path, "/"), proj_name = proj_name)
 fpath_i <- file.path("inst", "extdata", "simurg_object", "Warfarin_PK.RData")
-obj1 <- get(load(fpath_i))
+# obj1 <- get(load(fpath_i))
+save(obj1, file = fpath_i)
 usethis::use_data(obj1, mod_ex, internal = T, overwrite = T)
 
