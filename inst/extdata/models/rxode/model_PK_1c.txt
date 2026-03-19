@@ -1,0 +1,27 @@
+# The 1 comp. PK model with dose-dependent bioavailability.
+
+# [INPUT]
+ka = 1;
+V = 1;
+Cl = 1;
+
+# [MODEL]
+# PK model definition
+
+### Priors
+MW = 627.57;  					# g/mol for INCB161734 
+
+### Explicit functions
+Cc = Ac/V;
+Cc_nM = Cc/MW*1000000;			# nmol/L
+
+### Initial conditions
+Ad(0) = 0;
+Ac(0) = 0;
+
+### Differential equations
+d/dt(Ad) = - ka*Ad;
+d/dt(Ac) = ka*Ad - Cl*Ac/V;
+
+# [OUTPUT]
+# output = {Cc_nM}

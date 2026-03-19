@@ -1,0 +1,36 @@
+DESCRIPTION:
+; First order absorption model
+; Dose in mg
+; Time in hours
+; [Vmax] = ug/h, [Km] = ug/L
+
+[LONGITUDINAL]
+input = {Vd, CL, Q, Vp, Vmax, Km}
+
+PK:
+compartment(cmt = 1, amount = Ac)
+compartment(cmt = 2, amount = Ap)
+
+iv(cmt = 1, adm = 1, p = 1000)		    ; IV, dose from mg to ug
+
+
+EQUATION:
+;;; Explicit functions
+Cc = Ac/Vd  						; ug/L
+Cp = Ap/Vp 							; ug/L
+
+convF_PK = 0.01/1.5     			; ng/mL -> nM for mAb MW 150 kDa
+Cc_nM  = Cc*convF_PK    			; nM
+Cc_mgL = Cc/1000					; mg/L
+
+
+;;; Initial conditions
+Ac_0 = 0  			; ug
+Ap_0 = 0  			; ug
+
+;;; ODEs
+ddt_Ac = - CL*Cc - Q*(Cc - Cp) - Vmax*Cc/(Km + Cc)
+ddt_Ap = Q*(Cc - Cp)
+
+OUTPUT:
+output = {Cc_mgL}
