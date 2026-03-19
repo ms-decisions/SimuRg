@@ -9,21 +9,21 @@ add_percentile_lines <- function(plot_i, line_data, ci_data, show_ci, interpolat
     # Use smooth lines
     plot_i <- plot_i +
       geom_line(data = line_data,
-                aes(x = .data$TIME_BIN, y = .data$OBS,
-                    group = interaction(.data$PI, .data$TYPE), lty = .data$TYPE),
+                aes(x = TIME_BIN, y = OBS,
+                    group = interaction(PI, TYPE), lty = TYPE),
                 col = "royalblue", linewidth = 0.8)
 
     if (show_ci) {
       plot_i <- plot_i +
-        geom_ribbon(data = ci_data %>% filter(.data$PI != "median"),
-                    aes(x = .data$TIME_BIN, ymin = .data$theor_LCI,
-                        ymax = .data$theor_UCI, group = .data$PI,
-                        fill = .data$CI_label),
+        geom_ribbon(data = ci_data %>% filter(PI != "median"),
+                    aes(x = TIME_BIN, ymin = theor_LCI,
+                        ymax = theor_UCI, group = PI,
+                        fill = CI_label),
                     col = NA, linewidth = 1, alpha = 0.3) +
-        geom_ribbon(data = ci_data %>% filter(.data$PI == "median"),
-                    aes(x = .data$TIME_BIN, ymin = .data$theor_LCI,
-                        ymax = .data$theor_UCI, group = .data$PI,
-                        fill = .data$CI_label),
+        geom_ribbon(data = ci_data %>% filter(PI == "median"),
+                    aes(x = TIME_BIN, ymin = theor_LCI,
+                        ymax = theor_UCI, group = PI,
+                        fill = CI_label),
                     col = NA, linewidth = 1, alpha = 0.3)
     }
 
@@ -31,21 +31,21 @@ add_percentile_lines <- function(plot_i, line_data, ci_data, show_ci, interpolat
     # Use step rectangles
     plot_i <- plot_i +
       geom_line(data = line_data,
-                aes(x = .data$TIME_BIN, y = .data$OBS,
-                    group = interaction(.data$PI, .data$TYPE), lty = .data$TYPE),
+                aes(x = TIME_BIN, y = OBS,
+                    group = interaction(PI, TYPE), lty = TYPE),
                 col = "royalblue", linewidth = 0.8)
 
     if (show_ci) {
       plot_i <- plot_i +
-        geom_rect(data = ci_data %>% filter(.data$PI != "median"),
-                  aes(xmin = .data$TIME_BIN_min, xmax = .data$TIME_BIN_max,
-                      ymin = .data$theor_LCI, ymax = .data$theor_UCI,
-                      group = .data$PI, fill = .data$CI_label),
+        geom_rect(data = ci_data %>% filter(PI != "median"),
+                  aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
+                      ymin = theor_LCI, ymax = theor_UCI,
+                      group = PI, fill = CI_label),
                   col = NA, linewidth = 1, alpha = 0.3) +
-        geom_rect(data = ci_data %>% filter(.data$PI == "median"),
-                  aes(xmin = .data$TIME_BIN_min, xmax = .data$TIME_BIN_max,
-                      ymin = .data$theor_LCI, ymax = .data$theor_UCI,
-                      group = .data$PI, fill = .data$CI_label),
+        geom_rect(data = ci_data %>% filter(PI == "median"),
+                  aes(xmin = TIME_BIN_min, xmax = TIME_BIN_max,
+                      ymin = theor_LCI, ymax = theor_UCI,
+                      group = PI, fill = CI_label),
                   col = NA, linewidth = 1, alpha = 0.3)
     }
   }
@@ -343,7 +343,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #'   d/dt(Ad) = -ka * Ad;
 #'   d/dt(Ac) = ka * Ad - Cl * Cc;
 #'
-#'   Cc_ResErr = Cc * (1 + b);
+#'   Cc_ResErr = Cc * (1 + Cc_b) + Cc_a;
 #' })
 #'
 #' sim_data <- sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
