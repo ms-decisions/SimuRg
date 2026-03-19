@@ -40,7 +40,7 @@
 #'
 #'  theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
 #'                   "Cl", "logNormal", 0.2, NA, NA, TRUE,
-#'                   "Vd", "logNormal", 20, NA, NA, TRUE,
+#'                   "V", "logNormal", 20, NA, NA, TRUE,
 #'                   "ka", "logNormal", 0.2, NA, NA, TRUE
 #'  )
 #'  # Examples of random effect model specification
@@ -70,24 +70,24 @@
 #'  # The same logic applies to the between-occasion variability
 #'  # matrix (occ).
 #'
-#'  re <- list(init = tribble(~Cl, ~Vd, ~ka,
+#'  re <- list(init = tribble(~Cl, ~V, ~ka,
 #'                            1, 0, 0,
 #'                            0, 0, 0,
 #'                            0, 0, 1) %>% as.matrix(),
-#'             est = tribble(~Cl, ~Vd, ~ka,
+#'             est = tribble(~Cl, ~V, ~ka,
 #'                           TRUE, NA, NA,
 #'                           NA, NA, NA,
 #'                           NA, NA, TRUE) %>% as.matrix())
 #'
-#'  occ <- list(init = tribble(~Cl, ~Vd, ~ka,
+#'  occ <- list(init = tribble(~Cl, ~V, ~ka,
 #'                             0, 0, 0,
 #'                             0, 0, 0,
 #'                             0, 0, 0) %>% as.matrix(),
-#'              est = tribble(~Cl, ~Vd, ~ka,
+#'              est = tribble(~Cl, ~V, ~ka,
 #'                            NA, NA, NA,
 #'                            NA, NA, NA,
 #'                            NA, NA, NA) %>% as.matrix())
-#'  covs <- list(list(PAR = "Vd", COVNAME = "AGE", FUNC = "linear",
+#'  covs <- list(list(PAR = "V", COVNAME = "AGE", FUNC = "linear",
 #'                    TRANS = "median", INIT = 1, EST = TRUE),
 #'               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE))
 #'  output_path <- str_c(tempdir(), "/")
