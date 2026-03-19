@@ -49,6 +49,9 @@
 #' @importFrom MASS mvrnorm
 #' @import ggplot2
 #' @importFrom scales pretty_breaks
+#' @importFrom grDevices recordPlot
+#' @importFrom graphics abline box grid hist lines mtext par points text
+#' @importFrom stats lm
 #' @export
 
 sg_gof_par_dist <- function(fpath_i, par_seq = NULL,par_type = "Ind", n_bins = 30, tdist = T, plot_type = 'DIST'){

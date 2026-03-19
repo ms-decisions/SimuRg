@@ -73,7 +73,7 @@ test_that("sg_multistart creates expected number of files", {
     n_starts = n_starts,
     theta_intervals = theta_intervals,
     covs_lst = NULL,
-    path = path,
+    path = paste0(path, "\\"),
     project_name = "multistart_test_project",
     seed = 126
   )

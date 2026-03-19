@@ -506,8 +506,8 @@ sg_converter <- function(folder_path, proj_name){
     return(pred_data)
   }
 #### main function ####
-
-  contr_obj <- readLines(str_c(folder_path, proj_name, ".mlxtran"))
+  full_proj_path <- normalizePath(str_c(folder_path, proj_name, ".mlxtran"))
+  contr_obj <- readLines(full_proj_path)
 
   ## info about datafile
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))

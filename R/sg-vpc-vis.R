@@ -309,8 +309,40 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #' @return List of ggplot objects, one for each output variable
 #'
 #' @examples
-#' \dontrun{
-#' vpc_plots <- generate_vpc(
+#' \donttest{
+#' library(rxode2)
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
+#' mod <- rxode2::rxode2({
+#'   ka_pop = 0.1;
+#'   Vd_pop = 10;
+#'   CL_pop = 0.5;
+#'
+#'   omega_ka = 0;
+#'   omega_Vd = 0;
+#'   omega_CL = 0;
+#'
+#'   Cc_b = 0;
+#'   ka_tv = exp(ka_pop);
+#'   Vd_tv = exp(Vd_pop);
+#'   CL_tv = exp(CL_pop);
+#'
+#'   ka = ka_tv * exp(omega_ka);
+#'   Vd = Vd_tv * exp(omega_Vd);
+#'   CL = CL_tv * exp(omega_CL);
+#'
+#'   Cc = Ac / Vd;
+#'
+#'   Ad(0) = 0;
+#'   Ac(0) = 0;
+#'
+#'   d/dt(Ad) = -ka * Ad;
+#'   d/dt(Ac) = ka * Ad - CL * Cc;
+#'
+#'   Cc_ResErr = Cc * (1 + Cc_b);
+#' })
+#'
+#' sim_data <- sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
+#' vpc_plots <- sg_vpc_vis(
 #'   ds_sim = sim_data,
 #'   data_i = obs_data,
 #'   output_names = output_map,
