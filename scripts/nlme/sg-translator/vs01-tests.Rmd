@@ -1,0 +1,130 @@
+---
+title: "Simurg test program 1"
+subtitle: "[Name Family_name]"
+author: "M&S Decisions, `r Sys.Date()`"
+output: 
+    bookdown::html_document2:
+      toc: true
+      toc_depth: 5
+      toc_float:
+        collapsed: true
+        smooth_scroll: false
+      number_sections: true
+      code_folding: hide
+      fig_width: 10
+      fig_height: 7
+      fig_caption: true
+      
+    officedown::rdocx_document:
+      reference_docx: document_template.docx
+---
+
+```{r load-packages-and-set-global-settings, include=TRUE, warning = FALSE, message = FALSE}
+rm(list=ls())
+set.seed(123456)
+
+library(tidyverse)
+library(lubridate)
+library(flextable)
+library(officer)
+library(officedown)
+library(rxode2)
+library(SimuRg)
+
+theme_set(theme_bw())
+theme_update(panel.grid.minor = element_blank())
+MSDcol <- rep(c("#1a1866", "#f2b93b", "#b73b58", "#a2d630", "#5839bb", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d"), 10)
+NEWcol <- c("dodgerblue", "seagreen2", "forestgreen", "orange2", "firebrick", "royalblue4",  "violetred1",  "black", "blue", "red", "purple", "gold", "skyblue3", "tan4", "plum2")
+
+set_flextable_defaults(
+  font.family = "Arial",
+  font.size = 8,
+  theme_fun = "theme_vanilla",
+  table.layout = "autofit"
+  )
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE, fig.cap = TRUE, fig.align = "center", results = 'hide') 
+if (!knitr::is_html_output()) {knitr::opts_chunk$set(include = FALSE)}
+if (!knitr::is_html_output()) {
+run_num_tab <- run_autonum(seq_id = "Table", pre_label = "Table ", bkm = "anytable")
+run_num_fig <- run_autonum(seq_id = "Figure", pre_label = "Figure ", bkm = "anyfigure")
+}
+```
+
+```{r load-functions}
+
+```
+
+#  Section 1
+
+```{r r-code-chunk-name-1}
+
+```
+
+## Section 2
+
+### Section 3
+
+```{r plot-chunk-name-1, fig.id = "plot-chunk-name-1", fig.width = 10, fig.height = 3.75, fig.cap = "Figure caption"}
+# ggplot()
+```
+
+```{r table-chunk-name-1, results = 'asis', tab.cap = "Table caption"}
+# flextable(tab_out) %>% set_table_properties(width = 1, layout = "autofit") %>% hline(part = "body")
+```
+
+# R Runtime Environment {.tabset}
+## Current R session {.unnumbered}
+```{r sourcefile}
+source_file <- basename(rstudioapi::getSourceEditorContext()$path)
+```
+
+**Source file:** `r source_file`
+```{r rsession, results='asis'}
+# Print a record of the environment in which this script was rendered
+info <- sessionInfo()
+```
+
+```{r tab-rsession-env}
+# R Version
+info$R.version %>%
+  as.data.frame() %>%
+  select(version.string, platform) %>%
+  rename(
+    `R version` = version.string,
+    Platform = platform
+  ) %>%
+  flextable() %>%
+  set_table_properties(width = 1, layout = "autofit")
+```
+
+## Base Packages {.unnumbered}
+```{r tab-rsession-base}
+# Base Packages
+tibble(Package = info$basePkgs) %>%
+  arrange(Package) %>%
+  flextable() %>% 
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## Attached Packages {.unnumbered}
+```{r tab-rsession-attached}
+# Attached Packages
+info$otherPkgs %>%
+  purrr::map_dfr(~ tibble(Package = .x$Package, Version = .x$Version)) %>%
+  arrange(Package) %>%
+  flextable() %>%
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## Loaded Packages {.unnumbered}
+```{r tab-rsession-loaded}
+# Loaded Packages
+info$loadedOnly %>%
+  purrr::map_dfr(~ tibble(Package = .x$Package, Version = .x$Version)) %>%
+  arrange(Package) %>%
+  flextable() %>%
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## {-}
