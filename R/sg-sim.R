@@ -123,60 +123,80 @@
 #' sigma_test <- matrix(0.1); rownames(sigma_test) <- colnames(sigma_test) <- "Cc_b"
 #'
 #' # No variability
-#' sim1 <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test, outputs = output_test)
+#' sim1 <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
+#'                outputs = output_test)
 #'
 #' # Population uncertainty, single scenario (ID)
-#' sim2a <- sg_sim(model = mod, et = dplyr::filter(et_test, ID == 1), stimes = stimes_test, theta = theta_test,
-#'                thetamat = thetamat_test, npop = 10)
+#' sim2a <- sg_sim(model = mod, et = dplyr::filter(et_test, ID == 1),
+#'                 stimes = stimes_test, theta = theta_test, thetamat = thetamat_test,
+#'                 npop = 10)
 #'
-#' # Population uncertainty, multiple IDs, byID = TRUE (populations are replicated for each scenario (ID)), shared = TRUE (the same populations are used for each scenario (ID))
+#' # Population uncertainty, multiple IDs, byID = TRUE (populations are replicated
+#' # for each scenario (ID)),
+#' # shared = TRUE (the same populations are used for each scenario (ID))
 #' sim2b <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                thetamat = thetamat_test, npop = 10, byID = TRUE, shared = TRUE)
 #'
-#' # Population uncertainty, multiple IDs, byID = FALSE (one solve over full event table; npop must equal n(ID); ID - virtual subject)
+#' # Population uncertainty, multiple IDs, byID = FALSE (one solve over full event table;
+#' # npop must equal n(ID); ID - virtual subject)
 #' sim2c <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                thetamat = thetamat_test, npop = nrow(et_test), byID = FALSE)
 #'
 #'
-#' # Between-subject variability (BSV), multiple IDs, byID = TRUE (subjects are replicated for each scenario (ID)), shared = FALSE (separate subjects per ID)
+#' # Between-subject variability (BSV), multiple IDs, byID = TRUE (subjects are
+#' # replicated for each scenario (ID)), shared = FALSE (separate subjects per ID)
 #' sim3a <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                 omega = omega_test, nsub = 10, byID = TRUE, shared = FALSE)
 #'
 #'
-#' # Between-subject variability (BSV), byID = FALSE (one solve over full event table; nsub must equal n(ID); ID - virtual subject)
+#' # Between-subject variability (BSV), byID = FALSE (one solve over full event table;
+#' # nsub must equal n(ID); ID - virtual subject)
 #' sim3b <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                 omega = omega_test, nsub = nrow(et_test), byID = FALSE)
 #'
 #'
-#' # BSV + uncertainty: byID = TRUE (populations/subjects are replicated for each scenario (ID)), byPOP = TRUE (subjects are replicated for each population), shared = FALSE (separate populations/subjects per ID)
+#' # BSV + uncertainty: byID = TRUE (populations/subjects are replicated for each
+#' # scenario (ID)), byPOP = TRUE (subjects are replicated for each population),
+#' # shared = FALSE (separate populations/subjects per ID)
 #' sim4a <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                 thetamat = thetamat_test, npop = 10, omega = omega_test, nsub = 5,
 #'                 byID = TRUE, byPOP = TRUE, shared = FALSE)
 #'
-#' # BSV + uncertainty: byID = TRUE (populations/subjects are replicated for each scenario (ID)), byPOP = FALSE (subjects are not replicated between population; npop = nsub)
+#' # BSV + uncertainty: byID = TRUE (populations/subjects are replicated for each
+#' # scenario (ID)), byPOP = FALSE (subjects are not replicated between population;
+#' # npop = nsub)
 #' sim4b <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
-#'                 thetamat = thetamat_test, npop = nrow(et_test), omega = omega_test, nsub = nrow(et_test),
-#'                 byID = TRUE, byPOP = FALSE)
+#'                 thetamat = thetamat_test, npop = nrow(et_test), omega = omega_test,
+#'                 nsub = nrow(et_test), byID = TRUE, byPOP = FALSE)
 #'
-#' # BSV + uncertainty: byID = FALSE (one solve over full event table; nsub and/or npop must equal n(ID); ID - virtual subject), byPOP = TRUE (subjects are replicated for each population), shared = FALSE (separate populations/subjects per ID)
+#' # BSV + uncertainty: byID = FALSE (one solve over full event table; nsub and/or
+#' # npop must equal n(ID); ID - virtual subject), byPOP = TRUE (subjects are
+#' # replicated for each population), shared = FALSE (separate populations/subjects
+#' # per ID)
 #' sim4c <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
 #'                 thetamat = thetamat_test, npop = 10, omega = omega_test, nsub = 5,
 #'                 byID = FALSE, byPOP = TRUE, shared = FALSE)
 #'
-#' # BSV + uncertainty: byID = FALSE (one solve over full event table; nsub and/or npop must equal n(ID); ID - virtual subject), byPOP = FALSE (subjects are not replicated between population; npop = nsub)
+#' # BSV + uncertainty: byID = FALSE (one solve over full event table; nsub and/or
+#' # npop must equal n(ID); ID - virtual subject), byPOP = FALSE (subjects are not
+#' # replicated between population; npop = nsub)
 #' sim4d <- sg_sim(model = mod, et = et_test, stimes = stimes_test, theta = theta_test,
-#'                 thetamat = thetamat_test, npop = nrow(et_test), omega = omega_test, nsub = nrow(et_test),
-#'                 byID = FALSE, byPOP = FALSE)
+#'                 thetamat = thetamat_test, npop = nrow(et_test), omega = omega_test,
+#'                 nsub = nrow(et_test), byID = FALSE, byPOP = FALSE)
 #'
 #' # Parameter override in event table
-#' sim4 <- sg_sim(model = mod, et = dplyr::filter(et_test, ID == 1) %>% dplyr::mutate(Vd_pop = 2),
-#'                stimes = stimes_test, theta = theta_test, thetamat = thetamat_test, npop = 1)
+#' sim4 <- sg_sim(model = mod, et = dplyr::filter(et_test, ID == 1) %>%
+#'                                  dplyr::mutate(Vd_pop = 2),
+#'                stimes = stimes_test, theta = theta_test, thetamat = thetamat_test,
+#'                npop = 1)
 #'
 #'
 #' # Covariate (WTBL): pass covs and keep so WTBL is used and returned
 #' theta_cov <- c(theta_test, beta_WTBL_Vd_pop = 0.5)
-#' sim5 <- sg_sim(model = mod_cov, et = dplyr::filter(et_test, ID == 1) %>% dplyr::mutate(WTBL = 70),
-#'                stimes = stimes_test, theta = theta_cov, covs = c("WTBL"), keep = c("WTBL"),
+#' sim5 <- sg_sim(model = mod_cov, et = dplyr::filter(et_test, ID == 1) %>%
+#'                                      dplyr::mutate(WTBL = 70),
+#'                stimes = stimes_test, theta = theta_cov, covs = c("WTBL"),
+#'                keep = c("WTBL"),
 #'                thetamat = thetamat_test, npop = 5)
 #' @import rxode2
 #' @importFrom purrr map_dfr

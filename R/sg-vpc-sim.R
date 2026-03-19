@@ -13,15 +13,36 @@
 #' \donttest{
 #' library(rxode2)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
-#' mod_fin <- rxode2({
-#'   # Differential equations
-#'   d/dt(Ad) = -ka * Ad
-#'   d/dt(Ac) = ka * Ad - Cl/V * Ac
+#' mod <- rxode2::rxode2({
+#'   ka_pop = 0.1;
+#'   Vd_pop = 10;
+#'   CL_pop = 0.5;
 #'
-#'   # Concentration calculations
-#'   Cc = Ac / V
+#'   omega_ka = 0;
+#'   omega_Vd = 0;
+#'   omega_CL = 0;
+#'
+#'   Cc_b = 0;
+#'   ka_tv = exp(ka_pop);
+#'   Vd_tv = exp(Vd_pop);
+#'   CL_tv = exp(CL_pop);
+#'
+#'   ka = ka_tv * exp(omega_ka);
+#'   Vd = Vd_tv * exp(omega_Vd);
+#'   CL = CL_tv * exp(omega_CL);
+#'
+#'   Cc = Ac / Vd;
+#'
+#'   Ad(0) = 0;
+#'   Ac(0) = 0;
+#'
+#'   d/dt(Ad) = -ka * Ad;
+#'   d/dt(Ac) = ka * Ad - CL * Cc;
+#'
+#'   Cc_ResErr = Cc * (1 + Cc_b);
 #' })
-#' sg_vpc_sim(fpath_i, mod_fin, outputs = "Cc")
+#'
+#' sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
 #' }
 #' @import rxode2
 #' @importFrom purrr map_dfr

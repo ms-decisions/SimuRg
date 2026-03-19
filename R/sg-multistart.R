@@ -143,7 +143,7 @@
 #'   occ = re,
 #'   n_starts = n_starts,
 #'   theta_intervals = theta_intervals,
-#'   path = path,
+#'   path = paste0(path, "\\"),
 #'   project_name = "multistart_test_project"
 #' )
 #' clr_files <- list.files(path, full.names = TRUE)
