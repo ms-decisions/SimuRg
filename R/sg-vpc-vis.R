@@ -314,38 +314,39 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' mod <- rxode2::rxode2({
 #'   ka_pop = 0.1;
-#'   Vd_pop = 10;
-#'   CL_pop = 0.5;
+#'   V_pop = 10;
+#'   Cl_pop = 0.5;
 #'
 #'   omega_ka = 0;
-#'   omega_Vd = 0;
-#'   omega_CL = 0;
+#'   omega_V = 0;
+#'   omega_Cl = 0;
 #'
-#'   Cc_b = 0;
+#'   b = 0;
 #'   ka_tv = exp(ka_pop);
-#'   Vd_tv = exp(Vd_pop);
-#'   CL_tv = exp(CL_pop);
+#'   V_tv = exp(V_pop);
+#'   Cl_tv = exp(Cl_pop);
 #'
 #'   ka = ka_tv * exp(omega_ka);
-#'   Vd = Vd_tv * exp(omega_Vd);
-#'   CL = CL_tv * exp(omega_CL);
+#'   V = V_tv * exp(omega_V);
+#'   Cl = Cl_tv * exp(omega_Cl);
 #'
-#'   Cc = Ac / Vd;
+#'   Cc = Ac / V;
 #'
 #'   Ad(0) = 0;
 #'   Ac(0) = 0;
 #'
 #'   d/dt(Ad) = -ka * Ad;
-#'   d/dt(Ac) = ka * Ad - CL * Cc;
+#'   d/dt(Ac) = ka * Ad - Cl * Cc;
 #'
-#'   Cc_ResErr = Cc * (1 + Cc_b);
+#'   Cc_ResErr = Cc * (1 + b);
 #' })
 #'
 #' sim_data <- sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
+#' outp_nms <- data.frame(dvid = 1, output = "Cc")
 #' vpc_plots <- sg_vpc_vis(
 #'   ds_sim = sim_data,
-#'   data_i = obs_data,
-#'   output_names = output_map,
+#'   data_i = warfarin,
+#'   output_names = outp_nms,
 #'   lab_x = "Time (hours)",
 #'   lab_y = "Concentration (ng/mL)",
 #'   n_bins = 8,
