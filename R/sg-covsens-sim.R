@@ -266,10 +266,6 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #' library(dplyr)
 #' library(RxODE)
 #'
-#' # --- Data source ---
-#' fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
-#'                        "run_4cov_smrg_results.json", package = "SimuRg")
-#'
 #' # --- Covariate definitions ---
 #' cont_cov_l <- list(
 #'   LG_AGE = list(NAME = "LG_AGE", UTNAME = "AGE",
@@ -292,11 +288,82 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'   ~id, ~time, ~ii, ~amt, ~addl, ~dur, ~evid, ~Regimen,        ~Dose,
 #'   1,   0,     336, 10,   21,    0.5,  1,     "0.3 mg/kg Q2W", 0.3
 #' )
+#' # --- Model ---
+#' model <- RxODE({
+#'   # Doses in mg
+#'   # Time in hours
+#'
+#'   ### Parameter values
+#'   # Typical values
+#'   ka_pop = 0.073;
+#'   Vd_pop = 14.8;
+#'   CL_pop = 0.347;
+#'
+#'   # Random effects
+#'   omega_ka = 0;
+#'   omega_Vd = 0;
+#'   omega_CL = 0;
+#'
+#'   # Covariate effect
+#'   # Continuous
+#'   beta_CL_LG_AGE = 0.49990114;
+#'   beta_Vd_LG_WEIGHT = 0.60529433;
+#'
+#'   # Categorical
+#'   beta_CL_CYP2C9_1_2 = -0.339;
+#'   beta_CL_CYP2C9_1_3 = -0.574;
+#'   beta_CL_CYP2C9_2_2 = -1.079;
+#'   beta_CL_CYP2C9_2_3 = -0.745;
+#'   beta_CL_CYP2C9_3_3 = -2.13;
+#'
+#'   beta_ka_SEX_1 = -0.12198035;
+#'
+#'   # Residual error
+#'   Cc_b = 0;
+#'
+#'   # Transformations
+#'   ka_tv = exp(ka_pop);
+#'   Vd_tv = exp(Vd_pop);
+#'   CL_tv = exp(CL_pop);
+#'
+#'   CL_multiplier = 1.0;  # Default/reference
+#'   ka_multiplier = 1.0;
+#'
+#'   if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+#'
+#'   if (CYP2C9 == 1) {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
+#'   } else if (CYP2C9 == 2) {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
+#'   } else if (CYP2C9 == 3) {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
+#'   } else if (CYP2C9 == 4) {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
+#'   } else if (CYP2C9 == 5) {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
+#'   }
+#'
+#'   ka = ka_tv*ka_multiplier*exp(omega_ka);
+#'   Vd = Vd_tv*exp(beta_Vd_LG_WEIGHT * LG_WEIGHT + omega_Vd); #Vd_tv*exp(omega_Vd);
+#'   CL = CL_tv*CL_multiplier*exp(beta_CL_LG_AGE * LG_AGE + omega_CL);
+#'
+#'
+#'   ### Explicit functions
+#'   Cc = Ac/Vd;
+#'
+#'   ### Initial conditions
+#'   Ad(0) = 0;
+#'   Ac(0) = 0;
+#'
+#'   ### Differential equations
+#'   d/dt(Ad) = - ka*Ad;
+#'   d/dt(Ac) = ka*Ad - CL*Cc;
+#'
+#'   Cc_ResErr = Cc*(1 + Cc_b);
+#' })
 #'
 #' # --- Estimation covariance (mock) ---
-#' obj_data   <- read_smrg_obj(fpath_i)
-#' par_fin    <- obj_data$SUMTAB %>% rename(parameter = PAR, value = VALUE)
-#' pnames     <- par_fin$parameter
+#' pnames     <- parest$parameter
 #' npar       <- length(pnames)
 #' set.seed(1)
 #' m_cov      <- matrix(0.02, npar, npar)
@@ -314,17 +381,17 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'
 #' # --- Run ---
 #' result <- sg_covsens_sim(
-#'   fpath_i, ds_parest = NULL, ds_cov = NULL,
+#'   fpath_i=NULL, ds_parest = parest, ds_cov = ds_covval,
 #'   model = model, stimes_ss = stimes_ss, et = ev_t_input,
 #'   est_covmat = est_covmat, npop = 10,
 #'   cont_cov_l = cont_cov_l, cat_cov_l = cat_cov_l,
 #'   quantiles = c(0.2, 0.8), aggr = c("max"),
 #'   outputs = "Cc"
 #' )
+#' print(result[["PARSENS"]])
+#' print(result[["SUMPARSENS"]])
+#' print(result[["EXPSENS"]])
 #'
-#' out_cov_par_sens <- result[[1]]
-#' t_cov_sens_par   <- result[[2]]
-#' out_cov_exp_sens <- result[[3]]
 #' }
 #'
 #' @seealso \code{\link{sg_sim}}, \code{\link{read_smrg_obj}}
@@ -632,7 +699,9 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
                 theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Categorical")
   ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
 
-  covsens_res = list(out_cov_par_sens, t_cov_sens_par, out_cov_exp_sens)
+  covsens_res = list(PARSENS = out_cov_par_sens,
+                     SUMPARSENS = t_cov_sens_par,
+                     EXPSENS = out_cov_exp_sens)
 
   return(covsens_res)
 
