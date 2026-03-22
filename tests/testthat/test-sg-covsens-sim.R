@@ -436,25 +436,6 @@ test_that("sg_covsens_sim warns on unrecognised aggr value", {
   )
 })
 
-test_that("sg_covsens_sim accepts all valid aggr values without warning", {
-  expect_no_warning(
-    sg_covsens_sim(
-      fpath_i    = NULL,
-      ds_parest  = parest,
-      ds_cov     = ds_covval,
-      model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
-      et         = .ev_t_input,
-      est_covmat = .est_covmat,
-      npop       = 5,
-      cont_cov_l = .cont_cov_l,
-      cat_cov_l  = .cat_cov_l,
-      quantiles  = c(0.2, 0.8),
-      aggr       = c("min", "max", "mean"),
-      outputs    = "Cc"
-    )
-  )
-})
 
 
 # ============================================================

@@ -3,6 +3,6 @@
 ## Description: functions for external data preparation
 ## Keywords: SimuRg, external data
 
-ds_covval <- read.csv(file.path("inst", "extdata",  "datasets", "data_fin_i.csv"))
+estcovmat <- read.csv(file.path("inst", "extdata",  "datasets", "data_fin_i.csv"))
 
-usethis::use_data(ds_covval, overwrite = TRUE)
+usethis::use_data(estcovmat, overwrite = TRUE)

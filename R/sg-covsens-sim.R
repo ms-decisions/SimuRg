@@ -63,6 +63,7 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
 fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL,
                         mod_fin_i,
                         theta_i, thetamat_i, nice_names_i,
+                        quantiles = c(0.1,0.9),
                         var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
 {
 
@@ -229,21 +230,21 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
 #'   \code{"mean"} (Cavg).  Default is \code{c("min", "max", "mean")}.
 #'
-#' @returns A list of three elements:
+#'@returns A named list of three elements:
 #' \describe{
-#'   \item{\code{[[1]]} \code{out_cov_par_sens}}{data.frame.
+#'   \item{\code{$PARSENS}}{data.frame.
 #'     Full sensitivity results for model parameters: percent change
 #'     statistics (mean, median, percentiles) for each covariate–parameter
 #'     combination, with columns \code{NICEN}, \code{VAR}, \code{KEY},
 #'     \code{LAB}, \code{Type} and summary statistics
 #'     (\code{mean} through \code{P975}).}
-#'   \item{\code{[[2]]} \code{t_cov_sens_par}}{data.frame.
+#'   \item{\code{$SUMPARSENS}}{data.frame.
 #'     Compact summary table with columns \code{Parameter},
 #'     \code{Covariate}, \code{Cov. percentile}, \code{Cov. value},
 #'     \code{Mean} and \code{90\%CI}.}
-#'   \item{\code{[[3]]} \code{out_cov_exp_sens}}{data.frame.
+#'   \item{\code{$EXPSENS}}{data.frame.
 #'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
-#'     structured identically to \code{out_cov_par_sens}.}
+#'     structured identically to \code{$PARSENS}.}
 #' }
 #'
 #' @details
@@ -329,17 +330,17 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'   CL_multiplier = 1.0;  # Default/reference
 #'   ka_multiplier = 1.0;
 #'
-#'   if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+#'   if (SEX == "1") {ka_multiplier = exp(beta_ka_SEX_1)}
 #'
-#'   if (CYP2C9 == 1) {
+#'   if (CYP2C9 == "1") {
 #'     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
-#'   } else if (CYP2C9 == 2) {
+#'   } else if (CYP2C9 == "2") {
 #'     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
-#'   } else if (CYP2C9 == 3) {
+#'   } else if (CYP2C9 == "3") {
 #'     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
-#'   } else if (CYP2C9 == 4) {
+#'   } else if (CYP2C9 == "4") {
 #'     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
-#'   } else if (CYP2C9 == 5) {
+#'   } else if (CYP2C9 == "5") {
 #'     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
 #'   }
 #'
@@ -450,6 +451,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
     warning("Unrecognised aggregation function(s) in 'aggr': ",
             paste(bad_aggr, collapse = ", "),
             ". Valid options are: ", paste(valid_aggr, collapse = ", "), ".")
+    aggr <- valid_aggr
   }
   # -------------------------
 
@@ -674,12 +676,16 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   out_cov_par_sens <- bind_rows(
     fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
-                var_exp = outputs, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = npop, cat = T,
+                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names,quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, cat = T, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
-                var_exp = outputs, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Categorical")
+                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names,quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Categorical")
     ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
 
   ## Summary of sensitivity of model parameters to covariate values
@@ -689,14 +695,20 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
 
   # Sensitivity of exposure parameters to covariate values
   out_cov_exp_sens <- bind_rows(
-    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = npop, expos = T, stime_exp = stimes_ss,
+    fun_CovSens(ets_cc, expos = T, covs_i = nice_names$COV, nsim = npop,
+                stime_exp = stimes_ss,
                 mod_fin_i = model,
-                var_exp = outputs, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = npop, cat = T, expos = T, stime_exp = stimes_ss,
+                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names, quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, cat = T, expos = T, covs_i = nice_names$COV, nsim = npop,
+                stime_exp = stimes_ss,
                 mod_fin_i = model,
-                var_exp = outputs, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Categorical")
+                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names, quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Categorical")
   ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
 
   covsens_res = list(PARSENS = out_cov_par_sens,
