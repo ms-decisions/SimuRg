@@ -78,17 +78,17 @@
   CL_multiplier = 1.0;
   ka_multiplier = 1.0;
 
-  if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+  if (SEX == "1") {ka_multiplier = exp(beta_ka_SEX_1)}
 
-  if (CYP2C9 == 1) {
+  if (CYP2C9 == "1") {
     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
-  } else if (CYP2C9 == 2) {
+  } else if (CYP2C9 == "2") {
     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
-  } else if (CYP2C9 == 3) {
+  } else if (CYP2C9 == "3") {
     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
-  } else if (CYP2C9 == 4) {
+  } else if (CYP2C9 == "4") {
     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
-  } else if (CYP2C9 == 5) {
+  } else if (CYP2C9 == "5") {
     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
   }
 
@@ -121,9 +121,9 @@ names(.est_covmat)[-1] <- .pnames
 .output_01 <- sg_covsens_sim(
   fpath_i    = gfo4cov,
   ds_parest  = NULL,
-  ds_cov     = NULL,
+  ds_covs     = NULL,
   model      = .mod_fin,
-  stimes_ss  = .stimes_ss,
+  stimes  = .stimes_ss,
   et         = .ev_t_input,
   est_covmat = .est_covmat,
   npop       = 10,
@@ -138,9 +138,9 @@ names(.est_covmat)[-1] <- .pnames
 .output_02 <- sg_covsens_sim(
   fpath_i    = NULL,
   ds_parest  = parest,
-  ds_cov     = ds_covval,
+  ds_covs     = ds_covval,
   model      = .mod_fin,
-  stimes_ss  = .stimes_ss,
+  stimes  = .stimes_ss,
   et         = .ev_t_input,
   est_covmat = .est_covmat,
   npop       = 10,
@@ -314,7 +314,7 @@ test_that("EXPSENS LAB is a factor", {
 
 
 # ============================================================
-# 5. Table mode (ds_parest + ds_cov) produces consistent output
+# 5. Table mode (ds_parest + ds_covs) produces consistent output
 # ============================================================
 
 test_that("sg_covsens_sim table mode returns a named list of length 3", {
@@ -347,9 +347,9 @@ test_that("sg_covsens_sim errors when no data source is provided", {
     sg_covsens_sim(
       fpath_i    = NULL,
       ds_parest  = NULL,
-      ds_cov     = NULL,
+      ds_covs     = NULL,
       model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
+      stimes  = .stimes_ss,
       et         = .ev_t_input,
       est_covmat = .est_covmat,
       cont_cov_l = .cont_cov_l,
@@ -364,9 +364,9 @@ test_that("sg_covsens_sim errors when fpath_i and ds_parest are both supplied", 
     sg_covsens_sim(
       fpath_i    = gfo4cov,
       ds_parest  = parest,
-      ds_cov     = NULL,
+      ds_covs     = NULL,
       model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
+      stimes  = .stimes_ss,
       et         = .ev_t_input,
       est_covmat = .est_covmat,
       cont_cov_l = .cont_cov_l,
@@ -376,31 +376,31 @@ test_that("sg_covsens_sim errors when fpath_i and ds_parest are both supplied", 
   )
 })
 
-test_that("sg_covsens_sim errors when ds_parest is provided without ds_cov", {
+test_that("sg_covsens_sim errors when ds_parest is provided without ds_covs", {
   expect_error(
     sg_covsens_sim(
       fpath_i    = NULL,
       ds_parest  = parest,
-      ds_cov     = NULL,
+      ds_covs     = NULL,
       model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
+      stimes  = .stimes_ss,
       et         = .ev_t_input,
       est_covmat = .est_covmat,
       cont_cov_l = .cont_cov_l,
       cat_cov_l  = .cat_cov_l
     ),
-    regexp = "ds_cov"
+    regexp = "ds_covs"
   )
 })
 
-test_that("sg_covsens_sim errors when ds_cov is provided without ds_parest", {
+test_that("sg_covsens_sim errors when ds_covs is provided without ds_parest", {
   expect_error(
     sg_covsens_sim(
       fpath_i    = NULL,
       ds_parest  = NULL,
-      ds_cov     = ds_covval,
+      ds_covs     = ds_covval,
       model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
+      stimes  = .stimes_ss,
       et         = .ev_t_input,
       est_covmat = .est_covmat,
       cont_cov_l = .cont_cov_l,
@@ -420,9 +420,9 @@ test_that("sg_covsens_sim warns on unrecognised aggr value", {
     sg_covsens_sim(
       fpath_i    = NULL,
       ds_parest  = parest,
-      ds_cov     = ds_covval,
+      ds_covs     = ds_covval,
       model      = .mod_fin,
-      stimes_ss  = .stimes_ss,
+      stimes  = .stimes_ss,
       et         = .ev_t_input,
       est_covmat = .est_covmat,
       npop       = 5,
@@ -446,9 +446,9 @@ test_that("sg_covsens_sim EXPSENS VAR reflects multiple aggr metrics", {
   out <- sg_covsens_sim(
     fpath_i    = NULL,
     ds_parest  = parest,
-    ds_cov     = ds_covval,
+    ds_covs     = ds_covval,
     model      = .mod_fin,
-    stimes_ss  = .stimes_ss,
+    stimes  = .stimes_ss,
     et         = .ev_t_input,
     est_covmat = .est_covmat,
     npop       = 5,

@@ -276,7 +276,7 @@ stimes_ss <- fun_stimes_ss(ss_cycle)
 ######
 #Test with GFO
 output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
-                            ds_parest = NULL, ds_cov = NULL, model = mod_fin, stimes_ss, et = ev_t_input,
+                            ds_parest = NULL, ds_covs = NULL, model = mod_fin, stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
                          npop = 10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
@@ -284,7 +284,7 @@ output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
 #write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
-output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
+output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
                             model = mod_fin, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
                             npop = 10,
@@ -292,7 +292,7 @@ output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_cov = data
                             outputs = "Cc")
 
 # Test: outputs as a 2-element vector — both PK (Cc) and PD (Effect) outputs
-output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
+output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
                             model = mod_fin_2, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
                             npop = 10,
