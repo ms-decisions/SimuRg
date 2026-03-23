@@ -4,26 +4,6 @@
 ## Keywords: covariates, simulations, sensitivity
 
 ###-----Functions----####
-
-#' @noRd
-funSum_sim <- list(mean   = ~mean(., na.rm = TRUE),
-                   median = ~median(., na.rm = TRUE),
-                   min    = ~min(., na.rm = TRUE),
-                   max    = ~max(., na.rm = TRUE),
-                   sd     = ~sd(., na.rm = TRUE),
-                   P025   = ~quantile(., 0.025, na.rm = TRUE),
-                   P05    = ~quantile(., 0.05,  na.rm = TRUE),
-                   P10    = ~quantile(., 0.10,  na.rm = TRUE),
-                   P15    = ~quantile(., 0.15,  na.rm = TRUE),
-                   P25    = ~quantile(., 0.25,  na.rm = TRUE),
-                   P75    = ~quantile(., 0.75,  na.rm = TRUE),
-                   P85    = ~quantile(., 0.85,  na.rm = TRUE),
-                   P90    = ~quantile(., 0.90,  na.rm = TRUE),
-                   P95    = ~quantile(., 0.95,  na.rm = TRUE),
-                   P975   = ~quantile(., 0.975, na.rm = TRUE),
-                   geom_mean = ~exp(mean(suppressWarnings(log(.)), na.rm = TRUE)),
-                   CV     = ~sd(., na.rm = TRUE)/mean(., na.rm = TRUE)*100)
-
 #' @noRd
 funSum_av <- list(mean   = ~mean(.),
                   median   = ~median(., na.rm = T))
