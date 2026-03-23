@@ -27,7 +27,7 @@ test_that("sg-converter works and contains all elements", {
 test_that("sg-converter fails gracefully", {
   expect_error(
     suppressWarnings(sg_converter("invalid_path", "invalid_project")),
-    "cannot open"
+    "Project file does not exist. Check file existance or try to use absolute path"
   )
 })
 
