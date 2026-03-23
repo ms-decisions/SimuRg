@@ -6,7 +6,7 @@
 # Helper function to create mock simulated data for VPC
 create_mock_sim_data <- function(n_ids = 2, n_times = 5, n_sims = 10, var_name = "Cc") {
   data.frame(
-    id = rep(1:n_sims, each = n_ids * n_times),
+    sim.id = rep(1:n_sims, each = n_ids * n_times),
     ID = rep(rep(1:n_ids, each = n_times), n_sims),
     TIME = rep(rep(c(0, 1, 2, 4, 8), n_ids), n_sims),
     VAR = var_name,

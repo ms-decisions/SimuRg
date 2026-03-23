@@ -523,6 +523,7 @@ sg_converter <- function(folder_path, proj_name){
     str_replace_all("'", "")
   if (!file.exists(data_path)) data_path <- str_c(folder_path, data_path)
   data_file <- read_csv(data_path)
+  colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
   ## info about columns mapping
   start_idx_col_map <- which(str_detect(contr_obj, fixed("[CONTENT]")))
@@ -538,6 +539,84 @@ sg_converter <- function(folder_path, proj_name){
     separate(inside, into = c("key", "value"), sep = "=", fill = "right") %>%
     pivot_wider(names_from = key, values_from = value) %>%
     select(COL, everything(), -raw)
+
+  ## Check for duplicate 'use' mappings
+  use_counts <- col_map_df %>%
+    filter(!is.na(use) & use != "covariate") %>%
+    count(use) %>%
+    filter(n > 1)
+
+  if (nrow(use_counts) > 0) {
+    for (duplicate_use in use_counts$use) {
+      duplicate_cols <- col_map_df$COL[col_map_df$use == duplicate_use & !is.na(col_map_df$use)]
+
+      # Check if columns exist in the dataset
+      existing_cols <- duplicate_cols[duplicate_cols %in% names(data_file)]
+
+        # Compare content of duplicate columns
+      col_data <- data_file[existing_cols]
+
+      # Check if all columns are identical
+      all_identical <- TRUE
+      for (i in 2:length(existing_cols)) {
+        if (!identical(col_data[[1]], col_data[[i]])) {
+          all_identical <- FALSE
+          break
+        }
+      }
+
+      if (all_identical) {
+        # Keep only the first column, remove duplicates from col_map_df
+        keep_col <- existing_cols[1]
+        remove_indices <- which(col_map_df$use == duplicate_use & col_map_df$COL != keep_col)
+        col_map_df <- col_map_df[-remove_indices, ]
+
+        message(sprintf("Warning: Multiple columns found for use='%s' (%s). All columns have identical content. Using column '%s'.",
+                       duplicate_use, paste(duplicate_cols, collapse = ", "), keep_col))
+      } else {
+        stop(sprintf("Error: Multiple columns found for use='%s' (%s) with different content. Please resolve the mapping conflict in the control file.",
+                    duplicate_use, paste(duplicate_cols, collapse = ", ")))
+      }
+
+    }
+  }
+
+  ## Check for existing target column names and handle conflicts
+  rename_mapping <- list(
+    "ID" = col_map_df$COL[col_map_df$use == "identifier"],
+    "TIME" = col_map_df$COL[col_map_df$use == "time"],
+    "DV" = col_map_df$COL[col_map_df$use == "observation"],
+    "DVID" = col_map_df$COL[col_map_df$use == "observationtype"],
+    "AMT" = col_map_df$COL[col_map_df$use == "amount"],
+    "EVID" = col_map_df$COL[col_map_df$use == "eventidentifier"],
+    "MDV" = col_map_df$COL[col_map_df$use == "missingdependentvariable"],
+    "CENS" = col_map_df$COL[col_map_df$use == "censored"],
+    "OCC" = col_map_df$COL[col_map_df$use == "occasion"],
+    "LIMIT" = col_map_df$COL[col_map_df$use == "limit"],
+    "ADDL" = col_map_df$COL[col_map_df$use == "additionaldoses"],
+    "II" = col_map_df$COL[col_map_df$use == "interdoseinterval"],
+    "TINF" = col_map_df$COL[col_map_df$use == "infusiontime"],
+    "SS" = col_map_df$COL[col_map_df$use == "steadystate"]
+  )
+
+  # Remove NULL values (where no mapping exists)
+  rename_mapping <- rename_mapping[!sapply(rename_mapping, is_empty)]
+
+  for (new_name in names(rename_mapping)) {
+    old_name <- rename_mapping[[new_name]]
+
+    # Check if old and new names are different
+    if (!is.na(old_name) && old_name != new_name) {
+      # Check if the target column name already exists in the dataset
+      if (new_name %in% names(data_file)) {
+        # Rename existing column to avoid conflict
+        old_col_name <- paste0(new_name, "_old")
+        data_file <- data_file %>% rename(!!old_col_name := !!new_name)
+        message(sprintf("Warning: Column '%s' already exists in dataset. Renamed to '%s' to avoid conflict with mapping from '%s'.",
+                       new_name, old_col_name, old_name))
+      }
+    }
+  }
 
   ## dataset column renaming according to the mapping
   data_file_mod <- data_file %>%
@@ -634,7 +713,7 @@ sg_converter <- function(folder_path, proj_name){
 
   if (length(cotab_cols) > 1) {cotab <- data_file_mod %>% select(all_of(cotab_cols)) %>% unique()} else {cotab <- data.frame()}
   if (length(catab_cols) > 1) {catab <- data_file_mod %>% select(all_of(catab_cols)) %>% unique()} else {catab <- data.frame()}
-  if (length(regtab_cols) > 2) {regtab <- data_file_mod %>% select(regtab_cols) %>% unique()} else {regtab <- data.frame()}
+  if (length(regtab_cols) > 2) {regtab <- data_file_mod %>% select(all_of(regtab_cols)) %>% unique()} else {regtab <- data.frame()}
 
 
   ## patab and sumtab compiling
@@ -795,10 +874,10 @@ sg_converter <- function(folder_path, proj_name){
 
       corr_params_dt <- data.frame(CORR_PAR = corr_params) %>%
         group_by(CORR_PAR) %>%
-        mutate(PAR1 = na.omit(str_extract(CORR_PAR, params))[1],
-               PAR2 = na.omit(str_extract(CORR_PAR, params))[2],
-               PAR_N1 = which(PAR1 == params),
-               PAR_N2 = which(PAR2 == params)) %>%
+        mutate(PAR1 = na.omit(str_extract(CORR_PAR, str_remove(omega_params, "omega_")))[1],
+               PAR2 = na.omit(str_extract(CORR_PAR, str_remove(omega_params, "omega_")))[2],
+               PAR_N1 = which(PAR1 == str_remove(omega_params, "omega_")),
+               PAR_N2 = which(PAR2 == str_remove(omega_params, "omega_"))) %>%
         ungroup()
 
       for (i in 1:length(corr_params)){
@@ -809,6 +888,7 @@ sg_converter <- function(folder_path, proj_name){
         var2_value <- omegamat[corr_params_dt_i$PAR_N2, corr_params_dt_i$PAR_N2]
 
         omegamat[corr_params_dt_i$PAR_N1, corr_params_dt_i$PAR_N2] <- corr_value*var1_value*var2_value
+        omegamat[corr_params_dt_i$PAR_N2, corr_params_dt_i$PAR_N1] <- corr_value*var1_value*var2_value
 
       }
     }

@@ -15,9 +15,9 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
     omega_Vd = 0;
     omega_CL = 0;
     Cc_b = 0;
-    ka_tv = exp(ka_pop);
-    Vd_tv = exp(Vd_pop);
-    CL_tv = exp(CL_pop);
+    ka_tv = ka_pop;
+    Vd_tv = Vd_pop;
+    CL_tv = CL_pop;
     ka <- ka_tv * exp(omega_ka);
     Vd <- Vd_tv * exp(omega_Vd);
     CL <- CL_tv * exp(omega_CL);
