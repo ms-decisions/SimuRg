@@ -1,7 +1,7 @@
-source("scripts/nlme/sg-covsens-sim/sg-covsens-sim.R")
+#source("scripts/nlme/sg-covsens-sim/sg-covsens-sim.R")
 
 ####------ Function parameters ------####
-quantiles <- c(0.2, 0.8)
+#quantiles <- c(0.2, 0.8)
 cont_cov_l <- list(
   LG_AGE = list(
     NAME = "LG_AGE",
@@ -74,15 +74,20 @@ if (FALSE) {
 }
 
 ### --- Load pre-modified JSON --- ###
+# fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
+#                        "run_4cov_smrg_results_mod.json", package = "SimuRg")
 fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
-                       "run_4cov_smrg_results_mod.json", package = "SimuRg")
+                       "run_4cov_smrg_results.json", package = "SimuRg")
 obj_data <- read_smrg_obj(fpath_i)
 par_sum <- obj_data$SUMTAB
 par_fin_i <- par_sum %>% rename(parameter = PAR, value = VALUE) #Exemplar table with parameters
+#write.csv(par_fin_i, file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "par_fin_i.csv"))
+
 ds_catcov <- obj_data$CATAB
 ds_ccov   <- obj_data$COTAB
 
 data_fin_i <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with covariate values
+#write.csv(data_fin_i, file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "data_fin_i.csv"))
 
 ### Mock Fisher information covariance (same parameter order as par_fin; symmetric pos-def)
 pnames <- par_fin_i$parameter
@@ -134,17 +139,17 @@ mod_fin <- RxODE({
   CL_multiplier = 1.0;  # Default/reference
   ka_multiplier = 1.0;
 
-  if (SEX == 1) {ka_multiplier = exp(beta_ka_SEX_1)}
+  if (SEX == "1") {ka_multiplier = exp(beta_ka_SEX_1)}
 
-  if (CYP2C9 == 1) {
+  if (CYP2C9 == "1.2") {
     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
-  } else if (CYP2C9 == 2) {
+  } else if (CYP2C9 == "1.3") {
     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
-  } else if (CYP2C9 == 3) {
+  } else if (CYP2C9 == "2.2") {
     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
-  } else if (CYP2C9 == 4) {
+  } else if (CYP2C9 == "2.3") {
     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
-  } else if (CYP2C9 == 5) {
+  } else if (CYP2C9 == "3.3") {
     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
   }
 
@@ -167,9 +172,9 @@ mod_fin <- RxODE({
   Cc_ResErr = Cc*(1 + Cc_b);
 })
 
-####------ Alternative model: PK + PD (Emax), var_output as vector ------####
+####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
-# so that var_output = c("Cc", "Effect") can be tested
+# so that outputs = c("Cc", "Effect") can be tested
 mod_fin_2 <- RxODE({
   # Doses in mg
   # Time in hours
@@ -270,25 +275,26 @@ stimes_ss <- fun_stimes_ss(ss_cycle)
 
 ######
 #Test with GFO
-output_01 <- sg_covsens_sim(fpath_i, ds_parest=NULL, ds_cov=NULL, mod_fin, stimes_ss, ev_t_input,
+output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
+                            ds_parest = NULL, ds_covs = NULL, model = mod_fin, stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
-                         Nsim=10,
+                         npop = 10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
-                         var_output = "Cc")
+                         outputs = "Cc")
 #write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
-output_02 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
-                            mod_fin, stimes_ss, ev_t_input,
+output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
+                            model = mod_fin, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
-                            Nsim=10,
+                            npop = 10,
                             cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
-                            var_output = "Cc")
+                            outputs = "Cc")
 
-# Test: var_output as a 2-element vector — both PK (Cc) and PD (Effect) outputs
-output_03 <- sg_covsens_sim(fpath_i=NULL, ds_parest = par_fin_i, ds_cov = data_fin_i,
-                            mod_fin = mod_fin_2, stimes_ss, ev_t_input,
+# Test: outputs as a 2-element vector — both PK (Cc) and PD (Effect) outputs
+output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
+                            model = mod_fin_2, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
-                            Nsim = 10,
+                            npop = 10,
                             cont_cov_l, cat_cov_l, quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
-                            var_output = c("Cc", "Effect"))
+                            outputs = c("Cc", "Effect"))

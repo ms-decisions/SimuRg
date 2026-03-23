@@ -39,6 +39,34 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param alpha_i numeric. Transparency level (from 0 to 1) for points/lines. Default is 0.5
 #' @param atol numeric. A numeric absolute tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do no add anything to the solution. Default is 1e-8
 #' @param cap string. Plot caption.
+#' @param cat_cov_l named list. Each element defines one categorical covariate
+#'   and must itself be a list with components:
+#'   \describe{
+#'     \item{\code{NAME}}{Character. Column name of the covariate
+#'       (e.g. \code{"SEX"}).}
+#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label.}
+#'     \item{\code{REF}}{Character or \code{NULL}. Reference category value.
+#'       If \code{NULL}, the first factor level (alphabetically) is used.}
+#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
+#'       this covariate (e.g. \code{c("ka")}).}
+#'   }
+#' @param cont_cov_l named list. Each element defines one continuous covariate
+#'   and must itself be a list with components:
+#'   \describe{
+#'     \item{\code{NAME}}{Character. Column name of the (transformed)
+#'       covariate in the dataset (e.g. \code{"LG_AGE"}).}
+#'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
+#'       untransformed (back-transformed) covariate
+#'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
+#'       \code{NAME}.}
+#'     \item{\code{REF}}{Character or numeric. Reference value for the
+#'       covariate.  Use \code{"median"} to derive from data, or a numeric
+#'       value.}
+#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label for
+#'       plots and tables (e.g. \code{"Age, years"}).}
+#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
+#'       this covariate (e.g. \code{c("CL")}).}
+#'   }
 #' @param cov_cols vector of characters. Name of the columns with covariates
 #' @param covint string. Specifies the interpolation method for time-varying covariates. When solving ODEs it often samples times outside the sampling time specified in event table. When this happens, the time varying covariates are interpolated. Currently this can be:
 #'  * `"linear"` interpolation, which interpolates the covariate by solving the line between the observed covariates and extrapolating the new covariate value
@@ -65,9 +93,16 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
 #' @param ds_i data.frame. The data frame with source data.
+#' @param ds_parest data.frame. Parameter estimates table with columns
+#'   \code{parameter} and \code{value}.
+#'   Required when \code{fpath_i} is \code{NULL}; must be provided together
+#'   with \code{ds_covs}.  Default is \code{NULL}.
 #' @param dt_obs_fl logical. Show observed data points. Default is `FALSE`
 #' @param dv_col character. Name of DV column in data_i. Default is`DV`
 #' @param emp_perc logical. Show empirical percentiles. Default is `TRUE`
+#' @param est_covmat data.frame. Parameter estimation covariance matrix.  The
+#'   first column (\code{X1}) must list parameter names; remaining columns
+#'   (named identically) form the symmetric variance–covariance matrix.
 #' @param et data.frame. Event table
 #' @param eta_seq vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param par_seq vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
@@ -174,6 +209,9 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param theta named vector or data.frame. Values of population parameters to simulate with. Default is `NULL`
 #' @param thetamat matrix. Named variance-covariance matrix (for parameters brought to normal distribution). Default is `NULL`
 #' @param tsld logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`
+#' @param quantiles numeric vector of length 2. Lower and upper quantiles of
+#'   the continuous covariate distribution to test.
+#'   Default is \code{c(0.1, 0.9)}.
 #' @param val_col string. Name of value column. Default is `VALUE`
 #' @param wrap_i string. Faceting formula for `facet_wrap`. Default is `NULL`
 #' @param wrap_ncol integer. Number of columns for `facet_wrap`. Default is `NULL`

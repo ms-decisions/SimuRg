@@ -75,3 +75,48 @@ funSum_sim <- list(mean   = ~mean(., na.rm = T),
 #' }
 "data_pbc"
 
+#' Warfarin population PK parameter estimates
+#'
+#' Final parameter estimates from a warfarin population pharmacokinetic model,
+#' including typical values, covariate effects, random effects, and residual
+#' error parameters with associated uncertainty measures.
+#'
+#' @format ## `parest`
+#' A data frame with 15 rows and 12 columns:
+#' \describe{
+#'   \item{parameter}{parameter name as used in the model}
+#'   \item{value}{final parameter estimate}
+#'   \item{TYPE}{parameter category: \code{"Typical values"}, \code{"Covariate effects"}, \code{"Random effects"}, or \code{"Residual error model"}}
+#'   \item{EST}{estimation status (\code{"ESTIMATED"})}
+#'   \item{SE}{standard error of the estimate}
+#'   \item{RSE}{relative standard error (\%)}
+#'   \item{LCI}{lower bound of the 95\% confidence interval}
+#'   \item{UCI}{upper bound of the 95\% confidence interval}
+#'   \item{ETAshrinkage_var}{ETA shrinkage on the variance scale (\%); \code{NA} for non-random-effect parameters}
+#'   \item{ETAshrinkage_sd}{ETA shrinkage on the SD scale (\%); \code{NA} for non-random-effect parameters}
+#'   \item{EPSshrinkage_sd}{EPS shrinkage on the SD scale (\%); \code{NA} for non-residual-error parameters}
+#' }
+#'@source Derived from \code{par_fin_i.csv} — warfarin PopPK model estimation output.
+"parest"
+
+#' Warfarin covariate values dataset
+#'
+#' Individual covariate values for 100 patients used in the warfarin
+#' covariate sensitivity simulation, including demographic and pharmacogenomic variables.
+#'
+#' @format ## `ds_covval`
+#' A data frame with 100 rows and 9 columns:
+#' \describe{
+#'   \item{ID}{individual patient identifier}
+#'   \item{AGE}{age in years}
+#'   \item{WEIGHT}{body weight in kg}
+#'   \item{BMI}{body mass index (kg/m\ifelse{html}{\out{<sup>2</sup>}}{\eqn{^2}})}
+#'   \item{LG_WEIGHT}{log-transformed body weight (log10 scale), used as continuous covariate in the PK model}
+#'   \item{LG_AGE}{log-transformed age (log10 scale), used as continuous covariate in the PK model}
+#'   \item{SEX}{sex of the individual (0 = female, 1 = male)}
+#'   \item{CYP2C9}{CYP2C9 genotype encoded as integer: 0 = \emph{*1/*1} (reference), 1 = \emph{*1/*2}, 2 = \emph{*1/*3}, 3 = \emph{*2/*2}, 4 = \emph{*2/*3}, 5 = \emph{*3/*3}}
+#'   \item{VKORC1}{VKORC1 genotype (\code{"GG"}, \code{"AG"}, or \code{"AA"})}
+#' }
+#'@source Derived from \code{data_fin_i.csv} — individual covariate dataset for the warfarin PopPK covariate sensitivity analysis.
+"ds_covval"
+
