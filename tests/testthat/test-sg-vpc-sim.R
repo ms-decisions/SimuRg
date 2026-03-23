@@ -16,7 +16,7 @@ mod_fin <- RxODE({
   omega_ka = 0;
 
   # Residual error
-  b = 0;
+  Cc_b = 0;
 
   ### Parameters
   Cl = Cl_pop * exp(omega_Cl);
@@ -34,8 +34,8 @@ mod_fin <- RxODE({
   d/dt(Ad) = - ka*Ad;
   d/dt(Ac) = ka*Ad - Cl*Cc ;
 
-  CHECKRUV = b;
-  Cc_ResErr = Cc + b*Cc;
+  CHECKRUV = Cc_b;
+  Cc_ResErr = Cc + Cc_b*Cc;
 })
 
 test_that("sg_sim_vps works ", {
