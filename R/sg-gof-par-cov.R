@@ -7,7 +7,6 @@
 #' @param ptype Character. Type of plot: `"REvsCov"` for random effects or `"IndParvsCov"` for individual parameters.
 #' @param cat_cov Optional tibble with categorical covariates. Must have columns `COV` and optionally `COVNAME` for labels.
 #' @param cont_cov Optional tibble with continuous covariates. Must have columns `COV` and optionally `COVNAME` for labels.
-#' @param color_palette Character vector. Colors used in plots.
 #'
 #' @return A list of ggplot objects. Returns versus continious covariates
 #' `vs_contcov` and versus categorical covariates `vs_catcov` plots.
@@ -41,8 +40,7 @@
 sg_gof_par_cov <- function(fpath_i,
                            ptype = "REvsCov",
                            cat_cov = NULL,
-                           cont_cov = NULL,
-                           color_palette = MSDcol) {
+                           cont_cov = NULL) {
   smrg_obj <- read_smrg_obj(fpath_i)
   if (is.null(smrg_obj$PATAB) | is.null(smrg_obj$COTAB) | is.null(smrg_obj$CATAB) |
       is.null(smrg_obj$SUMTAB)) {
@@ -177,11 +175,11 @@ sg_gof_par_cov <- function(fpath_i,
       ) +
       geom_point(aes(color = COHORTC), size = 1.5, alpha = 0.7, show.legend = FALSE) +
       geom_hline(yintercept = 0, col = "grey25", lty = "dotted", linewidth = 0.5) +
-      geom_smooth(method = "lm", formula = y ~ x, color = color_palette[3], se = FALSE) +
+      geom_smooth(method = "lm", formula = y ~ x, color = MSDcol[3], se = FALSE) +
       facet_grid(PNAME ~ COVNAME, scales = "free", switch = "y") +
       scale_x_continuous(breaks = pretty_breaks(7), name = "Covariate value") +
       scale_y_continuous(breaks = pretty_breaks(7), name = "Random effect", position = "right") +
-      scale_colour_manual(values = color_palette) +
+      scale_colour_manual(values = MSDcol) +
       theme_bw(base_size = 11) +
       theme(
         legend.position = "top",
@@ -205,7 +203,7 @@ sg_gof_par_cov <- function(fpath_i,
 
       # Plot REvsCatCov
       p_cat <- ggplot(re_cat, aes(x = as.factor(COVVAL), y = VALUE)) +
-        geom_boxplot(fill = color_palette[1], alpha = 0.5, outlier.colour = color_palette[3], outlier.shape = 3) +
+        geom_boxplot(fill = MSDcol[1], alpha = 0.5, outlier.colour = MSDcol[3], outlier.shape = 3) +
         geom_hline(yintercept = 0, col = "grey25", lty = "dotted", linewidth = 0.5) +
         geom_label(data = unique(select(re_cat, PNAME, COV, COVNAME, PVAL, LARGPVAL)),
                    aes(x = -Inf, y = Inf, label = PVAL, col = LARGPVAL),
@@ -247,11 +245,11 @@ sg_gof_par_cov <- function(fpath_i,
         hjust = -0.1, vjust = 1.1, show.legend = FALSE, size = 2.5
       ) +
       geom_point(aes(color = COHORTC), size = 1.5, alpha = 0.7, show.legend = FALSE) +
-      geom_smooth(method = "lm", formula = y ~ x, color = color_palette[3], se = FALSE) +
+      geom_smooth(method = "lm", formula = y ~ x, color = MSDcol[3], se = FALSE) +
       facet_grid(PNAME ~ COVNAME, scales = "free", switch = "y") +
       scale_x_continuous(breaks = pretty_breaks(7), name = "Covariate value") +
       scale_y_continuous(breaks = pretty_breaks(7), name = "Individual parameter", position = "right") +
-      scale_colour_manual(values = color_palette) +
+      scale_colour_manual(values = MSDcol) +
       theme_bw(base_size = 11) +
       theme(
         legend.position = "top",
@@ -274,7 +272,7 @@ sg_gof_par_cov <- function(fpath_i,
 
     # Plot IndParvsCatCov
     p_cat <- ggplot(ind_cat, aes(x = as.factor(COVVAL), y = VALUE)) +
-      geom_boxplot(fill = color_palette[1], alpha = 0.5, outlier.colour = color_palette[3], outlier.shape = 3) +
+      geom_boxplot(fill = MSDcol[1], alpha = 0.5, outlier.colour = MSDcol[3], outlier.shape = 3) +
       geom_label(data = unique(select(ind_cat, PNAME, COV, COVNAME, PVAL, LARGPVAL)),
                  aes(x = -Inf, y = Inf, label = PVAL, col = LARGPVAL),
                  hjust = -0.1, vjust = 1.1, show.legend = FALSE, size = 2.5) +
