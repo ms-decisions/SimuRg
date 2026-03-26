@@ -1,0 +1,108 @@
+{
+  "headers": [
+    {
+      "name": ["ID"],
+      "use": ["identifier"],
+      "type": {}
+    },
+    {
+      "name": ["TIME"],
+      "use": ["time"],
+      "type": {}
+    },
+    {
+      "name": ["EVID"],
+      "use": ["eventidentifier"],
+      "type": {}
+    },
+    {
+      "name": ["AMT"],
+      "use": ["amount"],
+      "type": {}
+    },
+    {
+      "name": ["Y"],
+      "use": ["observation"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["ARMTYPE"],
+      "use": ["covariate"],
+      "type": ["categorical"]
+    },
+    {
+      "name": ["DVID"],
+      "use": ["observationtype"],
+      "type": {}
+    },
+    {
+      "name": ["IFN"],
+      "use": ["regressor"],
+      "type": {}
+    },
+    {
+      "name": ["IFN_dose"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    }
+  ],
+  "data": ["dataset2_2.csv"],
+  "model": ["model_code.txt"],
+  "task_opt": {},
+  "covs": ["ARMTYPE", "IFN_dose"],
+  "project_name": ["ifn_full_Vmax_bcell_2"],
+  "theta": [
+    {
+      "NAME": ["Vm"],
+      "INIT": [0.6],
+      "EST": [true],
+      "TRANS": ["normal"]
+    },
+    {
+      "NAME": ["Km"],
+      "INIT": [1000],
+      "EST": [true],
+      "TRANS": ["logNormal"]
+    },
+    {
+      "NAME": ["Keff"],
+      "INIT": [1],
+      "EST": [false],
+      "TRANS": ["logitNormal"]
+    }
+  ],
+  "ruv": {
+    "YNAME": ["y1"],
+    "DVID": ["1"],
+    "TRANS": ["logitNormal"],
+    "PRED": ["Bcell_Vmax"],
+    "ERR": ["constant"],
+    "INIT": [1],
+    "EST": [true]
+  },
+  "re": {
+    "init": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ],
+    "est": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  },
+  "occ": {
+    "init": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ],
+    "est": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  },
+  "modelText": ["DESCRIPTION:\nThe administration is via a bolus.\nThe PK model has one compartment (volume V) and a Michaelis-Menten elimination (Vm, Km).\n\n[LONGITUDINAL]\ninput = {IFN, Vm, Km, Keff}\n\nIFN = {use=regressor}\n\nEQUATION:\nodeType = stiff\nKap = 0.0153\nBcell_liner_0 = 100\nBcell_Vmax_0 = 100\n\nddt_Bcell_liner = -Kap*(1 - IFN / 10000 * Keff) * Bcell_liner\nddt_Bcell_Vmax = -Kap * (1 - (Vm * IFN) / (Km + IFN)) * Bcell_Vmax\n\nOUTPUT:\noutput = {Bcell_liner, Bcell_Vmax}"]
+}

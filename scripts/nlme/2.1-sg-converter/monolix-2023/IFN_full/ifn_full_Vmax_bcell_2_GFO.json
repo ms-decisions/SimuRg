@@ -1,0 +1,1179 @@
+{
+  "SDTAB": [
+    {
+      "ID": 1,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 1,
+      "TIME": 24,
+      "DV": 66.8966,
+      "DVID": 1,
+      "PRED": 71.1649,
+      "IPRED": 71.1649,
+      "RES": 4.2683,
+      "IRES": 4.2683,
+      "WRES": 13.9298,
+      "IWRES": -0.6422
+    },
+    {
+      "ID": 2,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 2,
+      "TIME": 24,
+      "DV": 65.8621,
+      "DVID": 1,
+      "PRED": 73.539,
+      "IPRED": 73.539,
+      "RES": 7.6769,
+      "IRES": 7.6769,
+      "WRES": 25.0539,
+      "IWRES": -1.1719
+    },
+    {
+      "ID": 3,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 3,
+      "TIME": 24,
+      "DV": 74.8276,
+      "DVID": 1,
+      "PRED": 76.5894,
+      "IPRED": 76.5894,
+      "RES": 1.7618,
+      "IRES": 1.7618,
+      "WRES": 5.7497,
+      "IWRES": -0.306
+    },
+    {
+      "ID": 4,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 4,
+      "TIME": 24,
+      "DV": 82.7586,
+      "DVID": 1,
+      "PRED": 80.6378,
+      "IPRED": 80.6378,
+      "RES": -2.1208,
+      "IRES": -2.1208,
+      "WRES": -6.9213,
+      "IWRES": 0.4491
+    },
+    {
+      "ID": 5,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 5,
+      "TIME": 24,
+      "DV": 88.9655,
+      "DVID": 1,
+      "PRED": 84.9242,
+      "IPRED": 84.9242,
+      "RES": -4.0413,
+      "IRES": -4.0413,
+      "WRES": -13.1889,
+      "IWRES": 1.1166
+    },
+    {
+      "ID": 6,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 6,
+      "TIME": 24,
+      "DV": 91.7241,
+      "DVID": 1,
+      "PRED": 87.1126,
+      "IPRED": 87.1126,
+      "RES": -4.6115,
+      "IRES": -4.6115,
+      "WRES": -15.0498,
+      "IWRES": 1.5198
+    },
+    {
+      "ID": 7,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 7,
+      "TIME": 24,
+      "DV": 90,
+      "DVID": 1,
+      "PRED": 89.769,
+      "IPRED": 89.769,
+      "RES": -0.231,
+      "IRES": -0.231,
+      "WRES": -0.7539,
+      "IWRES": 0.078
+    },
+    {
+      "ID": 8,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 8,
+      "TIME": 24,
+      "DV": 91.0345,
+      "DVID": 1,
+      "PRED": 90.6797,
+      "IPRED": 90.6797,
+      "RES": -0.3548,
+      "IRES": -0.3548,
+      "WRES": -1.1579,
+      "IWRES": 0.1302
+    },
+    {
+      "ID": 9,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 9,
+      "TIME": 24,
+      "DV": 65.8621,
+      "DVID": 1,
+      "PRED": 69.878,
+      "IPRED": 69.878,
+      "RES": 4.0159,
+      "IRES": 4.0159,
+      "WRES": 13.1061,
+      "IWRES": -0.5927
+    },
+    {
+      "ID": 10,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 10,
+      "TIME": 24,
+      "DV": 66.8966,
+      "DVID": 1,
+      "PRED": 70.7411,
+      "IPRED": 70.7411,
+      "RES": 3.8445,
+      "IRES": 3.8445,
+      "WRES": 12.5467,
+      "IWRES": -0.5762
+    },
+    {
+      "ID": 11,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 11,
+      "TIME": 24,
+      "DV": 70,
+      "DVID": 1,
+      "PRED": 72.0525,
+      "IPRED": 72.0525,
+      "RES": 2.0525,
+      "IRES": 2.0525,
+      "WRES": 6.6984,
+      "IWRES": -0.32
+    },
+    {
+      "ID": 12,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 12,
+      "TIME": 24,
+      "DV": 75.8621,
+      "DVID": 1,
+      "PRED": 74.2814,
+      "IPRED": 74.2814,
+      "RES": -1.5807,
+      "IRES": -1.5807,
+      "WRES": -5.1587,
+      "IWRES": 0.27
+    },
+    {
+      "ID": 13,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 13,
+      "TIME": 24,
+      "DV": 82.069,
+      "DVID": 1,
+      "PRED": 77.6089,
+      "IPRED": 77.6089,
+      "RES": -4.4601,
+      "IRES": -4.4601,
+      "WRES": -14.5557,
+      "IWRES": 0.8824
+    },
+    {
+      "ID": 14,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 14,
+      "TIME": 24,
+      "DV": 84.8276,
+      "DVID": 1,
+      "PRED": 79.9547,
+      "IPRED": 79.9547,
+      "RES": -4.8729,
+      "IRES": -4.8729,
+      "WRES": -15.9029,
+      "IWRES": 1.0662
+    },
+    {
+      "ID": 15,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 15,
+      "TIME": 24,
+      "DV": 88.9655,
+      "DVID": 1,
+      "PRED": 84.0051,
+      "IPRED": 84.0051,
+      "RES": -4.9604,
+      "IRES": -4.9604,
+      "WRES": -16.1885,
+      "IWRES": 1.3368
+    },
+    {
+      "ID": 16,
+      "TIME": 0,
+      "DV": 100,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0,
+      "IRES": 0,
+      "WRES": 0,
+      "IWRES": 0
+    },
+    {
+      "ID": 16,
+      "TIME": 24,
+      "DV": 87.931,
+      "DVID": 1,
+      "PRED": 86.3849,
+      "IPRED": 86.3849,
+      "RES": -1.5461,
+      "IRES": -1.5461,
+      "WRES": -5.0458,
+      "IWRES": 0.4306
+    },
+    {
+      "ID": 17,
+      "TIME": 0,
+      "DV": 99.0874,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0.9126,
+      "IRES": 0.9126,
+      "WRES": 2.9783,
+      "IWRES": -2.7201
+    },
+    {
+      "ID": 17,
+      "TIME": 2,
+      "DV": 97.2541,
+      "DVID": 1,
+      "PRED": 98.8569,
+      "IPRED": 98.8569,
+      "RES": 1.6028,
+      "IRES": 1.6028,
+      "WRES": 5.2308,
+      "IWRES": -2.0849
+    },
+    {
+      "ID": 17,
+      "TIME": 6,
+      "DV": 95.071,
+      "DVID": 1,
+      "PRED": 96.6097,
+      "IPRED": 96.6097,
+      "RES": 1.5387,
+      "IRES": 1.5387,
+      "WRES": 5.0216,
+      "IWRES": -1.0917
+    },
+    {
+      "ID": 17,
+      "TIME": 12,
+      "DV": 94.1737,
+      "DVID": 1,
+      "PRED": 93.3343,
+      "IPRED": 93.3343,
+      "RES": -0.8394,
+      "IRES": -0.8394,
+      "WRES": -2.7394,
+      "IWRES": 0.4234
+    },
+    {
+      "ID": 17,
+      "TIME": 24,
+      "DV": 92.2239,
+      "DVID": 1,
+      "PRED": 87.1127,
+      "IPRED": 87.1127,
+      "RES": -5.1112,
+      "IRES": -5.1112,
+      "WRES": -16.6806,
+      "IWRES": 1.7242
+    },
+    {
+      "ID": 17,
+      "TIME": 36,
+      "DV": 75.3039,
+      "DVID": 1,
+      "PRED": 81.3059,
+      "IPRED": 81.3059,
+      "RES": 6.002,
+      "IRES": 6.002,
+      "WRES": 19.5878,
+      "IWRES": -1.1297
+    },
+    {
+      "ID": 17,
+      "TIME": 48,
+      "DV": 69.3771,
+      "DVID": 1,
+      "PRED": 75.8862,
+      "IPRED": 75.8862,
+      "RES": 6.5091,
+      "IRES": 6.5091,
+      "WRES": 21.2427,
+      "IWRES": -1.0526
+    },
+    {
+      "ID": 18,
+      "TIME": 0,
+      "DV": 99.2127,
+      "DVID": 1,
+      "PRED": 100,
+      "IPRED": 100,
+      "RES": 0.7873,
+      "IRES": 0.7873,
+      "WRES": 2.5694,
+      "IWRES": -2.4542
+    },
+    {
+      "ID": 18,
+      "TIME": 2,
+      "DV": 96.2101,
+      "DVID": 1,
+      "PRED": 98.5582,
+      "IPRED": 98.5582,
+      "RES": 2.3481,
+      "IRES": 2.3481,
+      "WRES": 7.6631,
+      "IWRES": -2.4841
+    },
+    {
+      "ID": 18,
+      "TIME": 6,
+      "DV": 94.2609,
+      "DVID": 1,
+      "PRED": 95.7366,
+      "IPRED": 95.7366,
+      "RES": 1.4757,
+      "IRES": 1.4757,
+      "WRES": 4.816,
+      "IWRES": -0.8982
+    },
+    {
+      "ID": 18,
+      "TIME": 12,
+      "DV": 91.1414,
+      "DVID": 1,
+      "PRED": 91.6547,
+      "IPRED": 91.6547,
+      "RES": 0.5133,
+      "IRES": 0.5133,
+      "WRES": 1.6752,
+      "IWRES": -0.1982
+    },
+    {
+      "ID": 18,
+      "TIME": 24,
+      "DV": 89.3107,
+      "DVID": 1,
+      "PRED": 84.0054,
+      "IPRED": 84.0054,
+      "RES": -5.3053,
+      "IRES": -5.3053,
+      "WRES": -17.3141,
+      "IWRES": 1.4467
+    },
+    {
+      "ID": 18,
+      "TIME": 36,
+      "DV": 70.5194,
+      "DVID": 1,
+      "PRED": 76.9945,
+      "IPRED": 76.9945,
+      "RES": 6.4751,
+      "IRES": 6.4751,
+      "WRES": 21.1318,
+      "IWRES": -1.0744
+    },
+    {
+      "ID": 18,
+      "TIME": 48,
+      "DV": 64.3593,
+      "DVID": 1,
+      "PRED": 70.5688,
+      "IPRED": 70.5688,
+      "RES": 6.2095,
+      "IRES": 6.2095,
+      "WRES": 20.265,
+      "IWRES": -0.9119
+    }
+  ],
+  "SUMTAB": [
+    {
+      "PAR": "Vm_pop",
+      "VALUE": 0.8624,
+      "TYPE": "Typical values",
+      "DISTRIBUTION": "normal",
+      "EST": "ESTIMATED",
+      "SE": 0.2647,
+      "RSE": 30.6905,
+      "LCI": 0.3437,
+      "UCI": 1.3812
+    },
+    {
+      "PAR": "beta_Vm_tIFN_dose",
+      "VALUE": -4.986e-06,
+      "TYPE": "Covariate coefficients",
+      "EST": "ESTIMATED",
+      "SE": 0,
+      "RSE": 474.7037,
+      "LCI": -0.0001,
+      "UCI": 0
+    },
+    {
+      "PAR": "Km_pop",
+      "VALUE": 1070.251,
+      "TYPE": "Typical values",
+      "DISTRIBUTION": "logNormal",
+      "EST": "ESTIMATED",
+      "SE": 887.4137,
+      "RSE": 82.9164,
+      "LCI": -669.0798,
+      "UCI": 2809.5817
+    },
+    {
+      "PAR": "beta_Km_tARMTYPE_G_ifn_beta",
+      "VALUE": 1.1855,
+      "TYPE": "Covariate coefficients",
+      "EST": "ESTIMATED",
+      "SE": 0.499,
+      "RSE": 42.089,
+      "LCI": 0.2075,
+      "UCI": 2.1635
+    },
+    {
+      "PAR": "Keff_pop",
+      "VALUE": 1,
+      "TYPE": "Typical values",
+      "DISTRIBUTION": "logitNormal",
+      "EST": "FIXED"
+    },
+    {
+      "PAR": "a",
+      "VALUE": 0.3064,
+      "TYPE": "Residual error model",
+      "DISTRIBUTION": "logitNormal",
+      "EST": "ESTIMATED",
+      "SE": 0.0319,
+      "RSE": 10.4258,
+      "LCI": 0.2438,
+      "UCI": 0.369,
+      "EPSshrinkage_sd": 0.7773
+    }
+  ],
+  "SIGMAMAT": [
+    [0.3064]
+  ],
+  "OMEGAMAT": [
+    [null]
+  ],
+  "OCCMAT": [
+    [null]
+  ],
+  "EVTAB": [],
+  "PATAB": [
+    {
+      "ID": 1,
+      "Vm": 0.8614,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 2,
+      "Vm": 0.8607,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 3,
+      "Vm": 0.8594,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 4,
+      "Vm": 0.857,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 5,
+      "Vm": 0.852,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 6,
+      "Vm": 0.847,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 7,
+      "Vm": 0.832,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 8,
+      "Vm": 0.8121,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 9,
+      "Vm": 0.8614,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 10,
+      "Vm": 0.8607,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 11,
+      "Vm": 0.8594,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 12,
+      "Vm": 0.857,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 13,
+      "Vm": 0.852,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 14,
+      "Vm": 0.847,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 15,
+      "Vm": 0.832,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 16,
+      "Vm": 0.8121,
+      "Km": 3502.33,
+      "Keff": 1
+    },
+    {
+      "ID": 17,
+      "Vm": 0.847,
+      "Km": 1070.25,
+      "Keff": 1
+    },
+    {
+      "ID": 18,
+      "Vm": 0.832,
+      "Km": 3502.33,
+      "Keff": 1
+    }
+  ],
+  "COTAB": [
+    {
+      "ID": 1,
+      "IFN_dose": 100,
+      "tIFN_dose": 200
+    },
+    {
+      "ID": 2,
+      "IFN_dose": 250,
+      "tIFN_dose": 350
+    },
+    {
+      "ID": 3,
+      "IFN_dose": 500,
+      "tIFN_dose": 600
+    },
+    {
+      "ID": 4,
+      "IFN_dose": 1000,
+      "tIFN_dose": 1100
+    },
+    {
+      "ID": 5,
+      "IFN_dose": 2000,
+      "tIFN_dose": 2100
+    },
+    {
+      "ID": 6,
+      "IFN_dose": 3000,
+      "tIFN_dose": 3100
+    },
+    {
+      "ID": 7,
+      "IFN_dose": 6000,
+      "tIFN_dose": 6100
+    },
+    {
+      "ID": 8,
+      "IFN_dose": 10000,
+      "tIFN_dose": 10100
+    },
+    {
+      "ID": 9,
+      "IFN_dose": 100,
+      "tIFN_dose": 200
+    },
+    {
+      "ID": 10,
+      "IFN_dose": 250,
+      "tIFN_dose": 350
+    },
+    {
+      "ID": 11,
+      "IFN_dose": 500,
+      "tIFN_dose": 600
+    },
+    {
+      "ID": 12,
+      "IFN_dose": 1000,
+      "tIFN_dose": 1100
+    },
+    {
+      "ID": 13,
+      "IFN_dose": 2000,
+      "tIFN_dose": 2100
+    },
+    {
+      "ID": 14,
+      "IFN_dose": 3000,
+      "tIFN_dose": 3100
+    },
+    {
+      "ID": 15,
+      "IFN_dose": 6000,
+      "tIFN_dose": 6100
+    },
+    {
+      "ID": 16,
+      "IFN_dose": 10000,
+      "tIFN_dose": 10100
+    },
+    {
+      "ID": 17,
+      "IFN_dose": 3000,
+      "tIFN_dose": 3100
+    },
+    {
+      "ID": 18,
+      "IFN_dose": 6000,
+      "tIFN_dose": 6100
+    }
+  ],
+  "CATAB": [
+    {
+      "ID": 1,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 2,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 3,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 4,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 5,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 6,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 7,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 8,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 9,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 10,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 11,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 12,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 13,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 14,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 15,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 16,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    },
+    {
+      "ID": 17,
+      "ARMTYPE": "ifn alpha",
+      "tARMTYPE": "G_control_ifn alpha"
+    },
+    {
+      "ID": 18,
+      "ARMTYPE": "ifn beta",
+      "tARMTYPE": "G_ifn beta"
+    }
+  ],
+  "REGTAB": [
+    {
+      "ID": 1,
+      "TIME": 24,
+      "IFN": 100
+    },
+    {
+      "ID": 1,
+      "TIME": 0,
+      "IFN": 100
+    },
+    {
+      "ID": 2,
+      "TIME": 24,
+      "IFN": 250
+    },
+    {
+      "ID": 3,
+      "TIME": 24,
+      "IFN": 500
+    },
+    {
+      "ID": 4,
+      "TIME": 24,
+      "IFN": 1000
+    },
+    {
+      "ID": 5,
+      "TIME": 24,
+      "IFN": 2000
+    },
+    {
+      "ID": 6,
+      "TIME": 24,
+      "IFN": 3000
+    },
+    {
+      "ID": 7,
+      "TIME": 24,
+      "IFN": 6000
+    },
+    {
+      "ID": 8,
+      "TIME": 24,
+      "IFN": 10000
+    },
+    {
+      "ID": 9,
+      "TIME": 24,
+      "IFN": 100
+    },
+    {
+      "ID": 10,
+      "TIME": 24,
+      "IFN": 250
+    },
+    {
+      "ID": 11,
+      "TIME": 24,
+      "IFN": 500
+    },
+    {
+      "ID": 12,
+      "TIME": 24,
+      "IFN": 1000
+    },
+    {
+      "ID": 13,
+      "TIME": 24,
+      "IFN": 2000
+    },
+    {
+      "ID": 14,
+      "TIME": 24,
+      "IFN": 3000
+    },
+    {
+      "ID": 15,
+      "TIME": 24,
+      "IFN": 6000
+    },
+    {
+      "ID": 16,
+      "TIME": 24,
+      "IFN": 10000
+    },
+    {
+      "ID": 17,
+      "TIME": 0,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 2,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 6,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 12,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 24,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 36,
+      "IFN": 3000
+    },
+    {
+      "ID": 17,
+      "TIME": 48,
+      "IFN": 3000
+    },
+    {
+      "ID": 18,
+      "TIME": 0,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 2,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 6,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 12,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 24,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 36,
+      "IFN": 6000
+    },
+    {
+      "ID": 18,
+      "TIME": 48,
+      "IFN": 6000
+    },
+    {
+      "ID": 2,
+      "TIME": 0,
+      "IFN": 250
+    },
+    {
+      "ID": 3,
+      "TIME": 0,
+      "IFN": 500
+    },
+    {
+      "ID": 4,
+      "TIME": 0,
+      "IFN": 1000
+    },
+    {
+      "ID": 5,
+      "TIME": 0,
+      "IFN": 2000
+    },
+    {
+      "ID": 6,
+      "TIME": 0,
+      "IFN": 3000
+    },
+    {
+      "ID": 7,
+      "TIME": 0,
+      "IFN": 6000
+    },
+    {
+      "ID": 8,
+      "TIME": 0,
+      "IFN": 10000
+    },
+    {
+      "ID": 9,
+      "TIME": 0,
+      "IFN": 100
+    },
+    {
+      "ID": 10,
+      "TIME": 0,
+      "IFN": 250
+    },
+    {
+      "ID": 11,
+      "TIME": 0,
+      "IFN": 500
+    },
+    {
+      "ID": 12,
+      "TIME": 0,
+      "IFN": 1000
+    },
+    {
+      "ID": 13,
+      "TIME": 0,
+      "IFN": 2000
+    },
+    {
+      "ID": 14,
+      "TIME": 0,
+      "IFN": 3000
+    },
+    {
+      "ID": 15,
+      "TIME": 0,
+      "IFN": 6000
+    },
+    {
+      "ID": 16,
+      "TIME": 0,
+      "IFN": 10000
+    }
+  ],
+  "OFV": [
+    {
+      "LL": 151.85,
+      "AIC": 161.85,
+      "BIC": 166.3,
+      "BICc": 170.99
+    }
+  ],
+  "COVMAT": [
+    [0.0701, -5.8072e-06, 0.2077, -0.0987, 0],
+    [-5.8072e-06, 5.602e-10, -0, 8.4816e-06, -2.2341e-09],
+    [0.2077, -0, 0.6875, -0.3357, 0.0001],
+    [-0.0987, 8.4816e-06, -0.3357, 0.249, -0],
+    [0, -2.2341e-09, 0.0001, -0, 0.001]
+  ],
+  "CORRMAT": [
+    [1, -0.927, 0.9462, -0.7471, 0.0034],
+    [-0.927, 1, -0.8076, 0.7182, -0.003],
+    [0.9462, -0.8076, 1, -0.8113, 0.0033],
+    [-0.7471, 0.7182, -0.8113, 1, -0.0025],
+    [0.0034, -0.003, 0.0033, -0.0025, 1]
+  ],
+  "OPTIONS": null,
+  "PROJNAME": ["ifn_full_Vmax_bcell_2"]
+}
