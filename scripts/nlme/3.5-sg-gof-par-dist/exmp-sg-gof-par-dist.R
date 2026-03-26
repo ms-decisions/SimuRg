@@ -367,3 +367,5 @@ sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_n
 
  sg_gof_par_dist(fpath_i = str_c("./scripts/nlme/3.5-sg-gof-par-dist/", project_name_wo_cov, ".RData"), plot_type = "correlations")
 
+obj1$COTAB
+obj1$CATAB
