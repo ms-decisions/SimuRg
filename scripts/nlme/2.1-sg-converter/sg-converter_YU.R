@@ -987,8 +987,8 @@ sg_converter <- function(folder_path, proj_name){
                dist_i <- param_distributions[[x]]$distribution
                if (is.null(dist_i) || is.na(dist_i)) NA_character_ else dist_i
              }),
-             PAR %in% omega_params ~ "normal",
-             PAR %in% beta_params ~ "normal",
+             PAR %in% omega_params ~ NA_character_,
+             PAR %in% beta_params ~ NA_character_,
              PAR %in% resid_err_params ~ unname(resid_dist_map[PAR]),
              TRUE ~ NA_character_
            ),
