@@ -982,7 +982,7 @@ sg_converter <- function(folder_path, proj_name){
            ETAshrinkage_var = ifelse(PAR %in% omega_params, 100*(1 - sd(patab[[str_c("eta_", PAR_NAME)]])^2/VALUE^2), NA),
            ETAshrinkage_sd = ifelse(PAR %in% omega_params, 100*(1 - sd(patab[[str_c("eta_", PAR_NAME)]])/VALUE), NA),
            EPSshrinkage_sd = ifelse(PAR %in% resid_err_params, (1 - sd(sdtab$IWRES[sdtab$DVID == na.omit(dt_ruv_map$dvid[dt_ruv_map$RUVpar_a == PAR | dt_ruv_map$RUVpar_b == PAR]) %>% as.numeric()]))*100, NA),
-           Distribution = case_when(
+           DISTRIBUTION = case_when(
              PAR %in% pop_params ~ sapply(PAR_NAME, function(x) {
                dist_i <- param_distributions[[x]]$distribution
                if (is.null(dist_i) || is.na(dist_i)) NA_character_ else dist_i
@@ -994,7 +994,7 @@ sg_converter <- function(folder_path, proj_name){
            ),
            EST = ifelse(is.na(SE), "FIXED", "ESTIMATED")
     ) %>%
-    select(any_of(c("PAR", "VALUE", "TYPE", "Distribution", "EST", "SE", "RSE", "CV", "LCI", "UCI", "ETAshrinkage_sd", "ETAshrinkage_var", "EPSshrinkage_sd")))
+    select(any_of(c("PAR", "VALUE", "TYPE", "DISTRIBUTION", "EST", "SE", "RSE", "CV", "LCI", "UCI", "ETAshrinkage_sd", "ETAshrinkage_var", "EPSshrinkage_sd")))
 
 
   ## covmat and corrmat compiling
@@ -1120,3 +1120,4 @@ result_ifn <- sg_converter(folder_path = folder_path_IFn, proj_name = project_na
 
 result_ifn$COTAB
 result_ifn$CATAB
+result_ifn$SUMTAB
