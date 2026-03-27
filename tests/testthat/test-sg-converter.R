@@ -17,11 +17,11 @@ test_that("sg-converter works and contains all elements", {
   required_elements <- c("SDTAB", "SUMTAB", "SIGMAMAT", "OMEGAMAT", "OCCMAT",
                          "EVTAB", "PATAB", "COTAB", "CATAB", "REGTAB",
                          "OFV", "COVMAT", "CORRMAT", "OPTIONS", "PROJNAME")
-  expect_true(all(required_elements %in% names(result)))
+  expect_true(all(required_elements %in% names(result$GFO)))
 
-  expect_gt(nrow(result$SDTAB), 0)
-  expect_gt(nrow(result$SUMTAB), 0)
-  expect_gt(nrow(result$PATAB), 0)
+  expect_gt(nrow(result$GFO$SDTAB), 0)
+  expect_gt(nrow(result$GFO$SUMTAB), 0)
+  expect_gt(nrow(result$GFO$PATAB), 0)
 })
 
 test_that("sg-converter fails gracefully", {

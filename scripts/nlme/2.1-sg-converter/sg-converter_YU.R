@@ -18,7 +18,7 @@
 #' @return
 #' Returns a list with the following components:
 #' \itemize{
-#'   \item \code{GFO}: Generalized fit output object with:
+#'   \item \code{GFO}: SimuRg generalized fit object output object with:
 #'   \itemize{
 #'     \item \code{SDTAB}: A tibble containing simulation data with columns
 #'     \item \code{SUMTAB}: A tibble with parameter summary statistics containing
@@ -36,7 +36,7 @@
 #'     \item \code{OPTIONS}: Model options (NULL if not present)
 #'     \item \code{PROJNAME}: Project name
 #'   }
-#'   \item \code{GCO}: SimuRg control object parsed from the mlxtran project with:
+#'   \item \code{GCO}: SimuRg generalized control object parsed from the mlxtran project with:
 #'   \itemize{
 #'     \item \code{headers}: List of dataset column descriptors (\code{name}, \code{use}, \code{type})
 #'     \item \code{data}: Path to source data file
@@ -580,15 +580,23 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
 
   contr_obj <- readLines(input_path)
 
+  normalize_mlx_file_path <- function(path) {
+    if (length(path) != 1L || is.na(path) || !nzchar(str_trim(path))) return(path)
+    path <- str_trim(path)
+    path <- str_replace_all(path, "\\\\", "/")
+    path
+  }
+
   ## info about datafile
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))
   end_idx_data <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_data)[1]
   data_path_raw <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
     str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>%
     str_remove("^\\{path=") %>% str_remove("\\}\\s*$") %>%        # Monolix 2024: file={path='...'} -> bare path
-    str_replace_all("'", "")
+    str_replace_all("'", "") %>%
+    normalize_mlx_file_path()
   data_path <- data_path_raw
-  if (!file.exists(data_path)) data_path <- str_c(folder_path, data_path)
+  if (!file.exists(data_path)) data_path <- file.path(folder_path, data_path)
   data_file <- read_csv(data_path)
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
@@ -763,7 +771,8 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     model_line %>%
       str_remove("^[^=]+=\\s*") %>%
       str_replace_all("['\"]", "") %>%
-      str_trim()
+      str_trim() %>%
+      normalize_mlx_file_path()
   }
 
   extract_longitudinal_ruv_map <- function(contr_obj) {

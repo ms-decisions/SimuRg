@@ -12,25 +12,44 @@
 #'
 #' @param folder_path Character string. Path to the directory containing Monolix project files.
 #' @param proj_name Character string. Name of the Monolix project (without file extension).
+#' @param save_json Logical. If \code{TRUE}, saves \code{GCO} and \code{GFO} JSON files
+#'   to \code{folder_path} with names \code{<proj_name>_GCO.json} and \code{<proj_name>_GFO.json}.
 #'
 #' @return
 #' Returns a list with the following components:
 #' \itemize{
-#'   \item \code{SDTAB}: A tibble containing simulation data with columns
-#'   \item \code{SUMTAB}: A tibble with parameter summary statistics containing
-#'   \item \code{SIGMAMAT}: Residual variability matrix
-#'   \item \code{OMEGAMAT}: Inter-individual variability matrix
-#'   \item \code{OCCMAT}: Inter-occasion variability matrix (NA if not present)
-#'   \item \code{EVTAB}: A tibble with event information
-#'   \item \code{PATAB}: A tibble with individual parameter estimates
-#'   \item \code{COTAB}: A tibble with continuous covariates
-#'   \item \code{CATAB}: A tibble with categorical covariates
-#'   \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
-#'   \item \code{OFV}: A tibble with objective function values
-#'   \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
-#'   \item \code{CORRMAT}: Correlation matrix of parameter estimates
-#'   \item \code{OPTIONS}: Model options (NULL if not present)
-#'   \item \code{PROJNAME}: Project name
+#'   \item \code{GFO}: SimuRg generalized fit object output object with:
+#'   \itemize{
+#'     \item \code{SDTAB}: A tibble containing simulation data with columns
+#'     \item \code{SUMTAB}: A tibble with parameter summary statistics containing
+#'     \item \code{SIGMAMAT}: Residual variability matrix
+#'     \item \code{OMEGAMAT}: Inter-individual variability matrix
+#'     \item \code{OCCMAT}: Inter-occasion variability matrix (NA if not present)
+#'     \item \code{EVTAB}: A tibble with event information
+#'     \item \code{PATAB}: A tibble with individual parameter estimates
+#'     \item \code{COTAB}: A tibble with continuous covariates
+#'     \item \code{CATAB}: A tibble with categorical covariates
+#'     \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
+#'     \item \code{OFV}: A tibble with objective function values
+#'     \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
+#'     \item \code{CORRMAT}: Correlation matrix of parameter estimates
+#'     \item \code{OPTIONS}: Model options (NULL if not present)
+#'     \item \code{PROJNAME}: Project name
+#'   }
+#'   \item \code{GCO}: SimuRg generalized control object parsed from the mlxtran project with:
+#'   \itemize{
+#'     \item \code{headers}: List of dataset column descriptors (\code{name}, \code{use}, \code{type})
+#'     \item \code{data}: Path to source data file
+#'     \item \code{model}: Path to model file
+#'     \item \code{task_opt}: Task options placeholder (empty object)
+#'     \item \code{covs}: Covariate names detected
+#'     \item \code{project_name}: Project name
+#'     \item \code{theta}: List of population parameter definitions (\code{NAME}, \code{INIT}, \code{EST}, \code{TRANS})
+#'     \item \code{ruv}: Residual error model definition (\code{YNAME}, \code{DVID}, \code{TRANS}, \code{PRED}, \code{ERR}, \code{INIT}, \code{EST})
+#'     \item \code{re}: Between-subject variability matrices (\code{init}, \code{est})
+#'     \item \code{occ}: Between-occasion variability matrices (\code{init}, \code{est})
+#'     \item \code{modelText}: Text content of the model file
+#'   }
 #' }
 #'
 #' @details
@@ -41,6 +60,9 @@
 #' The function automatically detects and imports various components of Monolix output
 #' including population parameters, individual parameters, covariates, and diagnostic
 #' metrics.
+#'
+#' If \code{save_json = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
+#' JSON files to \code{folder_path}.
 #'
 #' @examples
 #' \donttest{
@@ -53,13 +75,13 @@
 #' result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
 #' # save(results, file = "./models/simurg_object/Warfarin_PK.RData")
 #' # Access individual predictions
-#' head(result$SDTAB)
+#' head(result$GFO$SDTAB)
 #'
 #' # View parameter estimates
-#' print(result$SUMTAB)
+#' print(result$GFO$SUMTAB)
 #'
 #' # Check objective function value
-#' print(result$OFV)
+#' print(result$GFO$OFV)
 #'}
 #' @importFrom readr read_csv cols parse_number
 #' @importFrom stringr str_c
@@ -67,7 +89,7 @@
 #' @import dplyr
 #' @export
 
-sg_converter <- function(folder_path, proj_name){
+sg_converter <- function(folder_path, proj_name, save_json = FALSE){
   #####--------------- Helper function for WRES calculation ---------------#####
 
   # Function to calculate WRES using FO approximation with partial derivatives
@@ -304,62 +326,106 @@ sg_converter <- function(folder_path, proj_name){
   # Function to extract parameter distributions from mlxtran file
   extract_parameter_distributions <- function(contr_obj) {
     # Find the [INDIVIDUAL] section
-    start_idx <- which(str_detect(contr_obj, fixed("[INDIVIDUAL]")))
-    if (length(start_idx) == 0) {
+    start_idx <- which(str_detect(contr_obj, fixed("[INDIVIDUAL]")))[1]
+    if (is.na(start_idx)) {
       return(list())
     }
 
     # Find the end of the [INDIVIDUAL] section
-    end_idx <- which(str_detect(contr_obj, "\\[.*\\]") & seq_along(contr_obj) > start_idx)[1]
+    end_idx <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                       seq_along(contr_obj) > start_idx)[1]
     if (is.na(end_idx)) {
-      end_idx <- length(contr_obj)
+      end_idx <- length(contr_obj) + 1
     }
 
     # Extract the [INDIVIDUAL] section
     individual_section <- contr_obj[(start_idx + 1):(end_idx - 1)]
+    def_idx <- which(str_detect(individual_section, "^\\s*DEFINITION:\\s*$"))[1]
+    if (is.na(def_idx)) {
+      return(list())
+    }
+    definition_lines <- individual_section[(def_idx + 1):length(individual_section)]
+    definition_lines <- definition_lines[str_detect(definition_lines, "=") & str_detect(definition_lines, "\\{")]
 
     # Parse parameter definitions
     param_defs <- list()
 
-    for (line in individual_section) {
+    for (line in definition_lines) {
       line_clean <- str_squish(line)
-      if (str_detect(line_clean, "=") && str_detect(line_clean, "\\{")) {
-        # Extract parameter name
-        param_name <- str_extract(line_clean, "^[^=]+") %>% str_trim()
+      # Extract parameter name
+      param_name <- str_extract(line_clean, "^[^=]+") %>% str_trim()
 
-        # Extract the definition part
-        def_part <- str_extract(line_clean, "\\{.*\\}")
+      # Extract the definition part
+      def_part <- str_extract(line_clean, "\\{.*\\}")
 
-        if (!is.na(def_part) && !is.na(param_name)) {
-          # Parse the definition
-          def_clean <- str_remove_all(def_part, "[\\{\\}]")
-          def_parts <- str_split(def_clean, ",") %>% unlist() %>% str_trim()
+      if (!is.na(def_part) && !is.na(param_name)) {
+        # Parse the definition
+        def_clean <- str_remove_all(def_part, "[\\{\\}]")
+        def_parts <- str_split(def_clean, ",") %>% unlist() %>% str_trim()
 
-          # Extract distribution, typical value, and sd
-          distribution <- NA
-          typical <- NA
-          sd <- NA
+        # Extract distribution, typical value, and sd
+        distribution <- NA_character_
+        typical <- NA_character_
+        sd <- NA_character_
 
-          for (part in def_parts) {
-            if (str_detect(part, "distribution=")) {
-              distribution <- str_remove(part, "distribution=")
-            } else if (str_detect(part, "typical=")) {
-              typical <- str_remove(part, "typical=")
-            } else if (str_detect(part, "sd=")) {
-              sd <- str_remove(part, "sd=")
-            }
+        for (part in def_parts) {
+          if (str_detect(part, "distribution=")) {
+            distribution <- str_remove(part, "distribution=") %>% str_trim()
+          } else if (str_detect(part, "typical=")) {
+            typical <- str_remove(part, "typical=") %>% str_trim()
+          } else if (str_detect(part, "sd=")) {
+            sd <- str_remove(part, "sd=") %>% str_trim()
           }
-
-          param_defs[[param_name]] <- list(
-            distribution = distribution,
-            typical = typical,
-            sd = sd
-          )
         }
+
+        param_defs[[param_name]] <- list(
+          distribution = distribution,
+          typical = typical,
+          sd = sd
+        )
       }
     }
 
     return(param_defs)
+  }
+
+  # Function to map residual error parameter distributions from [LONGITUDINAL]
+  extract_residual_param_distributions <- function(contr_obj, dt_ruv_map) {
+    start_idx <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))[1]
+    if (is.na(start_idx)) return(setNames(character(0), character(0)))
+
+    end_idx <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                       seq_along(contr_obj) > start_idx)[1]
+    if (is.na(end_idx)) end_idx <- length(contr_obj) + 1
+    long_section <- contr_obj[(start_idx + 1):(end_idx - 1)]
+
+    def_idx <- which(str_detect(long_section, "^\\s*DEFINITION:\\s*$"))[1]
+    if (is.na(def_idx)) return(setNames(character(0), character(0)))
+
+    def_lines <- long_section[(def_idx + 1):length(long_section)]
+    def_lines <- def_lines[str_detect(def_lines, "=") & str_detect(def_lines, "\\{")]
+
+    y_dist_map <- tibble(y = character(0), distribution = character(0))
+    for (line in def_lines) {
+      line_clean <- str_squish(line)
+      y_name <- str_extract(line_clean, "^[^=]+") %>% str_trim()
+      dist <- str_match(line_clean, "distribution\\s*=\\s*([[:alnum:]_]+)")[, 2]
+      if (!is.na(y_name) && !is.na(dist)) {
+        y_dist_map <- bind_rows(y_dist_map, tibble(y = y_name, distribution = dist))
+      }
+    }
+    if (nrow(y_dist_map) == 0) return(setNames(character(0), character(0)))
+
+    dist_lookup <- setNames(y_dist_map$distribution, y_dist_map$y)
+    ruv_dist <- dt_ruv_map %>%
+      mutate(distribution = unname(dist_lookup[COL])) %>%
+      select(RUVpar_a, RUVpar_b, distribution) %>%
+      pivot_longer(cols = c(RUVpar_a, RUVpar_b), values_to = "PAR") %>%
+      filter(!is.na(PAR) & !is.na(distribution)) %>%
+      distinct(PAR, distribution)
+
+    if (nrow(ruv_dist) == 0) return(setNames(character(0), character(0)))
+    setNames(ruv_dist$distribution, ruv_dist$PAR)
   }
 
   # Function to calculate WRES using Monte Carlo simulation
@@ -506,7 +572,7 @@ sg_converter <- function(folder_path, proj_name){
 
     return(pred_data)
   }
-#### main function ####
+  #### main function ####
   input_path <- normalizePath(str_c(folder_path, proj_name, ".mlxtran"), mustWork = F)
   if(!file.exists(input_path)) {
     stop("Project file does not exist. Check file existance or try to use absolute path")
@@ -514,14 +580,23 @@ sg_converter <- function(folder_path, proj_name){
 
   contr_obj <- readLines(input_path)
 
+  normalize_mlx_file_path <- function(path) {
+    if (length(path) != 1L || is.na(path) || !nzchar(str_trim(path))) return(path)
+    path <- str_trim(path)
+    path <- str_replace_all(path, "\\\\", "/")
+    path
+  }
+
   ## info about datafile
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))
   end_idx_data <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_data)[1]
-  data_path <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
+  data_path_raw <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
     str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>%
     str_remove("^\\{path=") %>% str_remove("\\}\\s*$") %>%        # Monolix 2024: file={path='...'} -> bare path
-    str_replace_all("'", "")
-  if (!file.exists(data_path)) data_path <- str_c(folder_path, data_path)
+    str_replace_all("'", "") %>%
+    normalize_mlx_file_path()
+  data_path <- data_path_raw
+  if (!file.exists(data_path)) data_path <- file.path(folder_path, data_path)
   data_file <- read_csv(data_path)
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
@@ -553,7 +628,7 @@ sg_converter <- function(folder_path, proj_name){
       # Check if columns exist in the dataset
       existing_cols <- duplicate_cols[duplicate_cols %in% names(data_file)]
 
-        # Compare content of duplicate columns
+      # Compare content of duplicate columns
       col_data <- data_file[existing_cols]
 
       # Check if all columns are identical
@@ -572,10 +647,10 @@ sg_converter <- function(folder_path, proj_name){
         col_map_df <- col_map_df[-remove_indices, ]
 
         message(sprintf("Warning: Multiple columns found for use='%s' (%s). All columns have identical content. Using column '%s'.",
-                       duplicate_use, paste(duplicate_cols, collapse = ", "), keep_col))
+                        duplicate_use, paste(duplicate_cols, collapse = ", "), keep_col))
       } else {
         stop(sprintf("Error: Multiple columns found for use='%s' (%s) with different content. Please resolve the mapping conflict in the control file.",
-                    duplicate_use, paste(duplicate_cols, collapse = ", ")))
+                     duplicate_use, paste(duplicate_cols, collapse = ", ")))
       }
 
     }
@@ -613,7 +688,7 @@ sg_converter <- function(folder_path, proj_name){
         old_col_name <- paste0(new_name, "_old")
         data_file <- data_file %>% rename(!!old_col_name := !!new_name)
         message(sprintf("Warning: Column '%s' already exists in dataset. Renamed to '%s' to avoid conflict with mapping from '%s'.",
-                       new_name, old_col_name, old_name))
+                        new_name, old_col_name, old_name))
       }
     }
   }
@@ -635,7 +710,7 @@ sg_converter <- function(folder_path, proj_name){
            TINF = col_map_df$COL[col_map_df$use == "infusiontime"],
            SS = col_map_df$COL[col_map_df$use == "steadystate"]
            #  and expand
-           )
+    )
 
 
   ## dvid and residual error mapping
@@ -663,6 +738,162 @@ sg_converter <- function(folder_path, proj_name){
     matches <- regmatches(x, gregexpr("\\(([^)]+)\\)", x))
     values <- lapply(matches, function(m) strsplit(gsub("[()]", "", m), "; |;")) %>% unlist()
     return(values)
+  }
+
+  parse_error_model <- function(error_model) {
+    if (is.na(error_model) || is.null(error_model)) {
+      return(list(err = NA_character_, pars = character(0)))
+    }
+    err <- str_extract(error_model, "^[^\\(]+") %>% str_trim()
+    in_par <- str_match(error_model, "\\(([^\\)]*)\\)")[, 2]
+    in_par <- ifelse(is.na(in_par), "", str_trim(in_par))
+    par_names <- if (in_par == "") character(0) else str_split(in_par, ";|,")[[1]] %>% str_trim()
+    list(err = err, pars = par_names)
+  }
+
+  extract_model_text <- function(contr_obj, folder_path) {
+    model_path <- extract_model_path(contr_obj)
+    if (is.na(model_path)) return(NA_character_)
+    model_path_full <- normalizePath(file.path(folder_path, model_path), mustWork = FALSE)
+    if (!file.exists(model_path_full)) return(NA_character_)
+    str_c(readLines(model_path_full), collapse = "\n")
+  }
+
+  extract_model_path <- function(contr_obj) {
+    start_idx <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))[1]
+    if (is.na(start_idx)) return(NA_character_)
+    end_idx <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                       seq_along(contr_obj) > start_idx)[1]
+    if (is.na(end_idx)) end_idx <- length(contr_obj) + 1
+    long_section <- contr_obj[(start_idx + 1):(end_idx - 1)]
+    model_line <- long_section %>% str_squish() %>% str_subset("^file\\s*=") %>% .[1]
+    if (is.na(model_line) || length(model_line) == 0) return(NA_character_)
+    model_line %>%
+      str_remove("^[^=]+=\\s*") %>%
+      str_replace_all("['\"]", "") %>%
+      str_trim() %>%
+      normalize_mlx_file_path()
+  }
+
+  extract_longitudinal_ruv_map <- function(contr_obj) {
+    start_idx <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))[1]
+    if (is.na(start_idx)) return(tibble(COL = character(), distribution = character(), prediction = character()))
+    end_idx <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                       seq_along(contr_obj) > start_idx)[1]
+    if (is.na(end_idx)) end_idx <- length(contr_obj) + 1
+    long_section <- contr_obj[(start_idx + 1):(end_idx - 1)]
+    def_idx <- which(str_detect(long_section, "^\\s*DEFINITION:\\s*$"))[1]
+    if (is.na(def_idx)) return(tibble(COL = character(), distribution = character(), prediction = character()))
+
+    def_lines <- long_section[(def_idx + 1):length(long_section)] %>%
+      str_squish() %>%
+      str_subset("^$", negate = TRUE) %>%
+      str_subset("=")
+
+    tibble(raw = def_lines) %>%
+      mutate(
+        COL = str_extract(raw, "^[^=]+") %>% str_trim(),
+        distribution = str_match(raw, "distribution\\s*=\\s*([^,\\}]+)")[, 2] %>% str_trim(),
+        prediction = str_match(raw, "prediction\\s*=\\s*([^,\\}]+)")[, 2] %>% str_trim()
+      ) %>%
+      select(COL, distribution, prediction)
+  }
+
+  # Parse transformed covariates from [COVARIATE] DEFINITION:/EQUATION:
+  extract_covariate_extensions <- function(contr_obj, data_dt) {
+    start_idx_cov <- which(str_detect(contr_obj, fixed("[COVARIATE]")))[1]
+    if (is.na(start_idx_cov)) {
+      return(list(data = data_dt, added_cat = character(), added_cont = character()))
+    }
+
+    end_idx_cov <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+                           seq_along(contr_obj) > start_idx_cov)[1]
+    if (is.na(end_idx_cov)) end_idx_cov <- length(contr_obj) + 1
+    cov_section <- contr_obj[(start_idx_cov + 1):(end_idx_cov - 1)]
+
+    idx_def <- which(str_detect(cov_section, "^\\s*DEFINITION:\\s*$"))[1]
+    idx_eq <- which(str_detect(cov_section, "^\\s*EQUATION:\\s*$"))[1]
+
+    out_dt <- data_dt
+    added_cat <- character()
+    added_cont <- character()
+
+    # Parse transformed categorical covariates in DEFINITION:
+    if (!is.na(idx_def)) {
+      def_end <- ifelse(!is.na(idx_eq) && idx_eq > idx_def, idx_eq - 1, length(cov_section))
+      def_lines <- cov_section[(idx_def + 1):def_end]
+      def_lines <- def_lines[!str_detect(def_lines, "^\\s*$")]
+
+      i <- 1
+      while (i <= length(def_lines)) {
+        target_match <- str_match(def_lines[i], "^\\s*([[:alnum:]_]+)\\s*=\\s*$")
+        if (is.na(target_match[1, 2])) {
+          i <- i + 1
+          next
+        }
+
+        target_name <- target_match[1, 2]
+        if ((i + 1) > length(def_lines) || !str_detect(def_lines[i + 1], "\\{")) {
+          i <- i + 1
+          next
+        }
+
+        j <- i + 1
+        brace_depth <- str_count(def_lines[j], "\\{") - str_count(def_lines[j], "\\}")
+        block_lines <- def_lines[j]
+        while (j < length(def_lines) && brace_depth > 0) {
+          j <- j + 1
+          block_lines <- c(block_lines, def_lines[j])
+          brace_depth <- brace_depth + str_count(def_lines[j], "\\{") - str_count(def_lines[j], "\\}")
+        }
+
+        block_text <- str_c(block_lines, collapse = " ")
+        source_match <- str_match(block_text, "transform\\s*=\\s*([[:alnum:]_]+)")
+        source_name <- source_match[1, 2]
+
+        if (!is.na(source_name) && source_name %in% names(out_dt)) {
+          out_dt[[target_name]] <- NA_character_
+          map_matches <- str_match_all(block_text, "'([^']+)'\\s*=\\s*\\{([^\\}]*)\\}")[[1]]
+          if (nrow(map_matches) > 0) {
+            for (k in seq_len(nrow(map_matches))) {
+              tgt_level <- map_matches[k, 2]
+              src_levels <- str_match_all(map_matches[k, 3], "'([^']+)'")[[1]][, 2]
+              out_dt[[target_name]][out_dt[[source_name]] %in% src_levels] <- tgt_level
+            }
+          }
+          added_cat <- c(added_cat, target_name)
+        }
+
+        i <- j + 1
+      }
+    }
+
+    # Parse transformed/derived covariates in EQUATION:
+    if (!is.na(idx_eq) && idx_eq < length(cov_section)) {
+      eq_lines <- cov_section[(idx_eq + 1):length(cov_section)]
+      eq_lines <- eq_lines[!str_detect(eq_lines, "^\\s*$")]
+      eq_lines <- eq_lines[str_detect(eq_lines, "=")]
+
+      for (eq_line in eq_lines) {
+        lhs <- str_extract(eq_line, "^[^=]+") %>% str_trim()
+        rhs <- str_remove(eq_line, "^[^=]+=") %>% str_trim()
+        if (is.na(lhs) || lhs == "" || is.na(rhs) || rhs == "") next
+
+        eval_env <- new.env(parent = baseenv())
+        list2env(as.list(out_dt), envir = eval_env)
+        out_dt[[lhs]] <- tryCatch(
+          eval(parse(text = rhs), envir = eval_env),
+          error = function(e) rep(NA_real_, nrow(out_dt))
+        )
+        added_cont <- c(added_cont, lhs)
+      }
+    }
+
+    return(list(
+      data = out_dt,
+      added_cat = unique(added_cat),
+      added_cont = unique(added_cont)
+    ))
   }
 
 
@@ -706,9 +937,15 @@ sg_converter <- function(folder_path, proj_name){
 
 
   ## cotab, catab, regtab compiling
+  cov_ext <- extract_covariate_extensions(contr_obj, data_file_mod)
+  data_file_mod <- cov_ext$data
 
   cotab_cols <- col_map_df %>% filter(use == "identifier" | (use == "covariate" & type == "continuous")) %>% select(COL) %>% pull()
   catab_cols <- col_map_df %>% filter(use == "identifier" | (use == "covariate" & type == "categorical")) %>% select(COL) %>% pull()
+  cotab_cols <- unique(c(cotab_cols, cov_ext$added_cont))
+  catab_cols <- unique(c(catab_cols, cov_ext$added_cat))
+  cotab_cols <- cotab_cols[cotab_cols %in% names(data_file_mod)]
+  catab_cols <- catab_cols[catab_cols %in% names(data_file_mod)]
   regtab_cols <- col_map_df %>% filter(use %in% c("identifier", "time", "regressor")) %>% select(COL) %>% pull()
 
   if (length(cotab_cols) > 1) {cotab <- data_file_mod %>% select(all_of(cotab_cols)) %>% unique()} else {cotab <- data.frame()}
@@ -789,7 +1026,7 @@ sg_converter <- function(folder_path, proj_name){
 
     sdtab_i %>%
       select(any_of(c("ID", "TIME", "DV", "DVID", "PRED", "IPRED", "RES", "IRES", "WRES", "CWRES",
-                    "IWRES", "EVID", "MDV", "OCC", "BLQ", "CENS", "LIMIT")))
+                      "IWRES", "EVID", "MDV", "OCC", "BLQ", "CENS", "LIMIT")))
 
   })
 
@@ -812,6 +1049,8 @@ sg_converter <- function(folder_path, proj_name){
 
 
   ## sumtab compiling
+  param_distributions <- extract_parameter_distributions(contr_obj)
+  resid_dist_map <- extract_residual_param_distributions(contr_obj, dt_ruv_map)
 
   if (sum(grepl("sa$", colnames(sum_dt_i))) > 0 &
       sum(grepl("lin$", colnames(sum_dt_i))) > 0) sum_dt_i <-sum_dt_i %>%
@@ -833,9 +1072,19 @@ sg_converter <- function(folder_path, proj_name){
            ETAshrinkage_var = ifelse(PAR %in% omega_params, 100*(1 - sd(patab[[str_c("eta_", PAR_NAME)]])^2/VALUE^2), NA),
            ETAshrinkage_sd = ifelse(PAR %in% omega_params, 100*(1 - sd(patab[[str_c("eta_", PAR_NAME)]])/VALUE), NA),
            EPSshrinkage_sd = ifelse(PAR %in% resid_err_params, (1 - sd(sdtab$IWRES[sdtab$DVID == na.omit(dt_ruv_map$dvid[dt_ruv_map$RUVpar_a == PAR | dt_ruv_map$RUVpar_b == PAR]) %>% as.numeric()]))*100, NA),
+           DISTRIBUTION = case_when(
+             PAR %in% pop_params ~ sapply(PAR_NAME, function(x) {
+               dist_i <- param_distributions[[x]]$distribution
+               if (is.null(dist_i) || is.na(dist_i)) NA_character_ else dist_i
+             }),
+             PAR %in% omega_params ~ NA_character_,
+             PAR %in% beta_params ~ NA_character_,
+             PAR %in% resid_err_params ~ unname(resid_dist_map[PAR]),
+             TRUE ~ NA_character_
+           ),
            EST = ifelse(is.na(SE), "FIXED", "ESTIMATED")
-           ) %>%
-    select(any_of(c("PAR", "VALUE", "TYPE", "EST", "SE", "RSE", "CV", "LCI", "UCI", "ETAshrinkage_sd", "ETAshrinkage_var", "EPSshrinkage_sd")))
+    ) %>%
+    select(any_of(c("PAR", "VALUE", "TYPE", "DISTRIBUTION", "EST", "SE", "RSE", "CV", "LCI", "UCI", "ETAshrinkage_sd", "ETAshrinkage_var", "EPSshrinkage_sd")))
 
 
   ## covmat and corrmat compiling
@@ -915,35 +1164,164 @@ sg_converter <- function(folder_path, proj_name){
   summ_fl <- readLines(str_c(folder_path, proj_name, "/summary.txt"))
 
   ofv <- tibble(LL = grep("log-likelihood", summ_fl, fixed = T, value = T) %>%
-                         gsub("^.*?:", "", .) %>% parse_number(),
-                    AIC = grep("AIC", summ_fl, fixed = T, value = T) %>% parse_number(),
-                    BIC = grep("(BIC)", summ_fl, fixed = T, value = T) %>% parse_number(),
-                    BICc = grep("(BICc)", summ_fl, fixed = T, value = T) %>% parse_number()) #%>% unlist()
+                  gsub("^.*?:", "", .) %>% parse_number(),
+                AIC = grep("AIC", summ_fl, fixed = T, value = T) %>% parse_number(),
+                BIC = grep("(BIC)", summ_fl, fixed = T, value = T) %>% parse_number(),
+                BICc = grep("(BICc)", summ_fl, fixed = T, value = T) %>% parse_number()) #%>% unlist()
 
   ## options compiling - !!! re-write
   opt <- NULL
 
+  ## gco compiling
+  headers_gco <- col_map_df %>%
+    transmute(
+      name = COL,
+      use = use,
+      type = ifelse(is.na(type) | type == "", NA_character_, type)
+    ) %>%
+    rowwise() %>%
+    mutate(.header = list(list(
+      name = name,
+      use = use,
+      type = if (is.na(type)) setNames(list(), character(0)) else type
+    ))) %>%
+    ungroup() %>%
+    pull(.header)
+
+  start_idx_param <- which(str_detect(contr_obj, fixed("<PARAMETER>")))[1]
+  end_idx_param <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_param)[1]
+  if (is.na(end_idx_param)) end_idx_param <- length(contr_obj) + 1
+  param_lines <- contr_obj[(start_idx_param + 1):(end_idx_param - 1)] %>%
+    str_squish() %>%
+    str_subset("^$", negate = TRUE)
+  param_map <- tibble(raw = param_lines) %>%
+    mutate(PAR = str_extract(raw, "^[^=]+") %>% str_trim(),
+           value = str_match(raw, "value\\s*=\\s*([^,\\}]+)")[, 2] %>% as.numeric(),
+           method = str_match(raw, "method\\s*=\\s*([^,\\}]+)")[, 2] %>% str_trim())
+
+  theta_gco <- tibble(NAME = str_remove(pop_params, "_pop$")) %>%
+    mutate(
+      INIT = param_map$value[match(str_c(NAME, "_pop"), param_map$PAR)],
+      EST = !toupper(param_map$method[match(str_c(NAME, "_pop"), param_map$PAR)]) %in% c("FIXED"),
+      TRANS = sapply(NAME, function(x) {
+        d <- param_distributions[[x]]$distribution
+        if (is.null(d) || is.na(d)) NA_character_ else unname(d)
+      })
+    )
+  theta_gco <- lapply(seq_len(nrow(theta_gco)), function(i) {
+    list(
+      NAME = theta_gco$NAME[i],
+      INIT = theta_gco$INIT[i],
+      EST = theta_gco$EST[i],
+      TRANS = theta_gco$TRANS[i]
+    )
+  })
+
+  long_ruv_map <- extract_longitudinal_ruv_map(contr_obj)
+  ruv_trans <- long_ruv_map$distribution[match(dt_ruv_map$COL, long_ruv_map$COL)]
+  ruv_pred <- long_ruv_map$prediction[match(dt_ruv_map$COL, long_ruv_map$COL)]
+  if ("distribution" %in% names(dt_ruv_map)) {
+    ruv_trans[is.na(ruv_trans)] <- dt_ruv_map$distribution[is.na(ruv_trans)]
+  }
+  if ("prediction" %in% names(dt_ruv_map)) {
+    ruv_pred[is.na(ruv_pred)] <- dt_ruv_map$prediction[is.na(ruv_pred)]
+  }
+  ruv_gco <- dt_ruv_map %>%
+    mutate(.idx = row_number()) %>%
+    rowwise() %>%
+    mutate(
+      .err = list(parse_error_model(errorModel)),
+      YNAME = COL,
+      DVID = as.character(dvid),
+      TRANS = ruv_trans[.idx],
+      PRED = ruv_pred[.idx],
+      ERR = .err$err,
+      INIT = list(if (length(.err$pars) > 0) param_map$value[match(.err$pars, param_map$PAR)] else NA_real_),
+      EST = list(if (length(.err$pars) > 0) (!toupper(param_map$method[match(.err$pars, param_map$PAR)]) %in% c("FIXED")) else NA)
+    ) %>%
+    ungroup() %>%
+    select(-.idx)
+  ruv_gco <- lapply(seq_len(nrow(ruv_gco)), function(i) {
+    list(
+      YNAME = ruv_gco$YNAME[i],
+      DVID = ruv_gco$DVID[i],
+      TRANS = ruv_gco$TRANS[i],
+      PRED = ruv_gco$PRED[i],
+      ERR = ruv_gco$ERR[i],
+      INIT = ruv_gco$INIT[[i]],
+      EST = ruv_gco$EST[[i]]
+    )
+  })
+  if (length(ruv_gco) == 1) ruv_gco <- ruv_gco[[1]]
+
+  re_names <- str_remove(pop_params, "_pop$")
+  re_init <- matrix(0, nrow = length(re_names), ncol = length(re_names))
+  re_est <- matrix(NA, nrow = length(re_names), ncol = length(re_names))
+  colnames(re_init) <- rownames(re_init) <- re_names
+  colnames(re_est) <- rownames(re_est) <- re_names
+  if (length(omega_params) > 0) {
+    for (op in omega_params) {
+      p_name <- str_remove(op, "omega_")
+      p_idx <- match(p_name, re_names)
+      if (!is.na(p_idx)) {
+        re_init[p_idx, p_idx] <- param_map$value[match(op, param_map$PAR)]
+        re_est[p_idx, p_idx] <- !toupper(param_map$method[match(op, param_map$PAR)]) %in% c("FIXED")
+      }
+    }
+  }
+  re_gco <- list(init = re_init, est = re_est)
+  occ_gco <- list(
+    init = matrix(0, nrow = length(re_names), ncol = length(re_names), dimnames = list(re_names, re_names)),
+    est = matrix(NA, nrow = length(re_names), ncol = length(re_names), dimnames = list(re_names, re_names))
+  )
+
+  covs_gco <- col_map_df %>% filter(use == "covariate") %>% pull(COL)
+  model_path_raw <- extract_model_path(contr_obj)
+  gco <- list(
+    headers = headers_gco,
+    data = c(data_path_raw),
+    model = c(model_path_raw),
+    task_opt = setNames(list(), character(0)),
+    covs = covs_gco,
+    project_name = proj_name,
+    theta = theta_gco,
+    ruv = ruv_gco,
+    re = re_gco,
+    occ = occ_gco,
+    modelText = extract_model_text(contr_obj, folder_path)
+  )
+
   ## final
-  sg_object = list(SDTAB = sdtab,
-                   SUMTAB = sumtab,
-                   SIGMAMAT = sigmamat,
-                   OMEGAMAT = omegamat,
-                   OCCMAT = occmat,
-                   EVTAB = evtab,
-                   PATAB = patab,
-                   COTAB = cotab,
-                   CATAB = catab,
-                   REGTAB = regtab,
-                   OFV = ofv,
-                   COVMAT = covmat,
-                   CORRMAT = corrmat,
-                   OPTIONS = opt,
-                   PROJNAME = proj_name)
+  gfo <- list(SDTAB = sdtab,
+              SUMTAB = sumtab,
+              SIGMAMAT = sigmamat,
+              OMEGAMAT = omegamat,
+              OCCMAT = occmat,
+              EVTAB = evtab,
+              PATAB = patab,
+              COTAB = cotab,
+              CATAB = catab,
+              REGTAB = regtab,
+              OFV = ofv,
+              COVMAT = covmat,
+              CORRMAT = corrmat,
+              OPTIONS = opt,
+              PROJNAME = proj_name)
+  sg_object <- list(GFO = gfo, GCO = gco)
+
+  if (isTRUE(save_json)) {
+    output_dir <- normalizePath(folder_path, mustWork = FALSE)
+    if (!dir.exists(output_dir)) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+
+    gco_path <- file.path(output_dir, str_c(proj_name, "_GCO.json"))
+    gfo_path <- file.path(output_dir, str_c(proj_name, "_GFO.json"))
+    writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null"), gco_path)
+    writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null"), gfo_path)
+  }
 
   return(sg_object)
 
 
 }
-
-
-
