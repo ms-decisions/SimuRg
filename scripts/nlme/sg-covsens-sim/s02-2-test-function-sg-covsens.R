@@ -1,25 +1,25 @@
-#Title: Test sg_covsens_sim() with wrfrn_03 model
-# Covariates: Vd_VKORC1_gentyp; CL_BMI; no correlations
+#Title: Test sg_covsens_sim() with wrfrn_02 model
+# Covariates: Vd_CYP2C9_gentyp; CL_WEIGHT; Vd and CL correlate
 
 ####------ Function parameters ------####
 #quantiles <- c(0.2, 0.8)
 cont_cov_l <- list(
-  BMI = list(
-    NAME = "BMI",
+  WEIGHT = list(
+    NAME = "WEIGHT",
     UTNAME = NULL, #(or NA or NULL if UTNAME should be = NAME),
     REF = "median", #“median” or user-defined number,
-    NICENAME = "Body mass index", #nice name or NULL,
+    NICENAME = "Body weight, kg", #nice name or NULL,
     par_vec = c("CL")
-  ))
-
-
+  )
+)
 cat_cov_l <- list(
-  VKORC1_gentyp = list(
-    NAME = "VKORC1_gentyp",
-    NICENAME = "VKORC1 genotype", #nice name or NULL
+  CYP2C9_gentyp = list(
+    NAME = "CYP2C9_gentyp",
+    NICENAME = "CYP2C9 genotype", #nice name or NULL
     REF = NULL, # NULL or user-defined value,
     par_vec = c("Vd") #c("Vd", "CL")
   ))
+
 
 
 ev_t_input <- tribble(
@@ -35,7 +35,7 @@ aggr = c("max")
 #fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
 #fpath_i <- system.file("extdata", "simurg_object", "run_4cov_smrg_results.json", package = "SimuRg")
 #fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim","run_4cov_smrg_results.json", package = "SimuRg")
-project_name <- "wrfrn_03_nocorr"
+project_name <- "wrfrn_02"
 file_path_fisher <- system.file("scripts", "nlme", "sg-covsens-sim", project_name, "FisherInformation","covarianceEstimatesSA.txt", package = "SimuRg")
 
 
@@ -45,7 +45,7 @@ file_path_fisher <- system.file("scripts", "nlme", "sg-covsens-sim", project_nam
 # fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
 #                        "run_4cov_smrg_results.json", package = "SimuRg")
 fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
-                       "wrfrn_03_nocorr.json", package = "SimuRg")
+                       "wrfrn_02.json", package = "SimuRg")
 
 ###---Input without smrg_object---###
 obj_data <- read_smrg_obj(fpath_i)
@@ -72,7 +72,7 @@ data_fin_i <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with c
 ### Fisher Information Matrix from the project
 est_covmat <- read.csv(file_path_fisher)
 
-model_03 <- RxODE({
+model_02 <- RxODE({
   # Doses in mg
   # Time in hours
 
@@ -89,12 +89,14 @@ model_03 <- RxODE({
 
   # Covariate effect
   # Continuous
-  beta_CL_BMI = 0.48009835;
+  beta_CL_WEIGHT = 0.0038;
 
   # Categorical
-
-  beta_Vd_VKORC1_gentyp_AG = 0.06007849;
-  beta_Vd_VKORC1_gentyp_GG = 0.01293595;
+  beta_Vd_CYP2C9_gentyp_1_2 = -0.0481;
+  beta_Vd_CYP2C9_gentyp_1_3 = -0.0343;
+  beta_Vd_CYP2C9_gentyp_2_2 = -0.1410;
+  beta_Vd_CYP2C9_gentyp_2_3 = -0.1731;
+  beta_Vd_CYP2C9_gentyp_3_3 = -0.0816;
 
   # Residual error
   Cc_b = 0;
@@ -106,16 +108,21 @@ model_03 <- RxODE({
 
   Vd_multiplier = 1.0;  # Default/reference
 
-
-  if (VKORC1_gentyp == "AG") {
-    Vd_multiplier = exp(beta_Vd_VKORC1_gentyp_AG)
-  } else if (VKORC1_gentyp == "GG") {
-    Vd_multiplier = exp(beta_Vd_VKORC1_gentyp_GG)
+  if (CYP2C9_gentyp == "1.2") {
+    Vd_multiplier = exp(beta_Vd_CYP2C9_gentyp_1_2);
+  } else if (CYP2C9_gentyp == "1.3") {
+    Vd_multiplier = exp(beta_Vd_CYP2C9_gentyp_1_3);
+  } else if (CYP2C9_gentyp == "2.2") {
+    Vd_multiplier = exp(beta_Vd_CYP2C9_gentyp_2_2);
+  } else if (CYP2C9_gentyp == "2.3") {
+    Vd_multiplier = exp(beta_Vd_CYP2C9_gentyp_2_3);
+  } else if (CYP2C9_gentyp == "3.3") {
+    Vd_multiplier = exp(beta_Vd_CYP2C9_gentyp_3_3);
   }
 
   ka = ka_tv*exp(omega_ka);
-  Vd = Vd_tv* Vd_multiplier*exp(omega_Vd);
-  CL = CL_tv* exp(beta_CL_BMI * BMI + omega_CL);
+  Vd = Vd_tv* Vd_multiplier*exp(omega_Vd); #Vd_tv*exp(omega_Vd);
+  CL = CL_tv*exp(beta_CL_WEIGHT * WEIGHT + omega_CL);
 
 
   ### Explicit functions
@@ -131,6 +138,7 @@ model_03 <- RxODE({
 
   Cc_ResErr = Cc*(1 + Cc_b);
 })
+
 ####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
 # so that outputs = c("Cc", "Effect") can be tested
@@ -225,7 +233,7 @@ stimes_ss <- fun_stimes_ss(ss_cycle)
 ######
 #Test with GFO
 output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
-                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes_ss, et = ev_t_input,
+                            ds_parest = NULL, ds_covs = NULL, model = model_02, stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
                          npop = 10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
@@ -234,7 +242,7 @@ output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
 
 #Test with parameter and covariate datasets
 output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
-                            model = model_03, stimes_ss, et = ev_t_input,
+                            model = model_02, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
                             npop = 10,
                             cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
