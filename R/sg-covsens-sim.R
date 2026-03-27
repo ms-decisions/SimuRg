@@ -436,10 +436,10 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     m_omega_full <- m_omega %*% omega_corr %*% m_omega
   }
 
-  ### Reconstruct residual error model matrix
-  d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
-  m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
-  colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
+  # ### Reconstruct residual error model matrix
+  # d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
+  # m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
+  # colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
 
   m_theta_norm <- est_covmat %>% select_if(is.numeric) %>% as.matrix()
   colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
