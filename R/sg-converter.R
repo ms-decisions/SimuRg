@@ -12,8 +12,10 @@
 #'
 #' @param folder_path Character string. Path to the directory containing Monolix project files.
 #' @param proj_name Character string. Name of the Monolix project (without file extension).
-#' @param save_json Logical. If \code{TRUE}, saves \code{GCO} and \code{GFO} JSON files
-#'   to \code{folder_path} with names \code{<proj_name>_GCO.json} and \code{<proj_name>_GFO.json}.
+#' @param save_file Logical. If \code{TRUE}, saves \code{GCO} and \code{GFO} JSON files
+#'   to \code{folder_path} with names \code{<proj_name>_GCO.json} and \code{<proj_name>_GFO.json},
+#'   and also saves two RData files: \code{<proj_name>_GCO.RData} (object \code{gco})
+#'   and \code{<proj_name>_GFO.RData} (object \code{gfo}).
 #'
 #' @return
 #' Returns a list with the following components:
@@ -61,8 +63,8 @@
 #' including population parameters, individual parameters, covariates, and diagnostic
 #' metrics.
 #'
-#' If \code{save_json = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
-#' JSON files to \code{folder_path}.
+#' If \code{save_file = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
+#' JSON files and \code{.RData} files to \code{folder_path}.
 #'
 #' @examples
 #' \donttest{
@@ -89,7 +91,7 @@
 #' @import dplyr
 #' @export
 
-sg_converter <- function(folder_path, proj_name, save_json = FALSE){
+sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   #####--------------- Helper function for WRES calculation ---------------#####
 
   # Function to calculate WRES using FO approximation with partial derivatives
@@ -1309,7 +1311,7 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
               PROJNAME = proj_name)
   sg_object <- list(GFO = gfo, GCO = gco)
 
-  if (isTRUE(save_json)) {
+  if (isTRUE(save_file)) {
     output_dir <- normalizePath(folder_path, mustWork = FALSE)
     if (!dir.exists(output_dir)) {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -1319,6 +1321,11 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     gfo_path <- file.path(output_dir, str_c(proj_name, "_GFO.json"))
     writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null"), gco_path)
     writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null"), gfo_path)
+
+    gco_rdata_path <- file.path(output_dir, str_c(proj_name, "_GCO.RData"))
+    gfo_rdata_path <- file.path(output_dir, str_c(proj_name, "_GFO.RData"))
+    save(gco, file = gco_rdata_path)
+    save(gfo, file = gfo_rdata_path)
   }
 
   return(sg_object)
