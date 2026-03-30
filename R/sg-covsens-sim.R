@@ -42,7 +42,7 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
 #' @noRd
 fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL,
                         mod_fin_i,
-                        theta_i, thetamat_i, nice_names_i,
+                        theta_i, omega_i, thetamat_i, nice_names_i,
                         quantiles = c(0.1,0.9),
                         var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
 {
@@ -73,10 +73,10 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
     if(!expos){
       par_i <- unique(et_i$PAR)
       if(is.list(par_i)){ par_i <- par_i[[1]] }
-      sim_i <- sg_sim(mod_fin_i, et_i, 0, outputs = par_i, theta = theta_i ,
+      sim_i <- sg_sim(mod_fin_i, et_i, 0, outputs = par_i, theta = theta_i, omega = omega_i,
                       thetamat = thetamat_i, covs = covs_i, npop = nsim, keep = keep_i)
     } else {
-      sim_raw <- sg_sim(mod_fin_i, et_i, stime_exp, outputs = var_exp, theta = theta_i ,
+      sim_raw <- sg_sim(mod_fin_i, et_i, stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
 
@@ -410,7 +410,11 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
   par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
-    mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  #mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  mutate(value = {
+    cond <- str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_")
+    ifelse(cond, log(ifelse(cond, value, 1)), value)
+  }) %>% deframe()
 
   ### Reconstruct omega matrix (random effects on K_a and V_pop)
   d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
@@ -436,21 +440,81 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     m_omega_full <- m_omega %*% omega_corr %*% m_omega
   }
 
-  ### Reconstruct residual error model matrix
-  d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
-  m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
-  colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
+  # ### Reconstruct residual error model matrix
+  # d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
+  # m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
+  # colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
 
   m_theta_norm <- est_covmat %>% select_if(is.numeric) %>% as.matrix()
   colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
   m_theta_norm_pop <- m_theta_norm[str_detect(rownames(m_theta_norm), "_pop|beta_"), str_detect(colnames(m_theta_norm), "_pop|beta_")]
 
   #####----Covariate tables----####
+  # Validate and filter cont_cov_l against data_fin columns
+  .missing_cont_name <- map_chr(cont_cov_l, function(x) x$NAME) %>%
+    setdiff(names(data_fin))
+  if (length(.missing_cont_name) > 0) {
+    warning(
+      "The following continuous covariate NAME(s) from 'cont_cov_l' were not found ",
+      "as columns in the covariate data and will be skipped: ",
+      paste(.missing_cont_name, collapse = ", "), "."
+    )
+    cont_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cont_name), cont_cov_l)
+    if (length(cont_cov_l) == 0) {
+      stop(
+        "All continuous covariates in 'cont_cov_l' were removed because their NAME columns ",
+        "are absent from the covariate data. Check 'cont_cov_l' and the dataset."
+      )
+    }
+  }
+
+  .missing_cont_utname <- unlist(Filter(Negate(is.null), map(cont_cov_l, function(x) {
+    ut <- x$UTNAME
+    if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) ut else NULL
+  }))) %>% setdiff(names(data_fin))
+  if (length(.missing_cont_utname) > 0) {
+    warning(
+      "The following continuous covariate UTNAME(s) from 'cont_cov_l' were not found ",
+      "as columns in the covariate data; affected covariates will be skipped: ",
+      paste(.missing_cont_utname, collapse = ", "), "."
+    )
+    cont_cov_l <- Filter(function(x) {
+      ut <- x$UTNAME
+      if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) !(ut %in% .missing_cont_utname) else TRUE
+    }, cont_cov_l)
+    if (length(cont_cov_l) == 0) {
+      stop(
+        "All continuous covariates in 'cont_cov_l' were removed because their UTNAME columns ",
+        "are absent from the covariate data. Check 'cont_cov_l' and the dataset."
+      )
+    }
+  }
+
+  # Validate and filter cat_cov_l against data_fin columns
+  .missing_cat_name <- map_chr(cat_cov_l, function(x) x$NAME) %>%
+    setdiff(names(data_fin))
+  if (length(.missing_cat_name) > 0) {
+    warning(
+      "The following categorical covariate NAME(s) from 'cat_cov_l' were not found ",
+      "as columns in the covariate data and will be skipped: ",
+      paste(.missing_cat_name, collapse = ", "), "."
+    )
+    cat_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cat_name), cat_cov_l)
+    if (length(cat_cov_l) == 0) {
+      stop(
+        "All categorical covariates in 'cat_cov_l' were removed because their NAME columns ",
+        "are absent from the covariate data. Check 'cat_cov_l' and the dataset."
+      )
+    }
+  }
+
   # Continuous covariates table
   cont_cov_vec <- map_chr(cont_cov_l, function(x) x$NAME)
 
   cont_cov <- map_dfr(cont_cov_l, function(x) {
-    tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+    #tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+    btr <- if (is.null(x$UTNAME) || isTRUE(is.na(x$UTNAME))) x$NAME else x$UTNAME
+    tibble(TR = x$NAME, BTR = btr, PAR = list(x$par_vec))
   })
 
   # Categorical covariates table
@@ -526,7 +590,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   ds_cc <- ds_cc %>%
     left_join(ref_lookup, by = "TR") %>%
     group_by(TR) %>%
-    mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    #mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    mutate(REF = if_else(REF_spec == "median", median(TVALUE), suppressWarnings(as.numeric(REF_spec)))) %>%
     select(-REF_spec) %>%
     ungroup()
 
@@ -543,7 +608,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     data$NVALUE[idx]
   }
   ccont_lab_list <- list()
-  for (i in c(1:length(cont_cov_l))){
+  for (i in seq_along(cont_cov_l)){
     ds_cc_i <- ds_cc %>% filter(TR == cont_cov_l[[i]]$NAME)
     q_ccont <- c(unique(ds_cc_i$LP), unique(ds_cc_i$UP), unique(ds_cc_i$REF))
 
@@ -570,6 +635,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   cc_to_test <- ds_cc %>%
     select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
     unique() %>%
+    mutate(across(c(LP, UP, REF), as.numeric)) %>%
     gather("KEY", "COVVAL", -COV:-median) %>%
     left_join(ccont_lab_df, by = c("COV", "KEY"))
 
@@ -619,13 +685,15 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   out_cov_par_sens <- bind_rows(
     fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
                 nice_names_i = nice_names,quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Continuous"),
     fun_CovSens(ets_catc, cat = T, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
                 nice_names_i = nice_names,quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Categorical")
@@ -641,14 +709,16 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     fun_CovSens(ets_cc, expos = T, covs_i = nice_names$COV, nsim = npop,
                 stime_exp = stimes,
                 mod_fin_i = model,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
                 nice_names_i = nice_names, quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Continuous"),
     fun_CovSens(ets_catc, cat = T, expos = T, covs_i = nice_names$COV, nsim = npop,
                 stime_exp = stimes,
                 mod_fin_i = model,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
                 nice_names_i = nice_names, quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Categorical")

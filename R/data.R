@@ -120,3 +120,52 @@ funSum_sim <- list(mean   = ~mean(., na.rm = T),
 #'@source Derived from \code{data_fin_i.csv} — individual covariate dataset for the warfarin PopPK covariate sensitivity analysis.
 "ds_covval"
 
+#' Warfarin PopPK model fitting output (4-covariate model)
+#'
+#' A list containing the full output of a warfarin population pharmacokinetic
+#' model fit with four covariates (SEX, LG_WEIGHT, CYP2C9, VKORC1), including
+#' parameter estimates, model diagnostics, individual predictions, and covariate data.
+#'
+#' @format ## `gfo4cov`
+#' A named list with 12 elements:
+#' \describe{
+#'   \item{PROJNAME}{character string identifying the project run (\code{"run_4cov"})}
+#'   \item{SUMTAB}{data frame with 15 rows and 11 columns containing the parameter
+#'     summary table. Columns: \code{PAR} (parameter name), \code{VALUE} (estimate),
+#'     \code{TYPE} (category: \code{"Typical values"}, \code{"Covariate effects"},
+#'     \code{"Random effects"}, or \code{"Residual error model"}), \code{EST}
+#'     (estimation status), \code{SE} (standard error), \code{RSE} (relative SE, \%),
+#'     \code{LCI} and \code{UCI} (95\% confidence interval bounds),
+#'     \code{ETAshrinkage_var}, \code{ETAshrinkage_sd}, \code{EPSshrinkage_sd} (shrinkage metrics).}
+#'   \item{SDTAB}{data frame with 1600 rows and 11 columns — the standard table of
+#'     observations and model predictions. Columns: \code{ID}, \code{TIME}, \code{DV}
+#'     (observed), \code{DVID}, \code{PRED} (population prediction), \code{IPRED}
+#'     (individual prediction), \code{RES} (residual), \code{IRES} (individual residual),
+#'     \code{WRES} (weighted residual), \code{IWRES} (individual weighted residual), \code{MDV}.}
+#'   \item{PATAB}{data frame with 100 rows and 7 columns — individual parameter table.
+#'     Columns: \code{ID}, \code{eta_ka}, \code{eta_Vd}, \code{eta_CL}
+#'     (individual ETA random effects), \code{ka}, \code{Vd}, \code{CL}
+#'     (individual post-hoc PK parameter estimates).}
+#'   \item{COVMAT}{15 \eqn{\times} 15 numeric matrix — covariance matrix of the
+#'     population parameter estimates.}
+#'   \item{CORRMAT}{15 \eqn{\times} 15 numeric matrix — correlation matrix of the
+#'     population parameter estimates.}
+#'   \item{OFV}{data frame with 1 row and 4 columns — model fit criteria:
+#'     \code{LL} (log-likelihood), \code{AIC}, \code{BIC}, \code{BICc}.}
+#'   \item{OMEGAMAT}{3 \eqn{\times} 3 numeric matrix — OMEGA variance-covariance
+#'     matrix of the inter-individual random effects (\code{eta_ka}, \code{eta_Vd}, \code{eta_CL}).}
+#'   \item{SIGMAMAT}{1 \eqn{\times} 1 numeric matrix — SIGMA residual error
+#'     variance matrix.}
+#'   \item{EVTAB}{data frame with 100 rows and 6 columns — dosing/event table.
+#'     Columns: \code{ID}, \code{TIME}, \code{EVID}, \code{AMT}, \code{ADM}, \code{CMT}.}
+#'   \item{COTAB}{data frame with 100 rows and 6 columns — continuous covariate table.
+#'     Columns: \code{ID}, \code{AGE}, \code{WEIGHT}, \code{BMI},
+#'     \code{LG_WEIGHT} (log10-transformed weight), \code{LG_AGE} (log10-transformed age).}
+#'   \item{CATAB}{data frame with 100 rows and 4 columns — categorical covariate table.
+#'     Columns: \code{ID}, \code{SEX} (0 = female, 1 = male),
+#'     \code{CYP2C9} (genotype integer code, 0–5),
+#'     \code{VKORC1} (genotype: \code{"GG"}, \code{"AG"}, or \code{"AA"}).}
+#' }
+#' @source Generated from the warfarin PopPK model fitting run \code{"run_4cov"} used
+#' in the covariate sensitivity analysis workflow.
+"gfo4cov"
