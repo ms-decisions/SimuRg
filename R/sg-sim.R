@@ -447,6 +447,7 @@ sg_sim <- function(model, et, stimes = NULL, outputs = NULL, theta = NULL,
   }
   id_cols <- c("id", "time", if (has_thetamat) "POPN", if (has_omega) "sim.id")
   sim_i_ind <- sim_i_ind %>%
+    dplyr::mutate(dplyr::across(-dplyr::any_of(id_cols), as.numeric)) %>%
     tidyr::gather("VAR", "VALUE", -dplyr::any_of(id_cols))
   if (!is.null(outputs)) sim_i_ind <- sim_i_ind %>% dplyr::filter(VAR %in% outputs)
 

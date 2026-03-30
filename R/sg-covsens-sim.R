@@ -410,7 +410,11 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
   par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
-    mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  #mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  mutate(value = {
+    cond <- str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_")
+    ifelse(cond, log(ifelse(cond, value, 1)), value)
+  }) %>% deframe()
 
   ### Reconstruct omega matrix (random effects on K_a and V_pop)
   d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
@@ -586,7 +590,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   ds_cc <- ds_cc %>%
     left_join(ref_lookup, by = "TR") %>%
     group_by(TR) %>%
-    mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    #mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    mutate(REF = if_else(REF_spec == "median", median(TVALUE), suppressWarnings(as.numeric(REF_spec)))) %>%
     select(-REF_spec) %>%
     ungroup()
 
@@ -630,6 +635,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   cc_to_test <- ds_cc %>%
     select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
     unique() %>%
+    mutate(across(c(LP, UP, REF), as.numeric)) %>%
     gather("KEY", "COVVAL", -COV:-median) %>%
     left_join(ccont_lab_df, by = c("COV", "KEY"))
 
