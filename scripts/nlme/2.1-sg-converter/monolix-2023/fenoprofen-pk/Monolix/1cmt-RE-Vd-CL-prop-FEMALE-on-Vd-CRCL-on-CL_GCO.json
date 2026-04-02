@@ -1,0 +1,128 @@
+{
+  "headers": [
+    {
+      "name": ["ID"],
+      "use": ["identifier"],
+      "type": {}
+    },
+    {
+      "name": ["TIME"],
+      "use": ["time"],
+      "type": {}
+    },
+    {
+      "name": ["DV"],
+      "use": ["observation"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["DVID"],
+      "use": ["observationtype"],
+      "type": {}
+    },
+    {
+      "name": ["EVID"],
+      "use": ["eventidentifier"],
+      "type": {}
+    },
+    {
+      "name": ["MDV"],
+      "use": ["missingdependentvariable"],
+      "type": {}
+    },
+    {
+      "name": ["AMT"],
+      "use": ["amount"],
+      "type": {}
+    },
+    {
+      "name": ["BPGE"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["AGE"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["FEMALE"],
+      "use": ["covariate"],
+      "type": ["categorical"]
+    },
+    {
+      "name": ["WT"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["CRCL"],
+      "use": ["covariate"],
+      "type": ["continuous"]
+    },
+    {
+      "name": ["SLE"],
+      "use": ["covariate"],
+      "type": ["categorical"]
+    }
+  ],
+  "data": ["../ds-fenoprofen-pk.csv"],
+  "model": ["model-pk-1c.txt"],
+  "task_opt": {},
+  "covs": ["BPGE", "AGE", "FEMALE", "WT", "CRCL", "SLE"],
+  "project_name": ["1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL"],
+  "theta": [
+    {
+      "NAME": ["ka"],
+      "INIT": [1],
+      "EST": [true],
+      "TRANS": ["logNormal"]
+    },
+    {
+      "NAME": ["Vd"],
+      "INIT": [1],
+      "EST": [true],
+      "TRANS": ["logNormal"]
+    },
+    {
+      "NAME": ["CL"],
+      "INIT": [1],
+      "EST": [true],
+      "TRANS": ["logNormal"]
+    }
+  ],
+  "ruv": {
+    "YNAME": ["y1"],
+    "DVID": ["1"],
+    "TRANS": ["normal"],
+    "PRED": ["Cc"],
+    "ERR": ["proportional"],
+    "INIT": [0.3],
+    "EST": [true]
+  },
+  "re": {
+    "init": [
+      [0, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ],
+    "est": [
+      [null, null, null],
+      [null, true, null],
+      [null, null, true]
+    ]
+  },
+  "occ": {
+    "init": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ],
+    "est": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  },
+  "modelText": ["# [INPUT]\n  \n    ka = 1;\n    Vd = 6;\n    CL = 1;\n\n# [MODEL]\n\n    ### Explicit functions\n    Cc = Ac/Vd;\n\n    ### Initial conditions\n    Ad(0) = 0;\n    Ac(0) = 0;\n\n    ### Differential equations\n    d/dt(Ad) = - ka*Ad;\n    d/dt(Ac) = ka*Ad - CL*Cc;"]
+}
