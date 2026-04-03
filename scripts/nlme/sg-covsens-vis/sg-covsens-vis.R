@@ -25,7 +25,7 @@
 #'   Default \code{"grey25"}.
 #' @param col_palette Character vector of colours used for the \code{Type}
 #'   aesthetic (Continuous, Categorical, …).  The vector is recycled if there
-#'   are more levels than colors.  Default uses the six-colour MSD palette
+#'   are more levels than colours.  Default uses the six-colour MSD palette
 #'   subset \code{MSDcol[c(1, 3, 4, 5, 6, 7)]}.
 #' @param point_size Numeric scalar; size of the point geom.  Default \code{2.5}.
 #' @param errorbar_width Numeric scalar; width of the error-bar caps.
@@ -36,10 +36,6 @@
 #' @param caption Character string passed to \code{labs(caption = ...)}.
 #'   Typically the reference-value label produced by \code{sg_covsens_sim()}.
 #'   Default \code{NULL}.
-#'   @param panel_height Numeric scalar; fixed height in cm applied to every
-#'   facet panel.  Useful when many covariate rows and multiple \code{VAR}
-#'   facets make panels too narrow to read.  Requires the \pkg{ggh4x} package.
-#'   Default \code{NULL} (let ggplot2 determine panel height automatically).
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -57,8 +53,7 @@ sg_covsens_vis <- function(
     point_size     = 2.5,
     errorbar_width = 0.2,
     ylab           = "Mean (95% CI)\nchange from reference",
-    caption        = NULL,
-    panel_height   = NULL
+    caption        = NULL
 ) {
   type <- match.arg(type)
 
@@ -112,31 +107,23 @@ sg_covsens_vis <- function(
       col = ci_band_col, lwd = 0.8, lty = "dotted"
     ) +
     ggplot2::scale_color_manual(values = col_palette) +
-    ggplot2::scale_y_continuous(
-      name   = ylab,
-      breaks = scales::pretty_breaks(7)
-    ) +
-    ggplot2::labs(x = NULL, caption = caption) +
+    ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+    ggplot2::labs(x = NULL, y = ylab, caption = caption) +
     ggplot2::facet_grid(VAR ~ ., scales = "free") +
     ggplot2::coord_flip() +
+    ggplot2::theme_bw() +
     ggplot2::theme(
+      panel.grid.minor  = ggplot2::element_blank(),
       legend.position   = "top",
       legend.background = ggplot2::element_rect(
-        fill     = "white",
+        fill      = "white",
         linewidth = 0.15,
         linetype  = "solid",
         colour    = "black"
       )
     )
 
-  if (!is.null(panel_height)) {
-    if (requireNamespace("ggh4x", quietly = TRUE)) {
-      p <- p + ggh4x::force_panelsizes(rows = grid::unit(panel_height, "cm"))
-    } else {
-      warning("Package 'ggh4x' is required for 'panel_height'. ",
-              "Install it with: install.packages('ggh4x')")
-    }
-  }
+
 
   p
 }

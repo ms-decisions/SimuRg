@@ -1,52 +1,98 @@
 #' Visualise covariate sensitivity analysis results
 #'
-#' Produces a forest-style dot-and-errorbar plot of the covariate sensitivity
-#' results returned by \code{\link{sg_covsens_sim}}.  Two output types are
-#' supported: \code{"PARSENS"} (sensitivity of model parameters) and
-#' \code{"EXPSENS"} (sensitivity of simulated exposure metrics).
+#' Draw a forest-style graphic (points with uncertainty intervals) from the
+#' sensitivity tables produced by \code{\link{sg_covsens_sim}}.  Each facet row
+#' corresponds to a model output or exposure metric (\code{VAR}); each point is a
+#' covariate scenario (\code{LAB}), coloured by covariate type (\code{Type}).
 #'
-#' @param covsens_res Named list returned by \code{sg_covsens_sim()}, which
-#'   must contain elements \code{PARSENS} and \code{EXPSENS}.
-#' @param type Character scalar; which sensitivity output to plot.
-#'   One of \code{"PARSENS"} (default) or \code{"EXPSENS"}.
-#' @param exclude_vars Character vector of \code{VAR} values to suppress from
-#'   the plot (e.g. \code{"Cmin, ug/mL"}).  Default \code{NULL} (show all).
-#' @param ci_quantiles Character vector of length 2 giving the names of the
-#'   lower and upper confidence-limit columns in the data, in that order.
-#'   Default \code{c("P025", "P975")} (i.e. 95 \% CI).
-#' @param ci_limits Numeric vector of length 2 defining the lower and upper
-#'   bounds of the reference (acceptance) band drawn as a shaded rectangle and
-#'   dotted lines.  Default \code{c(0.8, 1.25)}.
-#' @param ci_band_alpha Numeric scalar; alpha transparency of the filled
-#'   reference band.  Default \code{0.2}.
-#' @param ci_band_col Colour of the reference-band fill and dotted boundary
-#'   lines.  Default \code{"firebrick"}.
-#' @param ref_line_col Colour of the horizontal reference line at \code{y = 1}.
-#'   Default \code{"grey25"}.
-#' @param col_palette Character vector of colours used for the \code{Type}
-#'   aesthetic (Continuous, Categorical, …).  The vector is recycled if there
-#'   are more levels than colours.  Default uses the six-colour MSD palette
-#'   subset \code{MSDcol[c(1, 3, 4, 5, 6, 7)]}.
-#' @param point_size Numeric scalar; size of the point geom.  Default \code{2.5}.
-#' @param errorbar_width Numeric scalar; width of the error-bar caps.
+#' Two views are available, matching the named elements of the simulation
+#' output:
+#' \itemize{
+#'   \item \strong{\code{PARSENS}} — sensitivity of individual parameters
+#'     (simulation at time zero, no ODE time course).
+#'   \item \strong{\code{EXPSENS}} — sensitivity of exposure summaries
+#'     (e.g. Cmin, Cmax, Cavg) after full simulation over \code{stimes} in
+#'     \code{sg_covsens_sim}.
+#' }
+#'
+#' @param covsens_res Named list as returned by \code{sg_covsens_sim()}.  Must
+#'   contain the element selected by \code{type} (\code{PARSENS} and/or
+#'   \code{EXPSENS} data.frames with columns \code{LAB}, \code{VAR},
+#'   \code{mean}, \code{Type}, and the interval columns named by
+#'   \code{ci_quantiles}).
+#' @param type Character scalar: \code{"PARSENS"} (default) or \code{"EXPSENS"}.
+#' @param exclude_vars Character vector of \code{VAR} levels to omit (e.g.
+#'   \code{"Cc_Cmin"}).  \code{NULL} keeps all rows.
+#' @param ci_quantiles Character vector of length 2: names of the lower and
+#'   upper uncertainty columns in the sensitivity table, in that order.
+#'   Defaults \code{c("P025", "P975")} to match the default percentiles in
+#'   \code{sg_covsens_sim}.  Use other names (e.g. \code{c("P05", "P95")}) if
+#'   you changed \code{quantiles} in the simulation and the columns exist.
+#' @param ci_limits Numeric vector of length 2: lower and upper bounds of the
+#'   shaded acceptance band and of the dotted horizontal guides.  Default
+#'   \code{c(0.8, 1.25)} is a common bioequivalence-style window on the ratio
+#'   scale.
+#' @param ci_band_alpha Numeric in \eqn{[0,1]}: transparency of the shaded band.
 #'   Default \code{0.2}.
-#' @param ylab Character string for the y-axis (horizontal after
-#'   \code{coord_flip}) label.
-#'   Default \code{"Mean (95\% CI)\nchange from reference"}.
-#' @param caption Character string passed to \code{labs(caption = ...)}.
-#'   Typically the reference-value label produced by \code{sg_covsens_sim()}.
-#'   Default \code{NULL}.
-#' @param panel_height Numeric scalar; fixed height in cm applied to every
-#'   facet panel.  Useful when many covariate rows and multiple \code{VAR}
-#'   facets make panels too narrow to read.  Requires the \pkg{ggh4x} package.
-#'   When set, the recommended total figure height (in inches) is computed
-#'   automatically, stored as \code{attr(plot, "fig_height_in")}, and printed
-#'   as a message — use it in \code{ggsave(height = ...)} or a knitr chunk
-#'   option.  Default \code{NULL} (ggplot2 determines panel height automatically).
+#' @param ci_band_col Colour for the band fill and dotted limit lines.
+#'   Default \code{"firebrick"}.
+#' @param ref_line_col Colour for the dashed horizontal line at \code{y = 1}
+#'   (no change from reference).  Default \code{"grey25"}.
+#' @param col_palette Colours for the \code{Type} scale (continuous vs
+#'   categorical covariates, etc.).  Recycled if there are more levels than
+#'   colours.  Default \code{MSDcol[c(1, 3, 4, 5, 6, 7)]}.
+#' @param point_size Point size for \code{geom_point}.  Default \code{2.5}.
+#' @param errorbar_width Width argument for \code{geom_errorbar}.  Default
+#'   \code{0.2}.
+#' @param ylab Axis label for the numeric scale (this becomes the horizontal
+#'   axis after \code{coord_flip()}).  Default mentions a 95\% interval; change
+#'   if you use different \code{ci_quantiles}.
+#' @param caption Optional figure caption, passed to
+#'   \code{ggplot2::labs(caption = ...)} (e.g. text describing reference
+#'   covariate values).  Default \code{NULL}.
 #'
-#' @return A \code{ggplot} object.  When \code{panel_height} is set the object
-#'   carries an attribute \code{"fig_height_in"} with the recommended figure
-#'   height in inches.
+#' @details
+#' Values on the y-axis are ratios relative to the reference scenario: \code{1}
+#' means no change.  In \code{sg_covsens_sim}, percent change relative to
+#' reference is transformed to this scale before tabulation.  The shaded region
+#' between \code{ci_limits} highlights a target interval; points whose
+#' intervals lie largely inside can be read as scenarios consistent with that
+#' criterion, subject to study-specific rules.
+#'
+#' The plot layers are drawn in order: reference band, error bars, points,
+#' reference line at 1, dotted lines at \code{ci_limits}, then faceting by
+#' \code{VAR} and flipped coordinates so labels read along the vertical axis.
+#'
+#' @returns A \code{ggplot2} object (inactive until printed or saved).  You can
+#'   add further layers or themes with the usual \pkg{ggplot2} API.
+#'
+#' @examples
+#' \dontrun{
+#' # Typical workflow: run the simulation (see examples in ?sg_covsens_sim),
+#' # then visualise parameter and exposure sensitivity.
+#'
+#' result <- sg_covsens_sim(
+#'   fpath_i = NULL, ds_parest = parest, ds_covs = ds_covval,
+#'   model = model, stimes = stimes_ss, et = ev_t_input,
+#'   est_covmat = est_covmat, npop = 10,
+#'   cont_cov_l = cont_cov_l, cat_cov_l = cat_cov_l,
+#'   quantiles = c(0.1, 0.9), aggr = c("min", "max", "mean"),
+#'   outputs = "Cc"
+#' )
+#'
+#' p_par <- sg_covsens_vis(result, type = "PARSENS")
+#' p_exp <- sg_covsens_vis(result, type = "EXPSENS")
+#' print(p_par)
+#' print(p_exp)
+#'
+#' # Alternate interval columns (must exist in the sensitivity tables)
+#' sg_covsens_vis(result, ci_quantiles = c("P05", "P95"))
+#'
+#' # Drop selected metrics from the exposure panel
+#' sg_covsens_vis(result, type = "EXPSENS", exclude_vars = c("Cc_Cmax"))
+#' }
+#'
+#' @seealso \code{\link{sg_covsens_sim}}
 #'
 #' @export
 sg_covsens_vis <- function(
@@ -62,8 +108,7 @@ sg_covsens_vis <- function(
     point_size     = 2.5,
     errorbar_width = 0.2,
     ylab           = "Mean (95% CI)\nchange from reference",
-    caption        = NULL,
-    panel_height   = NULL
+    caption        = NULL
 ) {
   type <- match.arg(type)
 
@@ -117,11 +162,8 @@ sg_covsens_vis <- function(
       col = ci_band_col, lwd = 0.8, lty = "dotted"
     ) +
     ggplot2::scale_color_manual(values = col_palette) +
-    ggplot2::scale_y_continuous(
-      name   = ylab,
-      breaks = scales::pretty_breaks(7)
-    ) +
-    ggplot2::labs(x = NULL, caption = caption) +
+    ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(7)) +
+    ggplot2::labs(x = NULL, y = ylab, caption = caption) +
     ggplot2::facet_grid(VAR ~ ., scales = "free") +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
@@ -135,29 +177,6 @@ sg_covsens_vis <- function(
         colour    = "black"
       )
     )
-
-  if (!is.null(panel_height)) {
-    if (!requireNamespace("ggh4x", quietly = TRUE)) {
-      warning("Package 'ggh4x' is required for 'panel_height'. ",
-              "Install it with: install.packages('ggh4x')")
-    } else {
-      p <- p + ggh4x::force_panelsizes(rows = grid::unit(panel_height, "cm"))
-
-      # Compute recommended total figure height:
-      #   n_vars  panels  × panel_height cm
-      #   n_vars  facet strip headers × 0.5 cm each
-      #   legend + caption + top/bottom margins ≈ 3 cm
-      n_vars        <- dplyr::n_distinct(ds$VAR)
-      fig_height_cm <- n_vars * (panel_height + 0.5) + 3
-      fig_height_in <- fig_height_cm / 2.54
-
-      attr(p, "fig_height_in") <- fig_height_in
-      message(sprintf(
-        "Recommended figure height: %.1f in  (%.1f cm)  -- use in ggsave() or fig.height knitr option.",
-        fig_height_in, fig_height_cm
-      ))
-    }
-  }
 
   p
 }

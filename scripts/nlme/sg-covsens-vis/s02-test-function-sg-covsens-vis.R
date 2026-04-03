@@ -1,4 +1,4 @@
-source("scripts/nlme/sg-covsens-vis/sg-covsens-vis-cursor.R")
+#source("scripts/nlme/sg-covsens-vis/sg-covsens-vis.R")
 
 ####------ Function parameters ------####
 #quantiles <- c(0.2, 0.8)
@@ -329,15 +329,14 @@ p03_expsens <- sg_covsens_vis(
   type           = "EXPSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
-  ylab           = "Mean (95% CI) exposure\nchange from reference",
-  panel_height = 6.5
+  ylab           = "Mean (95% CI) exposure\nchange from reference"
 )
 p03_expsens
 ggsave(
   filename = "scripts/nlme/sg-covsens-vis/p03_expsens.png",
   plot     = p03_expsens,
   width    = 8,
-  height   = 12.2,
+  height   = 15.2,
   dpi      = 300,
   units    = "in"
 )
