@@ -599,7 +599,17 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     normalize_mlx_file_path()
   data_path <- data_path_raw
   if (!file.exists(data_path)) data_path <- file.path(folder_path, data_path)
-  data_file <- read_csv(data_path)
+  peek <- readLines(data_path, n = 1L, warn = FALSE, encoding = "UTF-8")
+  if (!length(peek) || !nzchar(str_trim(peek[1]))) {
+    stop("Data file is empty or unreadable: ", data_path)
+  }
+  first_line <- peek[1]
+  # Monolix datasets are often tab-separated; read_csv would collapse the row into one column.
+  data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
+    read_tsv(data_path, show_col_types = FALSE)
+  } else {
+    read_csv(data_path, show_col_types = FALSE)
+  }
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
   ## info about columns mapping
@@ -614,12 +624,13 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
            inside = str_extract(raw, "\\{.*\\}") %>% str_remove_all("[\\{\\}]")) %>%
     separate_rows(inside, sep = ",\\s*") %>%
     separate(inside, into = c("key", "value"), sep = "=", fill = "right") %>%
-    pivot_wider(names_from = key, values_from = value) %>%
+    pivot_wider(names_from = key, values_from = value, values_fn = function(x) x[[1]]) %>%
     select(COL, everything(), -raw)
 
   ## Check for duplicate 'use' mappings
+  # covariate / regressor: many columns may share the same use (legitimate in Monolix).
   use_counts <- col_map_df %>%
-    filter(!is.na(use) & use != "covariate") %>%
+    filter(!is.na(use) & !use %in% c("covariate", "regressor")) %>%
     count(use) %>%
     filter(n > 1)
 
@@ -715,12 +726,11 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     )
 
 
-  ## dvid and residual error mapping
+  ## dvid and residual error mapping (Monolix <FIT>: maps observation-type indices to longitudinal outputs y1, y2, ...)
   start_idx_dvid_map <- which(str_detect(contr_obj, fixed("<FIT>")))
   end_idx_dvid_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_dvid_map)[1]
 
   dt_dvid_map <- contr_obj[(start_idx_dvid_map + 1):(end_idx_dvid_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
-
 
   extract_values <- function(line) {
     val <- str_remove(line, "^[^=]+=\\s*")
@@ -734,6 +744,28 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     } else {
       val_clean
     }
+  }
+
+  parse_fit_endpoint_map <- function(fit_lines) {
+    data_line <- fit_lines[str_detect(fit_lines, "^data\\s*=")][1]
+    model_line <- fit_lines[str_detect(fit_lines, "^model\\s*=")][1]
+    if (is.na(data_line) || !nzchar(as.character(data_line))) {
+      stop("Monolix project: <FIT> block must contain a line 'data = {...}' (endpoint / observation-type indices).")
+    }
+    if (is.na(model_line) || !nzchar(as.character(model_line))) {
+      stop("Monolix project: <FIT> block must contain a line 'model = {...}' (longitudinal output names, e.g. y1, y2).")
+    }
+    data_vals <- extract_values(data_line)
+    model_vals <- extract_values(model_line)
+    data_vals <- as.character(unlist(data_vals, use.names = FALSE))
+    model_vals <- as.character(unlist(model_vals, use.names = FALSE))
+    if (length(data_vals) != length(model_vals)) {
+      stop(sprintf(
+        "Monolix <FIT>: length of data list (%d) and model list (%d) must be equal (one longitudinal output per observation-type index).",
+        length(data_vals), length(model_vals)
+      ))
+    }
+    tibble(data = data_vals, model = model_vals)
   }
 
   extract_values_ruv <- function(x) {
@@ -912,8 +944,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   }
 
 
-  dvid_map_df <- tibble(data = extract_values(dt_dvid_map[1]),
-                        model = extract_values(dt_dvid_map[2]))
+  dvid_map_df <- parse_fit_endpoint_map(dt_dvid_map)
 
   start_idx_ruv_map <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))
   end_idx_ruv_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_ruv_map)[1]
@@ -927,7 +958,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     ungroup() %>%
     separate_rows(inside, sep = ",\\s*") %>%
     separate(inside, into = c("key", "value"), sep = "=", fill = "right") %>%
-    pivot_wider(names_from = key, values_from = value) %>%
+    pivot_wider(names_from = key, values_from = value, values_fn = function(x) x[[1]]) %>%
     group_by(COL) %>%
     mutate(RUVpars = list(extract_values_ruv(errorModel)),
            RUVpar_a = ifelse(grepl("constant|combined", errorModel), unlist(RUVpars)[1], NA) ,
