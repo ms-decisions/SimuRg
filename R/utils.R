@@ -78,6 +78,19 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param ... other arguments that will be passed to rxSolve function.
 #' @param ciLow numeric. Lower confidence interval bound. Default is 0.025
 #' @param ciUp numeric. Upper confidence interval bound. Default is 0.975
+#' @param ci_band_alpha Numeric in \eqn{[0,1]}: transparency of the shaded band.
+#'   Default \code{0.2}.
+#' @param ci_band_col Color for the band fill and dotted limit lines.
+#'   Default \code{"firebrick"}.
+#' @param ci_limits Numeric vector of length 2: lower and upper bounds of the
+#'   shaded acceptance band and of the dotted horizontal guides.  Default
+#'   \code{c(0.8, 1.25)} is a common bioequivalence-style window on the ratio
+#'   scale.
+#' @param ci_quantiles Character vector of length 2: names of the lower and
+#'   upper uncertainty columns in the sensitivity table, in that order.
+#'   Defaults \code{c("P025", "P975")} to match the default percentiles in
+#'   \code{sg_covsens_sim}.  Use other names (e.g. \code{c("P05", "P95")}) if
+#'   you changed \code{quantiles} in the simulation and the columns exist.
 #' @param col_i string. Column name for color
 #' @param col_lab string. Label for color legend
 #' @param covs list of covariate structures. List object for covariates specification. Each element should be a list containing covariate relationship definitions with the following structure:
@@ -89,6 +102,11 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #'   * `INIT` - numeric, initial value for the covariate effect parameter
 #'   * `EST` - logical, whether to estimate the covariate effect
 #'   Can be `NULL`, if no covariates are used. Default is `NULL`
+#' @param covsens_res Named list as returned by \code{sg_covsens_sim()}.  Must
+#' contain the element selected by \code{type} (\code{PARSENS} and/or
+#' \code{EXPSENS} data.frames with columns \code{LAB}, \code{VAR},
+#' \code{mean}, \code{Type}, and the interval columns named by
+#' \code{ci_quantiles}).
 #' @param data string. Path to the dataset used to fit a model. Should be a CSV file containing the pharmacokinetic/pharmacodynamic data with appropriate column structure matching the headers specification
 #' @param dens logical. If `TRUE`, plot histogram/density of residuals instead of scatter
 #' @param ds_covs data.frame. The dataframe with covariates
@@ -100,6 +118,8 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param dt_obs_fl logical. Show observed data points. Default is `FALSE`
 #' @param dv_col character. Name of DV column in data_i. Default is`DV`
 #' @param emp_perc logical. Show empirical percentiles. Default is `TRUE`
+#' @param errorbar_width Width argument for \code{geom_errorbar}.  Default
+#'   \code{0.2}.
 #' @param est_covmat data.frame. Parameter estimation covariance matrix.  The
 #'   first column (\code{X1}) must list parameter names; remaining columns
 #'   (named identically) form the symmetric variance–covariance matrix.
@@ -113,6 +133,8 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #'   assuming a normal distribution with mean zero and covariance defined
 #'   by `$OMEGAMAT`, without transformation.
 #' @param excl_col character vector. Contains column names to exclude from synthesis. Default: \code{NULL}
+#' @param exclude_vars Character vector of \code{VAR} levels to omit (e.g.
+#'   \code{"Cc_Cmin"}).  \code{NULL} keeps all rows.
 #' @param f_scales one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
 #' @param facet_i string. Column name for facet
 #' @param fill_i string. Column name for fill aesthetic. Default is `NULL`
@@ -174,11 +196,14 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param plot_type Character. Type of plot to produce:
 #'   * `"DIST"` (default) - histogram of individual parameters,
 #'   * `"QQ"` - QQ-plot of individual parameters
+#' @param point_size Point size for \code{geom_point}.  Default \code{2.5}.
 #' @param pred.corr logical. Apply prediction correction. Default is `FALSE`
 #' @param project_name string. The name of the Monolix project without file extension. This will be used as the base name for output files and directories
 #' @param re random effects object. Contains options for random effects in model fit. Should be a list containing:
 #'   * `init` - matrix, initial values for the variance-covariance matrix of random effects. Rows and columns should correspond to parameters defined in theta. Diagonal elements represent variances, off-diagonal elements represent covariances. Use 0 for no variability
 #'   * `est` - matrix, logical matrix of same dimensions as `init` specifying which variance-covariance elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` to not use this random effect
+#' @param ref_line_col Color for the dashed horizontal line at \code{y = 1}
+#'   (no change from reference).  Default \code{"grey25"}.
 #' @param rtol numeric. A numberic relative tolerance used by the ODE solver to determine if a good solution has been achieved. This is also used in the solved linear model to check if prior doses do not add anything to the solution. Default is 1e-6
 #' @param run_id integer. Tested model ID. Default is 1.
 #' @param ruv residual error object. Options for residual error used in model fit. Should be a list containing:
@@ -220,6 +245,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param model Model object passed to `sg_sim()`.
 #' @param params Character vector of parameter names to vary.
 #' @param par_bounds Tibble/data.frame with columns `PAR`, `LB`, `UB`.
+#' @param point_size Point size for \code{geom_point}.  Default \code{2.5}.
 #' @param n_sim Integer. Number of samples (LHS size for PRCC, base frequency size for eFAST).
 #' @param stimes Numeric vector of simulation times.
 #' @param output Character vector of outputs to keep. Passed to `sg_sim()`.

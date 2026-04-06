@@ -136,7 +136,7 @@ names(.est_covmat)[-1] <- .pnames
 
 
 # ============================================================
-# 1. Return type and successful build
+# 1. Return plot_type and successful build
 # ============================================================
 
 test_that("sg_covsens_vis returns a ggplot object", {
@@ -150,8 +150,8 @@ test_that("sg_covsens_vis default type builds PARSENS with ggplot_build", {
   expect_s3_class(pb, "ggplot_built")
 })
 
-test_that("sg_covsens_vis type EXPSENS builds with ggplot_build", {
-  p <- sg_covsens_vis(.covsens_res, type = "EXPSENS")
+test_that("sg_covsens_vis plot_type EXPSENS builds with ggplot_build", {
+  p <- sg_covsens_vis(.covsens_res, plot_type = "EXPSENS")
   pb <- ggplot2::ggplot_build(p)
   expect_s3_class(pb, "ggplot_built")
 })
@@ -161,10 +161,10 @@ test_that("sg_covsens_vis type EXPSENS builds with ggplot_build", {
 # 2. Labels and plotting options
 # ============================================================
 
-test_that("sg_covsens_vis applies ylab and caption to plot labels", {
+test_that("sg_covsens_vis applies lab_y and cap to plot labels", {
   ylab_txt <- "Custom y label"
   cap_txt <- "Ref: custom caption"
-  p <- sg_covsens_vis(.covsens_res, ylab = ylab_txt, caption = cap_txt)
+  p <- sg_covsens_vis(.covsens_res, lab_y = ylab_txt, cap = cap_txt)
   expect_equal(p$labels$y, ylab_txt)
   expect_equal(p$labels$caption, cap_txt)
 })
@@ -198,9 +198,9 @@ test_that("sg_covsens_vis exclude_vars reduces facet rows to remaining VAR level
 # 4. Input validation — error handling
 # ============================================================
 
-test_that("sg_covsens_vis errors when covsens_res lacks requested type", {
+test_that("sg_covsens_vis errors when covsens_res lacks requested plot_type", {
   expect_error(
-    sg_covsens_vis(list(PARSENS = .covsens_res$PARSENS), type = "EXPSENS"),
+    sg_covsens_vis(list(PARSENS = .covsens_res$PARSENS), plot_type = "EXPSENS"),
     regexp = "does not contain an element named"
   )
 })
