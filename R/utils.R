@@ -117,7 +117,6 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #'   * `REF` - numeric, reference value for categorical covariates
 #'   * `INIT` - numeric, initial value for the covariate effect parameter
 #'   * `EST` - logical, whether to estimate the covariate effect
-<<<<<<< R/utils.R
 #'   Can be `NULL`, if no covariates are used. Default is `NULL`
 #' @param covsens_res Named list as returned by \code{sg_covsens_sim()}.  Must
 #' contain the element selected by \code{type} (\code{PARSENS} and/or
@@ -133,7 +132,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #'   Required when \code{fpath_i} is \code{NULL}; must be provided together
 #'   with \code{ds_covs}.  Default is \code{NULL}.
 #' @param dt_obs_fl Logical. Show observed data points. Default is `FALSE`
-#' @param dv_col Character. Name of DV column in data_i. Default is`DV`
+#' @param dv_col Character. Name of DV column in data_i. Default is `DV`
 #' @param emp_perc Logical. Show empirical percentiles. Default is `TRUE`
 #' @param errorbar_width Numeric. Width argument for \code{geom_errorbar}.  Default
 #'   \code{0.2}.
