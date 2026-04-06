@@ -1,0 +1,363 @@
+{
+  "headers": [
+    {
+      "name": [
+        "ID"
+      ],
+      "use": [
+        "identifier"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "TIME"
+      ],
+      "use": [
+        "time"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "DV"
+      ],
+      "use": [
+        "observation"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "DVID"
+      ],
+      "use": [
+        "observationtype"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "AMT"
+      ],
+      "use": [
+        "amount"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "EVID"
+      ],
+      "use": [
+        "eventidentifier"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "MDV"
+      ],
+      "use": [
+        "mdv"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "DVNAME"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "CMT"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "AGE"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "AGE_centered"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "SEX"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "WEIGHT"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "BMI"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "CLCR"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "CYP2C9_gentyp"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G1_1"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G1_2"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G1_3"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G2_2"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G2_3"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "G3_3"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "WEIGHT_tr"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    },
+    {
+      "name": [
+        "CLCR_tr"
+      ],
+      "use": [
+        "ignored"
+      ],
+      "type": {}
+    }
+  ],
+  "data": [
+    "./dataset.csv"
+  ],
+  "model": [
+    "./PK_model_2c_rxode.txt"
+  ],
+  "task_opt": {},
+  "covs": [],
+  "project_name": [
+    "aaa_test"
+  ],
+  "theta": [
+    {
+      "NAME": "ka",
+      "INIT": 0.1,
+      "EST": true,
+      "TRANS": "lognormal"
+    },
+    {
+      "NAME": "Vd",
+      "INIT": 10,
+      "EST": true,
+      "TRANS": "lognormal"
+    },
+    {
+      "NAME": "CL",
+      "INIT": 0.3,
+      "EST": true,
+      "TRANS": "lognormal"
+    },
+    {
+      "NAME": "Vp",
+      "INIT": 20,
+      "EST": true,
+      "TRANS": "lognormal"
+    },
+    {
+      "NAME": "Q",
+      "INIT": 0.3,
+      "EST": true,
+      "TRANS": "lognormal"
+    }
+  ],
+  "ruv": {
+    "YNAME": [
+      "Cc"
+    ],
+    "DVID": [
+      "1"
+    ],
+    "TRANS": [
+      "normal"
+    ],
+    "PRED": [
+      "Cc"
+    ],
+    "ERR": [
+      "proportional"
+    ],
+    "INIT": [
+      1
+    ],
+    "EST": [
+      true
+    ]
+  },
+  "re": {
+    "init": [
+      [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    ],
+    "est": [
+      [
+        true,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        true,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        true,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        true,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        true
+      ]
+    ]
+  },
+  "modelText": "\r\n# [INPUT]\r\n  \r\n    ka = 0.5;\r\n    Vd = 3;\r\n    CL = 5;\r\n    Vp = 2;\r\n    Q = 6;\r\n\r\n# [MODEL]\r\n\r\n    ### Explicit functions\r\n    Cc = Ac/Vd;\r\n\r\n    ### Initial conditions\r\n    Ad(0) = 0;\r\n    Ac(0) = 0;\r\n    Ap(0) = 0;\r\n\r\n    ### Differential equations\r\n    d/dt(Ad) = - ka*Ad;\r\n    d/dt(Ac) = ka*Ad - CL*Cc - Q*(Ac/Vd - Ap/Vp);\r\n    d/dt(Ap) = Q*(Ac/Vd - Ap/Vp);\r\n"
+}
