@@ -12,8 +12,10 @@
 #'
 #' @param folder_path Character string. Path to the directory containing Monolix project files.
 #' @param proj_name Character string. Name of the Monolix project (without file extension).
-#' @param save_json Logical. If \code{TRUE}, saves \code{GCO} and \code{GFO} JSON files
-#'   to \code{folder_path} with names \code{<proj_name>_GCO.json} and \code{<proj_name>_GFO.json}.
+#' @param save_file Logical. If \code{TRUE}, saves \code{GCO} and \code{GFO} JSON files
+#'   to \code{folder_path} with names \code{<proj_name>_GCO.json} and \code{<proj_name>_GFO.json},
+#'   and also saves two RData files: \code{<proj_name>_GCO.RData} (object \code{gco})
+#'   and \code{<proj_name>_GFO.RData} (object \code{gfo}).
 #'
 #' @return
 #' Returns a list with the following components:
@@ -61,8 +63,8 @@
 #' including population parameters, individual parameters, covariates, and diagnostic
 #' metrics.
 #'
-#' If \code{save_json = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
-#' JSON files to \code{folder_path}.
+#' If \code{save_file = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
+#' JSON files and \code{.RData} files to \code{folder_path}.
 #'
 #' @examples
 #' \donttest{
@@ -83,13 +85,13 @@
 #' # Check objective function value
 #' print(result$GFO$OFV)
 #'}
-#' @importFrom readr read_csv cols parse_number
+#' @importFrom readr read_csv read_tsv cols parse_number
 #' @importFrom stringr str_c
 #' @import tibble
 #' @import dplyr
 #' @export
 
-sg_converter <- function(folder_path, proj_name, save_json = FALSE){
+sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   #####--------------- Helper function for WRES calculation ---------------#####
 
   # Function to calculate WRES using FO approximation with partial derivatives
@@ -597,7 +599,17 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     normalize_mlx_file_path()
   data_path <- data_path_raw
   if (!file.exists(data_path)) data_path <- file.path(folder_path, data_path)
-  data_file <- read_csv(data_path)
+  peek <- readLines(data_path, n = 1L, warn = FALSE, encoding = "UTF-8")
+  if (!length(peek) || !nzchar(str_trim(peek[1]))) {
+    stop("Data file is empty or unreadable: ", data_path)
+  }
+  first_line <- peek[1]
+  # Monolix datasets are often tab-separated; read_csv would collapse the row into one column.
+  data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
+    read_tsv(data_path, show_col_types = FALSE)
+  } else {
+    read_csv(data_path, show_col_types = FALSE)
+  }
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
   ## info about columns mapping
@@ -612,12 +624,13 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
            inside = str_extract(raw, "\\{.*\\}") %>% str_remove_all("[\\{\\}]")) %>%
     separate_rows(inside, sep = ",\\s*") %>%
     separate(inside, into = c("key", "value"), sep = "=", fill = "right") %>%
-    pivot_wider(names_from = key, values_from = value) %>%
+    pivot_wider(names_from = key, values_from = value, values_fn = function(x) x[[1]]) %>%
     select(COL, everything(), -raw)
 
   ## Check for duplicate 'use' mappings
+  # covariate / regressor: many columns may share the same use (legitimate in Monolix).
   use_counts <- col_map_df %>%
-    filter(!is.na(use) & use != "covariate") %>%
+    filter(!is.na(use) & !use %in% c("covariate", "regressor")) %>%
     count(use) %>%
     filter(n > 1)
 
@@ -713,12 +726,11 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     )
 
 
-  ## dvid and residual error mapping
+  ## dvid and residual error mapping (Monolix <FIT>: maps observation-type indices to longitudinal outputs y1, y2, ...)
   start_idx_dvid_map <- which(str_detect(contr_obj, fixed("<FIT>")))
   end_idx_dvid_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_dvid_map)[1]
 
   dt_dvid_map <- contr_obj[(start_idx_dvid_map + 1):(end_idx_dvid_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
-
 
   extract_values <- function(line) {
     val <- str_remove(line, "^[^=]+=\\s*")
@@ -732,6 +744,28 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     } else {
       val_clean
     }
+  }
+
+  parse_fit_endpoint_map <- function(fit_lines) {
+    data_line <- fit_lines[str_detect(fit_lines, "^data\\s*=")][1]
+    model_line <- fit_lines[str_detect(fit_lines, "^model\\s*=")][1]
+    if (is.na(data_line) || !nzchar(as.character(data_line))) {
+      stop("Monolix project: <FIT> block must contain a line 'data = {...}' (endpoint / observation-type indices).")
+    }
+    if (is.na(model_line) || !nzchar(as.character(model_line))) {
+      stop("Monolix project: <FIT> block must contain a line 'model = {...}' (longitudinal output names, e.g. y1, y2).")
+    }
+    data_vals <- extract_values(data_line)
+    model_vals <- extract_values(model_line)
+    data_vals <- as.character(unlist(data_vals, use.names = FALSE))
+    model_vals <- as.character(unlist(model_vals, use.names = FALSE))
+    if (length(data_vals) != length(model_vals)) {
+      stop(sprintf(
+        "Monolix <FIT>: length of data list (%d) and model list (%d) must be equal (one longitudinal output per observation-type index).",
+        length(data_vals), length(model_vals)
+      ))
+    }
+    tibble(data = data_vals, model = model_vals)
   }
 
   extract_values_ruv <- function(x) {
@@ -910,8 +944,7 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
   }
 
 
-  dvid_map_df <- tibble(data = extract_values(dt_dvid_map[1]),
-                        model = extract_values(dt_dvid_map[2]))
+  dvid_map_df <- parse_fit_endpoint_map(dt_dvid_map)
 
   start_idx_ruv_map <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))
   end_idx_ruv_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_ruv_map)[1]
@@ -925,7 +958,7 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     ungroup() %>%
     separate_rows(inside, sep = ",\\s*") %>%
     separate(inside, into = c("key", "value"), sep = "=", fill = "right") %>%
-    pivot_wider(names_from = key, values_from = value) %>%
+    pivot_wider(names_from = key, values_from = value, values_fn = function(x) x[[1]]) %>%
     group_by(COL) %>%
     mutate(RUVpars = list(extract_values_ruv(errorModel)),
            RUVpar_a = ifelse(grepl("constant|combined", errorModel), unlist(RUVpars)[1], NA) ,
@@ -1309,7 +1342,7 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
               PROJNAME = proj_name)
   sg_object <- list(GFO = gfo, GCO = gco)
 
-  if (isTRUE(save_json)) {
+  if (isTRUE(save_file)) {
     output_dir <- normalizePath(folder_path, mustWork = FALSE)
     if (!dir.exists(output_dir)) {
       dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -1319,6 +1352,11 @@ sg_converter <- function(folder_path, proj_name, save_json = FALSE){
     gfo_path <- file.path(output_dir, str_c(proj_name, "_GFO.json"))
     writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null"), gco_path)
     writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null"), gfo_path)
+
+    gco_rdata_path <- file.path(output_dir, str_c(proj_name, "_GCO.RData"))
+    gfo_rdata_path <- file.path(output_dir, str_c(proj_name, "_GFO.RData"))
+    save(gco, file = gco_rdata_path)
+    save(gfo, file = gfo_rdata_path)
   }
 
   return(sg_object)
@@ -1332,14 +1370,14 @@ project_name <- "1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL"
 folder_path <- "./scripts/nlme/2.1-sg-converter/monolix-2023/fenoprofen-pk/Monolix/"
 folder_path_IFn <- "./scripts/nlme/2.1-sg-converter/monolix-2023/IFN_full/"
 project_name_IFN <- "ifn_full_Vmax_bcell_2"
-result <- sg_converter(folder_path = folder_path, proj_name = project_name, save_json = T)
+result <- sg_converter(folder_path = folder_path, proj_name = project_name)
 
 result$GFO$SUMTAB
 result$GFO$COTAB
-result$GCO
+result$GFO
 result$GCO$modelText
 
-result_ifn <- sg_converter(folder_path = folder_path_IFn, proj_name = project_name_IFN, save_json = T)
+result_ifn <- sg_converter(folder_path = folder_path_IFn, proj_name = project_name_IFN, save_file = T)
 
 result_ifn$GFO$COTAB
 result_ifn$GFO$CATAB
@@ -1348,3 +1386,18 @@ result_ifn$GCO
 result_ifn$GFO$PROJNAME
 
 read_json("./scripts/nlme/2.1-sg-converter/derived-data/aaa_test.json")
+
+#### 2 outputs ####
+
+
+folder_path_MBMA <- "./scripts/nlme/2.1-sg-converter/monolix-2023/2output/"
+project_name_MBMA <- "ifn_full_Vmax_bcell_outputs2"
+result_MBMA <- sg_converter(
+  folder_path = folder_path_MBMA,
+  proj_name = project_name_MBMA,
+  save_file = FALSE
+)
+result_MBMA$GFO$SUMTAB
+result_MBMA$GFO
+result_MBMA$GCO
+result_MBMA$GCO$modelText
