@@ -1,4 +1,4 @@
-#' Visualise covariate sensitivity analysis results
+#' Visualisation of covariate sensitivity analysis results
 #'
 #' Draw a forest-style graphic (points with uncertainty intervals) from the
 #' sensitivity tables produced by \code{\link{sg_covsens_sim}}.  Each facet row
@@ -183,7 +183,7 @@
 #' @export
 sg_covsens_vis <- function(
     covsens_res,
-    plot_type           = c("PARSENS", "EXPSENS"),
+    plot_type      = c("PARSENS", "EXPSENS"),
     exclude_vars   = NULL,
     ci_quantiles   = c("P025", "P975"),
     ci_limits      = c(0.8, 1.25),
