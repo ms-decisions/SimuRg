@@ -288,23 +288,26 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #' with prediction intervals derived from simulated data.
 #'
 #' @inheritParams sg_dummy
-#' @param ds_sim data frame with simulated data containing columns:
-#'   - id: simulation replicate identifier
-#'   - time: time points
+#' @param ds_sim A data frame with simulated data containing columns:
+#'   - ID: simulation replicate identifier
+#'   - TIME: time points
 #'   - VAR: output variable name
 #'   - VALUE: simulated values
-#' @param data_i data frame with observed data containing columns:
+#' @param data_i A data frame with observed data containing columns:
 #'   - ID: patient identifier
 #'   - TIME: time points
 #'   - DV: observed dependent variable values
 #'   - DVID: dependent variable identifier
-#' @param output_names data frame mapping VAR names to DVID
-#' @param lab_x string. X-axis label.Default is "TIME, h".
-#' @param lab_y string. Y-axis label.Default is "DV".
-#' @param method character. Binning method: "kmeans", "equal", "quantile" (default: "kmeans")
-#' @param n_bins integer. Number of bins to use in the histogram. Default is 10.
-#' @param interpolation logical. Use line interpolation vs rectangles (default: FALSE)
-#' @param strat_by_dose character. Variable name for dose stratification (default: NULL)
+#' @param output_names A data frame mapping `VAR` values (from `ds_sim`)
+#'  to `DVID` values (from `data_i`). Must contain columns:
+#'   - output: character, `VAR` values (e.g., "Cc", "Cp")
+#'   - dvid: numeric, corresponding DVIDs (e.g., 1, 2)
+#' @param lab_x String. X-axis label. Default is "TIME, h".
+#' @param lab_y String. Y-axis label. Default is "DV".
+#' @param method Character. Binning method: "kmeans", "equal", "quantile" (default: "kmeans").
+#' @param n_bins Integer. Number of bins to use in the histogram. Default is 10.
+#' @param interpolation Logical. Use line interpolation vs rectangles (default: FALSE).
+#' @param strat_by_dose Character. Variable name for dose stratification (default: NULL).
 #'
 #' @return List of ggplot objects, one for each output variable
 #' @details
