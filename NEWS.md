@@ -1,3 +1,25 @@
+# SimuRg 0.1.9 (2026-04-09)
+
+## New features:
+* tests and documentation for function `sg_covsens()` was added
+* `sg_converter()` now works with two DVIDs
+
+## Bug fixes:
+* `sg_converter()` and `sg_vpc_sim()` : fixed bugs reported in [SD-1360]
+* `sg_vpc_vis()`: fixed bugs reported in [SD-1361]
+
+# SimuRg 0.1.8 (2026-04-03)
+
+## New features 
+* `sg_converter()` now returns two objects: GFO - generalized fit object with fit results and GCO - generalized control object, that contain information about the fit options and see the 
+
+## Bug fixes 
+* `sg_gof_res()` was fixed with the [SD-1391] support request
+* `sg_covsens()` was testsed on addtional projects
+
+## Documentation 
+* all functions arguments descriptions now starts with a capital letter
+
 # SimuRg 0.1.7 (2026-03-23)
 
 ## New features
