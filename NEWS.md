@@ -1,3 +1,42 @@
+# SimuRg 0.1.9 (2026-04-09)
+
+## New features:
+* tests and documentation for function `sg_covsens()` was added
+* `sg_converter()` now works with two DVIDs
+
+## Bug fixes:
+* `sg_converter()` and `sg_vpc_sim()` : fixed bugs reported in [SD-1360]
+* `sg_vpc_vis()`: fixed bugs reported in [SD-1361]
+
+# SimuRg 0.1.8 (2026-04-03)
+
+## New features 
+* `sg_converter()` now returns two objects: GFO - generalized fit object with fit results and GCO - generalized control object, that contain information about the fit options and see the 
+
+## Bug fixes 
+* `sg_gof_res()` was fixed with the [SD-1391] support request
+* `sg_covsens()` was testsed on addtional projects
+
+## Documentation 
+* all functions arguments descriptions now starts with a capital letter
+
+# SimuRg 0.1.7 (2026-03-23)
+
+## New features
+* `sg_globalsens_vis()` function was added to the package
+
+
+## Bug fixes 
+* `sg_converter()` error with correlations between random effects [SD-1340] has been solved
+* `sg_converter()` error duplicated DVID columns was solved [SD-1354]. Now the package compares the column
+  names in the initial dataset and the ones specified in headers to resolve possible conflicts.
+* `sg_converter()` error in dataset column names resolved [SD-1355]. Now the columns of the 
+  initial dataset are renamed after loading: all special signs in the column names 
+  are replaced with `_`
+
+## Documentation
+* examples in `sg_covsens_sim()` was updated
+
 # SimuRg 0.1.6 (2026-03-19)
 
 ## New features
