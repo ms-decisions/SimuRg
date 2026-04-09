@@ -1,3 +1,20 @@
+# SimuRg 0.1.7 (2026-03-23)
+
+## New features
+* `sg_globalsens_vis()` function was added to the package
+
+
+## Bug fixes 
+* `sg_converter()` error with correlations between random effects [SD-1340] has been solved
+* `sg_converter()` error duplicated DVID columns was solved [SD-1354]. Now the package compares the column
+  names in the initial dataset and the ones specified in headers to resolve possible conflicts.
+* `sg_converter()` error in dataset column names resolved [SD-1355]. Now the columns of the 
+  initial dataset are renamed after loading: all special signs in the column names 
+  are replaced with `_`
+
+## Documentation
+* examples in `sg_covsens_sim()` was updated
+
 # SimuRg 0.1.6 (2026-03-19)
 
 ## New features

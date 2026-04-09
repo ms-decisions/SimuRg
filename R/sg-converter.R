@@ -712,8 +712,20 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
            TINF = col_map_df$COL[col_map_df$use == "infusiontime"],
            SS = col_map_df$COL[col_map_df$use == "steadystate"]
            #  and expand
-    )
+    ) %>% mutate(across(any_of(cols_to_numeric), ~ {
+      original <- .
+      converted <- suppressWarnings(as.numeric(.))
 
+      # Detect newly introduced NAs
+      new_na <- is.na(converted) & !is.na(original)
+
+      if (any(new_na)) {
+        warning(paste0("Column '", cur_column(), "' had ", sum(new_na),
+            " value(s) that could not be converted to numeric and were set to NA."
+            ), call. = FALSE)}
+
+      converted
+    }))
 
   ## dvid and residual error mapping
   start_idx_dvid_map <- which(str_detect(contr_obj, fixed("<FIT>")))
@@ -1106,7 +1118,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   ## evtab compiling
 
   evtab <- data_file_mod %>% filter(EVID == 1) %>%
-    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL", "II", "DUR", "TINF", "RATE", "SS")))
+    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL",
+                    "II", "DUR", "TINF", "RATE", "SS")))
 
 
   ## omegamat compiling
@@ -1157,6 +1170,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     sigmamat[i,i] <-  sumtab$VALUE[sumtab$PAR == resid_par]
   }
   sigmamat <- sigmamat %>% as.matrix()
+  sigmamat[is.na(sigmamat)] <- 0
 
   ## occmat compiling - !!! re-write
   occmat <- matrix()

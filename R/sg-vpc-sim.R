@@ -56,8 +56,10 @@ sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop =
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
   data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
+
   if (!is.null(obj$COTAB)) ev_tab <-  merge(ev_tab, obj$COTAB, by = "ID", all.x = T)
   if (!is.null(obj$CATAB)) ev_tab <-  merge(ev_tab, obj$CATAB, by = "ID", all.x = T)
+  if (!is.null(obj$REGTAB)) ev_tab <-  merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = T)
   covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
   covs_i <- covs_i[covs_i != "ID"]
   id_seq <- unique(data_fin.noex$ID)
