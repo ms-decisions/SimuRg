@@ -67,7 +67,7 @@
 #' @importFrom scales pretty_breaks pretty_breaks trans_format math_format
 #' @export
 sg_gof_res <- function(
-    fpath_i, cov_cols = NULL, indiv = TRUE, vs_time = TRUE, weighted = TRUE,
+    fpath_i, DVID = 1, cov_cols = NULL, indiv = TRUE, vs_time = TRUE, weighted = TRUE,
     addline = TRUE, alpha_i = 0.5, smooth = TRUE, log_x = FALSE,
     abreaks = scales::pretty_breaks(7), lab_y = NULL, lab_x = NULL,
     col_i = NULL, col_lab = NULL, facet_i = NULL, f_scales = "fixed",
@@ -114,6 +114,8 @@ sg_gof_res <- function(
     stop("SDTAB must be a data frame or a list of data frames")
   }
 
+  ds_i <- filter_sdtab_by_DVID(ds_i, DVID)
+
   if (indiv) {
     if (weighted) {
       # Weighted individual residuals
@@ -151,8 +153,10 @@ sg_gof_res <- function(
     }
   }
 
+  if ("MDV" %in% colnames(ds_i)) {
+    ds_i <- ds_i %>% filter(.data$MDV != 1)
+  }
   ds_i <- ds_i %>%
-    filter(MDV != 1) %>%
     rename_at(vars(any_of(res_type)), ~"Y") %>%
     rename_at(vars(any_of(X)), ~"X")
 

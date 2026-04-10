@@ -998,6 +998,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   resid_err_params <- sum_dt_i$parameter[!sum_dt_i$parameter %in% c(pop_params, omega_params, beta_params, corr_params)]
   eta_params <- str_replace(omega_params, "omega_", "eta_")
 
+  long_ruv_map <- extract_longitudinal_ruv_map(contr_obj)
+
   ## sdtab compiling
   sdtab <- unique(dvid_map_df$model) %>% map_dfr(function(y_name) {
 
@@ -1046,7 +1048,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
              IWRES = str_c("indWRes", suffix), #indWRes_mode,
              DV = all_of(y_name)) %>%
       mutate(RES = PRED - DV, IRES = IPRED - DV,
-             DVID = dvid_i)
+             DVID = dvid_i,
+             DVNAME = long_ruv_map$prediction[match(y_name, long_ruv_map$COL)])
 
     # Calculate WRES using Monte Carlo simulation
     if (nrow(ruv_info) > 0) {
@@ -1057,8 +1060,12 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
       sdtab_i <- sdtab_i %>% mutate(WRES = NA_real_)
     }
 
+    if (!"MDV" %in% names(sdtab_i)) {
+      sdtab_i <- sdtab_i %>% mutate(MDV = 0L)
+    }
+
     sdtab_i %>%
-      select(any_of(c("ID", "TIME", "DV", "DVID", "PRED", "IPRED", "RES", "IRES", "WRES", "CWRES",
+      select(any_of(c("ID", "TIME", "DV", "DVID", "DVNAME", "PRED", "IPRED", "RES", "IRES", "WRES", "CWRES",
                       "IWRES", "EVID", "MDV", "OCC", "BLQ", "CENS", "LIMIT")))
 
   })
@@ -1250,7 +1257,6 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     )
   })
 
-  long_ruv_map <- extract_longitudinal_ruv_map(contr_obj)
   ruv_trans <- long_ruv_map$distribution[match(dt_ruv_map$COL, long_ruv_map$COL)]
   ruv_pred <- long_ruv_map$prediction[match(dt_ruv_map$COL, long_ruv_map$COL)]
   if ("distribution" %in% names(dt_ruv_map)) {
@@ -1365,6 +1371,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 }
 
 devtools::load_all()
+devtools::document()
 
 project_name <- "1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL"
 folder_path <- "./scripts/nlme/2.1-sg-converter/monolix-2023/fenoprofen-pk/Monolix/"
@@ -1398,6 +1405,16 @@ result_MBMA <- sg_converter(
   save_file = FALSE
 )
 result_MBMA$GFO$SUMTAB
-result_MBMA$GFO
-result_MBMA$GCO
+result_MBMA$GFO$SDTAB
+result_MBMA$GFO$SDTAB$DVNAME
+result_MBMA$GCO$ruv[[1]]
 result_MBMA$GCO$modelText
+
+
+sg_gof_tp(result_MBMA$GFO, DVID = 1)
+sg_gof_tp?
+help(sg_gof_tp)
+
+
+sg_gof_res_dist(result_MBMA$GFO, DVID = 0)
+sg_gof_obpr(result_MBMA$GFO, DVID = 2)

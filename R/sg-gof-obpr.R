@@ -56,7 +56,7 @@
 #' @export
 
 sg_gof_obpr <- function(
-    fpath_i, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
+    fpath_i, DVID = 1, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
     smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
     lab_x = "Model-predicted values", lab_y = "Observed values", col_i = NULL, col_lab = NULL,
     facet_i = NULL, f_scales = "fixed",
@@ -106,21 +106,24 @@ sg_gof_obpr <- function(
     stop("SDTAB must be a data frame or a list of data frames")
   }
 
+  ds_i <- filter_sdtab_by_DVID(ds_i, DVID)
+
   # Check for required columns and convert to numeric
-  required_cols <- c("IPRED", "PRED", "TIME", "DV", "MDV")
+  required_cols <- c("IPRED", "PRED", "TIME", "DV")
   missing_cols <- setdiff(required_cols, colnames(ds_i))
   if (length(missing_cols) > 0) {
     stop("SDTAB is missing required columns: ", paste(missing_cols, collapse = ", "))
   }
 
   # Convert columns to numeric (only if they exist)
+  cn_ds <- colnames(ds_i)
   ds_i <- ds_i %>%
     mutate(
-      IPRED = if ("IPRED" %in% colnames(.)) as.numeric(IPRED) else NA_real_,
-      PRED = if ("PRED" %in% colnames(.)) as.numeric(PRED) else NA_real_,
+      IPRED = if ("IPRED" %in% cn_ds) as.numeric(IPRED) else NA_real_,
+      PRED = if ("PRED" %in% cn_ds) as.numeric(PRED) else NA_real_,
       TIME = as.numeric(TIME),
       DV = as.numeric(DV),
-      MDV = as.numeric(MDV)
+      MDV = if ("MDV" %in% cn_ds) as.numeric(MDV) else 0
     )
 
   # Add optional columns if they exist
@@ -131,8 +134,7 @@ sg_gof_obpr <- function(
     ds_i <- ds_i %>% mutate(IWRES = as.numeric(IWRES))
   }
 
-  ds_i <- ds_i %>%
-    filter(MDV != 1)
+  ds_i <- ds_i %>% filter(.data$MDV != 1)
 
   # Apply scaling factor to IPRED, PRED, and DV if they exist
   scale_cols <- intersect(c("IPRED", "PRED", "DV"), colnames(ds_i))
