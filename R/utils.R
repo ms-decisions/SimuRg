@@ -15,7 +15,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
                          "TIME_BIN_max_prev", "TIME_BIN_min", "TIME_BIN_min_next", "TR",
                          "TRANS", "TSLD", "Total order", "TV", "TVALUE", "TYPE", "Type", "UCI", "UP", "VALUE", "VAR",
                          "Var1", "Var2", "Var_epsilon", "Var_mc", "Var_total",
-                         "WRES", "X", "Y", "aov", "as.formula", "category", "cmax",
+                         "WRES", "X", "Y", "DVNAME", "aov", "as.formula", "category", "cmax",
                          "cmax_ref", "combn", "cor", "cor.test", "data", "density",
                          "dnorm", "dvid", "errorModel", "geom_mean_val", "inside",
                          "kmeans", "ks.test", "key", "lperc", "max_val", "mean_val",
@@ -132,6 +132,10 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #'   Required when \code{fpath_i} is \code{NULL}; must be provided together
 #'   with \code{ds_covs}.  Default is \code{NULL}.
 #' @param dt_obs_fl Logical. Show observed data points. Default is `FALSE`
+#' @param DVID Restrict \code{SDTAB} to one observation type. Numeric values
+#'   select the \code{DVID} column (default \code{1}). If \code{SDTAB} has
+#'   \code{DVNAME}, a character or factor is matched to \code{DVNAME} first;
+#'   otherwise a digit-only string is coerced to numeric \code{DVID}.
 #' @param dv_col Character. Name of DV column in data_i. Default is `DV`
 #' @param emp_perc Logical. Show empirical percentiles. Default is `TRUE`
 #' @param errorbar_width Numeric. Width argument for \code{geom_errorbar}.  Default
@@ -329,6 +333,7 @@ sg_dummy <- function(
   ds_covs,
   ds_i,
   dt_obs_fl = FALSE,
+  DVID = 1,
   dv_col = "DV",
   emp_perc = TRUE,
   et,
@@ -430,6 +435,42 @@ smrg_ensure_tables_df <- function(obj) {
     }
   }
   obj
+}
+
+# Subset SDTAB-like data to one endpoint: numeric DVID, or DVNAME when present.
+filter_sdtab_by_DVID <- function(ds, DVID = 1) {
+  if (missing(DVID) || is.null(DVID)) {
+    DVID <- 1
+  }
+  if (!"DVID" %in% names(ds)) {
+    ep_num <- suppressWarnings(as.numeric(DVID))
+    if (length(ep_num) == 1L && !is.na(ep_num) && ep_num == 1) {
+      return(ds)
+    }
+    stop("SDTAB has no DVID column; cannot filter by DVID.")
+  }
+
+  if ((is.character(DVID) || is.factor(DVID)) && "DVNAME" %in% names(ds)) {
+    ep_chr <- as.character(DVID)
+    dvname_vals <- unique(stats::na.omit(as.character(ds$DVNAME)))
+    if (ep_chr %in% dvname_vals) {
+      out <- dplyr::filter(ds, as.character(.data$DVNAME) == ep_chr)
+      if (nrow(out) == 0L) {
+        stop("No SDTAB rows for DVNAME = '", ep_chr, "'.")
+      }
+      return(out)
+    }
+  }
+
+  dvid_target <- suppressWarnings(as.numeric(DVID))
+  if (length(dvid_target) != 1L || is.na(dvid_target)) {
+    stop("DVID must be a single DVID (numeric) or DVNAME (string present in SDTAB$DVNAME).")
+  }
+  out <- dplyr::filter(ds, .data$DVID == dvid_target)
+  if (nrow(out) == 0L) {
+    stop("No SDTAB rows for DVID = ", dvid_target, ".")
+  }
+  out
 }
 
 read_smrg_obj <- function(fpath_i) {
