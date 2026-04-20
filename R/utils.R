@@ -432,6 +432,42 @@ smrg_ensure_tables_df <- function(obj) {
   obj
 }
 
+# Subset SDTAB-like data to one endpoint: numeric DVID, or DVNAME when present.
+filter_sdtab_by_DVID <- function(ds, DVID = 1) {
+  if (missing(DVID) || is.null(DVID)) {
+    DVID <- 1
+  }
+  if (!"DVID" %in% names(ds)) {
+    ep_num <- suppressWarnings(as.numeric(DVID))
+    if (length(ep_num) == 1L && !is.na(ep_num) && ep_num == 1) {
+      return(ds)
+    }
+    stop("SDTAB has no DVID column; cannot filter by DVID.")
+  }
+
+  if ((is.character(DVID) || is.factor(DVID)) && "DVNAME" %in% names(ds)) {
+    ep_chr <- as.character(DVID)
+    dvname_vals <- unique(stats::na.omit(as.character(ds$DVNAME)))
+    if (ep_chr %in% dvname_vals) {
+      out <- dplyr::filter(ds, as.character(.data$DVNAME) == ep_chr)
+      if (nrow(out) == 0L) {
+        stop("No SDTAB rows for DVNAME = '", ep_chr, "'.")
+      }
+      return(out)
+    }
+  }
+
+  dvid_target <- suppressWarnings(as.numeric(DVID))
+  if (length(dvid_target) != 1L || is.na(dvid_target)) {
+    stop("DVID must be a single DVID (numeric) or DVNAME (string present in SDTAB$DVNAME).")
+  }
+  out <- dplyr::filter(ds, .data$DVID == dvid_target)
+  if (nrow(out) == 0L) {
+    stop("No SDTAB rows for DVID = ", dvid_target, ".")
+  }
+  out
+}
+
 read_smrg_ctrl <- function(ctrl) {
   if (inherits(ctrl, "character")) {
     if (!file.exists(ctrl)) {
