@@ -7,12 +7,14 @@
 #'
 #' @inheritParams sg_dummy
 #' @param fpath_i Either a character string specifying the file path to a saved `sg_fit` object (R data file), or a list object containing the `sg_fit` results directly. The object must contain: `SDTAB`, `EVTAB`, `SUMTAB`, `OMEGAMAT`, `SIGMAMAT`, and optionally `COTAB` and `CATAB`
+#' @param gco Generalized control object. Either an R list or path to Rdata/json file. Either `gco` or `model` file should be specified for simulations model specification. Defauls is `NULL`
 #' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
 #' @returns A dataset with simulation results
 #' @examples
 #' \donttest{
 #' library(rxode2)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
+#' # Simulate VPC from with generalized model object
 #' mod <- rxode2::rxode2({
 #'   ka_pop = 0.1;
 #'   Vd_pop = 10;
@@ -43,7 +45,59 @@
 #' })
 #'
 #' sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
+#' # Make VPC plot with the generalized control object
+#' model <-  "inst/extdata/models/rxode/model_PK_1c.txt"
+#' data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
+#' headers <- list(list(name = "ID", use = "identifier", type = NULL),
+#'              list(name = "TIME", use = "time", type = NULL),
+#'                           list(name = "DV", use = "observation", type = "continuous"),
+#'                           list(name = "DVID", use = "observationtype", type = NULL),
+#'                           list(name = "ADM", use = "administration", type = NULL),
+#'                           list(name = "AMT", use = "amount", type = NULL),
+#'                           list(name = "EVID", use = "eventidentifier", type = NULL),
+#'                           list(name = "MDV", use = "missingdependentvariable", type = NULL),
+#'                           list(name = "AGE", use = "covariate", type = "continuous"),
+#'                           list(name = "AGE_centered", use = "covariate", type = "continuous"),
+#'                           list(name = "SEX", use = "covariate", type = "categorical"),
+#'                           list(name = "WEIGHT", use = "covariate", type = "continuous"),
+#'                           list(name = "BMI", use = "covariate", type = "continuous"))
+#'
+#' theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+#'                   "Cl", "logNormal", 0.2, NA, NA, TRUE,
+#'                 "V", "logNormal", 20, NA, NA, TRUE,
+#'                 "ka", "logNormal", 0.2, NA, NA, TRUE
+#')
+#'
+#' ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
+#'            ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL)
+#'
+#' re <- list(init = tribble(~Cl, ~V, ~ka,
+#'                             1, 0, 0,
+#'                             0, 1, 0,
+#'                             0, 0, 1) %>% as.matrix(),
+#'             est = tribble(~Cl, ~V, ~ka,
+#'                          TRUE, NA, NA,
+#'                            NA, TRUE, NA,
+#'                           NA, NA, TRUE) %>% as.matrix())
+
+#' occ <- list(init = tribble(~Cl, ~V, ~ka,
+#'                         0, 0, 0,
+#'                           0, 0, 0,
+#'                           0, 0, 0) %>% as.matrix(),
+#'            est = tribble(~Cl, ~V, ~ka,
+#'                          NA, NA, NA,
+#'                          NA, NA, NA,
+#'                          NA, NA, NA) %>% as.matrix())
+#' covs <- list(list(PAR = "V", COVNAME = "AGE", FUNC = "linear",
+#'                  TRANS = "median", INIT = 1, EST = TRUE),
+#'             list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE))
+#'
+#' gco <-list(headers = headers, data = data, model = model, task_opt = "",
+#'           covs = covs, project_name = "test-proj", theta = theta,
+#'           ruv = ruv, re = re, occ = occ, modelText = "")
+#'
 #' }
+#' res <- sg_vpc_sim(obj1, gco = gco, output = "Cc")
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr
