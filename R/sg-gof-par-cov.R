@@ -47,7 +47,8 @@ sg_gof_par_cov <- function(fpath_i,
     stop("sg_fit object must contain PATAB, COTAB, CATAB and SUMTAB components")
   }
   patab <- smrg_obj$PATAB
-  cotab <- smrg_obj$COTAB
+  cols_to_convert <- c("ID", cont_cov$COV)
+  cotab <- smrg_obj$COTAB %>% mutate(across(any_of(cols_to_convert), as.numeric))
   catab <- smrg_obj$CATAB
   sumtab <- smrg_obj$SUMTAB
 
@@ -92,6 +93,10 @@ sg_gof_par_cov <- function(fpath_i,
   # IndPar columns
   typical_pars <- sumtab$PAR[sumtab$TYPE == "Typical values"]
   indpar_cols <- intersect(names(patab), gsub("_pop$", "", typical_pars, ignore.case = TRUE))
+  if (is_empty(indpar_cols)) {
+    indpar_cols <- intersect(names(patab), str_c("psi_", gsub("_pop$", "", typical_pars, ignore.case = TRUE)))
+
+  }
   # RE columns
   re_pars <- sumtab$PAR[grepl("Random effects", sumtab$TYPE, ignore.case = TRUE)]
   eta_cols <- intersect(names(patab), paste0("eta_", gsub("omega_|gamma_", "", re_pars)))
@@ -220,8 +225,12 @@ sg_gof_par_cov <- function(fpath_i,
     return(list(vs_contcov = p_cont, vs_catcov = p_cat))
 
   } else if (ptype == "IndParvsCov") {
-
+    indpar_cols_ <- indpar_cols
     indpar_cols <- intersect(indpar_cols, gsub("^eta_", "", eta_cols))
+    if (is_empty(indpar_cols)){
+      indpar_cols <- str_c("psi_", intersect(gsub("^psi_", "", indpar_cols_),
+                                             gsub("^eta_", "", eta_cols)))
+    }
 
     # Individual parameter vs Continuous Covariates
     if ((length(contcov_cols) > 0) && (length(indpar_cols) > 0)) {

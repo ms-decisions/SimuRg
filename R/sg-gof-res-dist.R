@@ -22,17 +22,15 @@
 #' @return A `ggplot` object.
 #' @examples
 #' # Plot the distribution of individual weighted residuals (IWRES)
-#' # as histograms with overlaid normal curves for each DVID
+#' # (default \code{DVID = 1}; pass \code{DVID} or a \code{DVNAME} string to select another endpoint)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
 #'                         package = "SimuRg")
 #' sg_gof_res_dist(fpath_i = fpath_i, res_type = "IWRES")
 #'
-#' # Generate QQ-plots to visually assess normality of standard residuals (RES)
-#' # stratified by DVID
+#' # QQ-plots for the same default endpoint
 #' sg_gof_res_dist(fpath_i = fpath_i, res_type = "RES", plot_type = "QQ")
 #'
-#' # Multiple residual types can be specified (e.g., IWRES and IRES);
-#' # the function will produce plots for each residual type across all DVID groups
+#' # Several residual columns at once (still one \code{DVID} unless you change it)
 #' sg_gof_res_dist(fpath_i = fpath_i, res_type = c("IWRES", "IRES"))
 #' @import dplyr
 #' @import tidyr
@@ -41,7 +39,7 @@
 #' @export
 
 
-sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, plot_type = 'DIST'){
+sg_gof_res_dist <- function(fpath_i, res_type = 'RES', DVID = 1, n_bins = 30, ndist = T, plot_type = 'DIST'){
   smrg_obj <- read_smrg_obj(fpath_i)
   if (is.null(smrg_obj$SDTAB)) {
     stop("sg_fit object must contain SDTAB component")
@@ -62,6 +60,8 @@ sg_gof_res_dist <- function(fpath_i, res_type = 'RES', n_bins = 30, ndist = T, p
   } else {
     stop("SDTAB must be a data frame or a list of data frames")
   }
+
+  sdtab_i <- filter_sdtab_by_DVID(sdtab_i, DVID)
 
   # Check for required columns and convert to numeric
   required_cols <- c("DVID", res_type)
