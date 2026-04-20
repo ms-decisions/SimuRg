@@ -431,7 +431,7 @@ smrg_ensure_tables_df <- function(obj) {
   }
   obj
 }
-
+#' @export
 read_smrg_obj <- function(fpath_i) {
   if (inherits(fpath_i, "character")) {
     if (!file.exists(fpath_i)) {

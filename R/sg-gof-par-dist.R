@@ -264,7 +264,13 @@ sg_gof_par_dist <- function(fpath_i, par_seq = NULL,
 
 
   ### Calculate shrinkage
-  shr_out <- smrg_obj$SUMTAB %>% filter(grepl("^omega_", PAR)) %>% select(ETAshrinkage_var,VALUE,PAR) %>% mutate(PAR = str_remove(PAR, "^omega_"), Shrinkage = signif(ETAshrinkage_var,3) )
+  if (!"ETAshrinkage_var" %in% colnames(smrg_obj$SUMTAB)) {
+    message("Shrinkage was not calculated in GFO object")
+    smrg_obj$SUMTAB$ETAshrinkage_var <- NA
+  }
+  shr_out <- smrg_obj$SUMTAB %>% filter(grepl("^omega_", PAR)) %>%
+    select(any_of(c("ETAshrinkage_var","VALUE","PAR"))) %>%
+    mutate(PAR = str_remove(PAR, "^omega_"), Shrinkage = signif(ETAshrinkage_var,3) )
 
 
 
