@@ -608,7 +608,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
     read_tsv(data_path, show_col_types = FALSE)
   } else {
-    read_csv(data_path, show_col_types = FALSE)
+    readr::read_csv(data_path, show_col_types = FALSE)
   }
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
@@ -988,7 +988,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
   ## patab and sumtab compiling
 
-  sum_dt_i <- read_csv(str_c(folder_path, proj_name, "/populationParameters", ".txt"), col_types = cols())
+  sum_dt_i <- readr::read_csv(str_c(folder_path, proj_name, "/populationParameters", ".txt"), col_types = cols())
 
   pop_params <- sum_dt_i$parameter[str_detect(sum_dt_i$parameter, "_pop$")]
   params <- str_replace(pop_params, "_pop$", "")
@@ -1008,7 +1008,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
       "ID" = "id",
       "TIME" = "time"
     )
-    pred_dt_i <- read_csv(str_c(folder_path, proj_name, "/predictions",y_name_i, ".txt"), col_types = cols()) %>%
+    pred_dt_i <- readr::read_csv(str_c(folder_path, proj_name, "/predictions",y_name_i, ".txt"), col_types = cols()) %>%
       rename(any_of(recode_vector))
 
     # if there is no DVID column?
@@ -1078,8 +1078,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   ## patab and sumtab compiling
 
 
-  eta_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
-  indpar_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
+  eta_i <- readr::read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
+  indpar_i <- readr::read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
 
   if (any(grepl("_mode$", colnames(indpar_i)))){suffix <- "_mode"} else {suffix <- "_SAEM"}
   eta_clnms <- c("id", str_c(eta_params, suffix))
@@ -1133,11 +1133,11 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
   cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
-  covmat_dt <- read_csv(cov_path, col_types = cols(), col_names = F)
+  covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = F)
   colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
   covmat <- covmat_dt %>% select(-PAR) %>% as.matrix()
 
-  corrmat_dt <- read_csv(corr_path, col_types = cols(), col_names = F)
+  corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = F)
   colnames(corrmat_dt) <- c("PAR", corrmat_dt$X1)
   corrmat <- corrmat_dt %>% select(-PAR) %>% as.matrix()
 
