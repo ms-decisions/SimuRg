@@ -1,11 +1,11 @@
-sg_gmo_build <- function(gfo_path, output_path) {
-  # gfo <- readRDS(gfo_path)
-  theta <- gfo$theta
-  covs <- gfo$covs
-  re <- gfo$re
-  ruv <- gfo$ruv
-  model_file <- gfo$model
-  data_path <- gfo$data
+gmo_converter <- function(gco_path, output_path=NULL) {
+  gco <- read_smrg_obj(gco_path)
+  theta <- gco$theta
+  covs <- gco$covs
+  re <- gco$re
+  ruv <- gco$ruv
+  model_file <- gco$model
+  data_path <- gco$data
   data <- utils::read.csv(data_path, check.names = FALSE)
   model_lines <- readLines(model_file)
   input_idx <- which(grepl("^# \\[INPUT\\]", model_lines))[1]

@@ -60,7 +60,7 @@ data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
                    TRANS = "median", INIT = 1, EST = TRUE),
               list(PAR = "ka", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE))
  output_path <- "scripts/nlme/sg-mod-conv/"
- gfo <-list(headers = headers,
+ gco <-list(headers = headers,
             data = data,
             model = model,
             task_opt = "",
@@ -71,11 +71,12 @@ data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
             re = re,
             occ = occ,
             modelText = "")
+ save(gco, file = "scripts/nlme/sg-mod-conv/gco_example.Rdata")
 
- sg_gmo_build(gfo = gfo, output_path = "scripts/nlme/sg-mod-conv/gmo6.R")
+ sg_gmo_build(gco = gco, output_path = "scripts/nlme/sg-mod-conv/gmo6.R")
 
 
-gfo <-list(headers = headers,
+gco <-list(headers = headers,
            data = data,
            model = model,
            task_opt = "",
@@ -94,8 +95,8 @@ gfo <-list(headers = headers,
            occ = occ,
            modelText = "")
 
-sg_gmo_build(gfo = gfo, output_path = "scripts/nlme/sg-mod-conv/gmo5.R")
-gfo <-list(headers = headers,
+sg_gmo_build(gco = gco, output_path = "scripts/nlme/sg-mod-conv/gmo5.R")
+gco <-list(headers = headers,
            data = data,
            model = model,
            task_opt = "",
@@ -111,9 +112,9 @@ gfo <-list(headers = headers,
            occ = occ,
            modelText = "")
 
-sg_gmo_build(gfo = gfo, output_path = "scripts/nlme/sg-mod-conv/gmo7.R")
+sg_gmo_build(gco = gco, output_path = "scripts/nlme/sg-mod-conv/gmo7.R")
 
-gfo <-list(headers = headers,
+gco <-list(headers = headers,
            data = data,
            model = model,
            task_opt = "",
@@ -130,7 +131,7 @@ gfo <-list(headers = headers,
            occ = occ,
            modelText = "")
 
-sg_mod_conv(gfo = gfo, output_path = "scripts/nlme/sg-mod-conv/gmo3.R")
+sg_mod_conv(gco = gco, output_path = "scripts/nlme/sg-mod-conv/gmo3.R")
 
 
 

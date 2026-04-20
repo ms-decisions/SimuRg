@@ -50,16 +50,23 @@
 #' @importFrom stringr str_remove
 #' @importFrom rlang .data
 #' @export
-sg_vpc_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop = 100){
+sg_vpc_sim <- function(fpath_i, gco = NULL, model = NULL, time_col = "TIME", outputs = NULL, npop = 100){
   obj <- read_smrg_obj(fpath_i)
-
+  if (is_null(model) & is_null(gco)) {
+    stop("Specify either a generalized control object (gco) or model to simulate from")
+  } else if (is_null(model) & !is_null(gco)) {
+    model <- rxode2::rxode2(gmo_converter(gco, output_path = NULL))
+  } else if (!is_null(model) & !is_null(gco)) {
+    message("Both gco and model specified. Model from gco is used for simulations")
+    model <- rxode2::rxode2(gmo_converter(gco))
+  }
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
   data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
 
   if (!is.null(obj$COTAB)) ev_tab <-  merge(ev_tab, obj$COTAB, by = "ID", all.x = T)
   if (!is.null(obj$CATAB)) ev_tab <-  merge(ev_tab, obj$CATAB, by = "ID", all.x = T)
-  if (!is.null(obj$REGTAB)) ev_tab <-  merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = T)
+  if (!is_empty(obj$REGTAB)) ev_tab <-  merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = T)
   covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
   covs_i <- covs_i[covs_i != "ID"]
   id_seq <- unique(data_fin.noex$ID)
