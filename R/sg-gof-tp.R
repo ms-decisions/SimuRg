@@ -26,6 +26,7 @@
 #' @import stringr
 #' @export
 sg_gof_tp <- function(fpath_i, filt = "T",
+                      DVID = 1,
                       tsld = F, f_scales = "free",
                       log_y = F, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
@@ -55,10 +56,14 @@ sg_gof_tp <- function(fpath_i, filt = "T",
   } else {
     stop("SDTAB must be a data frame or a list of data frames")
   }
-  ds_tp_pre <- ds_i %>%
-    filter(if_any(matches("MDV"),  ~.x != 1)) %>%
-    #filter(MDV != 1) %>%
-    filter(eval(rlang::parse_expr(filt)))
+
+  ds_i <- filter_sdtab_by_DVID(ds_i, DVID)
+
+  ds_tp_pre <- ds_i
+  if ("MDV" %in% colnames(ds_i)) {
+    ds_tp_pre <- ds_tp_pre %>% filter(.data$MDV != 1)
+  }
+  ds_tp_pre <- ds_tp_pre %>% filter(eval(rlang::parse_expr(filt)))
 
   if ((tsld) & !("ATSLD" %in% colnames(ds_i))) {
     stop("No column specified for time since last dose")

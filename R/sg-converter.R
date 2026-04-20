@@ -608,7 +608,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
     read_tsv(data_path, show_col_types = FALSE)
   } else {
-    read_csv(data_path, show_col_types = FALSE)
+    readr::read_csv(data_path, show_col_types = FALSE)
   }
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
@@ -723,20 +723,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
            TINF = col_map_df$COL[col_map_df$use == "infusiontime"],
            SS = col_map_df$COL[col_map_df$use == "steadystate"]
            #  and expand
-    ) %>% mutate(across(any_of(cols_to_numeric), ~ {
-      original <- .
-      converted <- suppressWarnings(as.numeric(.))
+    )
 
-      # Detect newly introduced NAs
-      new_na <- is.na(converted) & !is.na(original)
-
-      if (any(new_na)) {
-        warning(paste0("Column '", cur_column(), "' had ", sum(new_na),
-            " value(s) that could not be converted to numeric and were set to NA."
-            ), call. = FALSE)}
-
-      converted
-    }))
 
   ## dvid and residual error mapping (Monolix <FIT>: maps observation-type indices to longitudinal outputs y1, y2, ...)
   start_idx_dvid_map <- which(str_detect(contr_obj, fixed("<FIT>")))
@@ -1000,7 +988,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
   ## patab and sumtab compiling
 
-  sum_dt_i <- read_csv(str_c(folder_path, proj_name, "/populationParameters", ".txt"), col_types = cols())
+  sum_dt_i <- readr::read_csv(str_c(folder_path, proj_name, "/populationParameters", ".txt"), col_types = cols())
 
   pop_params <- sum_dt_i$parameter[str_detect(sum_dt_i$parameter, "_pop$")]
   params <- str_replace(pop_params, "_pop$", "")
@@ -1010,6 +998,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   resid_err_params <- sum_dt_i$parameter[!sum_dt_i$parameter %in% c(pop_params, omega_params, beta_params, corr_params)]
   eta_params <- str_replace(omega_params, "omega_", "eta_")
 
+  long_ruv_map <- extract_longitudinal_ruv_map(contr_obj)
+
   ## sdtab compiling
   sdtab <- unique(dvid_map_df$model) %>% map_dfr(function(y_name) {
 
@@ -1018,7 +1008,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
       "ID" = "id",
       "TIME" = "time"
     )
-    pred_dt_i <- read_csv(str_c(folder_path, proj_name, "/predictions",y_name_i, ".txt"), col_types = cols()) %>%
+    pred_dt_i <- readr::read_csv(str_c(folder_path, proj_name, "/predictions",y_name_i, ".txt"), col_types = cols()) %>%
       rename(any_of(recode_vector))
 
     # if there is no DVID column?
@@ -1058,7 +1048,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
              IWRES = str_c("indWRes", suffix), #indWRes_mode,
              DV = all_of(y_name)) %>%
       mutate(RES = PRED - DV, IRES = IPRED - DV,
-             DVID = dvid_i)
+             DVID = dvid_i,
+             DVNAME = long_ruv_map$prediction[match(y_name, long_ruv_map$COL)])
 
     # Calculate WRES using Monte Carlo simulation
     if (nrow(ruv_info) > 0) {
@@ -1069,8 +1060,12 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
       sdtab_i <- sdtab_i %>% mutate(WRES = NA_real_)
     }
 
+    if (!"MDV" %in% names(sdtab_i)) {
+      sdtab_i <- sdtab_i %>% mutate(MDV = 0L)
+    }
+
     sdtab_i %>%
-      select(any_of(c("ID", "TIME", "DV", "DVID", "PRED", "IPRED", "RES", "IRES", "WRES", "CWRES",
+      select(any_of(c("ID", "TIME", "DV", "DVID", "DVNAME", "PRED", "IPRED", "RES", "IRES", "WRES", "CWRES",
                       "IWRES", "EVID", "MDV", "OCC", "BLQ", "CENS", "LIMIT")))
 
   })
@@ -1083,8 +1078,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   ## patab and sumtab compiling
 
 
-  eta_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
-  indpar_i <- read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
+  eta_i <- readr::read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedRandomEffects.txt"), col_types = cols())
+  indpar_i <- readr::read_csv(str_c(folder_path, proj_name, "/IndividualParameters/estimatedIndividualParameters.txt"), col_types = cols())
 
   if (any(grepl("_mode$", colnames(indpar_i)))){suffix <- "_mode"} else {suffix <- "_SAEM"}
   eta_clnms <- c("id", str_c(eta_params, suffix))
@@ -1138,19 +1133,18 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
   cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
-  covmat_dt <- read_csv(cov_path, col_types = cols(), col_names = F)
+  covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = F)
   colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
   covmat <- covmat_dt %>% select(-PAR) %>% as.matrix()
 
-  corrmat_dt <- read_csv(corr_path, col_types = cols(), col_names = F)
+  corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = F)
   colnames(corrmat_dt) <- c("PAR", corrmat_dt$X1)
   corrmat <- corrmat_dt %>% select(-PAR) %>% as.matrix()
 
   ## evtab compiling
 
   evtab <- data_file_mod %>% filter(EVID == 1) %>%
-    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL",
-                    "II", "DUR", "TINF", "RATE", "SS")))
+    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL", "II", "DUR", "TINF", "RATE", "SS")))
 
 
   ## omegamat compiling
@@ -1201,7 +1195,6 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     sigmamat[i,i] <-  sumtab$VALUE[sumtab$PAR == resid_par]
   }
   sigmamat <- sigmamat %>% as.matrix()
-  sigmamat[is.na(sigmamat)] <- 0
 
   ## occmat compiling - !!! re-write
   occmat <- matrix()
@@ -1264,7 +1257,6 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     )
   })
 
-  long_ruv_map <- extract_longitudinal_ruv_map(contr_obj)
   ruv_trans <- long_ruv_map$distribution[match(dt_ruv_map$COL, long_ruv_map$COL)]
   ruv_pred <- long_ruv_map$prediction[match(dt_ruv_map$COL, long_ruv_map$COL)]
   if ("distribution" %in% names(dt_ruv_map)) {
