@@ -1,12 +1,15 @@
 # SimuRg 0.1.9 (2026-04-09)
 
 ## New features:
-* tests and documentation for function `sg_covsens()` was added
+* `sg_covsens_vis()` function was added to the project with tests and documentation
 * `sg_converter()` now works with two DVIDs
 
 ## Bug fixes:
 * `sg_converter()` and `sg_vpc_sim()` : fixed bugs reported in [SD-1360]
 * `sg_vpc_vis()`: fixed bugs reported in [SD-1361]
+
+## Documentation:
+* `sg_vpc_vis()` documentation was fixed with the bug [SD-1361]
 
 # SimuRg 0.1.8 (2026-04-03)
 
@@ -15,7 +18,7 @@
 
 ## Bug fixes 
 * `sg_gof_res()` was fixed with the [SD-1391] support request
-* `sg_covsens()` was testsed on addtional projects
+* `sg_covsens_sim()` was tested on additional projects
 
 ## Documentation 
 * all functions arguments descriptions now starts with a capital letter
