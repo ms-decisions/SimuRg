@@ -605,11 +605,13 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   }
   first_line <- peek[1]
   # Monolix datasets are often tab-separated; read_csv would collapse the row into one column.
-  data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
-    read_tsv(data_path, show_col_types = FALSE)
-  } else {
-    readr::read_csv(data_path, show_col_types = FALSE)
-  }
+  data_file <- suppressMessages(
+    if (grepl("\t", first_line, fixed = TRUE)) {
+      read_tsv(data_path)
+    } else {
+      read_csv(data_path)
+    }
+  )
   colnames(data_file) <- gsub("[^[:alnum:]]+", "_", colnames(data_file))
 
   ## info about columns mapping
