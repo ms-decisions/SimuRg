@@ -92,7 +92,11 @@ sg_gof_res <- function(
 
   # --- data prep ---
   X <- if (vs_time) "TIME" else if (indiv) "IPRED" else "PRED"
-  smrg_obj <- read_smrg_obj(fpath_i)
+
+  if (!is_null(read_smrg_obj(fpath_i)$GFO))
+    smrg_obj <- read_smrg_obj(fpath_i)$GFO
+  else
+    smrg_obj <- read_smrg_obj(fpath_i)
 
   if (is.null(smrg_obj$SDTAB)) {
     stop("sg_fit object must contain SDTAB component")

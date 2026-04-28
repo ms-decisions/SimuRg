@@ -1053,13 +1053,35 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
              DVID = dvid_i,
              DVNAME = long_ruv_map$prediction[match(y_name, long_ruv_map$COL)])
 
-    # Calculate WRES using Monte Carlo simulation
-    if (nrow(ruv_info) > 0) {
-      # Use the Monte Carlo simulation function to calculate WRES
-      sdtab_i <- calculate_wres_mc(sdtab_i, omega_params, resid_err_params, sum_dt_i, ruv_info, param_distributions)
-    } else {
-      # If no residual error model info, set WRES to NA
-      sdtab_i <- sdtab_i %>% mutate(WRES = NA_real_)
+    residuals_file <- str_c(folder_path, proj_name, "/ChartsData/ScatterPlotOfTheResiduals/y1_residuals", y_name_i, ".txt")
+
+    if (file.exists(residuals_file)) {
+      # Read the residuals file
+      residuals_dt_i <- readr::read_csv(residuals_file, col_types = cols()) %>%
+        rename(any_of(recode_vector))
+
+      # Check if the required column 'pwRes' exists
+      if ("pwRes" %in% names(residuals_dt_i)) {
+        # Select and rename to WRES
+        residuals_dt_i <- residuals_dt_i %>%
+          select(ID, TIME, WRES = pwRes)
+
+        # Join to the main sdtab_i
+        sdtab_i <- sdtab_i %>%
+          left_join(residuals_dt_i, by = c("ID", "TIME"))
+      }
+    }
+    else {
+
+      # Calculate WRES using Monte Carlo simulation
+      if (nrow(ruv_info) > 0) {
+        # Use the Monte Carlo simulation function to calculate WRES
+        sdtab_i <- calculate_wres_mc(sdtab_i, omega_params, resid_err_params, sum_dt_i, ruv_info, param_distributions)
+      } else {
+        # If no residual error model info, set WRES to NA
+        sdtab_i <- sdtab_i %>% mutate(WRES = NA_real_)
+      }
+
     }
 
     if (!"MDV" %in% names(sdtab_i)) {

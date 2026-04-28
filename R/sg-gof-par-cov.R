@@ -41,7 +41,12 @@ sg_gof_par_cov <- function(fpath_i,
                            ptype = "REvsCov",
                            cat_cov = NULL,
                            cont_cov = NULL) {
-  smrg_obj <- read_smrg_obj(fpath_i)
+
+  if (!is_null(read_smrg_obj(fpath_i)$GFO))
+    smrg_obj <- read_smrg_obj(fpath_i)$GFO
+  else
+    smrg_obj <- read_smrg_obj(fpath_i)
+
   if (is.null(smrg_obj$PATAB) | is.null(smrg_obj$COTAB) | is.null(smrg_obj$CATAB) |
       is.null(smrg_obj$SUMTAB)) {
     stop("sg_fit object must contain PATAB, COTAB, CATAB and SUMTAB components")
