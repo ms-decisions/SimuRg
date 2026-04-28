@@ -1,31 +1,37 @@
-utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANOVA", "ATSLD", "BCOVVAL",
-                         "BIN", "BIN_sort", "BTR", "CATDES", "COHORTC", "COL", "CORR_PAR", "COV",
+utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".x",
+                         "95% CI", "90%CI", "ANOVA", "ATSLD", "BCOVVAL",
+                         "BIN", "BIN_sort", "BTR", "CATDES", "CI_label", "COHORTC", "COL", "CORR_PAR", "COV",
                          "COVNAME", "COVVAL", "CV", "CV % (95% CI)", "CWRES",
+                         "DISTRIBUTION", "Distribution",
                          "DT_label", "DV", "DVID", "EST", "Estimate", "ETA",
                          "ETAshrinkage_sd", "ETAshrinkage_var", "EVID", "ID",
                          "First order", "INIT", "IPRED", "IRES",
                          "IWRES", "KEY", "LAB", "LABEL", "LARGPVAL", "LCI", "LP", "MDV", "METRIC",
-                         "NAME", "NAME_INIT", "NICEN", "NTILE", "NVALUE", "OCCMAN", "OUT","P05", "P95", "P975", "PAR", "PAR1",
+                         "NAME", "NAME_INIT", "NICEN", "NTILE", "NVALUE", "OBS", "OCCMAN", "OUT","P05", "P95", "P975", "PAR", "PAR1",
                          "PAR2", "PAR_NAME", "PAR_f", "Parameter", "PARVAL", "PAR_group", "PCH",
                          "PARVAL_NORM", "PARNAME", "PEARS", "PI", "PNAME", "POPN",
                          "PPRED", "PPRED_bin", "PRED", "PVAL", "Project_name",
-                         "R_diff", "REF_spec", "REFVAL", "REF", "RES", "Regimen", "RSE", "RUVpars", "Run_ID", "SE",
+                         "R_diff", "REF_spec", "REFVAL", "REF", "RES", "Regimen",
+                         "RSE", "RUVpar_a", "RUVpar_b", "RUVpars", "Run_ID", "SE",
                          "SIGNPEARS", "Shrinkage", "Shrinkage_var", "Shrinkage (var), %",
                          "Source", "STAT", "TDIST", "TIME", "TIME_BIN", "TIME_BIN_max",
                          "TIME_BIN_max_prev", "TIME_BIN_min", "TIME_BIN_min_next", "TR",
-                         "TRANS", "TSLD", "Total order", "TV", "TVALUE", "TYPE", "Type", "UCI", "UP", "VALUE", "VAR",
+                         "TRANS", "TSLD", "Total order", "TV", "TVALUE", "TYPE",
+                         "Type", "UCI", "UP", "VALUE", "VAR", "VAR_STAT",
                          "Var1", "Var2", "Var_epsilon", "Var_mc", "Var_total",
                          "WRES", "X", "Y", "DVNAME", "aov", "as.formula", "category", "cmax",
                          "cmax_ref", "combn", "cor", "cor.test", "data", "density",
-                         "dnorm", "dvid", "errorModel", "geom_mean_val", "inside",
+                         "distribution",
+                         "dnorm", "dvid", "estimate", "errorModel", "geom_mean_val", "inside",
                          "kmeans", "ks.test", "key", "lperc", "max_val", "mean_val",
                          "median", "median_ci_l", "median_ci_u", "median_median",
-                         "median_val", "min_BIN_time", "min_val", "na.omit", "p",
+                         "median_val", "min_BIN_time", "min_val", "na.omit", "name", "p",
                          "parameter", "pi_l", "pi_l_ci_l", "pi_l_ci_u", "pi_l_median",
-                         "pi_u", "pi_u_ci_l", "pi_u_ci_u", "pi_u_median", "popPred",
+                         "pi_u", "pi_u_ci_l", "pi_u_ci_u", "pi_u_median", "popPred", "prediction",
                          "q25", "q75", "quantile", "quantiles", "r", "read.csv", "reorder",
                          "residual_type", "rnorm", "row_id", "sd", "sd_val",
-                         "se_val", "setNames", "sim.id", "theor_median", "time", "toJSON",
+                         "se_val", "setNames", "sim.id", "theor_LCI", "theor_UCI",
+                         "theor_median", "time", "toJSON",
                          "type", "use", "uperc","value", "value_at_time",
                          "value_cfb", "value_ref", "var", "x", "y", "y_central",
                          "y_lower", "y_lower_perc", "y_upper", "y_upper_perc"))
@@ -207,6 +213,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".x", "95% CI", "90%CI", "ANO
 #' @param model RxODE model. The model to simulate from.
 #' @param n_bins Integer. Number of bins to use in the histogram. Default is 30.
 #' @param n_quantiles Integer. Number of quantile groups for continuous variables in `col_i`. Default is 3.
+#' @param no_leg Logical. If `TRUE`, the legend is not shown. Default is `FALSE`
 #' @param npop Integer. Number of population replicates. Default is 1.
 #' @param nsub Integer. Number of subjects sampled per population (omega/sigma matrices per ID). Default is 1.
 #' @param occ A list specifying interoccasion variability properties, containing:
@@ -320,9 +327,16 @@ sg_dummy <- function(
   alpha_i = 0.5,
   atol = 1e-8,
   cap,
+  cat_cov_l,
+  ci_band_alpha = 0.2,
+  ci_band_col = "firebrick",
+  ci_limits = c(0.8, 1.25),
+  ci_quantiles = c("P025", "P975"),
+  cont_cov_l,
   cov_cols,
   cov,
   covint = "locf",
+  covsens_res,
   ciLow = 0.025,
   ciUp = 0.975,
   col_i,
@@ -332,15 +346,17 @@ sg_dummy <- function(
   dens,
   ds_covs,
   ds_i,
+  ds_parest = NULL,
   dt_obs_fl = FALSE,
   DVID = 1,
   dv_col = "DV",
   emp_perc = TRUE,
+  errorbar_width = 0.2,
+  est_covmat,
   et,
   eta_seq = NULL,
-  par_seq = NULL,
-  par_type = "Ind",
   excl_col = NULL,
+  exclude_vars = NULL,
   f_scales = "fixed",
   facet_i,
   fill_i = NULL,
@@ -383,13 +399,18 @@ sg_dummy <- function(
   path_to_fitter = NULL,
   path_to_save_output = NULL,
   par_bounds,
+  par_seq = NULL,
+  par_type = "Ind",
   params =NULL,
   piLow = 0.10,
   piUp = 0.90,
   plot_type = "DIST",
+  point_size = 2.5,
   pred.corr = FALSE,
   project_name,
+  quantiles = c(0.1, 0.9),
   re,
+  ref_line_col = "grey25",
   rtol = 1e-6,
   run_id = 1,
   ruv,
@@ -502,6 +523,29 @@ read_smrg_ctrl <- function(ctrl) {
   }
 }
 
+#' Read or validate a SimuRg fit object
+#'
+#' Loads a SimuRg fit object from an `.RData` or `.json` file, or accepts an
+#' already-loaded list and ensures all table components (`SDTAB`, `EVTAB`,
+#' `COTAB`, `CATAB`, `SUMTAB`) are proper data frames.
+#'
+#' @inheritParams sg_dummy
+#'
+#' @return List. A SimuRg fit object with all table components coerced to
+#'   data frames.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' # Pass an already-loaded sg-fit object
+#' obj <- read_smrg_obj(gfo4cov)
+#' class(obj$SDTAB)
+#'
+#' # Load from a file path
+#' \dontrun{
+#' obj <- read_smrg_obj("path/to/fit.RData")
+#' obj <- read_smrg_obj("path/to/fit.json")
+#' }
 read_smrg_obj <- function(fpath_i) {
   if (inherits(fpath_i, "character")) {
     if (!file.exists(fpath_i)) {

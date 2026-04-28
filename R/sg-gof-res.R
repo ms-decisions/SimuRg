@@ -46,19 +46,19 @@
 #' )
 #'
 #' # Basic plot: individual weighted residuals vs TIME (weighted = TRUE, vs_time = TRUE)
-#' p <- sg_gof_res(mock_obj, smooth = F)
+#' p <- sg_gof_res(mock_obj, smooth = FALSE)
 #'
 #' # With covariates and faceting (use RACE as facet and AGE as color)
 #' p <- sg_gof_res(
 #'   mock_obj,
-#'   smooth = T,
+#'   smooth = TRUE,
 #'   cov_cols = c("RACE","AGE"),
 #'   col_i = "RACE",
 #'   facet_i = "AGE",
 #'   indiv = TRUE,
 #'   weighted = TRUE,
-#'   vs_time = F,
-#'   legend_fl = T
+#'   vs_time = FALSE,
+#'   legend_fl = TRUE
 #' )
 #' p
 #'

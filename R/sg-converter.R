@@ -22,7 +22,7 @@
 #' \itemize{
 #'   \item \code{GFO}: SimuRg generalized fit object output object with:
 #'   \itemize{
-#'     \item \code{SDTAB}: A tibble containing simulation data with columns
+#'     \item \code{SDTAB}: A tibble containing data used for fitting
 #'     \item \code{SUMTAB}: A tibble with parameter summary statistics containing
 #'     \item \code{SIGMAMAT}: Residual variability matrix
 #'     \item \code{OMEGAMAT}: Inter-individual variability matrix
@@ -606,7 +606,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   first_line <- peek[1]
   # Monolix datasets are often tab-separated; read_csv would collapse the row into one column.
   data_file <- if (grepl("\t", first_line, fixed = TRUE)) {
-    read_tsv(data_path, show_col_types = FALSE)
+    readr::read_tsv(data_path, show_col_types = FALSE)
   } else {
     readr::read_csv(data_path, show_col_types = FALSE)
   }
