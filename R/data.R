@@ -86,15 +86,15 @@ funSum_sim <- list(mean   = ~mean(., na.rm = T),
 #' \describe{
 #'   \item{parameter}{parameter name as used in the model}
 #'   \item{value}{final parameter estimate}
-#'   \item{TYPE}{parameter category: \code{"Typical values"}, \code{"Covariate effects"}, \code{"Random effects"}, or \code{"Residual error model"}}
-#'   \item{EST}{estimation status (\code{"ESTIMATED"})}
+#'   \item{TYPE}{parameter category:`"Typical values"`, `"Covariate effects"`, `"Random effects"`, or `"Residual error model"`}
+#'   \item{EST}{estimation status (`"ESTIMATED"`)}
 #'   \item{SE}{standard error of the estimate}
-#'   \item{RSE}{relative standard error (\%)}
-#'   \item{LCI}{lower bound of the 95\% confidence interval}
-#'   \item{UCI}{upper bound of the 95\% confidence interval}
-#'   \item{ETAshrinkage_var}{ETA shrinkage on the variance scale (\%); \code{NA} for non-random-effect parameters}
-#'   \item{ETAshrinkage_sd}{ETA shrinkage on the SD scale (\%); \code{NA} for non-random-effect parameters}
-#'   \item{EPSshrinkage_sd}{EPS shrinkage on the SD scale (\%); \code{NA} for non-residual-error parameters}
+#'   \item{RSE}{relative standard error (%)}
+#'   \item{LCI}{lower bound of the 95 % confidence interval}
+#'   \item{UCI}{upper bound of the 95 % confidence interval}
+#'   \item{ETAshrinkage_var}{ETA shrinkage on the variance scale (%); `NA` for non-random-effect parameters}
+#'   \item{ETAshrinkage_sd}{ETA shrinkage on the SD scale (%); `NA` for non-random-effect parameters}
+#'   \item{EPSshrinkage_sd}{EPS shrinkage on the SD scale (%); `NA` for non-residual-error parameters}
 #' }
 #'@source Derived from \code{par_fin_i.csv} — warfarin PopPK model estimation output.
 "parest"

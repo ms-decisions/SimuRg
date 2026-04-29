@@ -1,0 +1,65 @@
+---
+description: Roxygen2 function documentation standards for this R package
+globs: **/*.R
+alwaysApply: false
+---
+
+# Function Documentation Standards
+
+## Argument Documentation (`@param`)
+
+Format: `@param par_name par_type. Description of the parameter. Default value is parameter_default.`
+
+- `par_name` MUST exactly match the parameter name in the function signature.
+- `par_type` and the description MUST start with a capital letter.
+- Include `Default value is <value>.` only when a default is set in the function definition.
+
+```r
+# BAD
+#' @param data a data frame with pk data
+#' @param ci numeric, confidence interval level, default `0.95`
+
+# GOOD
+#' @param data Data.frame. A data frame with PK data.
+#' @param ci Numeric. Confidence interval level. Default value is `0.95`.
+```
+
+## Centralized Argument Documentation
+
+- All reusable `@param` entries MUST be defined in `sg_dummy` in `R/utils.R`.
+- Inherit them with `@inheritParams sg_dummy` in every function that shares those arguments.
+- If a parameter exists in `sg_dummy` but has a different default or meaning in a specific function, redefine it explicitly in that function's documentation block (overrides the inherited version).
+
+## Special Characters
+
+- Do NOT escape special characters. Write `%` not `\%`, write `>` not `\>`, etc.
+- Mark inline code with backticks (`` ` `` ), not `\code{}`.
+
+```r
+# BAD
+#' Accepts values between 0\% and 100\%.
+#' Uses \code{data.frame} internally.
+
+# GOOD
+#' Accepts values between 0% and 100%.
+#' Uses `data.frame` internally.
+```
+
+## Examples (`@examples`)
+
+- Every exported function MUST include at least one `@examples` block.
+- Examples MUST be self-contained and executable:
+  - Load all required libraries with `library()`.
+  - Define or use package-provided objects; do not rely on external files or environment state.
+
+```r
+#  BAD
+#' @examples
+#' fit_model(my_data)
+
+#  GOOD
+#' @examples
+#' library(simurg)
+#' result <- fit_model(example_data)
+#' print(result)
+```

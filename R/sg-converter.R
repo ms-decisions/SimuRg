@@ -22,7 +22,7 @@
 #' \itemize{
 #'   \item \code{GFO}: SimuRg generalized fit object output object with:
 #'   \itemize{
-#'     \item \code{SDTAB}: A tibble containing simulation data with columns
+#'     \item \code{SDTAB}: A tibble containing data used for fitting
 #'     \item \code{SUMTAB}: A tibble with parameter summary statistics containing
 #'     \item \code{SIGMAMAT}: Residual variability matrix
 #'     \item \code{OMEGAMAT}: Inter-individual variability matrix
