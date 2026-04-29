@@ -1,17 +1,18 @@
 ---
 description: Project structure and core model objects (GCO/GFO) for simurg_r
-alwaysApply: true
+alwaysManually: true
 ---
 
 # simurg_r Project Structure
 
 - This repository is a standard R package for building, diagnostics, and simulation of generalized pharmacometrics models.
 - Keep package-facing implementation in `R/`, with metadata in `DESCRIPTION` and `NAMESPACE`, and package data definitions in `R/data.R`.
+- NEVER change `NAMESPACE` file and `man/` directory
 
 ## Core Objects
 
 - **GCO (generalized control object)** is the fit input object.
-- The canonical GCO example and field layout are in `scripts/nlme/sg-mod-conv/sg-mod-conv.R`.
+- The canonical GCO example and field layout are in the documentation of `sg_fit()` in `R/sg-fit`.
 - `sg_fit()` in `R/sg-fit.R` consumes GCO to run model fitting.
 
 - **GFO (generalized fit object)** is the fit output object.
@@ -20,6 +21,6 @@ alwaysApply: true
 
 ## Directory Intent
 
-- `R/data.R` defines and documents small datasets shipped with the package.
+- `R/data.R` defines small datasets and documents all datasets shipped with the package.
 - `scripts/nlme/` contains prototypes and exploratory code; treat it as reference, not package runtime code to be submitted as package implementation.
-- When changing APIs around fit/conversion, preserve compatibility between GCO input and GFO output structures.
+- When changing APIs around fit/conversion, preserve compatibility between GCO input and GFO output structures and change object structures, if it is needed. 

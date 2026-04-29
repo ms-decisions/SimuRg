@@ -25,7 +25,7 @@
 #' model <- system.file("extdata", "models", "model_PK_1c.txt", package = "SimuRg")
 #' # Specify data path. Should be ADPPK-like format
 #' data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
-#' 
+#'
 #' # Specify headers. Should be a list of lists with the following elements:
 #' # name - string, name of the column
 #' # use - string, use of the column from Monolix documentation
@@ -72,12 +72,12 @@
 #'              ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL)
 #'
 #'  # Multiple observations (recommended format):
- # ruv <- list(
- #   list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
- #        ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL),
- #   list(YNAME = "y2", DVID = 2, TRANS = "normal", PRED = "EFF",
- #        ERR = "proportional", INIT = c(0.1), EST = c(TRUE), BLQM = NULL)
- # )
+#' ruv <- list(
+#'   list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc",
+#'        ERR = "combined1", INIT = c(1, 1), EST = c(TRUE, TRUE), BLQM = NULL),
+#'   list(YNAME = "y2", DVID = 2, TRANS = "normal", PRED = "EFF",
+#'       ERR = "proportional", INIT = c(0.1), EST = c(TRUE), BLQM = NULL)
+#' )
 #'
 #'  # Example of random effects (RE) specification.
 #'  #
