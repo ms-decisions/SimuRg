@@ -1,6 +1,11 @@
 # SimuRg 0.1.11(2025-04-29)
+## New features: 
+* `sg_fit()` now can work with covariates
+* `sg_converter()` weighted residuals reading from monolix was added, if avaliable[SD-1391]
 
-# SimuRg 0.1.10 ()
+## Bug fixes: 
+* problems in `sg-gof-tp()` were solved [SD-1458]
+* bugs in `sg_converter()` were fixed [SD-1457]
 
 # SimuRg 0.1.9 (2026-04-09)
 
