@@ -253,7 +253,47 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       covariate_section <- ""
     }
 
-    # Create individual parameter definitions using theta and re
+    # Parse covs: group by parameter name, generate beta parameter names
+    cov_by_param <- list()
+    beta_params <- list()
+    all_cov_input_names <- character()
+    all_beta_input_names <- character()
+
+    if (!is.null(covs) && length(covs) > 0) {
+      for (cov_entry in covs) {
+        par <- cov_entry$PAR
+        covname <- cov_entry$COVNAME
+        if (is.null(cov_by_param[[par]])) cov_by_param[[par]] <- list()
+
+        is_categorical <- !is.null(cov_entry$REF)
+
+        if (is_categorical) {
+          unique_cats <- sort(unique(data_df_full[[covname]]))
+          non_ref_cats <- unique_cats[unique_cats != cov_entry$REF]
+          n_betas <- length(non_ref_cats)
+          beta_suffixes <- gsub("[^[:alnum:]_]", "_", as.character(non_ref_cats))
+          beta_names <- paste0("beta_", par, "_", covname, "_", beta_suffixes)
+        } else {
+          n_betas <- 1
+          beta_names <- paste0("beta_", par, "_", covname)
+        }
+
+        cov_by_param[[par]] <- c(cov_by_param[[par]], list(list(
+          covname = covname, beta_names = beta_names
+        )))
+        all_cov_input_names <- c(all_cov_input_names, covname)
+        all_beta_input_names <- c(all_beta_input_names, beta_names)
+
+        for (j in seq_len(n_betas)) {
+          beta_params <- c(beta_params, list(list(
+            name = beta_names[j], init = cov_entry$INIT, est = cov_entry$EST
+          )))
+        }
+      }
+      all_cov_input_names <- unique(all_cov_input_names)
+    }
+
+    # Create individual parameter definitions using theta, re, and covs
     individual_definitions <- character()
     individual_input_params <- character()
 
@@ -262,23 +302,49 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       param_trans <- theta$TRANS[i]
       typical_name <- paste0(param_name, "_pop")
 
-      # Add typical parameter to input
       individual_input_params <- c(individual_input_params, typical_name)
 
-      # Check if variability is included for this parameter
       has_variability <- re$init[i, i] != 0 && re$est[i, i] == TRUE
-
       if (has_variability) {
         sd_name <- paste0("omega_", param_name)
-        definition_line <- paste0(param_name, " = {distribution=", param_trans, ", typical=", typical_name, ", sd=", sd_name, "}")
-        # Add omega parameter to input
         individual_input_params <- c(individual_input_params, sd_name)
+      }
+
+      # Build covariate fragment for this parameter's DEFINITION line
+      cov_fragment <- ""
+      param_covs <- cov_by_param[[param_name]]
+      if (!is.null(param_covs) && length(param_covs) > 0) {
+        all_covnames <- character()
+        all_betas <- character()
+        for (pc in param_covs) {
+          all_covnames <- c(all_covnames, pc$covname)
+          all_betas <- c(all_betas, pc$beta_names)
+        }
+        if (length(all_covnames) == 1 && length(all_betas) == 1) {
+          cov_fragment <- paste0(", covariate=", all_covnames,
+                                 ", coefficient=", all_betas)
+        } else {
+          cov_fragment <- paste0(", covariate={", paste(all_covnames, collapse = ", "),
+                                 "}, coefficient={", paste(all_betas, collapse = ", "), "}")
+        }
+      }
+
+      if (has_variability) {
+        definition_line <- paste0(param_name, " = {distribution=", param_trans,
+                                  ", typical=", typical_name, cov_fragment,
+                                  ", sd=", sd_name, "}")
       } else {
-        definition_line <- paste0(param_name, " = {distribution=", param_trans, ", typical=", typical_name, ", no-variability}")
+        definition_line <- paste0(param_name, " = {distribution=", param_trans,
+                                  ", typical=", typical_name, cov_fragment,
+                                  ", no-variability}")
       }
 
       individual_definitions <- c(individual_definitions, definition_line)
     }
+
+    # Append beta coefficient names and covariate column names to input
+    individual_input_params <- c(individual_input_params,
+                                 all_beta_input_names, all_cov_input_names)
     individual_definition_section <- paste(individual_definitions, collapse = "\n")
     individual_input_section <- paste(individual_input_params, collapse = ", ")
 
@@ -413,6 +479,13 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
         omega_parameter_line <- paste0(omega_param_name, " = {value=", omega_init_value, ", method=", method, "}")
         parameter_definitions <- c(parameter_definitions, omega_parameter_line)
       }
+    }
+
+    # Add beta parameters for covariates
+    for (bp in beta_params) {
+      method <- ifelse(bp$est, "MLE", "FIXED")
+      beta_line <- paste0(bp$name, " = {value=", bp$init, ", method=", method, "}")
+      parameter_definitions <- c(parameter_definitions, beta_line)
     }
 
     parameter_section <- paste(parameter_definitions, collapse = "\n")

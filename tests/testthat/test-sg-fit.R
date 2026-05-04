@@ -209,6 +209,131 @@ test_that("sg_fit mlxtran output reflects core headers and parameterization", {
     "Vd = \\{distribution=logNormal, typical=Vd_pop, no-variability\\}",
     perl = TRUE
   )
+  expect_match(
+    mlxtran_text,
+    "CL = \\{distribution=logNormal, typical=CL_pop, covariate=AGE, coefficient=beta_CL_AGE, sd=omega_CL\\}",
+    perl = TRUE
+  )
+  expect_match(
+    mlxtran_text,
+    "y1 = \\{distribution=normal, prediction=Cc, errorModel=combined1\\(Cc_a, Cc_b\\)\\}",
+    perl = TRUE
+  )
+  expect_match(mlxtran_text, "ka_pop = \\{value=0.5, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "Vd_pop = \\{value=20, method=FIXED\\}", perl = TRUE)
+  expect_match(mlxtran_text, "CL_pop = \\{value=0.2, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "Cc_a = \\{value=1, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "Cc_b = \\{value=0.3, method=FIXED\\}", perl = TRUE)
+  expect_match(mlxtran_text, "omega_ka = \\{value=0.1, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "omega_CL = \\{value=0.2, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "beta_CL_AGE = \\{value=0.01, method=MLE\\}", perl = TRUE)
+  expect_match(mlxtran_text, "exportpath = 'content_fit'", perl = TRUE)
+})
+# ============================================================
+# 3. Optional Monolix integration
+# ============================================================
+
+test_that("sg_fit fit = TRUE skips cleanly when Monolix is unavailable", {
+  monolix_path <- .find_monolix_batch()
+  skip_if(
+    is.na(monolix_path),
+    "Monolix executable not available on this machine."
+  )
+
+  output_dir <- tempfile("sg-fit-monolix-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "integration_fit"
+  args <- .sg_fit_args(project_name, output_dir)
+  args$fit <- TRUE
+  args$path_to_fitter <- monolix_path
+  args$max_wait_time <- 120
+
+  result <- do.call(sg_fit, args)
+  project_dir <- file.path(output_dir, project_name)
+  mlxtran_path <- file.path(output_dir, sprintf("%s.mlxtran", project_name))
+
+  expect_true(file.exists(mlxtran_path))
+  expect_true(dir.exists(project_dir))
+  expect_false(is.null(result))
+})
+
+test_that("sg_fit errors when the data file is missing", {
+  args <- .sg_fit_args(
+    project_name = "missing-data",
+    output_dir = tempdir()
+  )
+  args$data <- file.path(tempdir(), "does-not-exist-data.csv")
+
+  expect_error(
+    do.call(sg_fit, args),
+    regexp = "data file does not exist"
+  )
+})
+
+# ============================================================
+# 2. Monolix project generation with fit = FALSE
+# ============================================================
+
+test_that("sg_fit writes an mlxtran project with the expected sections", {
+  output_dir <- tempfile("sg-fit-write-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "unit_fit"
+  result <- do.call(sg_fit, .sg_fit_args(project_name, output_dir))
+  mlxtran_path <- file.path(output_dir, sprintf("%s.mlxtran", project_name))
+
+  expect_null(result)
+  expect_true(file.exists(mlxtran_path))
+
+  mlxtran_text <- paste(readLines(mlxtran_path, warn = FALSE), collapse = "\n")
+
+  expect_match(mlxtran_text, "<DATAFILE>", fixed = TRUE)
+  expect_match(mlxtran_text, "[CONTENT]", fixed = TRUE)
+  expect_match(mlxtran_text, "[INDIVIDUAL]", fixed = TRUE)
+  expect_match(mlxtran_text, "[LONGITUDINAL]", fixed = TRUE)
+  expect_match(mlxtran_text, "<FIT>", fixed = TRUE)
+  expect_match(mlxtran_text, "<MONOLIX>", fixed = TRUE)
+})
+
+test_that("sg_fit mlxtran output reflects core headers and parameterization", {
+  output_dir <- tempfile("sg-fit-content-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "content_fit"
+  do.call(sg_fit, .sg_fit_args(project_name, output_dir))
+  mlxtran_path <- file.path(output_dir, sprintf("%s.mlxtran", project_name))
+  mlxtran_text <- paste(readLines(mlxtran_path, warn = FALSE), collapse = "\n")
+  observed_dvid <- sort(unique(read.csv(.fit_data)[["DVID"]]))
+  expected_yname <- paste0("'", observed_dvid, "'", collapse = ", ")
+  expected_data_type <- paste0("'", observed_dvid, "'=plasma", collapse = ", ")
+
+  expect_match(mlxtran_text, "header=\\{ID, TIME, DV, DVID", perl = TRUE)
+  expect_match(mlxtran_text, "ID = \\{use=identifier\\}", perl = TRUE)
+  expect_match(
+    mlxtran_text,
+    sprintf("DV = {use=observation, yname=%s, type=continuous}", expected_yname),
+    fixed = TRUE
+  )
+  expect_match(
+    mlxtran_text,
+    sprintf("dataType = {%s}", expected_data_type),
+    fixed = TRUE
+  )
+  expect_match(mlxtran_text, "\\[COVARIATE\\]\\ninput = \\{AGE\\}", perl = TRUE)
+  expect_match(
+    mlxtran_text,
+    "ka = \\{distribution=logNormal, typical=ka_pop, sd=omega_ka\\}",
+    perl = TRUE
+  )
+  expect_match(
+    mlxtran_text,
+    "Vd = \\{distribution=logNormal, typical=Vd_pop, no-variability\\}",
+    perl = TRUE
+  )
   # expect_match(
   #   mlxtran_text,
   #   "CL = \\{distribution=logNormal, typical=CL_pop, covariate=AGE, coefficient=beta_CL_AGE, sd=omega_CL\\}",
