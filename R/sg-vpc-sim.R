@@ -13,25 +13,26 @@
 #' @examples
 #' \donttest{
 #' library(rxode2)
+#' library(tibble)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' # Simulate VPC from with generalized model object
 #' mod <- rxode2::rxode2({
 #'   ka_pop = 0.1;
 #'   Vd_pop = 10;
-#'   CL_pop = 0.5;
+#'   Cl_pop = 0.5;
 #'
 #'   omega_ka = 0;
 #'   omega_Vd = 0;
-#'   omega_CL = 0;
+#'   omega_Cl = 0;
 #'
 #'   Cc_b = 0;
 #'   ka_tv = exp(ka_pop);
 #'   Vd_tv = exp(Vd_pop);
-#'   CL_tv = exp(CL_pop);
+#'   Cl_tv = exp(Cl_pop);
 #'
 #'   ka = ka_tv * exp(omega_ka);
 #'   Vd = Vd_tv * exp(omega_Vd);
-#'   CL = CL_tv * exp(omega_CL);
+#'   Cl = Cl_tv * exp(omega_Cl);
 #'
 #'   Cc = Ac / Vd;
 #'
@@ -39,14 +40,14 @@
 #'   Ac(0) = 0;
 #'
 #'   d/dt(Ad) = -ka * Ad;
-#'   d/dt(Ac) = ka * Ad - CL * Cc;
+#'   d/dt(Ac) = ka * Ad - Cl * Cc;
 #'
 #'   Cc_ResErr = Cc * (1 + Cc_b);
 #' })
 #'
-#' sg_vpc_sim(fpath_i, mod, outputs = "Cc_ResErr")
+#' sg_vpc_sim(fpath_i, model=mod, outputs = "Cc_ResErr")
 #' # Make VPC plot with the generalized control object
-#' model <-  "inst/extdata/models/rxode/model_PK_1c.txt"
+#' model <- system.file("extdata", "models", "rxode", "model_PK_1c.txt", package = "SimuRg")
 #' data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
 #' headers <- list(list(name = "ID", use = "identifier", type = NULL),
 #'              list(name = "TIME", use = "time", type = NULL),
@@ -79,7 +80,6 @@
 #'                          TRUE, NA, NA,
 #'                            NA, TRUE, NA,
 #'                           NA, NA, TRUE) %>% as.matrix())
-
 #' occ <- list(init = tribble(~Cl, ~V, ~ka,
 #'                         0, 0, 0,
 #'                           0, 0, 0,
@@ -96,8 +96,8 @@
 #'           covs = covs, project_name = "test-proj", theta = theta,
 #'           ruv = ruv, re = re, occ = occ, modelText = "")
 #'
+#' res <- sg_vpc_sim(fpath_i, gco = gco, output = "Cc")
 #' }
-#' res <- sg_vpc_sim(obj1, gco = gco, output = "Cc")
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr

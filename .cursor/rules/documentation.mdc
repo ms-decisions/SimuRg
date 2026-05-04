@@ -34,15 +34,18 @@ Format: `@param par_name par_type. Description of the parameter. Default value i
 
 - Do NOT escape special characters. Write `%` not `\%`, write `>` not `\>`, etc.
 - Mark inline code with backticks (`` ` `` ), not `\code{}`.
+- Use full `TRUE` and `FALSE`, not `T` or `F`
 
 ```r
 # BAD
 #' Accepts values between 0\% and 100\%.
 #' Uses \code{data.frame} internally.
+#' Default is `F`
 
 # GOOD
 #' Accepts values between 0% and 100%.
 #' Uses `data.frame` internally.
+#' Default is `FALSE`
 ```
 
 ## Examples (`@examples`)

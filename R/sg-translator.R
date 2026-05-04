@@ -74,7 +74,7 @@
 #'               output_vars = "Cc_nM", macros = TRUE)
 #'
 #' # Convert MLXTRAN model to rxode2
-#' sg_translator("model_PK_hv_iv.txt", to = "rxode",
+#' sg_translator(monolix_model_hv_iv, to = "rxode",
 #'               output_path = normalizePath(file.path(path_to_save,
 #'                                                     "model_PK_hv_iv_rx.txt"),
 #'                                            mustWork = FALSE))

@@ -38,7 +38,7 @@ mod_fin <- RxODE({
   Cc_ResErr = Cc + Cc_b*Cc;
 })
 
-model <-  "inst/extdata/models/rxode/model_PK_1c.txt"
+model <-  system.file("extdata", "models", "rxode", "model_PK_1c.txt", package = "SimuRg")
 data  <- system.file("extdata", "datasets", "dspk-warf.csv", package = "SimuRg")
 
 headers <- list(list(name = "ID", use = "identifier", type = NULL),

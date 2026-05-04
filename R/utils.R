@@ -546,6 +546,7 @@ read_smrg_ctrl <- function(ctrl) {
 #' obj <- read_smrg_obj("path/to/fit.RData")
 #' obj <- read_smrg_obj("path/to/fit.json")
 #' }
+#' @export
 read_smrg_obj <- function(fpath_i) {
   if (inherits(fpath_i, "character")) {
     if (!file.exists(fpath_i)) {
