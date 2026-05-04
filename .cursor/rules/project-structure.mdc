@@ -1,6 +1,6 @@
 ---
 description: Project structure and core model objects (GCO/GFO) for simurg_r
-alwaysManually: true
+alwaysApply: false
 ---
 
 # simurg_r Project Structure

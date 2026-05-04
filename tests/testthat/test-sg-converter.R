@@ -1,10 +1,9 @@
-## Author: Yaroslav Ugolkov?
+## Author: Yaroslav Ugolkov
 ## First created: 2025-10-17
 ## Description: Basic testing of sg-converter function
 ## Keywords: SimuRg, sg-converter
 
 test_that("sg-converter works and contains all elements", {
-  # skip_if(T)
   test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
   if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
     test_folder <- str_c(test_folder, "/")
