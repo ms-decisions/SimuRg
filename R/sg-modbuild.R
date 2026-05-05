@@ -138,7 +138,7 @@
 #'          "Vp", c("Normal", "logNormal"), 10, NA, NA, TRUE,
 #'          "Q", "logNormal", 5, NA, NA, TRUE))
 #'
-#' path <- tempdir() #system.file("extdata", package = "SimuRg")
+#' path <- tempdir()
 #' sg_modbuild(
 #'  mod_lst = mod_lst[1],
 #'  data = data,
@@ -148,7 +148,7 @@
 #'  re_lst = re_lst_1,
 #'  occ_lst = re_lst_1,
 #'  covs_lst = NULL,
-#'  path = paste0(path, "\\"),
+#'  path = path,
 #'  project_name = "tests_test_project"
 #' )
 #' clr_files <- list.files(path, full.names = TRUE)
@@ -164,6 +164,7 @@
 sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
                         occ_lst, covs_lst=NULL, task_lst = NULL, opt_name = "Simurg",
                         path=getwd(), project_name = "my_project") {
+  path <- gsub("[/\\\\]+$", "", path)
 
 
   make_re_obj <- function(changes, est, init, variable_num, init0) {
@@ -322,14 +323,14 @@ sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
 
   }
   summary_df <- bind_rows(summary_list)
-  write_csv(summary_df, paste0(path, '/scenarios_info.csv'))
+  write_csv(summary_df, file.path(path, 'scenarios_info.csv'))
   for (i in seq(1,length(sc_lst$mod))){
     sg_result_mod <- sg_fit(sc_lst$mod[i], data, headers, sc_lst$theta[[i]],
                             sc_lst$ruv[[i]], sc_lst$re[[i]],  sc_lst$occ[[i]],
                             project_name = paste0(project_name,'_',i),
                             covs_lst, opt_name = "Monolix",
                             path_to_save_output = path)
-    write(sg_result_mod, str_c(path, paste0(project_name,'_',i),'.mlxtran'))
+    write(sg_result_mod, file.path(path, paste0(project_name,'_',i,'.mlxtran')))
   }
 }
 

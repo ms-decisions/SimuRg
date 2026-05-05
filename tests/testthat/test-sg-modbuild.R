@@ -84,7 +84,7 @@ test_that("sg_modbuild creates expected number of files", {
             "Vp", c("Normal", "logNormal"), 10, NA, NA, T,
             "Q", "logNormal", 5, NA, NA, T))
 
-  path <- tempdir() #system.file("extdata", package = "SimuRg")
+  path <- tempdir()
   sg_modbuild(
     mod_lst = mod_lst[1],
     data = data,
@@ -94,7 +94,7 @@ test_that("sg_modbuild creates expected number of files", {
     re_lst = re_lst_1,
     occ_lst = re_lst_1,
     covs_lst = NULL,
-    path = paste0(path, "\\"),
+    path = path,
     project_name = "tests_test_project"
   )
 

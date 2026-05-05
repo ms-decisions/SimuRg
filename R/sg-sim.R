@@ -37,6 +37,7 @@
 #'  Event table can use either \code{id} or \code{ID}. Parameters can be fixed per ID by
 #'  including parameter names (e.g. \code{*_pop}, \code{omega_*}) as columns in the event table.
 #' @examples
+#' \donttest{
 #' library(rxode2)
 #' library(dplyr)
 #' library(tibble)
@@ -198,6 +199,7 @@
 #'                stimes = stimes_test, theta = theta_cov, covs = c("WTBL"),
 #'                keep = c("WTBL"),
 #'                thetamat = thetamat_test, npop = 5)
+#' }
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr

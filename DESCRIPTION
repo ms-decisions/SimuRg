@@ -1,15 +1,15 @@
 Package: SimuRg
-Title: R package for builidng and simulating from ode-based pharuse
+Title: Tools for ODE-Based PK/PD Modeling and Simulation
 Version: 0.1.11
 Authors@R: c(
+    person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut")),
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
     person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
     person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
     person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
-    person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut"),
-    person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role = "aut")
+    person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut")
   )
-Description: The package includes all functions needed to develop, validate and simulate from PK/PD models.
+Description:Provides a unified workflow for building, fitting using external engines, and evaluating ordinary differential equation (ODE)-based pharmacokinetic/pharmacodynamic (PK/PD) models. Supports generation of estimation scenarios and control files for external engines (e.g., Monolix), simulation of models using rxode2, and creation of goodness-of-fit diagnostics. Includes tools for covariate modeling, virtual population design, and local and global sensitivity analyses.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
