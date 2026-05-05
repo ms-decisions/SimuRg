@@ -85,7 +85,7 @@
 #' # Check objective function value
 #' print(result$GFO$OFV)
 #'}
-#' @importFrom readr read_csv cols parse_number
+#' @importFrom readr read_csv read_tsv cols parse_number
 #' @importFrom stringr str_c
 #' @import tibble
 #' @import dplyr

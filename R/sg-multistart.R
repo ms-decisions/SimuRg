@@ -132,7 +132,7 @@
 #'
 #' n_starts <- 20
 #'
-#' path <- tempdir() #system.file("extdata", package = "SimuRg")
+#' path <- tempdir()
 #' sg_multistart(
 #'   mod = mod,
 #'   data = data,
@@ -143,7 +143,7 @@
 #'   occ = re,
 #'   n_starts = n_starts,
 #'   theta_intervals = theta_intervals,
-#'   path = paste0(path, "\\"),
+#'   path = path,
 #'   project_name = "multistart_test_project"
 #' )
 #' clr_files <- list.files(path, full.names = TRUE)
@@ -164,6 +164,7 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
                           n_starts=10, theta_intervals=NULL,
                           interval_factor=c(0.2,5), vary_params=NULL,
                           seed = NULL) {
+  path <- gsub("[/\\\\]+$", "", path)
 
   make_theta_one <- function(theta_lst, val, trans_idx, init_idx) {
     for (i in c(1:length(trans_idx))) {
@@ -293,7 +294,7 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
     )
   }
   summary_df <- bind_rows(summary_list)
-  write_csv(summary_df, paste0(path, '/multistart_info.csv'))
+  write_csv(summary_df, file.path(path, 'multistart_info.csv'))
 
   for (i in seq_len(n_starts)) {
     sg_result_mod <- sg_fit(mod, data, headers, theta_lst_exp[[i]],
@@ -301,6 +302,6 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
                             project_name = paste0(project_name,'_',i),
                             covs_lst, opt_name = "Monolix",
                             path_to_save_output = path)
-    write(sg_result_mod, str_c(path, paste0(project_name,'_',i),'.mlxtran'))
+    write(sg_result_mod, file.path(path, paste0(project_name,'_',i,'.mlxtran')))
   }
 }

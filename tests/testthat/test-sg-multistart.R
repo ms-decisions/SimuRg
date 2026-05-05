@@ -50,7 +50,7 @@ test_that("sg_multistart creates expected number of files", {
     ka   = c(1.25*theta$INIT[theta$NAME == "ka"], 1.5*theta$INIT[theta$NAME == "ka"])
   )
 
-  path <- tempdir()# tempdir() #system.file("extdata", package = "SimuRg")
+  path <- tempdir()
 
   ruv <- list(YNAME = "y1",
               DVID = 1,
@@ -73,7 +73,7 @@ test_that("sg_multistart creates expected number of files", {
     n_starts = n_starts,
     theta_intervals = theta_intervals,
     covs_lst = NULL,
-    path = paste0(path, "\\"),
+    path = path,
     project_name = "multistart_test_project",
     seed = 126
   )

@@ -23,6 +23,7 @@
 #'
 #'
 #' @examples
+#' \donttest{
 #' # Basic usage: distribution plots for all parameters
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sg_gof_par_dist(fpath_i = fpath_i)
@@ -44,7 +45,7 @@
 #'
 #' # Correlation matrix for selected parameters
 #' sg_gof_par_dist(fpath_i = fpath_i, plot_type = "correlations")
-#'
+#' }
 #' @import dplyr
 #' @importFrom MASS mvrnorm
 #' @import ggplot2
