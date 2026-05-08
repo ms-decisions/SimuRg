@@ -3,10 +3,11 @@
 ## Description: SimuRg
 ## Keywords: SimuRg tests
 rm(list=ls())
-
+devtools::load_all()
+# devtools::document()
 
 #####--------------- Load functions and libraries ---------------#####
-library(tidyverse)
+# library(tidyverse)
 theme_set(theme_bw())
 theme_update(panel.grid.minor = element_blank(),
              legend.position = "top")
@@ -61,3 +62,11 @@ pro_name <- "pk-1c"
 
 sg_converter(folder_path = test_folder_2023, proj_name = pro_name)
 sg_converter(folder_path = test_folder_2024, proj_name = pro_name)
+
+
+path2mlxtran_model <- "scripts/nlme/sg-translator/models/OKZ_PKmodel_mlxtran.txt"
+path2RxODE_model <- "scripts/nlme/sg-translator/models/OKZ_PKmodel_RxODE.txt"
+sg_translator(input_path = path2mlxtran_model , to = "rxode",
+              output_path = path2RxODE_model,
+              output_vars = "Cc", regressors = c("P"),
+              dm_list = list(cmt = 1, adm = 1), stiff = TRUE)
