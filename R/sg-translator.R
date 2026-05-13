@@ -240,7 +240,19 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
     if (idx_desc + 1 <= desc_end) {
       desc_raw <- lines[(idx_desc + 1):desc_end]
       desc_raw <- desc_raw[stringr::str_trim(desc_raw) != ""]
-      desc_rx <- vapply(desc_raw, .tr_comment_mlx_to_rx, character(1), USE.NAMES = FALSE)
+      desc_rx <- vapply(desc_raw, function(l) {
+        l_t <- stringr::str_trim(l)
+        if (l_t == "") return("")
+        # In MLXTRAN DESCRIPTION block the lines are often free text (not ';' comments).
+        # When converting to rxode2 we must ensure they are commented out with '#'.
+        if (stringr::str_detect(l_t, "^;")) {
+          return(.tr_comment_mlx_to_rx(l_t))
+        }
+        if (stringr::str_detect(l_t, "^#")) {
+          return(l_t)
+        }
+        paste0("# ", l_t)
+      }, character(1), USE.NAMES = FALSE)
     }
   }
 
