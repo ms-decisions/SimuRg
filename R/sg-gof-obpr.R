@@ -25,17 +25,17 @@
 #' # Basic example with mock data
 #' set.seed(123)  # For reproducibility
 #' mock_obj <- list(
-#'   SDTAB = data.frame(
-#'     ID = rep(1:3, each = 5),
-#'     TIME = rep(c(0, 1, 2, 4, 8), 3),
-#'     DV = rnorm(15, mean = 10, sd = 2),
-#'     PRED = rnorm(15, mean = 10, sd = 1.5),
-#'     IPRED = rnorm(15, mean = 10, sd = 1.2),
-#'     MDV = rep(0, 15)
-#'   ),
-#'   COTAB = data.frame(ID = 1:3, AGE = c(30, 45, 60)),
-#'   CATAB = data.frame(ID = 1:3, RACE = c("Hispanic", "Hispanic", "Asian"))
-#' )
+#'  SDTAB = data.frame(
+#'    ID = rep(1:3, each = 5),
+#'    TIME = rep(c(0, 1, 2, 4, 8), 3),
+#'    DV = rnorm(15, mean = 10, sd = 2),
+#'    PRED = rnorm(15, mean = 10, sd = 1.5),
+#'    IPRED = rnorm(15, mean = 10, sd = 1.2),
+#'    MDV = rep(0, 15)
+#'  ),
+#'  COTAB = data.frame(ID = 1:3, AGE = c(30, 45, 60)),
+#'  CATAB = data.frame(ID = 1:3, RACE = c("Hispanic", "Hispanic", "Asian"))
+#')
 #'
 #' # Basic plot
 #' p <- sg_gof_obpr(mock_obj)
@@ -56,11 +56,11 @@
 #' @export
 
 sg_gof_obpr <- function(
-    fpath_i, DVID = 1, cov_cols = NULL, indiv = T, addline = T, alpha_i = 0.5,
-    smooth = T, log_axes = F, sc_factor = 1, abreaks = scales::pretty_breaks(7),
+    fpath_i, DVID = 1, cov_cols = NULL, indiv = TRUE, addline = TRUE, alpha_i = 0.5,
+    smooth = TRUE, log_axes = FALSE, sc_factor = 1, abreaks = scales::pretty_breaks(7),
     lab_x = "Model-predicted values", lab_y = "Observed values", col_i = NULL, col_lab = NULL,
     facet_i = NULL, f_scales = "fixed",
-    no_leg = F, n_quantiles = 3, levels_discrete = 10
+    no_leg = FALSE, n_quantiles = 3, levels_discrete = 10
 ){
 
 
@@ -215,7 +215,7 @@ sg_gof_obpr <- function(
     if(addline){ p_ObPr <- p_ObPr + geom_line(aes(col = !!sym(col_i), group = ID), lwd = 0.4, alpha = alpha_i) }
     if(smooth){ p_ObPr <- p_ObPr + geom_smooth(aes(col = !!sym(col_i), group = !!sym(col_i)),
                                                formula = "y ~ x", method = "loess",
-                                               linewidth = 1.2, se = F) }
+                                               linewidth = 1.2, se = FALSE) }
 
   } else {
     p_ObPr <- p_ObPr +
@@ -225,7 +225,7 @@ sg_gof_obpr <- function(
 
     if(addline){ p_ObPr <- p_ObPr + geom_line(aes(group = ID), col = MSDcol[1], lwd = 0.4, alpha = alpha_i) }
     if(smooth){ p_ObPr <- p_ObPr + geom_smooth(formula = "y ~ x", method = "loess",
-                                               linewidth = 1.2, se = F, col = MSDcol[3]) }
+                                               linewidth = 1.2, se = FALSE, col = MSDcol[3]) }
   }
 
   if (!is.null(facet_i)) {

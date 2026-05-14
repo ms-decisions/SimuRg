@@ -161,9 +161,9 @@
 #' @importFrom jsonlite fromJSON
 #' @import dplyr
 #' @export
-sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
+sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst, path,
                         occ_lst, covs_lst=NULL, task_lst = NULL, opt_name = "Simurg",
-                        path=getwd(), project_name = "my_project") {
+                        project_name = "my_project") {
   path <- gsub("[/\\\\]+$", "", path)
 
 
@@ -184,7 +184,7 @@ sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
     variable <- re_lst[["est"]] & !re_lst[["block"]]
     variable_num <- which(variable, arr.ind=TRUE)
     variants <- combn(c(rep(0, times = nrow(variable_num)), 1:nrow(variable_num)),
-                      m = nrow(variable_num), simplify = F) %>% unique()
+                      m = nrow(variable_num), simplify = FALSE) %>% unique()
     init <- ifelse(!variable | is.na(variable), re_lst[["init"]], 0)
     est <- ifelse(variable, NA, !variable)
     fin_re_lst <- map(variants, function(x){
@@ -234,7 +234,7 @@ sg_modbuild <- function(mod_lst, data, headers, ruv_lst, theta_lst, re_lst,
     }
     trans_val <- expand.grid(c(theta_lst$TRANS[trans_idx],
                                theta_lst$INIT[init_idx]),
-                             stringsAsFactors = F)
+                             stringsAsFactors = FALSE)
     return(apply(trans_val, 1,function(x){make_theta_one(theta_lst, x, trans_idx, init_idx)}))
   }
 

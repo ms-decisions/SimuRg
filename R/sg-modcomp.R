@@ -8,11 +8,9 @@
 #' @inheritParams sg_dummy
 #' @returns A data.frame with model summary metrics for futher comparison
 #' @examples
-#' \dontrun{
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sum_tab <- sg_modcomp(fpath_i, 3)
 #' print(sum_tab)
-#' }
 #' @import dplyr
 #' @import stringr
 #' @import stringr
@@ -126,7 +124,7 @@ sg_modcomp <- function(fpath_i, run_id = 1){
   )
 
   # Create dataframe with parameter Identifiability inforamtion
-  ds_out_i <- sg_parsum(fpath_i, addOFV = T)
+  ds_out_i <- sg_parsum(fpath_i, addOFV = TRUE)
 
   ds_idetn_i <- ds_out_i %>% filter(RSE > 50)
   ident_stat <- NULL
@@ -144,8 +142,8 @@ sg_modcomp <- function(fpath_i, run_id = 1){
   ds_out <- modcomp %>% mutate(Identifiability = ifelse(nrow(ds_idetn_i) == 0, "Yes", "No"),
                                Shrinkage = ifelse(nrow(ds_shr_i) == 0, "Yes", "No"),
                                `Pars. with RSE > 50%` = ident_stat, `Pars. with shr. > 50%` = shr_stat,
-                               `Max RSE, %` = max(ds_out_i$RSE, na.rm = T),
-                               `Max shrinkage, %` = max(ds_out_i$`Shrinkage (var), %`, na.rm = T),
+                               `Max RSE, %` = max(ds_out_i$RSE, na.rm = TRUE),
+                               `Max shrinkage, %` = max(ds_out_i$`Shrinkage (var), %`, na.rm = TRUE),
                                OFV = unique(ds_out_i$OFV), AIC = unique(ds_out_i$AIC)) %>%
     rename(`Run ID` = Run_ID, `Project name` = Project_name)
   return(ds_out)

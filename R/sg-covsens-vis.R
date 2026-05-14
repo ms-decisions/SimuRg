@@ -42,17 +42,20 @@
 #'   add further layers or themes with the usual \pkg{ggplot2} API.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' library(tibble)
+#' library(dplyr)
+#' library(rxode2)
 #' # Typical workflow: run the simulation (see examples in ?sg_covsens_sim),
 #' # then visualise parameter and exposure sensitivity.
 #'
 #' cont_cov_l <- list(
-#' LG_AGE = list(NAME = "LG_AGE", UTNAME = "AGE",
-#'               REF = "median", NICENAME = "Age, years",
-#'               par_vec = c("CL")),
-#' LG_WEIGHT = list(NAME = "LG_WEIGHT", UTNAME = "WEIGHT",
-#'                  REF = "median", NICENAME = "Weight, kg",
-#'                  par_vec = c("Vd"))
+#'   LG_AGE = list(NAME = "LG_AGE", UTNAME = "AGE",
+#'                 REF = "median", NICENAME = "Age, years",
+#'                 par_vec = c("CL")),
+#'   LG_WEIGHT = list(NAME = "LG_WEIGHT", UTNAME = "WEIGHT",
+#'                 REF = "median", NICENAME = "Weight, kg",
+#'                 par_vec = c("Vd"))
 #' )
 #'
 #' cat_cov_l <- list(

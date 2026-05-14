@@ -71,7 +71,7 @@
 #' random number generator state and restores it upon exit.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(dplyr)
 #' folder_path <- system.file("extdata", package = "SimuRg")
 #'
@@ -112,9 +112,9 @@
 #'                list(name = "BMI", use = "covariate", type = "continuous"))
 #'
 #' theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
-#'                    "Cl", "logNormal", 0.2, NA, NA, T,
-#'                    "Vd", "logNormal", 20, NA, NA, T,
-#'                    "ka", "logNormal", 0.2, NA, NA, T)
+#'                    "Cl", "logNormal", 0.2, NA, NA, TRUE,
+#'                    "Vd", "logNormal", 20, NA, NA, TRUE,
+#'                    "ka", "logNormal", 0.2, NA, NA, TRUE)
 #'
 #' theta_intervals <- list(
 #'   Cl = c(0.25*theta$INIT[theta$NAME == "Cl"], 4*theta$INIT[theta$NAME == "Cl"]),
@@ -128,7 +128,7 @@
 #'             PRED = "Cc",
 #'             ERR = "proportional",
 #'             INIT = 1,
-#'             EST = T)
+#'             EST = TRUE)
 #'
 #' n_starts <- 20
 #'
@@ -158,9 +158,9 @@
 #' @import dplyr
 #' @export
 
-sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
+sg_multistart <- function(mod, data, headers, ruv, theta, re, occ, path,
                           covs_lst=NULL, opt_name = "Simurg",
-                          path=getwd(), project_name="multistart_project",
+                          project_name="multistart_project",
                           n_starts=10, theta_intervals=NULL,
                           interval_factor=c(0.2,5), vary_params=NULL,
                           seed = NULL) {
@@ -187,29 +187,9 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
     }
     trans_val <- expand.grid(c(theta_lst$TRANS[trans_idx],
                                theta_lst$INIT[init_idx]),
-                             stringsAsFactors = F)
+                             stringsAsFactors = FALSE)
     return(apply(trans_val, 1,function(x){make_theta_one(theta_lst, x, trans_idx, init_idx)}))
   }
-
-  # Setup local seed and save user's global seed
-  if (exists(".Random.seed", envir = .GlobalEnv)) {
-    old_seed <- .GlobalEnv$.Random.seed
-    has_old_seed <- TRUE
-  } else {
-    has_old_seed <- FALSE
-  }
-
-  on.exit({
-    if (has_old_seed) {
-      .GlobalEnv$.Random.seed <- old_seed
-    } else {
-      if (exists(".Random.seed", envir = .GlobalEnv)) {
-        rm(".Random.seed", envir = .GlobalEnv)
-      }
-    }
-  })
-
-  if (!is.null(seed)) set.seed(seed)
 
   # Setup variation parameters for multistart
   if (is.null(vary_params)) {
@@ -227,7 +207,13 @@ sg_multistart <- function(mod, data, headers, ruv, theta, re, occ,
   theta_samples <- list()
   for (p in names(theta_intervals)) {
     bounds <- theta_intervals[[p]]
-    theta_samples[[p]] <- runif(n_starts, bounds[1], bounds[2])
+    if (is.null(seed)) {
+      theta_samples[[p]] <- runif(n_starts, bounds[1], bounds[2])
+    } else {
+      withr::with_seed(seed, {
+        theta_samples[[p]] <- runif(n_starts, bounds[1], bounds[2])
+      })
+    }
   }
   # Create list of theta tables with varied INIT for chosen parameters
   theta_list <- vector("list", n_starts)

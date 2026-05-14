@@ -39,7 +39,8 @@
 #' @export
 
 
-sg_gof_res_dist <- function(fpath_i, res_type = 'RES', DVID = 1, n_bins = 30, ndist = T, plot_type = 'DIST'){
+sg_gof_res_dist <- function(fpath_i, res_type = 'RES', DVID = 1, n_bins = 30,
+                            ndist = TRUE, plot_type = 'DIST'){
   smrg_obj <- read_smrg_obj(fpath_i)
   if (is.null(smrg_obj$SDTAB)) {
     stop("sg_fit object must contain SDTAB component")

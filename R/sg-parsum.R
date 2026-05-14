@@ -14,7 +14,7 @@
 #' @import dplyr
 #' @import stringr
 #' @export
-sg_parsum <- function(fpath_i, addOFV = T){
+sg_parsum <- function(fpath_i, addOFV = TRUE){
   if (inherits(fpath_i, "character")) {
     obj <- get(load(fpath_i))
   } else if (inherits(fpath_i, "list")) {
