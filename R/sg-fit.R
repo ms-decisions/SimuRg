@@ -15,7 +15,7 @@
 #'   * `UB` - numeric, upper bound for logit transformation,  `NA` for other transformation
 #'   * `EST` - logical, whether to estimate this parameter.
 #' @param max_wait_time numeric. Maximum time in seconds to wait for fit results to complete. Default is 3600 seconds (1 hour). Set to `Inf` for no timeout.
-#' @returns if option `fit = T`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
+#' @returns if option `fit = TRUE`, generalized simurg output object is returned. Otherwise, the file for fit is written and no output is returned
 #' @examples
 #' \donttest{
 #' library(tibble)
@@ -162,7 +162,7 @@
 #' @import sys
 #' @export
 sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name,
-                   task_opt = NULL, opt_name = "Monolix", fit = F,
+                   task_opt = NULL, opt_name = "Monolix", fit = FALSE,
                    path_to_save_output = NULL, path_to_fitter = NULL,
                    max_wait_time = 3600){
   sc_data <- ""
@@ -172,8 +172,8 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
 
   model <- normalizePath(model)
   data <- normalizePath(data)
-  if (is.null(path_to_save_output)) path_to_save_output <-  file.path(getwd(), project_name)
-  if (is.null(path_to_fitter)) path_to_fitter <- "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
+  if (is.null(path_to_save_output)) stop("No path to save output was provided")
+  if (is.null(path_to_fitter) & fit == TRUE) stop("No path to fitter was identified")
 
   if (opt_name == "Monolix") {
     # Read the data file to get column names
@@ -566,20 +566,20 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     filepath <- sprintf("%s/%s.R", path_to_save_output, project_name)
     # return(simurg_cntrl_file)
   }
-  # dir.create(dirname(filepath), showWarnings = FALSE, recursive =T)
+  # dir.create(dirname(filepath), showWarnings = FALSE, recursive =TRUE)
   write(sc_data, filepath)
-  print(sprintf("The file for fit was written %s", filepath))
+  message(sprintf("The file for fit was written %s", filepath))
   if (fit & opt_name == "Monolix") {
     dir.create(file.path(path_to_save_output, project_name), showWarnings = FALSE,
-               recursive = T)
+               recursive = TRUE)
     path_to_save_output1 <- normalizePath(file.path(path_to_save_output, project_name))
     filepath <- normalizePath(filepath)
     curr_dir <- getwd()
     setwd(dirname(path_to_fitter))
+    on.exit(setwd(curr_dir))
     int_res <- system(sprintf('%s --no-gui -p %s -o %s -t monolix', #--mode none
                               path_to_fitter, path.expand(filepath),
-                              path_to_save_output1), wait = F)
-    setwd(curr_dir)
+                              path_to_save_output1), wait = FALSE)
     Sys.sleep(10)
     ended <- "LogLikelihood" %in% list.files(path_to_save_output1)
     start_time <- Sys.time()

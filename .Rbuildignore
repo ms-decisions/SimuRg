@@ -6,3 +6,4 @@
 ^scripts$
 ^LICENSE\.md$
 ^.cursor$
+^cran-comments\.md$

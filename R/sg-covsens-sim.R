@@ -6,7 +6,7 @@
 ###-----Functions----####
 #' @noRd
 funSum_av <- list(mean   = ~mean(.),
-                  median   = ~median(., na.rm = T))
+                  median   = ~median(., na.rm = TRUE))
 
 #' @noRd
 funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
@@ -14,7 +14,7 @@ funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
                    `Cmax`    = ~max(., na.rm = TRUE))
 
 #' @noRd
-fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
+fun_EtCC <- function(et_base_i, cc_ds_i, cat = FALSE){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
     cc_ds_n <- cc_ds_i %>% filter(COV == n)
 
@@ -40,7 +40,7 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
 }
 
 #' @noRd
-fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL,
+fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsim = 100, stime_exp = NULL,
                         mod_fin_i,
                         theta_i, omega_i, thetamat_i, nice_names_i,
                         quantiles = c(0.1,0.9),
@@ -202,9 +202,9 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #' and the estimation covariance matrix (\code{est_covmat}).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(dplyr)
-#' library(RxODE)
+#' library(rxode2)
 #'
 #' # --- Covariate definitions ---
 #' cont_cov_l <- list(
@@ -690,7 +690,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
                 nice_names_i = nice_names,quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, cat = T, covs_i = nice_names$COV, nsim = npop,
+    fun_CovSens(ets_catc, cat = TRUE, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
                 theta_i = par_fin_tv, omega_i = m_omega_full,
                 thetamat_i = m_theta_norm_pop,
@@ -706,7 +706,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   # Sensitivity of exposure parameters to covariate values
   out_cov_exp_sens <- bind_rows(
-    fun_CovSens(ets_cc, expos = T, covs_i = nice_names$COV, nsim = npop,
+    fun_CovSens(ets_cc, expos = TRUE, covs_i = nice_names$COV, nsim = npop,
                 stime_exp = stimes,
                 mod_fin_i = model,
                 theta_i = par_fin_tv, omega_i = m_omega_full,
@@ -714,7 +714,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
                 nice_names_i = nice_names, quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, cat = T, expos = T, covs_i = nice_names$COV, nsim = npop,
+    fun_CovSens(ets_catc, cat = TRUE, expos = TRUE, covs_i = nice_names$COV, nsim = npop,
                 stime_exp = stimes,
                 mod_fin_i = model,
                 theta_i = par_fin_tv, omega_i = m_omega_full,

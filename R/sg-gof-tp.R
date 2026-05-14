@@ -29,9 +29,9 @@
 #' @importFrom purrr map
 #' @import stringr
 #' @export
-sg_gof_tp <- function(fpath_i, pop = T, filt = "T", cov_cols = NULL, col_i = NULL,
-                      DVID = 1, tsld = F, f_scales = "free", sort_by = NULL,
-                      desc = F, log_y = F, lab_x = "Time since first dose, h",
+sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = NULL,
+                      DVID = 1, tsld = FALSE, f_scales = "free", sort_by = NULL,
+                      desc = FALSE, log_y = FALSE, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
                       cap = str_c("empty circles - observed data\n",
                                   "solid lines with point - ",

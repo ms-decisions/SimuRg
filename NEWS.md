@@ -1,4 +1,31 @@
-# SimuRg 0.1.11(2025-04-29)
+# SimuRg 0.2.0(2026-05-14)
+
+## Bug fixes: 
+* problems in `sg-translator()` were solved [SD-1434]
+* Replaced direct manipulation of `.Random.seed`
+  with `withr::with_seed()` to avoid modifying
+  the user’s global RNG state.
+* Added `on.exit()` calls in all cases where user
+  options or settings are temporarily modified
+* Removed all `\dontrun{}` statements from examples. 
+  Examples requiring more than 5 seconds were changed
+  to `\donttest{}`.
+* No DOI or URL were added to the DESCRIPTION file,
+  as no suitable references are available.
+* Replaced all uses of `T` and `F` with `TRUE` and
+  `FALSE`.
+* Removed the phrase "Tools for" from the package
+  description.
+* Exported `sg_sim_tp()`
+* Replaced `cat()` and `print()` calls inside package 
+  functions with `message()`, `warning()`, or `stop()`
+  where appropriate.
+* Removed default output paths from function arguments,
+  including uses of `getwd()`
+
+
+
+# SimuRg 0.1.11(2026-04-29)
 ## New features: 
 * `sg_fit()` now can work with covariates
 * `sg_converter()` weighted residuals reading from monolix was added, if avaliable[SD-1391]

@@ -118,9 +118,9 @@ sg_vpc_sim <- function(fpath_i, gco = NULL, model = NULL, time_col = "TIME", out
   data_fin.noex$time  <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
 
-  if (!is.null(obj$COTAB)) ev_tab <-  merge(ev_tab, obj$COTAB, by = "ID", all.x = T)
-  if (!is.null(obj$CATAB)) ev_tab <-  merge(ev_tab, obj$CATAB, by = "ID", all.x = T)
-  if (!is_empty(obj$REGTAB)) ev_tab <-  merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = T)
+  if (!is.null(obj$COTAB)) ev_tab <-  merge(ev_tab, obj$COTAB, by = "ID", all.x = TRUE)
+  if (!is.null(obj$CATAB)) ev_tab <-  merge(ev_tab, obj$CATAB, by = "ID", all.x = TRUE)
+  if (!is_empty(obj$REGTAB)) ev_tab <-  merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = TRUE)
   covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
   covs_i <- covs_i[covs_i != "ID"]
   id_seq <- unique(data_fin.noex$ID)
@@ -134,7 +134,7 @@ sg_vpc_sim <- function(fpath_i, gco = NULL, model = NULL, time_col = "TIME", out
     sim.i <- sg_sim(model = model, et = ev_tab.i, stimes = data_fin.noex.i,
                     outputs = outputs, theta = par_fin_tv, omega = obj$OMEGAMAT,
                     sigma = obj$SIGMAMAT, covs = covs_i, nsub = npop, byID = TRUE,
-                    addcov = F, ncores = parallel::detectCores()-1) %>%
+                    addcov = FALSE, ncores = parallel::detectCores()-1) %>%
       mutate(ID = id_seq.i)
     return(sim.i)
   })

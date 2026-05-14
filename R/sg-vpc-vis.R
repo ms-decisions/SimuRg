@@ -179,16 +179,12 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
       n_bins <- length(unique(ds$TIME))
     }
 
-    set.seed(123)
-
-    #browser()
-
     ds_bin <- ds %>%
       mutate(BIN = as.factor(kmeans(TIME, n_bins)$cluster))
 
     sorted_bins <- ds_bin %>%
       group_by(BIN) %>%
-      summarise_at(vars(TIME), list(min_BIN_time = ~min(., na.rm=T))) %>%
+      summarise_at(vars(TIME), list(min_BIN_time = ~min(., na.rm=TRUE))) %>%
       ungroup() %>%
       select(BIN, min_BIN_time) %>%
       unique() %>%
@@ -210,8 +206,8 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
     #browser()
 
     #browser()
-    n_bins <- seq(min(ds$TIME, na.rm = T),
-                max(ds$TIME, na.rm = T),
+    n_bins <- seq(min(ds$TIME, na.rm = TRUE),
+                max(ds$TIME, na.rm = TRUE),
                 length.out = n_bins + 1)
     n_bins <- n_bins[-1]
 
@@ -224,13 +220,9 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
     time_bin <- time_bin %>%
       mutate(nrow = 1:nrow(.)) %>%
       group_by(nrow) %>%
-      mutate(BIN = min((1:length(n_bins))[TIME <= n_bins], na.rm = T)) %>%
+      mutate(BIN = min((1:length(n_bins))[TIME <= n_bins], na.rm = TRUE)) %>%
       ungroup() %>%
       select(-nrow)
-
-    # for (i in 1:nrow(time_bin)){
-    #   time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = T)
-    # }
 
     time_bin <- time_bin %>%
       mutate(BIN = as.factor(BIN))
@@ -239,7 +231,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
       left_join(time_bin, by = "TIME")
 
   } else if(method == "custom"){
-    n_bins <- c(n_bins, max(ds$TIME, na.rm = T))
+    n_bins <- c(n_bins, max(ds$TIME, na.rm = TRUE))
 
     time_bin <- ds %>%
       select(TIME) %>%
@@ -247,7 +239,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
       mutate(BIN = 0)
 
     for (i in 1:nrow(time_bin)){
-      time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = T)
+      time_bin[i,]$BIN <- min((1:length(n_bins))[time_bin[i,]$TIME <= n_bins], na.rm = TRUE)
     }
 
     time_bin <- time_bin %>%
@@ -259,7 +251,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 
   ds_bin <- ds_bin %>%
     group_by(BIN) %>%
-    mutate_at(vars(TIME), list(TIME_BIN = ~mean(., na.rm = T))) %>%
+    mutate_at(vars(TIME), list(TIME_BIN = ~mean(., na.rm = TRUE))) %>%
     ungroup()
 
   bin_stats <- ds_bin %>%
@@ -330,9 +322,9 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #'   omega_Cl = 0;
 #'
 #'   Cc_b = 0;
-#'   ka_tv = exp(ka_pop);
-#'   Vd_tv = exp(Vd_pop);
-#'   Cl_tv = exp(Cl_pop);
+#'   ka_tv = exp(log(ka_pop));
+#'   Vd_tv = exp(log(Vd_pop));
+#'   Cl_tv = exp(log(Cl_pop));
 #'
 #'   ka = ka_tv * exp(omega_ka);
 #'   Vd = Vd_tv * exp(omega_Vd);
@@ -368,7 +360,7 @@ sg_vpc_vis <- function(ds_sim,
                        output_names,
                        time_col = "TIME",
                        dv_col = "DV",
-                       log_y = F,
+                       log_y = FALSE,
                        piLow = 0.10,
                        piUp = 0.90,
                        ciLow = 0.025,
@@ -383,7 +375,7 @@ sg_vpc_vis <- function(ds_sim,
                        legend_fl = FALSE,
                        n_bins = 10,
                        method = "kmeans",
-                       interpolation = T,
+                       interpolation = TRUE,
                        strat_by_dose = NULL) {
 
   # Check input dataset for required columns
@@ -412,10 +404,9 @@ sg_vpc_vis <- function(ds_sim,
   }
 
   # Check if the method is valid
-  valid_methods <- c("kmeans", "ntile", "equal_x", "custom")
+  valid_methods <- c("kmeans", "ntile", "equal_x", "custofm")
   if (!method %in% valid_methods) {
-    cat("Invalid binning method. Valid methods are: ", paste(valid_methods, collapse = ", "), "\n",
-        "Using default method: kmeans\n")
+    message(sprintf("Invalid binning method. Valid methods are: %s \nUsing default method: kmeans\n", paste(valid_methods, collapse = ", ")))
     method <- "kmeans"
   }
 

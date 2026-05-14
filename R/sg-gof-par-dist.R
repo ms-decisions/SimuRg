@@ -56,7 +56,7 @@
 #' @export
 
 sg_gof_par_dist <- function(fpath_i, par_seq = NULL,
-                            par_type = "Ind", n_bins = 30, tdist = T, plot_type = 'DIST'){
+                            par_type = "Ind", n_bins = 30, tdist = TRUE, plot_type = 'DIST'){
   load_smrg_obj <- function(x) {
     if (inherits(x, "list")) return(x)
     if (!inherits(x, "character") || length(x) != 1L) {
@@ -140,6 +140,7 @@ sg_gof_par_dist <- function(fpath_i, par_seq = NULL,
 
     # Save current graphics parameters
     old_par <- par(no.readonly = TRUE)
+    on.exit(par(old_par))
 
     # Create layout for plots
     par(mfrow = c(n, n),

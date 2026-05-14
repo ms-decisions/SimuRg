@@ -83,8 +83,6 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
 
-  set.seed(seed)
-
   # Find exact duplicates between synthetic and original
   common_cols <- intersect(names(data_syn), names(data_orig))
   data_syn$row_id <- seq_len(nrow(data_syn))
@@ -105,7 +103,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
     ))
   }
 
-  cat("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
+  message("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
 
   # Add noise to continuous variables for duplicate rows
   if (length(var_cont) > 0) {
@@ -115,7 +113,13 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
         sd_val <- sd(data_orig[[var]], na.rm = TRUE)
 
         # Add noise only to duplicate rows
-        noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
+        if (is.null(seed)) {
+          noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
+        } else {
+          withr::with_seed(seed, {
+            noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
+          })
+        }
         data_syn[dupl_indices, var] <- data_syn[dupl_indices, var] + noise
 
         # Ensure values stay within reasonable bounds (min/max of original)
@@ -137,7 +141,13 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
         if (n_levels >= 2) {
           # Randomly select ~20% of duplicate rows to flip for this variable
           n_to_flip <- max(1, ceiling(0.2 * n_duplicates))
-          rows_to_flip <- sample(dupl_indices, size = n_to_flip)
+          if (is.null(seed)) {
+            rows_to_flip <- sample(dupl_indices, size = n_to_flip)
+          } else {
+            withr::with_seed(seed, {
+              rows_to_flip <- sample(dupl_indices, size = n_to_flip)
+            })
+          }
 
           # For each selected row, change to a different level
           for (idx in rows_to_flip) {
@@ -252,9 +262,9 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @export
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
                        excl_col = NULL,seed = NA,
-                       seed_umap = NA, palette = NULL,
-                       diag_plots = F,
-                       #show_info=F,
+                       seed_umap = 123, palette = NULL,
+                       diag_plots = FALSE,
+                       #show_info=FALSE,
                        remove_duplicates = TRUE,
                        noise_level = 0.10,
                        nds = 1,#number of datasets to generate
@@ -267,7 +277,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   if(!is.null(palette) & length(palette)>1){
     color_p = rep(palette,2)
   } else {color_p = MSDcol_cut
-    cat("Default color palette is used")}
+    message("Default color palette is used")}
 
   #Control parameters for Random Forest (optimized for correlation preservation)
   num_trees = 300          # Increased from 100 for better stability
@@ -346,9 +356,9 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
   # if (show_info){
   # # Print dataset summary
-  #  cat("Number of rows in the data_orig:", nrow(data_i), "\n")
-  #  cat("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
-  #  cat("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
+  #  message("Number of rows in the data_orig:", nrow(data_i), "\n")
+  #  message("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
+  #  message("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
   #}
   data_orig <- data_i
 
@@ -365,11 +375,11 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
   #Synthpop Method
   # if (!is.na(seed)){seed_i = seed} else {seed_i = 123}
-  # cat("Seed for synthetic data generation:", seed_i, "\n")
+  # message("Seed for synthetic data generation:", seed_i, "\n")
 
   # Create optimal visit sequence based on correlations (if enabled)
   if (optimize_visit_seq && length(var_cont) >= 2) {
-    cat("Creating correlation-based visit sequence...\n")
+    message("Creating correlation-based visit sequence...\n")
     visit_sequence <- create_optimal_visit_sequence(data_i, var_cont, var_cat)
   } else {
     # Use default order: all variables in their original order
@@ -382,10 +392,10 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
 
 
-  cat("RF parameters: trees =", num_trees, ", max_depth =", max_depth,
-      ", min_node_size =", min_node_size, "\n")
-  cat("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
-  cat("Variables to synthesize:", length(visit_sequence),
+  message(sprintf("RF parameters: trees = %.2f, max_depth = %.2f, , min_node_size = %.2f\n", num_trees, max_depth,
+      min_node_size))
+  message("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
+  message("Variables to synthesize:", length(visit_sequence),
       "(", length(var_cont), "continuous,", length(var_cat), "categorical )\n")
 
 
@@ -398,12 +408,12 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   # Check mode: fixed seed or search mode
   if (!is.na(seed)) {
     # === MODE 1: Fixed seed mode ===
-    cat("\n=== Fixed seed mode: generating dataset with seed =", seed, "===\n")
+    message("\n=== Fixed seed mode: generating dataset with seed = ", seed, "===\n")
     mode_fixed_seed <- TRUE
     n_datasets <- 1
   } else {
     # === MODE 2: Search mode (original logic) ===
-    cat("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
+    message("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
     mode_fixed_seed <- FALSE
     n_datasets <- nds
 
@@ -422,7 +432,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     # === GENERATION PHASE ===
     if (mode_fixed_seed) {
       # Fixed seed mode: generate single dataset with specified seed
-      cat("\n=== Generating dataset with fixed seed =", seed, "===\n")
+      message("\n=== Generating dataset with fixed seed =", seed, "===\n")
 
       syn_obj <- syn(data_i,
                      method = method_vector,
@@ -440,7 +450,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
     } else {
       # Search mode: iterate through seeds until target corr_diff is achieved
-      cat("\n=== Generating dataset", k, "of", n_datasets, "===\n")
+      message("\n=== Generating dataset", k, "of", n_datasets, "===\n")
 
       corr_diff_contr <- diff_lim + 0.05
       p <- 0
@@ -466,12 +476,12 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       target_seed <- seed_values[[p]]
 
       if ((p == n_iterations) & (corr_diff_contr > diff_lim)) {
-        cat("Target correlation coefficient difference is not obtained\n")
+        message("Target correlation coefficient difference is not obtained\n")
         target_seed <- NA
       }
 
       res_seeds <- c(res_seeds, target_seed)
-      cat("Dataset", k, "generated with seed:", target_seed, "\n")
+      message("Dataset", k, "generated with seed:", target_seed, "\n")
 
       # Update seed range for next iteration
       i_init <- i
@@ -479,7 +489,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     }
 
     # === DIAGNOSTICS PHASE (common for both modes) ===
-    cat("Computing diagnostics for dataset", k, "...\n")
+    message("Computing diagnostics for dataset", k, "...\n")
 
     # Check for duplicates *between* real and synthetic data (not within each)
     common_cols <- intersect(names(data_i), names(data_syn))
@@ -507,9 +517,9 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         dupl_check_after <- nrow(dplyr::semi_join(data_syn, data_i, by = common_cols)) > 0
 
         if (dupl_check_after) {
-          cat("Warning: Some duplicates may still remain after noise addition.\n")
+          message("Warning: Some duplicates may still remain after noise addition.\n")
         } else {
-          cat("Successfully removed all", n_dupl_removed, "exact duplicates.\n")
+          message("Successfully removed all", n_dupl_removed, "exact duplicates.\n")
         }
       }
     }
@@ -658,12 +668,10 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       X_real <- bake(rec, new_data = data_i)
       X_syn  <- bake(rec, new_data = data_syn)
       # UMAP (fit on real data only)
-      if (!is.na(seed_umap)){
-        seed_ii = seed_umap
-        set.seed(seed_ii)
-      } else {seed_ii = 123}
 
-      cat("Seed for UMAP:", seed_ii, "\n")
+
+
+      message("Seed for UMAP:", seed_umap, "\n")
 
       umap_model <- uwot::umap(
         X_real,
@@ -671,12 +679,13 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         min_dist = 0.1,
         metric = "euclidean",
         ret_model = TRUE,
-        ret_nn = TRUE
+        ret_nn = TRUE,
+        seed = seed_umap
       )
 
       # project synthetic data
       emb_real <- umap_model$embedding
-      emb_syn  <- uwot::umap_transform(X_syn, umap_model)
+      emb_syn  <- uwot::umap_transform(X_syn, umap_model, seed = seed_umap)
 
       # Create combined visualization
       umap_df <- rbind(
@@ -775,8 +784,8 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         })
       }
 
-      if (length(var_cat) == 0){cat("No categorical variables to plot\n")}
-      if (length(var_cont) == 0){cat("No continuous variables to plot\n")}
+      if (length(var_cat) == 0){message("No categorical variables to plot\n")}
+      if (length(var_cont) == 0){message("No continuous variables to plot\n")}
     }
 
     # Store dataset and its diagnostics
@@ -794,14 +803,14 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       dplot_corr_diff = p_corr_heatmap
     )
 
-    cat("Dataset", k, "diagnostics completed.\n")
+    message("Dataset", k, "diagnostics completed.\n")
   }
 
   # Final summary message
   if (mode_fixed_seed) {
-    cat("\n=== Dataset generated with fixed seed =", seed, "===\n")
+    message("\n=== Dataset generated with fixed seed =", seed, "===\n")
   } else {
-    cat("\n=== All", nds, "datasets generated and diagnosed ===\n")
+    message("\n=== All", nds, "datasets generated and diagnosed ===\n")
   }
 
   return(results_list)

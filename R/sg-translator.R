@@ -85,7 +85,7 @@ sg_translator <- function(input_path, to, output_path, dm_list = NULL,
                           regressors = NULL, output_vars = NULL,
                           macros = TRUE, stiff = TRUE) {
 
-  input_path <- normalizePath(input_path, mustWork = F)
+  input_path <- normalizePath(input_path, mustWork = FALSE)
   if(!file.exists(input_path)) {
     stop("Input model file does not exist. Check file existance or try to use absolute path")
   }

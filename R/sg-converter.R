@@ -575,7 +575,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     return(pred_data)
   }
   #### main function ####
-  input_path <- normalizePath(str_c(folder_path, proj_name, ".mlxtran"), mustWork = F)
+  input_path <- normalizePath(str_c(folder_path, proj_name, ".mlxtran"), mustWork = FALSE)
   if(!file.exists(input_path)) {
     stop("Project file does not exist. Check file existance or try to use absolute path")
   }
@@ -593,7 +593,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   start_idx_data <- which(str_detect(contr_obj, fixed("<DATAFILE>")))
   end_idx_data <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_data)[1]
   data_path_raw <- contr_obj[(start_idx_data + 1):(end_idx_data - 1)] %>% str_squish() %>%
-    str_subset(., "file=", negate = F) %>% str_remove(., "^[^=]+=\\s*") %>%
+    str_subset(., "file=", negate = FALSE) %>% str_remove(., "^[^=]+=\\s*") %>%
     str_remove("^\\{path=") %>% str_remove("\\}\\s*$") %>%        # Monolix 2024: file={path='...'} -> bare path
     str_replace_all("'", "") %>%
     normalize_mlx_file_path()
@@ -618,7 +618,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   start_idx_col_map <- which(str_detect(contr_obj, fixed("[CONTENT]")))
   end_idx_col_map <- which((str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
                              seq_along(contr_obj) > start_idx_col_map)[1]
-  dt_col_map <- contr_obj[(start_idx_col_map + 1):(end_idx_col_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
+  dt_col_map <- contr_obj[(start_idx_col_map + 1):(end_idx_col_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = TRUE)
 
 
   col_map_df <- tibble(raw = dt_col_map) %>%
@@ -732,7 +732,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   start_idx_dvid_map <- which(str_detect(contr_obj, fixed("<FIT>")))
   end_idx_dvid_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_dvid_map)[1]
 
-  dt_dvid_map <- contr_obj[(start_idx_dvid_map + 1):(end_idx_dvid_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
+  dt_dvid_map <- contr_obj[(start_idx_dvid_map + 1):(end_idx_dvid_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = TRUE)
 
   extract_values <- function(line) {
     val <- str_remove(line, "^[^=]+=\\s*")
@@ -951,8 +951,9 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   start_idx_ruv_map <- which(str_detect(contr_obj, fixed("[LONGITUDINAL]")))
   end_idx_ruv_map <- which(str_detect(contr_obj, "\\<.*\\>") & seq_along(contr_obj) > start_idx_ruv_map)[1]
 
-  dt_ruv_map <- contr_obj[(start_idx_ruv_map + 1):(end_idx_ruv_map - 1)] %>% str_squish() %>% str_subset(., "^$", negate = T)
-  dt_ruv_map <- grep(str_c(str_c(dvid_map_df$model, " ="), collapse = "|"), dt_ruv_map, value = T) %>%
+  dt_ruv_map <- contr_obj[(start_idx_ruv_map + 1):(end_idx_ruv_map - 1)] %>%
+    str_squish() %>% str_subset(., "^$", negate = TRUE)
+  dt_ruv_map <- grep(str_c(str_c(dvid_map_df$model, " ="), collapse = "|"), dt_ruv_map, value = TRUE) %>%
     tibble(raw = .) %>%
     mutate(COL = str_extract(raw, "^[^=]+") %>% str_trim()) %>%
     group_by(COL) %>%
@@ -1027,20 +1028,20 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     model_structure <- detect_model_structure(contr_obj)
 
     # Debug information
-    cat("Detected model structure:", model_structure, "\n")
-    cat("Omega parameters:", paste(omega_params, collapse = ", "), "\n")
+    message(sprintf("Detected model structure:%s\n", model_structure))
+    message(sprintf("Omega parameters: %s\n", paste(omega_params, collapse = ", ")))
 
     # Get parameter names that have random effects
     random_effect_params <- str_replace(omega_params, "omega_", "")
-    cat("Random effect parameters:", paste(random_effect_params, collapse = ", "), "\n")
-    cat("Using Monte Carlo simulation with n_sim = 1000\n")
+    message(sprintf("Random effect parameters:%s\n", paste(random_effect_params, collapse = ", ")))
+    message("Using Monte Carlo simulation with n_sim = 1000\n")
 
     # Extract parameter distributions
     param_distributions <- extract_parameter_distributions(contr_obj)
-    cat("Extracted parameter distributions:", length(param_distributions), "parameters\n")
+    message(sprintf("Extracted parameter distributions: %.0f parameters\n", length(param_distributions)))
     for (param in names(param_distributions)) {
       dist_info <- param_distributions[[param]]
-      cat("  ", param, ": ", dist_info$distribution, " (typical=", dist_info$typical, ", sd=", dist_info$sd, ")\n")
+      message("  %s: %s (typical=%.2f, sd=%.2f)\n", param,  dist_info$distribution, dist_info$typical, dist_info$sd)
     }
 
     # Prepare sdtab data
@@ -1157,11 +1158,11 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
   cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
-  covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = F)
+  covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = FALSE)
   colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
   covmat <- covmat_dt %>% select(-PAR) %>% as.matrix()
 
-  corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = F)
+  corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = FALSE)
   colnames(corrmat_dt) <- c("PAR", corrmat_dt$X1)
   corrmat <- corrmat_dt %>% select(-PAR) %>% as.matrix()
 
@@ -1227,11 +1228,11 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
   summ_fl <- readLines(str_c(folder_path, proj_name, "/summary.txt"))
 
-  ofv <- tibble(LL = grep("log-likelihood", summ_fl, fixed = T, value = T) %>%
+  ofv <- tibble(LL = grep("log-likelihood", summ_fl, fixed = TRUE, value = TRUE) %>%
                   gsub("^.*?:", "", .) %>% parse_number(),
-                AIC = grep("AIC", summ_fl, fixed = T, value = T) %>% parse_number(),
-                BIC = grep("(BIC)", summ_fl, fixed = T, value = T) %>% parse_number(),
-                BICc = grep("(BICc)", summ_fl, fixed = T, value = T) %>% parse_number()) #%>% unlist()
+                AIC = grep("AIC", summ_fl, fixed = TRUE, value = TRUE) %>% parse_number(),
+                BIC = grep("(BIC)", summ_fl, fixed = TRUE, value = TRUE) %>% parse_number(),
+                BICc = grep("(BICc)", summ_fl, fixed = TRUE, value = TRUE) %>% parse_number()) #%>% unlist()
 
   ## options compiling - !!! re-write
   opt <- NULL

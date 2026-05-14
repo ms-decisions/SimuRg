@@ -36,8 +36,8 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
   data_fin.noex$time <- data_fin.noex[[time_col]]
   ev_tab <- obj$EVTAB
 
-  if (!is.null(obj$COTAB)) ev_tab <- merge(ev_tab, obj$COTAB, by = "ID", all.x = T)
-  if (!is.null(obj$CATAB)) ev_tab <- merge(ev_tab, obj$CATAB, by = "ID", all.x = T)
+  if (!is.null(obj$COTAB)) ev_tab <- merge(ev_tab, obj$COTAB, by = "ID", all.x = TRUE)
+  if (!is.null(obj$CATAB)) ev_tab <- merge(ev_tab, obj$CATAB, by = "ID", all.x = TRUE)
 
   covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
   covs_i <- covs_i[covs_i != "ID"]
@@ -68,7 +68,7 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
                     sigma = NULL,
                     covs = covs_i,
                     npop = npop,
-                    addcov = F,
+                    addcov = FALSE,
                     ncores = parallel::detectCores()-1) %>%
                     mutate(ID = id_seq.i)
     return(sim.i)
