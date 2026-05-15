@@ -1,0 +1,208 @@
+---
+title: "Testing sg-fit function, Warfarin PKPD"
+subtitle: "Melnikova Alina"
+author: "M&S Decisions, `r Sys.Date()`"
+output: 
+    bookdown::html_document2:
+      toc: true
+      toc_depth: 5
+      toc_float:
+        collapsed: true
+        smooth_scroll: false
+      number_sections: true
+      code_folding: hide
+      fig_width: 10
+      fig_height: 7
+      fig_caption: true
+      
+    officedown::rdocx_document:
+      reference_docx: document_template.docx
+---
+
+```{r load-packages-and-set-global-settings, include=TRUE, warning = FALSE, message = FALSE}
+rm(list=ls())
+set.seed(123456)
+
+library(tidyverse)
+library(lubridate)
+library(flextable)
+library(officer)
+library(officedown)
+library(rxode2)
+library(SimuRg)
+
+theme_set(theme_bw())
+theme_update(panel.grid.minor = element_blank())
+MSDcol <- rep(c("#1a1866", "#f2b93b", "#b73b58", "#a2d630", "#5839bb", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d"), 10)
+NEWcol <- c("dodgerblue", "seagreen2", "forestgreen", "orange2", "firebrick", "royalblue4",  "violetred1",  "black", "blue", "red", "purple", "gold", "skyblue3", "tan4", "plum2")
+
+set_flextable_defaults(
+  font.family = "Arial",
+  font.size = 8,
+  theme_fun = "theme_vanilla",
+  table.layout = "autofit"
+  )
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE, fig.cap = TRUE, fig.align = "center", results = 'hide') 
+if (!knitr::is_html_output()) {knitr::opts_chunk$set(include = FALSE)}
+if (!knitr::is_html_output()) {
+run_num_tab <- run_autonum(seq_id = "Table", pre_label = "Table ", bkm = "anytable")
+run_num_fig <- run_autonum(seq_id = "Figure", pre_label = "Figure ", bkm = "anyfigure")
+}
+```
+
+```{r load-functions}
+#source("./workdir-amel/functions/sg-fit.R")
+```
+
+#  Section 1
+
+```{r r-input}
+devtools::load_all()
+data_path <- "./projects/warfarin-pk/ds-warfarin-pk.csv"
+model_path <- "./projects/warfarin-pk/model-pk-1c.txt"
+
+data_ds <- read_csv(data_path)
+
+```
+
+## Section 2
+```{r r-test-sg-fit}
+
+
+model <- model_path
+data <- data_path
+
+# Headers aligned with ds-warfarin-pk.csv (ID, TIME, DV, DVID, ...); DVNAME/CMT omitted from CONTENT like PK-only mapping
+headers <- list(
+  list(name = "ID", use = "identifier", type = NULL),
+  list(name = "TIME", use = "time", type = NULL),
+  list(name = "DV", use = "observation", type = "continuous"),
+  list(name = "DVID", use = "observationtype", type = NULL),
+  # list(name = "DVNAME", use = "ignore", type = NULL), # label column in CSV; not passed to Monolix CONTENT
+  # list(name = "CMT", use = "ignore", type = NULL), # compartment index; structural model defines scale
+  list(name = "ADM", use = "administration", type = NULL),
+  list(name = "AMT", use = "amount", type = NULL),
+  list(name = "EVID", use = "eventidentifier", type = NULL),
+  list(name = "MDV", use = "missingdependentvariable", type = NULL),
+  list(name = "AGE", use = "covariate", type = "continuous"),
+  list(name = "SEX", use = "covariate", type = "categorical"),
+  list(name = "WEIGHT", use = "covariate", type = "continuous"),
+  list(name = "BMI", use = "covariate", type = "continuous"),
+  list(name = "CLCR", use = "covariate", type = "continuous"),
+  list(name = "CYP2C9", use = "covariate", type = "continuous"),
+  list(name = "VKORC1", use = "covariate", type = "categorical"),
+  list(name = "LG_WEIGHT", use = "covariate", type = "continuous"),
+  list(name = "LG_AGE", use = "covariate", type = "continuous")
+)
+
+theta <- tribble(~NAME, ~TRANS, ~INIT, ~LB, ~UB, ~EST,
+                  "CL", "logNormal", 0.2, NA, NA, T,
+                  "Vd", "logNormal", 20, NA, NA, T,
+                  "ka", "logNormal", 0.2, NA, NA, T
+ )
+
+ ruv <- list(YNAME = "y1", DVID = 1, TRANS = "normal", PRED = "Cc", ERR = "proportional", INIT = 1, EST = 1, BLQM = NULL)
+
+ re <- list(init = tribble(~CL, ~Vd, ~ka,
+                           1, 0, 0,
+                           0, 1, 0,
+                           0, 0, 1) %>% as.matrix(),
+            est = tribble(~CL, ~Vd, ~ka,
+                          T, NA, NA,
+                          NA, T, NA,
+                          NA, NA, T) %>% as.matrix())
+
+ occ <- list(init = tribble(~CL, ~Vd, ~ka,
+                            0, 0, 0,
+                            0, 0, 0,
+                            0, 0, 0) %>% as.matrix(),
+             est = tribble(~CL, ~Vd, ~ka,
+                           NA, NA, NA,
+                           NA, NA, NA,
+                           NA, NA, NA) %>% as.matrix())
+
+covs <- list(
+            #list(PAR = "CL", COVNAME = "BMI", FUNC = "linear",
+            #       INIT = 1, EST = TRUE)
+            # list(PAR = "CL", COVNAME = "CLCR", FUNC = "linear",
+            #        INIT = 1, EST = TRUE)
+                list(PAR = "Vd", COVNAME = "VKORC1", REF = "AA", INIT = 1, EST = TRUE)
+               # list(PAR = "Vd", COVNAME = "SEX", REF = 0, INIT = 1, EST = TRUE)
+              )
+
+
+ result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs = covs,
+ project_name = "wrfrn_pk_covs_1catcov", fit = T, 
+ path_to_save_output =  "./workdir-amel/projects/warfarin-pk/test",
+ path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
+
+
+
+```
+
+### Section 3
+
+```{r plot-chunk-name-1, fig.id = "plot-chunk-name-1", fig.width = 10, fig.height = 3.75, fig.cap = "Figure caption"}
+# ggplot()
+```
+
+```{r table-chunk-name-1, results = 'asis', tab.cap = "Table caption"}
+# flextable(tab_out) %>% set_table_properties(width = 1, layout = "autofit") %>% hline(part = "body")
+```
+
+# R Runtime Environment {.tabset}
+## Current R session {.unnumbered}
+```{r sourcefile}
+source_file <- basename(rstudioapi::getSourceEditorContext()$path)
+```
+
+**Source file:** `r source_file`
+```{r rsession, results='asis'}
+# Print a record of the environment in which this script was rendered
+info <- sessionInfo()
+```
+
+```{r tab-rsession-env}
+# R Version
+info$R.version %>%
+  as.data.frame() %>%
+  select(version.string, platform) %>%
+  rename(
+    `R version` = version.string,
+    Platform = platform
+  ) %>%
+  flextable() %>%
+  set_table_properties(width = 1, layout = "autofit")
+```
+
+## Base Packages {.unnumbered}
+```{r tab-rsession-base}
+# Base Packages
+tibble(Package = info$basePkgs) %>%
+  arrange(Package) %>%
+  flextable() %>% 
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## Attached Packages {.unnumbered}
+```{r tab-rsession-attached}
+# Attached Packages
+info$otherPkgs %>%
+  purrr::map_dfr(~ tibble(Package = .x$Package, Version = .x$Version)) %>%
+  arrange(Package) %>%
+  flextable() %>%
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## Loaded Packages {.unnumbered}
+```{r tab-rsession-loaded}
+# Loaded Packages
+info$loadedOnly %>%
+  purrr::map_dfr(~ tibble(Package = .x$Package, Version = .x$Version)) %>%
+  arrange(Package) %>%
+  flextable() %>%
+  set_table_properties(layout = "autofit", width = 0.4)
+```
+
+## {-}
