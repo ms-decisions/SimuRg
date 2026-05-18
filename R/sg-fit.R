@@ -174,6 +174,8 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
   data <- normalizePath(data)
   if (is.null(path_to_save_output)) stop("No path to save output was provided")
   if (is.null(path_to_fitter) & fit == TRUE) stop("No path to fitter was identified")
+  dir.create(path_to_save_output, recursive = TRUE, showWarnings = FALSE)
+  path_to_save_output <- normalizePath(path_to_save_output)
 
   if (opt_name == "Monolix") {
     # Read the data file to get column names
@@ -186,6 +188,10 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     # Read the full dataset to get unique categories for observation types
     data_df_full <- read.csv(data)
 
+    # Observation types to include in the project (from ruv, not all DVIDs in the dataset)
+    ruv_list <- if (!is.null(ruv$YNAME)) list(ruv) else ruv
+    fit_dvids <- sort(unique(vapply(ruv_list, function(e) e$DVID, numeric(1))))
+
     # Create content section using headers
     content_lines <- character()
     for (header in headers) {
@@ -194,10 +200,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       type <- header$type
 
       if (use == "observation") {
-        # Find the observation type column (DVID)
-        obs_type_col <- headers[sapply(headers, function(x) x$use == "observationtype")][[1]]$name
-        unique_categories <- unique(data_df_full[[obs_type_col]])
-        yname_value <- paste0("'", paste(unique_categories, collapse = "', '"), "'")
+        yname_value <- paste0("'", paste(fit_dvids, collapse = "', '"), "'")
 
         if (!is.null(type)) {
           content_line <- paste0(name, " = {use=", use, ", yname=", yname_value, ", type=", type, "}")
@@ -215,16 +218,26 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     }
     content_section <- paste(content_lines, collapse = "\n")
 
-    # Create dataType section using unique categories
-    obs_type_col <- headers[sapply(headers, function(x) x$use == "observationtype")][[1]]$name
-    unique_categories <- unique(data_df_full[[obs_type_col]])
-    dataType_entries <- paste0("'", unique_categories, "'=plasma")
+    # Create dataType section for observation types included in the fit
+    dataType_entries <- paste0("'", fit_dvids, "'=plasma")
     dataType_section <- paste(dataType_entries, collapse = ", ")
 
     # Create covariate input section
     covariate_headers <- headers[sapply(headers, function(x) x$use == "covariate")]
     covariate_names <- sapply(covariate_headers, function(x) x$name)
     covariate_input <- paste(covariate_names, collapse = ", ")
+
+    # Canonical category order for categorical covariates in covs (REF first)
+    cat_cov_levels <- list()
+    if (!is.null(covs) && length(covs) > 0) {
+      for (cov_entry in covs) {
+        if (is.null(cov_entry$REF)) next
+        covname <- cov_entry$COVNAME
+        unique_cats <- sort(unique(data_df_full[[covname]]))
+        ref <- cov_entry$REF
+        cat_cov_levels[[covname]] <- c(ref, setdiff(unique_cats, ref))
+      }
+    }
 
     # Create covariate section conditionally
     if (length(covariate_headers) > 0) {
@@ -236,8 +249,12 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       for (cov in categorical_covariates) {
         cov_name <- cov$name
         cov_type <- cov$type
-        unique_cats <- unique(data_df_full[[cov_name]])
-        categories_str <- paste0("'", paste(unique_cats, collapse = "', '"), "'")
+        cat_levels <- if (!is.null(cat_cov_levels[[cov_name]])) {
+          cat_cov_levels[[cov_name]]
+        } else {
+          unique(data_df_full[[cov_name]])
+        }
+        categories_str <- paste0("'", paste(cat_levels, collapse = "', '"), "'")
         categorical_properties <- c(categorical_properties,
                                     paste0(cov_name, " = {type=", cov_type, ", categories={", categories_str, "}}"))
       }
@@ -279,7 +296,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
         }
 
         cov_by_param[[par]] <- c(cov_by_param[[par]], list(list(
-          covname = covname, beta_names = beta_names
+          covname = covname, beta_names = beta_names, is_categorical = is_categorical
         )))
         all_cov_input_names <- c(all_cov_input_names, covname)
         all_beta_input_names <- c(all_beta_input_names, beta_names)
@@ -291,6 +308,22 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
         }
       }
       all_cov_input_names <- unique(all_cov_input_names)
+    }
+
+    # Categorical covariates used on parameters must be re-declared in [INDIVIDUAL]
+    individual_cat_defs <- character()
+    for (covname in names(cat_cov_levels)) {
+      cat_levels <- cat_cov_levels[[covname]]
+      categories_str <- paste0("'", paste(cat_levels, collapse = "', '"), "'")
+      individual_cat_defs <- c(
+        individual_cat_defs,
+        paste0(covname, " = {type=categorical, categories={", categories_str, "}}")
+      )
+    }
+    individual_cat_section <- if (length(individual_cat_defs) > 0) {
+      paste0(paste(individual_cat_defs, collapse = "\n"), "\n\n")
+    } else {
+      ""
     }
 
     # Create individual parameter definitions using theta, re, and covs
@@ -315,18 +348,26 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       param_covs <- cov_by_param[[param_name]]
       if (!is.null(param_covs) && length(param_covs) > 0) {
         all_covnames <- character()
-        all_betas <- character()
+        coef_parts <- character()
         for (pc in param_covs) {
           all_covnames <- c(all_covnames, pc$covname)
-          all_betas <- c(all_betas, pc$beta_names)
+          if (isTRUE(pc$is_categorical)) {
+            coef_parts <- c(coef_parts, "0", pc$beta_names)
+          } else {
+            coef_parts <- c(coef_parts, pc$beta_names)
+          }
         }
-        if (length(all_covnames) == 1 && length(all_betas) == 1) {
-          cov_fragment <- paste0(", covariate=", all_covnames,
-                                 ", coefficient=", all_betas)
+        cov_str <- if (length(all_covnames) == 1) {
+          all_covnames
         } else {
-          cov_fragment <- paste0(", covariate={", paste(all_covnames, collapse = ", "),
-                                 "}, coefficient={", paste(all_betas, collapse = ", "), "}")
+          paste0("{", paste(all_covnames, collapse = ", "), "}")
         }
+        coef_str <- if (length(coef_parts) == 1) {
+          coef_parts
+        } else {
+          paste0("{", paste(coef_parts, collapse = ", "), "}")
+        }
+        cov_fragment <- paste0(", covariate=", cov_str, ", coefficient=", coef_str)
       }
 
       if (has_variability) {
@@ -492,7 +533,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
 
     # Add c parameters for each observation type
     c_parameters <- character()
-    for (obs_yname in unique_categories) {
+    for (obs_yname in fit_dvids) {
       c_param_name <- paste0("c", obs_yname)
       c_parameter_line <- paste0(c_param_name, " = {value=1, method=FIXED}")
       c_parameters <- c(c_parameters, c_parameter_line)
@@ -524,6 +565,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       covariate_section,
       "[INDIVIDUAL]\n",
       "input = {", individual_input_section, "}\n\n",
+      individual_cat_section,
       "DEFINITION:\n",
       individual_definition_section, "\n\n",
       "[LONGITUDINAL]\n",
@@ -592,6 +634,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       }
       Sys.sleep(1)  # Sleep 1 second between checks to avoid busy waiting
     }
+    setwd(curr_dir)
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
     # } else if (fit & opt_name == "Simurg") {
     # int_res <- system(sprintf('%s --no-gui -p "%s" --mode none -o "%s"',
