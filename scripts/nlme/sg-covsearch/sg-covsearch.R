@@ -1,6 +1,6 @@
 ## Author: Alina Melnikova
 ## First created: 2026-05-19
-## Description: utility helpers for staged covariate search
+## Description: covariate search tool
 ## Keywords: SimuRg, covsearch
 
 #' Calculate objective function value from fit output
