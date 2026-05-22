@@ -307,6 +307,19 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     stop("stepwise_covariate_selection: p_backward must be numeric in (0,1).")
   }
 
+  #### For testing ####
+  # gco_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GCO.json")
+  # gfo_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GFO.json")
+  # gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = TRUE)
+  # gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = TRUE)
+  # covariates = c("CLCR", "SEX", "VKORC1")
+  # parameters = c("CL", "Vd")
+  # test_pairs = NULL
+  # data_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "ds-warfarin-pk.csv")
+  # data <- read.csv(data_path)
+  #####################
+
+
   headers_df <- .as_covsearch_df(gco$headers, "gco$headers")
   theta_df <- .as_covsearch_df(gco$theta, "gco$theta")
   cotab_df <- .as_covsearch_df(gfo$COTAB, "gfo$COTAB")
