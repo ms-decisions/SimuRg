@@ -198,17 +198,18 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       name <- header$name
       use <- header$use
       type <- header$type
+      has_type <- !is.null(type) && !(is.list(type) && length(type) == 0)
 
       if (use == "observation") {
         yname_value <- paste0("'", paste(fit_dvids, collapse = "', '"), "'")
 
-        if (!is.null(type)) {
+        if (has_type) {
           content_line <- paste0(name, " = {use=", use, ", yname=", yname_value, ", type=", type, "}")
         } else {
           content_line <- paste0(name, " = {use=", use, ", yname=", yname_value, "}")
         }
       } else {
-        if (!is.null(type)) {
+        if (has_type) {
           content_line <- paste0(name, " = {use=", use, ", type=", type, "}")
         } else {
           content_line <- paste0(name, " = {use=", use, "}")
