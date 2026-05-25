@@ -68,12 +68,33 @@ sg_gof_obpr <- function(
     n_unique <- length(unique(na.omit(x)))
     n_unique <= max_levels
   }
+  format_cov_value <- function(v) {
+    v <- as.numeric(v)
+    if (abs(v - round(v)) < sqrt(.Machine$double.eps) * pmax(1, abs(v))) {
+      as.character(as.integer(round(v)))
+    } else {
+      format(signif(v, 4), trim = TRUE, scientific = FALSE)
+    }
+  }
   continuous_to_categories <- function(x, n_quant = 3) {
+    breaks <- stats::quantile(
+      x,
+      probs = seq(0, 1, length.out = n_quant + 1),
+      na.rm = TRUE
+    )
+    labels <- vapply(seq_len(n_quant), function(i) {
+      range_str <- paste0(
+        format_cov_value(breaks[i]),
+        "-",
+        format_cov_value(breaks[i + 1])
+      )
+      paste0("Q", i, ", ", range_str)
+    }, character(1))
     cut(
       x,
-      breaks = quantile(x, probs = seq(0, 1, length.out = n_quant + 1), na.rm = TRUE),
+      breaks = breaks,
       include.lowest = TRUE,
-      labels = paste0("Q", 1:n_quant)
+      labels = labels
     )
   }
 
@@ -159,7 +180,10 @@ sg_gof_obpr <- function(
       ds_i <- ds_i %>% left_join(ds_covs_i, by = "ID")})
     for (col in cov_cols) {
       if (!is_discrete(ds_i[[col]])) {
-        ds_i[[col]] <- continuous_to_categories(ds_i[[col]], n_quant = n_quantiles)
+        ds_i[[col]] <- continuous_to_categories(
+          ds_i[[col]],
+          n_quant = n_quantiles
+        )
         #message(paste(col, "was converted into", n_quantiles, "quantile-based categories."))
       } else {
         ds_i[[col]] <- factor(ds_i[[col]])
@@ -229,10 +253,18 @@ sg_gof_obpr <- function(
   }
 
   if (!is.null(facet_i)) {
-
+    facet_i <- as.character(facet_i)
+    missing_facet <- setdiff(facet_i, colnames(ds_i))
+    if (length(missing_facet) > 0) {
+      stop(
+        "facet_i columns not found in data: ",
+        paste(missing_facet, collapse = ", ")
+      )
+    }
+    facet_rhs <- paste(facet_i, collapse = " + ")
     p_ObPr <- p_ObPr +
       facet_wrap(
-        stats::as.formula(paste("~", facet_i)),
+        stats::as.formula(paste("~", facet_rhs)),
         scales = f_scales,
         labeller = label_both
       )

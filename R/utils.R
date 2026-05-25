@@ -163,7 +163,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
 #' @param exclude_vars Character vector. Contains \code{VAR} levels to omit (e.g.
 #'   \code{"Cc_Cmin"}).  \code{NULL} keeps all rows.
 #' @param f_scales String, one of `"fixed"`, `"free"`, `"free_x"`, `"free_y"`. User can specify whether the scales (x and y axes) should be fixed across all panels (`"fixed"`), free for each panel (`"free"`), or free only in one dimension (`"free_x"` or `"free_y"`). Default is `"fixed"`
-#' @param facet_i String. Column name for facet
+#' @param facet_i Character vector. Column name(s) for facet panels. Multiple columns are combined with `+` in `facet_wrap`. Default is `NULL`.
 #' @param fill_i String. Column name for fill aesthetic. Default is `NULL`
 #' @param filt String. Provide a filter to apply. Default is `"T"`
 #' @param fit Logical. If `TRUE`, the model fitting will be executed immediately
