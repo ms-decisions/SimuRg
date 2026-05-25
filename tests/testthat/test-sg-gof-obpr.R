@@ -253,13 +253,45 @@ test_that("sg_gof_obpr handles continuous covariate categorization", {
   skip_if_not_installed("dplyr")
 
   mock_obj <- create_mock_sg_fit_gof()
-  p <- sg_gof_obpr(mock_obj, cov_cols = "AGE", col_i = "AGE", n_quantiles = 3)
+  p <- sg_gof_obpr(
+    mock_obj,
+    cov_cols = "AGE",
+    col_i = "AGE",
+    n_quantiles = 3,
+    levels_discrete = 2
+  )
 
   expect_s3_class(p, "ggplot")
 
-  # AGE should be categorized into quantiles
+  age_levels <- levels(p$data$AGE)
+  expect_length(age_levels, 3)
+  expect_match(age_levels[1], "^Q1, ")
+  expect_true(all(grepl("-", age_levels)))
+  expect_false(any(grepl("AGE:", age_levels)))
+
   gb <- ggplot2::ggplot_build(p)
   expect_true(nrow(gb$data[[1]]) > 0)
+})
+
+test_that("sg_gof_obpr facet labels show quantile ranges for continuous covariates", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("dplyr")
+
+  mock_obj <- create_mock_sg_fit_gof()
+  p <- sg_gof_obpr(
+    mock_obj,
+    cov_cols = "WT",
+    facet_i = "WT",
+    n_quantiles = 3,
+    levels_discrete = 2,
+    addline = FALSE,
+    smooth = FALSE
+  )
+
+  wt_levels <- levels(p$data$WT)
+  expect_match(wt_levels[1], "^Q1, ")
+  expect_true(all(grepl("-", wt_levels)))
+  expect_false(any(grepl("WT:", wt_levels)))
 })
 
 test_that("sg_gof_obpr handles faceting", {
@@ -278,6 +310,31 @@ test_that("sg_gof_obpr handles faceting", {
   gb <- ggplot2::ggplot_build(p)
   n_panels <- length(gb$layout$panel_params)
   expect_true(n_panels > 1, "Faceted plot should have multiple panels")
+})
+
+test_that("sg_gof_obpr facets by multiple covariates", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("dplyr")
+
+  mock_obj <- create_mock_sg_fit_gof()
+  p <- sg_gof_obpr(
+    mock_obj,
+    cov_cols = c("SEX", "AGE"),
+    facet_i = c("SEX", "AGE"),
+    addline = FALSE,
+    f_scales = "free"
+  )
+
+  expect_s3_class(p, "ggplot")
+  expect_true(inherits(p$facet, "FacetWrap"))
+
+  gb <- ggplot2::ggplot_build(p)
+  n_panels_multi <- length(gb$layout$panel_params)
+  gb_single <- ggplot2::ggplot_build(
+    sg_gof_obpr(mock_obj, cov_cols = "SEX", facet_i = "SEX", addline = FALSE, smooth = FALSE)
+  )
+  n_panels_single <- length(gb_single$layout$panel_params)
+  expect_true(n_panels_multi > n_panels_single)
 })
 
 test_that("sg_gof_obpr handles different facet scales", {
