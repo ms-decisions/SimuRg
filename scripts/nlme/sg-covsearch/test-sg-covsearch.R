@@ -493,3 +493,124 @@ test_that("Stage 3 updates theta INIT only from accepted step fits", {
   ka_row <- res$final_theta[res$final_theta$NAME == "ka", , drop = FALSE]
   expect_equal(ka_row$INIT[[1]], 0.5, tolerance = 1e-12)
 })
+
+
+
+
+test_that("Stage 4 removes least important removable term first", {
+  gco <- .stage3_gco_fixture()
+  gfo <- .stage3_gfo_fixture(base_ofv = 100)
+  ofv_map <- list(
+    fw_s01_CL_WT = 90,
+    fw_s01_CL_AGE = 95,
+    fw_s02_CL_AGE = 84,
+    bw_s01_CL_WT_removed = 85,
+    bw_s01_CL_AGE_removed = 89,
+    bw_s02_CL_AGE_removed = 93
+  )
+
+  res <- stepwise_covariate_selection(
+    gfo = gfo,
+    gco = gco,
+    output_dir = tempdir(),
+    covariates = c("WT", "AGE"),
+    parameters = c("CL"),
+    p_forward = 0.05,
+    p_backward = 0.01,
+    run_backward = TRUE,
+    fit_function = .stage4_mock_fit(ofv_map)
+  )
+
+  expect_equal(res$forward$selected$covariate, c("WT", "AGE"))
+  expect_equal(res$backward$removed$covariate[[1]], "WT")
+  expect_equal(res$backward$retained$covariate, "AGE")
+  expect_equal(res$final_covariates, res$backward$retained)
+})
+
+
+test_that("Stage 4 stops without removals when all retained terms are significant", {
+  gco <- .stage3_gco_fixture()
+  gfo <- .stage3_gfo_fixture(base_ofv = 100)
+  ofv_map <- list(
+    fw_s01_CL_WT = 90,
+    fw_s01_CL_AGE = 98,
+    fw_s02_CL_AGE = 89,
+    bw_s01_CL_WT_removed = 108
+  )
+
+  res <- stepwise_covariate_selection(
+    gfo = gfo,
+    gco = gco,
+    output_dir = tempdir(),
+    covariates = c("WT", "AGE"),
+    parameters = c("CL"),
+    p_forward = 0.05,
+    p_backward = 0.01,
+    run_backward = TRUE,
+    fit_function = .stage4_mock_fit(ofv_map)
+  )
+
+  expect_equal(nrow(res$backward$removed), 0)
+  expect_equal(res$backward$retained, res$forward$selected)
+  expect_equal(res$metadata$backward_steps, 0)
+})
+
+
+test_that("Stage 4 skips backward loop cleanly when forward selected set is empty", {
+  gco <- .stage3_gco_fixture()
+  gfo <- .stage3_gfo_fixture(base_ofv = 100)
+  ofv_map <- list(
+    fw_s01_CL_WT = 99.5,
+    fw_s01_CL_AGE = 99.2
+  )
+
+  res <- stepwise_covariate_selection(
+    gfo = gfo,
+    gco = gco,
+    output_dir = tempdir(),
+    covariates = c("WT", "AGE"),
+    parameters = c("CL"),
+    p_forward = 0.05,
+    p_backward = 0.01,
+    run_backward = TRUE,
+    fit_function = .stage4_mock_fit(ofv_map)
+  )
+
+  expect_equal(nrow(res$forward$selected), 0)
+  expect_equal(nrow(res$backward$history), 0)
+  expect_equal(nrow(res$backward$retained), 0)
+  expect_equal(res$final_covariates, res$backward$retained)
+})
+
+
+test_that("Stage 4 records fit failures and continues testing removable candidates", {
+  gco <- .stage3_gco_fixture()
+  gfo <- .stage3_gfo_fixture(base_ofv = 100)
+  ofv_map <- list(
+    fw_s01_CL_WT = 90,
+    fw_s01_CL_AGE = 95,
+    fw_s02_CL_AGE = 84,
+    bw_s01_CL_AGE_removed = 86,
+    bw_s02_CL_WT_removed = 92
+  )
+
+  res <- stepwise_covariate_selection(
+    gfo = gfo,
+    gco = gco,
+    output_dir = tempdir(),
+    covariates = c("WT", "AGE"),
+    parameters = c("CL"),
+    p_forward = 0.05,
+    p_backward = 0.01,
+    run_backward = TRUE,
+    fit_function = .stage4_mock_fit(
+      ofv_map = ofv_map,
+      fail_projects = c("bw_s01_CL_WT_removed")
+    )
+  )
+
+  expect_true(any(res$backward$history$status == "fit_failed"))
+  expect_true(any(grepl("Mock fit failure", res$backward$history$message, fixed = TRUE)))
+  expect_true(any(res$backward$history$removed))
+  expect_equal(res$backward$removed$covariate[[1]], "AGE")
+})

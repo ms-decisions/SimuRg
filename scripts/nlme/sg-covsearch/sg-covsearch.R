@@ -5,6 +5,7 @@
 
 #' Calculate objective function value from fit output
 #'
+#' Use OFV = -2*LL from gfo$OFV
 #'
 #' @param gfo A generalized fit output object containing `OFV`.
 #'
@@ -270,9 +271,14 @@ remove_covariate <- function(covs_list, param, cov) {
 #'   Must return a fit-like object consumable by `get_ofv`.
 #' @param update_theta_init Logical; when `TRUE`, refreshes theta INIT values from
 #'   accepted fit only (never from rejected candidates).
+#' @param run_backward Logical; when `TRUE`, run Stage 4 backward elimination after
+#'   forward inclusion converges.
+#' @param update_theta_init_backward Logical; when `TRUE`, refresh theta INIT only
+#'   after accepted backward removals.
 #' @param path_to_fitter Optional path to fitter executable.
 #'
-#' @return A list with preparation outputs and Stage 3 forward selection outputs.
+#' @return A list with final model state, forward/backward summaries, runtime
+#'   settings, and execution metadata.
 #' @keywords internal
 stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
                                          covariates = NULL,
@@ -282,6 +288,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
                                          p_backward = 0.01,
                                          fit_function = sg_fit,
                                          update_theta_init = TRUE,
+                                         run_backward = TRUE,
+                                         update_theta_init_backward = TRUE,
                                          path_to_fitter = NULL) {
   if (!is.character(output_dir) || length(output_dir) != 1 || !nzchar(output_dir)) {
     stop("stepwise_covariate_selection: output_dir must be a non-empty string.")
@@ -294,6 +302,14 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
   }
   if (!is.logical(update_theta_init) || length(update_theta_init) != 1 || is.na(update_theta_init)) {
     stop("stepwise_covariate_selection: update_theta_init must be TRUE or FALSE.")
+  }
+  if (!is.logical(run_backward) || length(run_backward) != 1 || is.na(run_backward)) {
+    stop("stepwise_covariate_selection: run_backward must be TRUE or FALSE.")
+  }
+  if (!is.logical(update_theta_init_backward) ||
+      length(update_theta_init_backward) != 1 ||
+      is.na(update_theta_init_backward)) {
+    stop("stepwise_covariate_selection: update_theta_init_backward must be TRUE or FALSE.")
   }
 
   if (!is.numeric(p_forward) || length(p_forward) != 1 || is.na(p_forward) ||
@@ -518,24 +534,72 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     project_name = character(0),
     stringsAsFactors = FALSE
   )
+  backward_history <- data.frame(
+    step = integer(0),
+    parameter = character(0),
+    covariate = character(0),
+    type = character(0),
+    df = numeric(0),
+    current_ofv = numeric(0),
+    removed_ofv = numeric(0),
+    delta_ofv = numeric(0),
+    threshold = numeric(0),
+    significant = logical(0),
+    removed = logical(0),
+    decision = character(0),
+    project_name = character(0),
+    status = character(0),
+    message = character(0),
+    stringsAsFactors = FALSE
+  )
+  backward_removed <- data.frame(
+    step = integer(0),
+    parameter = character(0),
+    covariate = character(0),
+    type = character(0),
+    df = numeric(0),
+    delta_ofv = numeric(0),
+    threshold = numeric(0),
+    project_name = character(0),
+    stringsAsFactors = FALSE
+  )
+
+  settings <- list(
+    output_dir = output_dir,
+    covariates = covariates,
+    parameters = parameters,
+    p_forward = p_forward,
+    p_backward = p_backward,
+    update_theta_init = update_theta_init,
+    run_backward = run_backward,
+    update_theta_init_backward = update_theta_init_backward
+  )
 
   needs_fit_fields <- c("model", "data", "headers", "theta", "ruv", "re", "occ")
   can_run_forward <- all(needs_fit_fields %in% names(gco))
   if (!can_run_forward) {
+    forward_selected <- included
+    final_covariates <- forward_selected
+    final_gco <- gco
     return(list(
-      candidates = candidates,
-      cov_ref = cov_ref,
-      df_map = as.list(df_map),
-      parameters = parameters,
-      covariates = covariates,
-      p_forward = p_forward,
-      p_backward = p_backward,
-      base_ofv = base_ofv,
-      final_ofv = base_ofv,
-      final_covs = .covsearch_existing_covs(gco$covs),
-      included = included,
-      forward_history = forward_history,
-      forward_ran = FALSE
+      final_gco = final_gco,
+      final_covariates = final_covariates,
+      forward = list(
+        selected = forward_selected,
+        history = forward_history
+      ),
+      backward = list(
+        removed = backward_removed,
+        retained = final_covariates,
+        history = backward_history
+      ),
+      settings = settings,
+      metadata = list(
+        forward_ran = FALSE,
+        backward_ran = FALSE,
+        forward_steps = 0L,
+        backward_steps = 0L
+      )
     ))
   }
 
@@ -703,21 +767,187 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     step_id <- step_id + 1L
   }
 
+  forward_steps <- nrow(included)
+  backward_ran <- isTRUE(run_backward)
+
+  retained <- included
+  if (backward_ran && nrow(retained) > 0) {
+    bw_step <- 1L
+    repeat {
+      if (nrow(retained) == 0) {
+        break
+      }
+
+      tested_rows <- list()
+      removable_term_idx <- NA_integer_
+      removable_delta <- Inf
+      removable_fit <- NULL
+
+      for (i in seq_len(nrow(retained))) {
+        term <- retained[i, , drop = FALSE]
+        proj_name <- paste0(
+          "bw_s", sprintf("%02d", bw_step), "_",
+          .covsearch_sanitize_name(term$parameter[[1]]), "_",
+          .covsearch_sanitize_name(term$covariate[[1]]), "_removed"
+        )
+        candidate_covs <- remove_covariate(
+          covs_list = current_covs,
+          param = term$parameter[[1]],
+          cov = term$covariate[[1]]
+        )
+
+        fit_args <- list(
+          model = gco$model,
+          data = gco$data,
+          headers = gco$headers,
+          theta = current_theta,
+          ruv = gco$ruv,
+          re = gco$re,
+          occ = gco$occ,
+          covs = candidate_covs,
+          project_name = proj_name,
+          task_opt = .covsearch_null_coalesce(gco$task_opt, NULL),
+          opt_name = .covsearch_null_coalesce(gco$opt_name, "Monolix"),
+          fit = TRUE,
+          path_to_save_output = output_dir,
+          path_to_fitter = .covsearch_null_coalesce(path_to_fitter, gco$path_to_fitter)
+        )
+        fit_res <- tryCatch(
+          do.call(fit_function, fit_args),
+          error = function(e) e
+        )
+
+        thr <- stats::qchisq(1 - p_backward, df = as.numeric(term$df[[1]]))
+        if (inherits(fit_res, "error")) {
+          tested_rows[[length(tested_rows) + 1L]] <- data.frame(
+            step = bw_step,
+            parameter = term$parameter[[1]],
+            covariate = term$covariate[[1]],
+            type = term$type[[1]],
+            df = as.numeric(term$df[[1]]),
+            current_ofv = current_ofv,
+            removed_ofv = NA_real_,
+            delta_ofv = NA_real_,
+            threshold = thr,
+            significant = NA,
+            removed = FALSE,
+            decision = "failed",
+            project_name = proj_name,
+            status = "fit_failed",
+            message = conditionMessage(fit_res),
+            stringsAsFactors = FALSE
+          )
+          next
+        }
+
+        removed_ofv <- tryCatch(get_ofv(fit_res$GFO), error = function(e) NA_real_)
+        delta <- removed_ofv - current_ofv
+        significant <- is.finite(delta) && !is.na(thr) && delta >= thr
+        is_removable <- is.finite(delta) && !is.na(thr) && delta < thr
+
+        tested_rows[[length(tested_rows) + 1L]] <- data.frame(
+          step = bw_step,
+          parameter = term$parameter[[1]],
+          covariate = term$covariate[[1]],
+          type = term$type[[1]],
+          df = as.numeric(term$df[[1]]),
+          current_ofv = current_ofv,
+          removed_ofv = removed_ofv,
+          delta_ofv = delta,
+          threshold = thr,
+          significant = significant,
+          removed = FALSE,
+          decision = if (is_removable) "candidate_remove" else "retain",
+          project_name = proj_name,
+          status = "ok",
+          message = "",
+          stringsAsFactors = FALSE
+        )
+
+        if (is_removable && delta < removable_delta) {
+          removable_delta <- delta
+          removable_term_idx <- i
+          removable_fit <- fit_res
+        }
+      }
+
+      step_df <- do.call(rbind, tested_rows)
+      if (!is.na(removable_term_idx)) {
+        removed_mask <- step_df$parameter == retained$parameter[[removable_term_idx]] &
+          step_df$covariate == retained$covariate[[removable_term_idx]] &
+          step_df$status == "ok"
+        step_df$removed[removed_mask] <- TRUE
+        step_df$decision[removed_mask] <- "removed"
+      }
+      backward_history <- rbind(backward_history, step_df)
+
+      if (is.na(removable_term_idx)) {
+        break
+      }
+
+      removed_term <- retained[removable_term_idx, , drop = FALSE]
+      removed_project <- paste0(
+        "bw_s", sprintf("%02d", bw_step), "_",
+        .covsearch_sanitize_name(removed_term$parameter[[1]]), "_",
+        .covsearch_sanitize_name(removed_term$covariate[[1]]), "_removed"
+      )
+      removed_thr <- stats::qchisq(1 - p_backward, df = as.numeric(removed_term$df[[1]]))
+      backward_removed <- rbind(
+        backward_removed,
+        data.frame(
+          step = bw_step,
+          parameter = removed_term$parameter[[1]],
+          covariate = removed_term$covariate[[1]],
+          type = removed_term$type[[1]],
+          df = as.numeric(removed_term$df[[1]]),
+          delta_ofv = removable_delta,
+          threshold = removed_thr,
+          project_name = removed_project,
+          stringsAsFactors = FALSE
+        )
+      )
+
+      current_covs <- remove_covariate(
+        covs_list = current_covs,
+        param = removed_term$parameter[[1]],
+        cov = removed_term$covariate[[1]]
+      )
+      current_gfo <- removable_fit$GFO
+      current_ofv <- get_ofv(current_gfo)
+      if (isTRUE(update_theta_init_backward)) {
+        current_theta <- gco_to_theta_tibble(list(theta = current_theta), current_gfo)
+      }
+
+      retained <- retained[-removable_term_idx, , drop = FALSE]
+      bw_step <- bw_step + 1L
+    }
+  }
+
+  backward_steps <- nrow(backward_removed)
+  final_covariates <- if (backward_ran) retained else included
+  final_covs <- current_covs
+  final_gco <- gco
+  final_gco$covs <- final_covs
+  final_gco$theta <- current_theta
+
   list(
-    candidates = candidates,
-    cov_ref = cov_ref,
-    df_map = as.list(df_map),
-    parameters = parameters,
-    covariates = covariates,
-    p_forward = p_forward,
-    p_backward = p_backward,
-    base_ofv = base_ofv,
-    final_ofv = current_ofv,
-    final_covs = current_covs,
-    final_fit = current_gfo,
-    final_theta = current_theta,
-    included = included,
-    forward_history = forward_history,
-    forward_ran = TRUE
+    final_gco = final_gco,
+    final_covariates = final_covariates,
+    forward = list(
+      selected = included,
+      history = forward_history
+    ),
+    backward = list(
+      removed = backward_removed,
+      retained = retained,
+      history = backward_history
+    ),
+    settings = settings,
+    metadata = list(
+      forward_ran = TRUE,
+      backward_ran = backward_ran,
+      forward_steps = forward_steps,
+      backward_steps = backward_steps
+    )
   )
 }

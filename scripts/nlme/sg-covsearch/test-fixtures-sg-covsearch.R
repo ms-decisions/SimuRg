@@ -67,3 +67,32 @@
   SEX = 1,   # 2 levels -> k-1
   RACE = 2   # 3 levels -> k-1
 )
+
+.stage4_mock_fit <- function(ofv_map, fail_projects = character(0), sumtab_map = list()) {
+  force(ofv_map)
+  force(fail_projects)
+  force(sumtab_map)
+  function(model, data, headers, theta, ruv, re, occ, covs, project_name,
+           task_opt = NULL, opt_name = "Monolix", fit = TRUE,
+           path_to_save_output = NULL, path_to_fitter = NULL) {
+    if (project_name %in% fail_projects) {
+      stop(sprintf("Mock fit failure for project %s", project_name))
+    }
+    ofv <- ofv_map[[project_name]]
+    if (is.null(ofv)) {
+      stop(sprintf("Missing mock OFV for project %s", project_name))
+    }
+    sumtab <- sumtab_map[[project_name]]
+    if (is.null(sumtab)) {
+      sumtab <- data.frame(PAR = character(0), VALUE = numeric(0), stringsAsFactors = FALSE)
+    }
+    list(
+      GFO = list(
+        OFV = data.frame(LL = -as.numeric(ofv) / 2),
+        SUMTAB = sumtab,
+        COTAB = data.frame(dummy = 1),
+        CATAB = data.frame(dummy = 1)
+      )
+    )
+  }
+}
