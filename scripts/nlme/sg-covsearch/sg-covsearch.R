@@ -5,8 +5,6 @@
 
 #' Calculate objective function value from fit output
 #'
-#' Converts log-likelihood (`LL`) from `gfo$OFV` into objective function value:
-#' `OFV = -2 * LL`.
 #'
 #' @param gfo A generalized fit output object containing `OFV`.
 #'
@@ -25,7 +23,7 @@ get_ofv <- function(gfo) {
     stop("get_ofv: gfo$OFV$LL is missing or NA.")
   }
 
-  -2 * as.numeric(ofv_tab$LL[[1]])
+  as.numeric(ofv_tab$LL[[1]])
 }
 
 
@@ -617,7 +615,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         next
       }
 
-      cand_ofv <- tryCatch(get_ofv(fit_res), error = function(e) NA_real_)
+      cand_ofv <- tryCatch(get_ofv(fit_res$GFO), error = function(e) NA_real_)
       thr <- stats::qchisq(1 - p_forward, df = as.numeric(cand$df[[1]]))
       delta <- current_ofv - cand_ofv
       significant <- is.finite(delta) && !is.na(thr) && delta > thr
@@ -673,8 +671,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       type = accepted_type,
       cov_ref = accepted$cov_ref[[1]]
     )
-    current_gfo <- best_fit
-    current_ofv <- get_ofv(best_fit)
+    current_gfo <- best_fit$GFO
+    current_ofv <- get_ofv(current_gfo)
 
     if (isTRUE(update_theta_init)) {
       current_theta <- gco_to_theta_tibble(list(theta = current_theta), current_gfo)
