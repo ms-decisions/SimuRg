@@ -28,6 +28,80 @@ get_ofv <- function(gfo) {
 }
 
 
+#' Normalize SUMTAB to a proper data frame
+#'
+#' Attempts to coerce `gfo$SUMTAB` into a tabular structure even when JSON was
+#' loaded as nested row-lists. When available, this uses `read_smrg_obj()` first
+#' to reuse common SimuRg table-normalization logic.
+#'
+#' @param gfo A generalized fit output object.
+#'
+#' @return Data frame with at least standard SUMTAB columns when available.
+#' @keywords internal
+.covsearch_sumtab_df <- function(gfo) {
+  if (is.null(gfo) || is.null(gfo$SUMTAB)) {
+    return(NULL)
+  }
+
+  # Reuse shared reader/normalizer when available in the current session.
+  if (exists("read_smrg_obj", mode = "function")) {
+    gfo <- tryCatch(read_smrg_obj(gfo), error = function(e) gfo)
+  }
+
+  sumtab_raw <- gfo$SUMTAB
+  sumtab <- NULL
+  sumtab_01 <- NULL
+
+  if (is.data.frame(sumtab_raw)) {
+    sumtab <- sumtab_raw
+  } else if (is.matrix(sumtab_raw)) {
+    sumtab <- as.data.frame(sumtab_raw, stringsAsFactors = FALSE)
+  } else if (is.list(sumtab_raw) && length(sumtab_raw) > 0) {
+    # Typical case for JSON read with simplifyDataFrame = FALSE:
+    # list of row-records; convert each row then bind.
+    row_dfs <- lapply(sumtab_raw, function(row) {
+      df <- as.data.frame(row, stringsAsFactors = FALSE, check.names = FALSE)
+      for (nm in c("PAR", "VALUE")) {
+        if (!nm %in% names(df)) {
+          df[[nm]] <- NA
+        }
+      }
+      df[, c("PAR", "VALUE"), drop = FALSE]
+    })
+    for (i in seq_along(row_dfs)) {
+      if (i==1) {
+        sumtab_01 <- row_dfs[[i]]
+      } else {
+        sumtab_01 <- rbind(sumtab_01, row_dfs[[i]])
+      }
+    }
+    sumtab <- sumtab_01
+  } else {
+    sumtab <- tryCatch(
+      as.data.frame(sumtab_raw, stringsAsFactors = FALSE),
+      error = function(e) NULL
+    )
+  }
+
+  if (is.null(sumtab)) {
+    return(NULL)
+  }
+
+  # Ensure standard Monolix SUMTAB columns exist.
+  # standard_cols <- c("PAR", "VALUE", "TYPE", "DISTRIBUTION", "EST", "SE", "RSE", "LCI", "UCI")
+  # for (nm in setdiff(standard_cols, names(sumtab))) {
+  #   sumtab[[nm]] <- NA
+  # }
+  # sumtab <- sumtab[, c(standard_cols, setdiff(names(sumtab), standard_cols)), drop = FALSE]
+
+  # Keep these two parse-friendly for matching and numeric INIT overwrite.
+  sumtab$PAR <- as.character(sumtab$PAR)
+  sumtab$VALUE <- suppressWarnings(as.numeric(sumtab$VALUE))
+
+  sumtab
+}
+
+
 #' Build theta tibble updated with fitted typical values
 #'
 #' Preserves original parameter row order from `gco$theta`. When present,
@@ -36,15 +110,32 @@ get_ofv <- function(gfo) {
 #'
 #' @param gco A generalized control object containing `theta`.
 #' @param gfo A generalized fit output object containing `SUMTAB`.
+#' @param update_theta_init Logical; when `TRUE`, update INIT from `gfo$SUMTAB`.
 #'
 #' @return Tibble with theta columns and updated `INIT`.
 #' @keywords internal
-gco_to_theta_tibble <- function(gco, gfo) {
+gco_to_theta_tibble <- function(gco, gfo, update_theta_init = FALSE) {
   if (is.null(gco$theta)) {
     stop("gco_to_theta_tibble: gco$theta is missing.")
   }
 
-  theta_tb <- tibble::as_tibble(gco$theta)
+  theta_raw <- gco$theta
+  if (is.data.frame(theta_raw) || inherits(theta_raw, "tbl_df")) {
+    # Preserve GCO values exactly (including INIT) when already tabular.
+    theta_tb <- tibble::as_tibble(theta_raw)
+  } else if (is.list(theta_raw) && length(theta_raw) > 0) {
+    # Support list-of-records shape from some JSON loaders.
+    theta_tb <- do.call(
+      rbind,
+      lapply(theta_raw, function(row) {
+        as.data.frame(row, stringsAsFactors = FALSE, check.names = FALSE)
+      })
+    )
+    theta_tb <- tibble::as_tibble(theta_tb)
+  } else {
+    stop("gco_to_theta_tibble: gco$theta must be a data.frame/tibble or non-empty list.")
+  }
+
   required_cols <- c("NAME", "INIT")
   missing_cols <- setdiff(required_cols, names(theta_tb))
   if (length(missing_cols) > 0) {
@@ -56,21 +147,24 @@ gco_to_theta_tibble <- function(gco, gfo) {
     )
   }
 
-  if (is.null(gfo$SUMTAB)) {
-    return(theta_tb)
-  }
+  # if (!isTRUE(update_theta_init)) {
+  #   return(theta_tb)
+  # } 
 
-  sumtab <- as.data.frame(gfo$SUMTAB, stringsAsFactors = FALSE)
-  if (!all(c("PAR", "VALUE") %in% names(sumtab))) {
-    return(theta_tb)
-  }
+  # sumtab <- .covsearch_sumtab_df(gfo)
+  # if (is.null(sumtab)) {
+  #   return(theta_tb)
+  # }
+  # if (!all(c("PAR", "VALUE") %in% names(sumtab))) {
+  #   return(theta_tb)
+  # }
 
-  map_par <- paste0(theta_tb$NAME, "_pop")
-  idx <- match(map_par, sumtab$PAR)
-  matched <- !is.na(idx)
-  if (any(matched)) {
-    theta_tb$INIT[matched] <- sumtab$VALUE[idx[matched]]
-  }
+  # map_par <- paste0(theta_tb$NAME, "_pop")
+  # idx <- match(map_par, sumtab$PAR)
+  # matched <- !is.na(idx)
+  # if (any(matched)) {
+  #   theta_tb$INIT[matched] <- sumtab$VALUE[idx[matched]]
+  # }
 
   theta_tb
 }
@@ -287,9 +381,9 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
                                          p_forward = 0.05,
                                          p_backward = 0.01,
                                          fit_function = sg_fit,
-                                         update_theta_init = TRUE,
+                                         update_theta_init = FALSE,
                                          run_backward = TRUE,
-                                         update_theta_init_backward = TRUE,
+                                         update_theta_init_backward = FALSE,
                                          path_to_fitter = NULL) {
   if (!is.character(output_dir) || length(output_dir) != 1 || !nzchar(output_dir)) {
     stop("stepwise_covariate_selection: output_dir must be a non-empty string.")
@@ -519,6 +613,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     accepted = logical(0),
     decision = character(0),
     project_name = character(0),
+    model_name = character(0),
+    candidate_name = character(0),
     status = character(0),
     message = character(0),
     stringsAsFactors = FALSE
@@ -548,6 +644,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     removed = logical(0),
     decision = character(0),
     project_name = character(0),
+    model_name = character(0),
+    candidate_name = character(0),
     status = character(0),
     message = character(0),
     stringsAsFactors = FALSE
@@ -607,7 +705,13 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
   remaining <- candidates
   current_ofv <- base_ofv
   current_gfo <- gfo
-  current_theta <- gco_to_theta_tibble(gco, gfo)
+  current_theta <- gco_to_theta_tibble(gco, gfo, update_theta_init = update_theta_init)
+  base_project_name <- .covsearch_sanitize_name(
+    .covsearch_null_coalesce(gco$project_name, "base_model")
+  )
+  if (!nzchar(base_project_name)) {
+    base_project_name <- "base_model"
+  }
   step_id <- 1L
 
   while (nrow(remaining) > 0) {
@@ -620,6 +724,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       cand <- remaining[i, , drop = FALSE]
       is_cont <- identical(cand$type[[1]], "cont")
       cov_type <- if (is_cont) "continuous" else "categorical"
+      model_name <- paste0(base_project_name, "_model", sprintf("%02d", step_id))
       candidate_covs <- add_covariate(
         covs_list = current_covs,
         param = cand$parameter[[1]],
@@ -629,9 +734,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       )
 
       proj_name <- paste0(
-        "fw_s", sprintf("%02d", step_id), "_",
-        .covsearch_sanitize_name(cand$parameter[[1]]), "_",
-        .covsearch_sanitize_name(cand$covariate[[1]])
+        model_name,
+        "_cand", sprintf("%03d", i)
       )
 
       fit_args <- list(
@@ -650,6 +754,15 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         path_to_save_output = output_dir,
         path_to_fitter = .covsearch_null_coalesce(path_to_fitter, gco$path_to_fitter)
       )
+
+#       task_opt <- paste(
+#   "populationParameters()",
+#   "individualParameters(method = conditionalMean)",
+#   "fim(run = false, method = StochasticApproximation)",
+#   "logLikelihood(method = ImportanceSampling)",
+#   "plotResult(run = false, method = none)",
+#   sep = "\n"
+# )
 
       fit_res <- tryCatch(
         do.call(fit_function, fit_args),
@@ -671,6 +784,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
           accepted = FALSE,
           decision = "failed",
           project_name = proj_name,
+          model_name = model_name,
+          candidate_name = proj_name,
           status = "fit_failed",
           message = conditionMessage(fit_res),
           stringsAsFactors = FALSE
@@ -698,6 +813,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         accepted = FALSE,
         decision = "rejected",
         project_name = proj_name,
+        model_name = model_name,
+        candidate_name = proj_name,
         status = "ok",
         message = "",
         stringsAsFactors = FALSE
@@ -739,7 +856,11 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     current_ofv <- get_ofv(current_gfo)
 
     if (isTRUE(update_theta_init)) {
-      current_theta <- gco_to_theta_tibble(list(theta = current_theta), current_gfo)
+      current_theta <- gco_to_theta_tibble(
+        list(theta = current_theta),
+        current_gfo,
+        update_theta_init = update_theta_init
+      )
     }
 
     included <- rbind(
@@ -752,11 +873,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         df = as.numeric(accepted$df[[1]]),
         delta_ofv = best_delta,
         threshold = stats::qchisq(1 - p_forward, df = as.numeric(accepted$df[[1]])),
-        project_name = paste0(
-          "fw_s", sprintf("%02d", step_id), "_",
-          .covsearch_sanitize_name(accepted$parameter[[1]]), "_",
-          .covsearch_sanitize_name(accepted$covariate[[1]])
-        ),
+        project_name = paste0(base_project_name, "_model", sprintf("%02d", step_id)),
         stringsAsFactors = FALSE
       )
     )
@@ -785,10 +902,12 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
 
       for (i in seq_len(nrow(retained))) {
         term <- retained[i, , drop = FALSE]
+        target_model_idx <- max(nrow(retained) - 1L, 0L)
+        model_name <- paste0(base_project_name, "_model", sprintf("%02d", target_model_idx))
         proj_name <- paste0(
-          "bw_s", sprintf("%02d", bw_step), "_",
-          .covsearch_sanitize_name(term$parameter[[1]]), "_",
-          .covsearch_sanitize_name(term$covariate[[1]]), "_removed"
+          model_name,
+          "_bw", sprintf("%02d", bw_step),
+          "_cand", sprintf("%03d", i)
         )
         candidate_covs <- remove_covariate(
           covs_list = current_covs,
@@ -833,6 +952,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
             removed = FALSE,
             decision = "failed",
             project_name = proj_name,
+            model_name = model_name,
+            candidate_name = proj_name,
             status = "fit_failed",
             message = conditionMessage(fit_res),
             stringsAsFactors = FALSE
@@ -859,6 +980,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
           removed = FALSE,
           decision = if (is_removable) "candidate_remove" else "retain",
           project_name = proj_name,
+          model_name = model_name,
+          candidate_name = proj_name,
           status = "ok",
           message = "",
           stringsAsFactors = FALSE
@@ -886,10 +1009,9 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       }
 
       removed_term <- retained[removable_term_idx, , drop = FALSE]
+      target_model_idx <- max(nrow(retained) - 1L, 0L)
       removed_project <- paste0(
-        "bw_s", sprintf("%02d", bw_step), "_",
-        .covsearch_sanitize_name(removed_term$parameter[[1]]), "_",
-        .covsearch_sanitize_name(removed_term$covariate[[1]]), "_removed"
+        base_project_name, "_model", sprintf("%02d", target_model_idx)
       )
       removed_thr <- stats::qchisq(1 - p_backward, df = as.numeric(removed_term$df[[1]]))
       backward_removed <- rbind(
@@ -915,7 +1037,11 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       current_gfo <- removable_fit$GFO
       current_ofv <- get_ofv(current_gfo)
       if (isTRUE(update_theta_init_backward)) {
-        current_theta <- gco_to_theta_tibble(list(theta = current_theta), current_gfo)
+        current_theta <- gco_to_theta_tibble(
+          list(theta = current_theta),
+          current_gfo,
+          update_theta_init = update_theta_init_backward
+        )
       }
 
       retained <- retained[-removable_term_idx, , drop = FALSE]
