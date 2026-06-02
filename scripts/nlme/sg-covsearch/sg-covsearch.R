@@ -149,7 +149,7 @@ gco_to_theta_tibble <- function(gco, gfo, update_theta_init = FALSE) {
 
   # if (!isTRUE(update_theta_init)) {
   #   return(theta_tb)
-  # } 
+  # }
 
   # sumtab <- .covsearch_sumtab_df(gfo)
   # if (is.null(sumtab)) {
@@ -737,7 +737,14 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         model_name,
         "_cand", sprintf("%03d", i)
       )
-
+      task_opt_fast_fit <- paste(
+        "populationParameters()",
+        "individualParameters(method = conditionalMean)",
+        "fim(method = StochasticApproximation)",
+        "logLikelihood(method = ImportanceSampling)",
+        "plotResult(run = false, method = none)",
+        sep = "\n"
+      )
       fit_args <- list(
         model = gco$model,
         data = gco$data,
@@ -748,21 +755,13 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         occ = gco$occ,
         covs = candidate_covs,
         project_name = proj_name,
-        task_opt = .covsearch_null_coalesce(gco$task_opt, NULL),
+        task_opt = task_opt_fast_fit, #.covsearch_null_coalesce(gco$task_opt, NULL),
         opt_name = .covsearch_null_coalesce(gco$opt_name, "Monolix"),
         fit = TRUE,
         path_to_save_output = output_dir,
         path_to_fitter = .covsearch_null_coalesce(path_to_fitter, gco$path_to_fitter)
       )
 
-#       task_opt <- paste(
-#   "populationParameters()",
-#   "individualParameters(method = conditionalMean)",
-#   "fim(run = false, method = StochasticApproximation)",
-#   "logLikelihood(method = ImportanceSampling)",
-#   "plotResult(run = false, method = none)",
-#   sep = "\n"
-# )
 
       fit_res <- tryCatch(
         do.call(fit_function, fit_args),
