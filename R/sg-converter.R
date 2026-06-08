@@ -3,6 +3,27 @@
 ## Description: Convert Monolix project results to SimuRg objects
 ## Keywords: SimuRg, monolix, converter
 
+#' Generalized SimuRg objects (GFO and GCO)
+#'
+#' @description
+#' SimuRg uses two named list objects to pass model input and fit output between functions.
+#'
+#' **GCO** (generalized control object) describes the model setup used to run a fit:
+#' `headers`, `data`, `model`, `theta`, `ruv`, `re`, `occ`, `covs`, and related fields.
+#' It is written by [sg_fit()] when preparing a fit file and parsed by [sg_converter()]
+#' from a Monolix project.
+#'
+#' **GFO** (generalized fit object) holds fit results and diagnostics:
+#' `SDTAB`, `SUMTAB`, `PATAB`, `OFV`, variance matrices, and related tables.
+#' It is produced by [sg_converter()] and returned from [sg_fit()] when `fit = TRUE`.
+#'
+#' Both objects are returned together as `list(GFO = ..., GCO = ...)` from [sg_converter()]
+#' and [sg_fit()]. Saved `.RData` / `.json` files usually contain a single `GFO` or `GCO`
+#' object. See [sg_converter()] for the full component list.
+#'
+#' @name GFO-GCO
+NULL
+
 #' Convert Monolix project output to R objects
 #'
 #' @description
@@ -32,7 +53,8 @@
 #'     \item \code{COTAB}: A tibble with continuous covariates
 #'     \item \code{CATAB}: A tibble with categorical covariates
 #'     \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
-#'     \item \code{OFV}: A tibble with objective function values
+#'     \item \code{OFV}: A one-row tibble with model fit criteria parsed from Monolix
+#'       \code{summary.txt}, in this column order: \code{-2LL}, \code{AIC}, \code{BIC}, \code{BICc}.
 #'     \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
 #'     \item \code{CORRMAT}: Correlation matrix of parameter estimates
 #'     \item \code{OPTIONS}: Model options (NULL if not present)

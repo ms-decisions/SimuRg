@@ -151,7 +151,7 @@ funSum_sim <- list(mean   = ~mean(., na.rm = TRUE),
 #'   \item{CORRMAT}{15 \eqn{\times} 15 numeric matrix — correlation matrix of the
 #'     population parameter estimates.}
 #'   \item{OFV}{data frame with 1 row and 4 columns — model fit criteria:
-#'     \code{LL} (log-likelihood), \code{AIC}, \code{BIC}, \code{BICc}.}
+#'     \code{LL} (\code{-2 x log-likelihood}, i.e. Monolix OFV), \code{AIC}, \code{BIC}, \code{BICc}.}
 #'   \item{OMEGAMAT}{3 \eqn{\times} 3 numeric matrix — OMEGA variance-covariance
 #'     matrix of the inter-individual random effects (\code{eta_ka}, \code{eta_Vd}, \code{eta_CL}).}
 #'   \item{SIGMAMAT}{1 \eqn{\times} 1 numeric matrix — SIGMA residual error
