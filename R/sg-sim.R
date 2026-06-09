@@ -205,13 +205,37 @@
 #' @import dplyr
 #' @import tidyr
 #' @export
-sg_sim <- function(model, et, stimes = NULL, outputs = NULL, theta = NULL,
+sg_sim <- function(model, et, fpath_i = NULL, stimes = NULL, outputs = NULL, theta = NULL,
                    omega = NULL, sigma = NULL, thetamat = NULL, covs = NULL,
                    npop = 1, nsub = 1, aggr = NULL, addcov = TRUE, keep = NULL,
                    scale = NULL, covint = "locf", inits = NULL,
                    byID = NULL, byPOP = NULL, shared = NULL,
                    ncores = 1, atol = 1e-8, rtol = 1e-6, ...){
+  if (!is.null(fpath_i)) {
+    smrg_obj <- read_smrg_obj(fpath_i)
 
+    if (is.null(stimes) & !is.null(smrg_obj$SDTAB)) {
+      stimes <- smrg_obj$SDTAB %>% pull(TIME) %>% unique()
+    }
+    if (is.null(theta) & !is.null(smrg_obj$SUMTAB)) {
+      theta <- smrg_obj[["SUMTAB"]][grepl("_pop", smrg_obj[["SUMTAB"]][["PAR"]]), ] %>%
+        select(PAR, VALUE) %>% deframe()
+    }
+    if (is.null(thetamat) & !is.null(smrg_obj$COVMAT)) {
+      thetamat <- smrg_obj[["COVMAT"]]
+      if (nrow(thetamat) > ncol(thetamat)) {
+        thetamat <- thetamat[1:ncol(thetamat), ]
+      }
+    }
+    if (is.null(omega) & !is.null(smrg_obj$OMEGAMAT)) {
+      omega <- smrg_obj[["OMEGAMAT"]]
+      rownames(omega) <- colnames(omega)
+    }
+    if (is.null(sigma) & !is.null(smrg_obj[["SIGMAMAT"]])) {
+      sigma <- smrg_obj[["SIGMAMAT"]]
+      rownames(sigma) <- colnames(sigma)
+    }
+  }
   # ── id column: et may use "id" or "ID" ─────────────────────────────────
   et_id_col <- intersect(c("id", "ID"), colnames(et))[1]
 

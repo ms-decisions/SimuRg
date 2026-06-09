@@ -28,6 +28,27 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
     d/dt(Ac) = ka * Ad - CL * Cc;
     Cc_ResErr = Cc * (1 + Cc_b);
   })
+  mod2 <- rxode2::rxode2({
+    ka_pop = 0.1;
+    V_pop = 10;
+    Cl_pop = 0.5;
+    omega_ka = 0;
+    omega_V = 0;
+    omega_Cl = 0;
+    Cc_b = 0;
+    ka_tv = ka_pop;
+    V_tv = V_pop;
+    Cl_tv = Cl_pop;
+    ka <- ka_tv * exp(omega_ka);
+    V <- V_tv * exp(omega_V);
+    Cl <- Cl_tv * exp(omega_Cl);
+    Cc = Ac / V;
+    Ad(0) = 0;
+    Ac(0) = 0;
+    d/dt(Ad) = -ka * Ad;
+    d/dt(Ac) = ka * Ad - Cl * Cc;
+    Cc_ResErr = Cc * (1 + Cc_b);
+  })
 
   et_ex <- tibble::tribble(
     ~ID, ~TIME, ~EVID, ~CMT, ~AMT,
@@ -48,7 +69,9 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
   expect_no_error(
     sg_sim(model = mod, et = et_ex, stimes = stimes_ex, theta = theta_ex, outputs = output_ex)
   )
-
+  expect_no_error(
+    sg_sim(model = mod2, et = et_ex, stimes = stimes_ex, fpath_i = obj1, outputs = output_ex)
+  )
   # ---- sim2a: Population uncertainty, single scenario (ID) ----
   expect_no_error(
     sg_sim(model = mod, et = dplyr::filter(et_ex, ID == 1), stimes = stimes_ex, theta = theta_ex,
