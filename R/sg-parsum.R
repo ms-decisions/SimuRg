@@ -32,8 +32,7 @@ sg_parsum <- function(fpath_i, addOFV = TRUE){
   par_out <- par_out %>%
     mutate(Parameter = str_remove_all(Parameter, "_pop")) %>% mutate(Parameter = str_replace_all(Parameter, "_", " "))
 
-  addOFV = T
-  if(addOFV){
+  if (addOFV) {
     ofv_lst <- obj$OFV
 
     par_out <- par_out %>% mutate(OFV = -2*ofv_lst[["LL"]], AIC = ofv_lst[["AIC"]])
