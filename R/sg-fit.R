@@ -349,13 +349,24 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       param_covs <- cov_by_param[[param_name]]
       if (!is.null(param_covs) && length(param_covs) > 0) {
         all_covnames <- character()
-        coef_parts <- character()
+        coef_entries <- character()
         for (pc in param_covs) {
           all_covnames <- c(all_covnames, pc$covname)
           if (isTRUE(pc$is_categorical)) {
-            coef_parts <- c(coef_parts, "0", pc$beta_names)
+            cat_coef_parts <- c("0", pc$beta_names)
+            cat_coef_str <- if (length(cat_coef_parts) == 1) {
+              cat_coef_parts
+            } else {
+              paste0("{", paste(cat_coef_parts, collapse = ", "), "}")
+            }
+            coef_entries <- c(coef_entries, cat_coef_str)
           } else {
-            coef_parts <- c(coef_parts, pc$beta_names)
+            cont_coef_str <- if (length(pc$beta_names) == 1) {
+              pc$beta_names
+            } else {
+              paste0("{", paste(pc$beta_names, collapse = ", "), "}")
+            }
+            coef_entries <- c(coef_entries, cont_coef_str)
           }
         }
         cov_str <- if (length(all_covnames) == 1) {
@@ -363,10 +374,10 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
         } else {
           paste0("{", paste(all_covnames, collapse = ", "), "}")
         }
-        coef_str <- if (length(coef_parts) == 1) {
-          coef_parts
+        coef_str <- if (length(coef_entries) == 1) {
+          coef_entries
         } else {
-          paste0("{", paste(coef_parts, collapse = ", "), "}")
+          paste0("{", paste(coef_entries, collapse = ", "), "}")
         }
         cov_fragment <- paste0(", covariate=", cov_str, ", coefficient=", coef_str)
       }
@@ -548,7 +559,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     if (is.null(task_opt)) {
       tasks_section <- "populationParameters()\nindividualParameters()\nfim()\nlogLikelihood()"
     } else {
-      task_section <- task_opt
+      tasks_section <- task_opt
     }
 
     # Create the mlxtran string structure
