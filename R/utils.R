@@ -318,6 +318,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
 #' @param theta A named numeric vector of baseline parameters. Default is `NULL`.
 #'        Parameters listed in `params` are replaced by sampled values.
 #' @param cov Covariates passed to `sg_sim()`. Default is `NULL`.
+#' @keywords internal
 sg_dummy <- function(
     ...,
   abreaks = scales::pretty_breaks(7),
