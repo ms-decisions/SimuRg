@@ -7,7 +7,7 @@
 #'
 #' @inheritParams sg_dummy
 #' @param pop Logical. If `TRUE` (default), adds population predictions (PRED) as dashed lines and points.
-#' @param cap String. Plot caption. Default is "empty circles - observed data solid lines with point - individual predictions dashed grey lines with point - population predictions"
+#' @param cap String. Plot caption. Default is "empty circles - observed data solid lines - individual predictions dashed grey lines - population predictions"
 #' @param lab_x String. X-ax label. Default is "Time since first dose, h"
 #' @param lab_y String. Y-ax label. Default is "Plasma concentration, mmol/L"
 #' @param sort_by Character vector of column names to sort ID facets by.
@@ -34,10 +34,10 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
                       desc = FALSE, log_y = FALSE, lab_x = "Time since first dose, h",
                       lab_y = "Plasma concentration, mmol/L",
                       cap = str_c("empty circles - observed data\n",
-                                  "solid lines with point - ",
+                                  "solid lines - ",
                                   "individual predictions\n",
-                                  "dashed grey lines with ",
-                                  "point - population predictions"),
+                                  "dashed grey lines ",
+                                  "- population predictions"),
                       n_quantiles = 3, levels_discrete = 10){
 
   # --- helper functions ---
@@ -47,12 +47,12 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
   }
 
   continuous_to_categories <- function(x, n_quant = 3) {
-    cut(
-      x,
-      breaks = quantile(x, probs = seq(0, 1, length.out = n_quant + 1), na.rm = TRUE),
-      include.lowest = TRUE,
-      labels = paste0("Q", 1:n_quant)
-    )
+    brks <- quantile(x, probs = seq(0, 1, length.out = n_quant + 1), na.rm = TRUE)
+    lo   <- formatC(brks[1:n_quant],       format = "g")
+    hi   <- formatC(brks[2:(n_quant + 1)], format = "g")
+    open <- c("[", rep("(", n_quant - 1))
+    lbl  <- paste0("Q", 1:n_quant, " ", open, lo, ", ", hi, "]")
+    cut(x, breaks = brks, include.lowest = TRUE, labels = lbl)
   }
 
   if (!is_null(read_smrg_obj(fpath_i)$GFO))
@@ -132,8 +132,7 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
     }
     col_levels <- levels(ds_tp_pre[[actual_col]])
     n_cols <- length(col_levels)
-    col_values <- rep(MSDcol, length.out = n_cols)   # or use a better color palette
-    col_labels <- paste0(col_i, ": ", col_levels)
+    col_values <- rep(MSDcol, length.out = n_cols)
     color_column <- actual_col
   }
 
@@ -148,7 +147,7 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
     if (desc) {
       id_order <- ds_tp_pre %>%
         distinct(ID, !!!syms(sort_by)) %>%
-        arrange(across(all_of(sort_by), desc)) %>%
+        arrange(across(all_of(sort_by), ~ dplyr::desc(.x))) %>%
         pull(ID)
     } else {
       id_order <- ds_tp_pre %>%
@@ -213,18 +212,15 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
 
     if(pop) {   # add PRED layers only when pop is TRUE
       p_n <- p_n +
-        geom_line(aes(y = PRED), lty = "dashed", col = "grey75") +
-        geom_point(aes(y = PRED), size = 1, col = "grey75")
+        geom_line(aes(y = PRED), lty = "dashed", col = "grey75")
     }
 
     if(!is.null(col_i)) {
       p_n <- p_n +
-        geom_line(aes(y = IPRED, color = .data[[color_column]])) +
-        geom_point(aes(y = IPRED, color = .data[[color_column]]), size = 1)
+        geom_line(aes(y = IPRED, color = .data[[color_column]]))
     } else {
       p_n <- p_n +
-        geom_line(aes(y = IPRED)) +
-        geom_point(aes(y = IPRED), size = 1)
+        geom_line(aes(y = IPRED))
     }
 
     # Rest of the layers (scales, facets, theme)
@@ -234,26 +230,21 @@ sg_gof_tp <- function(fpath_i, pop = TRUE, filt = "T", cov_cols = NULL, col_i = 
 
     # Add manual color scale if needed
     if(!is.null(col_i)) {
-      # col_values and col_labels should have been prepared earlier (as in your code)
       p_n <- p_n + scale_color_manual(
         name = col_i,
         values = col_values,
         labels = col_levels,
         drop = FALSE
       )
-      # Show legend, hide grid minor
-      p_n <- p_n + theme(legend.position = "right", panel.grid.minor = element_blank())
-    } else {
-      # Original scale_color_manual? You had scale_color_manual(values = MSDcol) but no mapping – remove it
-      # Actually, better to keep legend none and no color scale
-      p_n <- p_n + theme(legend.position = "none", panel.grid.minor = element_blank())
     }
 
     p_n <- p_n +
       facet_wrap(~facet_label, scales = f_scales) +
       theme_bw() +
       labs(subtitle = str_c(" (part ", n, " out of ", max(ds_tp_filt$NTILE), ")"),
-           caption = cap)
+           caption = cap) +
+      theme(legend.position = if (!is.null(col_i)) "right" else "none",
+            panel.grid.minor = element_blank())
 
     # p_n <- p_n +
     #   geom_line(aes(y = IPRED)) +
