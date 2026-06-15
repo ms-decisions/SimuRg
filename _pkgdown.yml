@@ -1,0 +1,80 @@
+url: ~
+template:
+  bootstrap: 5
+
+reference:
+- title: Datasets and objects
+
+- subtitle: Datasets
+  desc: >
+    Datasets that were used in package examples
+  contents:
+  - warfarin
+  - ds_covval
+  - parest
+  - data_pbc
+- subtitle: SimuRg objects
+  desc: >
+    Examples of SimuRg objects
+  contents:
+  - gfo4cov
+
+- title: Functions
+
+- subtitle: Model fit and building
+  desc: >
+    Functions to perform model calibration and find optimal statistical, structural or covariate model
+  contents:
+  - sg_fit
+  - sg_multistart
+  - sg_modbuild
+  - sg_modcomp
+
+- subtitle: Convertion
+  desc: >
+    Functions to convert input, output or structural model files between different formats
+  contents:
+  - sg_converter
+  - sg_translator
+
+- subtitle: Goofness-of-fit
+  desc: >
+    Functions to access model goodness-of-fit
+  contents:
+  - sg_parsum
+  - sg_modbuild
+  - sg_gof_obpr
+  - sg_gof_res
+  - sg_gof_par_dist
+  - sg_gof_res_dist
+  - sg_gof_par_cov
+  - sg_gof_tp
+
+- subtitle: Simulations
+  desc: >
+    Functions to perform simulations with the model
+  contents:
+  - sg_sim
+  - sg_sim_tp
+
+- subtitle: Analysis
+  desc: >
+    Functions to perform simulation-based analysis of the model
+  contents:
+  - sg_vpc_sim
+  - sg_vpc_vis
+  - sg_covsens_sim
+  - sg_covsens_vis
+  - sg_predist_sim
+  - sg_localsens_sim
+  - sg_localsens_vis
+  - sg_globalsens_sim
+  - sg_globalsens_vis
+  - sg_vpop_est
+
+- subtitle: Helper functions
+  desc: >
+    Functions to help working with the SimuRg objects
+  contents:
+  - read_smrg_obj
+  - read_smrg_ctrl

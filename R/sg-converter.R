@@ -23,7 +23,6 @@
 #'
 #' @name GFO-GCO
 NULL
-
 #' Convert Monolix project output to R objects
 #'
 #' @description
@@ -111,6 +110,7 @@ NULL
 #' @importFrom stringr str_c
 #' @import tibble
 #' @import dplyr
+#' @rdname GFO-GCO
 #' @export
 
 sg_converter <- function(folder_path, proj_name, save_file = FALSE){
@@ -1142,11 +1142,30 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   if (sum(grepl("sa$", colnames(sum_dt_i))) > 0 &
       sum(grepl("lin$", colnames(sum_dt_i))) > 0) sum_dt_i <-sum_dt_i %>%
     select(-ends_with("lin"))
+  
+  # Check for SE and RSE columns existence
+  se_cols <- colnames(sum_dt_i)[grepl("^se_", colnames(sum_dt_i))]
+  rse_cols <- colnames(sum_dt_i)[grepl("^rse_", colnames(sum_dt_i))]
+  has_se <- length(se_cols) > 0
+  has_rse <- length(rse_cols) > 0
+  
   sumtab <- sum_dt_i %>%
-    rename(PAR = parameter, VALUE = value) %>%
-    rename(!!!setNames(c(colnames(sum_dt_i)[grepl("^se_", colnames(sum_dt_i))],
-                         colnames(sum_dt_i)[grepl("^rse_", colnames(sum_dt_i))]),
-                       c("SE", "RSE"))) %>%
+    rename(PAR = parameter, VALUE = value)
+  
+  # Rename SE and RSE columns if they exist, otherwise create them with NA
+  if (has_se) {
+    sumtab <- sumtab %>% rename(!!!setNames(se_cols, "SE"))
+  } else {
+    sumtab <- sumtab %>% mutate(SE = NA_real_)
+  }
+  
+  if (has_rse) {
+    sumtab <- sumtab %>% rename(!!!setNames(rse_cols, "RSE"))
+  } else {
+    sumtab <- sumtab %>% mutate(RSE = NA_real_)
+  }
+  
+  sumtab <- sumtab %>%
     mutate(LCI = VALUE - 1.96*SE, UCI = VALUE + 1.96*SE) %>%
     group_by(PAR) %>%
     mutate(TYPE =case_when(PAR %in% pop_params ~ "Typical values",
@@ -1175,18 +1194,22 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
 
   ## covmat and corrmat compiling
+  if (dir.exists(str_c(folder_path, proj_name, "/FisherInformation"))) {
+    fi_files <- list.files(str_c(folder_path, proj_name, "/FisherInformation"))
+    corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
+    cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
 
-  fi_files <- list.files(str_c(folder_path, proj_name, "/FisherInformation"))
-  corr_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "correlation")])
-  cov_path <- str_c(folder_path, proj_name, "/FisherInformation/", fi_files[str_detect(fi_files, "covariance")])
+    covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = FALSE)
+    colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
+    covmat <- covmat_dt %>% select(-PAR) %>% as.matrix()
 
-  covmat_dt <- readr::read_csv(cov_path, col_types = cols(), col_names = FALSE)
-  colnames(covmat_dt) <- c("PAR", covmat_dt$X1)
-  covmat <- covmat_dt %>% select(-PAR) %>% as.matrix()
-
-  corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = FALSE)
-  colnames(corrmat_dt) <- c("PAR", corrmat_dt$X1)
-  corrmat <- corrmat_dt %>% select(-PAR) %>% as.matrix()
+    corrmat_dt <- readr::read_csv(corr_path, col_types = cols(), col_names = FALSE)
+    colnames(corrmat_dt) <- c("PAR", corrmat_dt$X1)
+    corrmat <- corrmat_dt %>% select(-PAR) %>% as.matrix()
+  } else {
+    covmat <- matrix()
+    corrmat <- matrix()
+  }
 
   ## evtab compiling
 

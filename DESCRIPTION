@@ -1,9 +1,9 @@
 Package: SimuRg
 Title: Building, Fitting and Evaluating PK/PD Modeles 
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut")),
-    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = "cre"),
+    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut")),
     person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
     person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
     person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
