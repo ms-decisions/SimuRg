@@ -384,3 +384,146 @@ test_that("sg_fit fit = TRUE skips cleanly when Monolix is unavailable", {
   expect_false(is.null(result))
 })
 
+# ============================================================
+# 4. Simurg control file generation  (fit = FALSE)
+# ============================================================
+
+.fit_model_simurg <- normalizePath(
+  system.file("extdata", "models", "rxode", "model_PK_1c.txt", package = "SimuRg"),
+  winslash = "/", mustWork = TRUE
+)
+
+.fit_theta_simurg <- data.frame(
+  NAME  = c("ka",        "V",         "Cl"),
+  TRANS = c("logNormal", "logNormal", "logNormal"),
+  INIT  = c(0.5,         20,          0.2),
+  LB    = c(NA_real_,    NA_real_,    NA_real_),
+  UB    = c(NA_real_,    NA_real_,    NA_real_),
+  EST   = c(TRUE,        FALSE,       TRUE),
+  stringsAsFactors = FALSE
+)
+
+.sg_fit_args_simurg <- function(project_name, output_dir, fitter = NULL) {
+  args <- .sg_fit_args(project_name, output_dir)
+  args$opt_name       <- "Simurg"
+  args$path_to_fitter <- fitter
+  args$model          <- .fit_model_simurg
+  args$theta          <- .fit_theta_simurg
+  args
+}
+
+test_that("sg_fit writes a valid .json control file for opt_name='Simurg'", {
+  output_dir <- tempfile("sg-fit-simurg-write-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "simurg_ctrl"
+  result <- do.call(sg_fit, .sg_fit_args_simurg(project_name, output_dir))
+
+  json_path <- file.path(output_dir, paste0(project_name, ".json"))
+  expect_null(result)
+  expect_true(file.exists(json_path))
+  expect_false(file.exists(file.path(output_dir, paste0(project_name, ".R"))))
+  expect_true(jsonlite::validate(
+    paste(readLines(json_path, warn = FALSE), collapse = "\n")
+  ))
+})
+
+test_that("sg_fit Simurg JSON reflects core GCO fields and parameterisation", {
+  output_dir <- tempfile("sg-fit-simurg-content-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "simurg_content"
+  do.call(sg_fit, .sg_fit_args_simurg(project_name, output_dir))
+
+  gco <- jsonlite::fromJSON(
+    file.path(output_dir, paste0(project_name, ".json")),
+    simplifyDataFrame = TRUE
+  )
+
+  for (field in c("model", "data", "headers", "theta", "ruv", "re", "occ",
+                  "covs", "project_name")) {
+    expect_true(field %in% names(gco), info = paste("missing field:", field))
+  }
+  expect_equal(normalizePath(gco$model), normalizePath(.fit_model_simurg))
+  expect_equal(normalizePath(gco$data),  normalizePath(.fit_data))
+  expect_setequal(gco$theta$NAME, .fit_theta_simurg$NAME)
+})
+
+# ============================================================
+# 5. Optional Simurg integration
+# ============================================================
+
+.find_simurg_core <- function() {
+  exe_name <- if (.Platform$OS.type == "windows") {
+    "CyberneticCore.exe"
+  } else {
+    "CyberneticCore"
+  }
+
+  env_path <- Sys.getenv("SIMURG_CORE_PATH", unset = "")
+  # If the env var points at a directory, look for the executable inside it.
+  if (nzchar(env_path) && dir.exists(env_path)) {
+    env_path <- file.path(env_path, exe_name)
+  }
+
+  on_path <- unname(Sys.which(tools::file_path_sans_ext(exe_name)))
+
+  candidates <- c(
+    env_path,
+    on_path,
+    file.path(getwd(), exe_name),
+    file.path(getwd(), "bin", exe_name),
+    system.file("bin", exe_name, package = "SimuRg")
+  )
+
+  candidates <- candidates[nzchar(candidates)]
+  existing   <- candidates[file.exists(candidates)]
+  if (length(existing) == 0) return(NA_character_)
+
+  normalizePath(existing[[1]], winslash = "/", mustWork = TRUE)
+}
+
+test_that("sg_fit fit = TRUE with Simurg core returns a result", {
+  core_path <- .find_simurg_core()
+  skip_if(
+    is.na(core_path),
+    "SimurgCore executable is not available on this machine."
+  )
+
+  output_dir <- tempfile("sg-fit-simurg-integration-")
+  dir.create(output_dir, recursive = TRUE)
+  on.exit(unlink(output_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  project_name <- "simurg_integration"
+  args <- .sg_fit_args_simurg(project_name, output_dir, fitter = core_path)
+  args$fit          <- TRUE
+  args$max_wait_time <- 300
+
+  result <- do.call(sg_fit, args)
+
+  result_file <- file.path(output_dir, paste0(project_name, "_result.json"))
+  expect_true(file.exists(result_file))
+
+  # The written file must be a complete, parseable JSON object
+  expect_silent(
+    jsonlite::fromJSON(result_file, simplifyVector = TRUE, simplifyDataFrame = TRUE)
+  )
+
+  # read_smrg_obj returns a results.json-shaped GFO; check the components the
+  # core emits are present and populated.
+  expect_false(is.null(result))
+  expect_type(result, "list")
+  for (field in c("SDTAB", "SUMTAB", "SIGMAMAT", "OMEGAMAT", "EVTAB", "OFV")) {
+    expect_true(field %in% names(result),
+                info = paste("missing result field:", field))
+  }
+
+  expect_s3_class(result$SDTAB, "data.frame")
+  expect_gt(nrow(result$SDTAB), 1)
+  expect_true(all(c("ID", "TIME", "DV", "PRED", "IPRED") %in% names(result$SDTAB)))
+
+  # OFV carries the objective-function summary (log-likelihood / AIC).
+  expect_true(all(c("LL", "AIC") %in% names(result$OFV)))
+})
