@@ -1,3 +1,14 @@
+# SimuRg 0.2.1 (2026-06-15)
+
+## New features 
+* `sg_covsearch()` function was added to the package with SCM algorithm
+* `sg_sim()` function now works with GFO object
+
+## Bug fix
+* bug in `sg_parsum()` was fixed
+* bug in `sg_gof_tp()` was fixed [SD-1458]
+* bugs in `sg_fit()` and `sg_converter()` were fixed [SD-1527], [SD-1532]
+
 # SimuRg 0.2.0(2026-05-14)
 
 ## Bug fixes: 

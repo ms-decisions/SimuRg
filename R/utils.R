@@ -98,7 +98,7 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
 #'  next observation carried backward to midpoint
 #'
 #' Default is `"locf"`
-#' @param ... Other arguments that will be passed to rxSolve function.
+#' @param ... Other arguments that will be passed to [rxode2::rxSolve()] function.
 #' @param ciLow Numeric. Lower confidence interval bound. Default is 0.025
 #' @param ciUp Numeric. Upper confidence interval bound. Default is 0.975
 #' @param ci_band_alpha Numeric in \eqn{[0,1]}: transparency of the shaded band.
@@ -496,6 +496,17 @@ filter_sdtab_by_DVID <- function(ds, DVID = 1) {
   out
 }
 
+#' Read or validate a generalized control object (GCO)
+#'
+#' Loads a generalized control object from an `.RData` or `.json` file, or accepts an
+#' already-loaded list.
+#'
+#' @inheritParams sg_dummy
+#'
+#' @return List. GCO with all table components coerced to
+#'   data frames.
+#' @export
+#'
 read_smrg_ctrl <- function(ctrl) {
   if (inherits(ctrl, "character")) {
     if (!file.exists(ctrl)) {
@@ -525,18 +536,17 @@ read_smrg_ctrl <- function(ctrl) {
   }
 }
 
-#' Read or validate a SimuRg fit object
+#' Read or validate a generalized fit object
 #'
-#' Loads a SimuRg fit object from an `.RData` or `.json` file, or accepts an
+#' Loads a generalized fit object from an `.RData` or `.json` file, or accepts an
 #' already-loaded list and ensures all table components (`SDTAB`, `EVTAB`,
 #' `COTAB`, `CATAB`, `SUMTAB`) are proper data frames.
 #'
 #' @inheritParams sg_dummy
 #'
-#' @return List. A SimuRg fit object with all table components coerced to
+#' @return List. Generalized fit object with all table components coerced to
 #'   data frames.
 #'
-#' @keywords internal
 #'
 #' @examples
 #' # Pass an already-loaded sg-fit object
