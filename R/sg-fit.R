@@ -607,7 +607,13 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
   } else if (opt_name == "Simurg"){
 
     simurg_cntrl_list <- list(model = model,
+                              modelText = jsonlite::unbox(
+                                paste(readLines(model, warn = FALSE), collapse = "\n")
+                              ),
                               data = data,
+                              dataText = jsonlite::unbox(
+                                paste(readLines(data, warn = FALSE), collapse = "\n")
+                              ),
                               headers = headers,
                               theta = theta,
                               ruv = ruv,
@@ -616,10 +622,10 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
                               covs = covs,
                               project_name = project_name,
                               task_opt = task_opt)
-    simurg_cntrl_file <- toJSON(simurg_cntrl_list, pretty = TRUE)
+    simurg_cntrl_file <- jsonlite::toJSON(simurg_cntrl_list, pretty = TRUE)
     sc_data <- simurg_cntrl_file
 
-    filepath <- sprintf("%s/%s.R", path_to_save_output, project_name)
+    filepath <- sprintf("%s/%s.json", path_to_save_output, project_name)
     # return(simurg_cntrl_file)
   }
   # dir.create(dirname(filepath), showWarnings = FALSE, recursive =TRUE)
@@ -650,7 +656,66 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
     }
     setwd(curr_dir)
     res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
-    # } else if (fit & opt_name == "Simurg") {
+  } else if (fit & opt_name == "Simurg") {
+    # CyberneticCore.exe writes the result JSON to stdout and all progress /
+    # diagnostic logs (SAEM iterations, [SimurgCore] section markers and any
+    # [SIMURG_ERROR]) to stderr. Capture the two streams to separate files:
+    #  * merging them (stdout = stderr = TRUE) interleaves stderr marker lines
+    #    *inside* the JSON body (e.g. `[SimurgCore] SIGMAMAT...` between fields);
+    #  * capturing stdout as a character vector splits the single-line JSON at
+    #    the ~8 KB read-buffer boundary, so paste(collapse = "\n") would insert
+    #    a newline mid-number and corrupt values.
+    # Redirecting to files keeps stdout as the exact, pure JSON bytes.
+    stdout_file <- tempfile("simurg-stdout-", fileext = ".json")
+    stderr_file <- tempfile("simurg-stderr-", fileext = ".log")
+    on.exit(unlink(c(stdout_file, stderr_file)), add = TRUE)
+
+    system2(
+      command = normalizePath(path_to_fitter),
+      args    = c("runFit", normalizePath(filepath)),
+      stdout  = stdout_file,
+      stderr  = stderr_file,
+      wait    = TRUE,
+      timeout = max_wait_time
+    )
+
+    log_text <- if (file.exists(stderr_file)) {
+      paste(readLines(stderr_file, warn = FALSE), collapse = "\n")
+    } else {
+      ""
+    }
+    if (grepl("\\[SIMURG_ERROR\\]", log_text)) {
+      stop(log_text)
+    }
+
+    # stdout holds a single-line JSON object; join any chunks with "" so no
+    # separator is injected mid-token.
+    json_result <- if (file.exists(stdout_file)) {
+      paste(readLines(stdout_file, warn = FALSE), collapse = "")
+    } else {
+      ""
+    }
+    if (!nzchar(trimws(json_result))) {
+      stop("No JSON produced by Simurg core.\n", log_text)
+    }
+
+    # Clean invalid floating-point values that Windows C++ may emit
+    # (mirrors cleanJsonNumbers in run-fitting.ts)
+    json_result <- gsub(":[ \t]*-?1\\.#INF\\b",     ": null", json_result)
+    json_result <- gsub(":[ \t]*-?1\\.#IND\\b",     ": null", json_result)
+    json_result <- gsub(":[ \t]*-?1\\.#QNAN\\b",    ": null", json_result)
+    json_result <- gsub(":[ \t]*-?1\\.#SNAN\\b",    ": null", json_result)
+    json_result <- gsub(":[ \t]*[+-]?[Ii]nf\\b",    ": null", json_result)
+    json_result <- gsub(":[ \t]*[+-]?[Nn]a[Nn]\\b", ": null", json_result)
+
+    result_file <- file.path(path_to_save_output,
+                             paste0(project_name, "_result.json"))
+    writeLines(json_result, result_file)
+
+    # The core already returns a results.json-shaped object (SDTAB, SUMTAB,
+    # SIGMAMAT, OMEGAMAT, OCCMAT, EVTAB, COVMAT, CORRMAT, OFV), so read_smrg_obj
+    # parses it directly into a GFO with those components.
+    res_fit <- read_smrg_obj(result_file)
     # int_res <- system(sprintf('%s --no-gui -p "%s" --mode none -o "%s"',
     #                           path_to_fitter, path.expand(filepath),
     #                           path.expand(path_to_save_output)))
