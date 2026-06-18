@@ -5,12 +5,6 @@ template:
 reference:
 - title: Datasets and objects
 
-- subtitle: SimuRg objects
-  desc: >
-    Examples of SimuRg objects
-  contents:
-  - gfo4cov
-
 - title: Functions
 
 - subtitle: Model fit and building
