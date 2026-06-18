@@ -3,7 +3,7 @@
 ## Description: function for fit
 ## Keywords: SimuRg, fit
 
-#' Run fit with monolix/simurg/nonmem fitter
+#' Optimize model with Monolix or Simurg core fitter
 #'
 #' @inheritParams sg_dummy
 #' @param model string. Path to a txt file file with model structure in Monolix syntax. This should be a valid file path pointing to a model file that defines the pharmacokinetic/pharmacodynamic model structure
@@ -15,8 +15,8 @@
 #'   * `UB` - numeric, upper bound for logit transformation,  `NA` for other transformation
 #'   * `EST` - logical, whether to estimate this parameter.
 #' @param max_wait_time numeric. Maximum time in seconds to wait for fit results to complete. Default is 3600 seconds (1 hour). Set to `Inf` for no timeout.
-#' @returns If `fit = TRUE`, a named list with components `GFO` and `GCO` (generalized fit
-#'   object and generalized control object; see [GFO-GCO] and [sg_converter()]). If
+#' @returns If `fit = TRUE`, a named list with components [GFO] and [GCO] (generalized fit
+#'   object and generalized control object; see [GFO] and [GCO] and [sg_converter()]). If
 #'   `fit = FALSE`, the fit configuration file is written and `NULL` is returned invisibly.
 #' @examples
 #' \donttest{

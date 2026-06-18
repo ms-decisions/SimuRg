@@ -36,6 +36,62 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
                          "type", "use", "uperc","value", "value_at_time",
                          "value_cfb", "value_ref", "var", "x", "y", "y_central",
                          "y_lower", "y_lower_perc", "y_upper", "y_upper_perc"))
+
+
+#' Generalized Fit Object (GFO)
+#'
+#' @description
+#' Generalized Fit Object (GFO) stores fit results and diagnostic information.
+#' User can create GFO from Monolix project using [sg_converter()] function,
+#' or by optimizing a model with [sg_fit()]. The [sg_fit()] function returns a GFO only
+#' when `fit = TRUE`.
+#'
+#' GFO is a list with the following components:
+#' \itemize{
+#'   \item \code{SDTAB}: A tibble containing data used for fitting
+#'   \item \code{SUMTAB}: A tibble with parameter summary statistics containing
+#'   \item \code{SIGMAMAT}: Residual variability matrix
+#'   \item \code{OMEGAMAT}: Inter-individual variability matrix
+#'   \item \code{OCCMAT}: Inter-occasion variability matrix (NA if not present)
+#'   \item \code{EVTAB}: A tibble with event information
+#'   \item \code{PATAB}: A tibble with individual parameter estimates
+#'   \item \code{COTAB}: A tibble with continuous covariates
+#'   \item \code{CATAB}: A tibble with categorical covariates
+#'   \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
+#'   \item \code{OFV}: A one-row tibble with model fit criteria parsed from Monolix
+#'     \code{summary.txt}, in this column order: \code{-2LL}, \code{AIC}, \code{BIC}, \code{BICc}.
+#'   \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
+#'   \item \code{CORRMAT}: Correlation matrix of parameter estimates
+#'   \item \code{OPTIONS}: Model options (NULL if not present)
+#'   \item \code{PROJNAME}: Project name
+#' }
+#' @name GFO
+NULL
+
+#' Generalized Control Object (GCO)
+#'
+#' @description
+#' Generalized control object (GCO) stores information about the model setup
+#' and options used for model fitting.
+#' Users can create GCO from a Monolix project using [sg_converter()] function,
+#' or by calling [sg_fit()] function.
+#' GCO is a list with the following components:
+#'  \itemize{
+#'   \item \code{headers}: List of dataset column descriptors (\code{name}, \code{use}, \code{type})
+#'   \item \code{data}: Path to source data file
+#'   \item \code{model}: Path to model file
+#'   \item \code{task_opt}: Task options placeholder (empty object)
+#'   \item \code{covs}: Covariate names detected
+#'   \item \code{project_name}: Project name
+#'   \item \code{theta}: List of population parameter definitions (\code{NAME}, \code{INIT}, \code{EST}, \code{TRANS})
+#'   \item \code{ruv}: Residual error model definition (\code{YNAME}, \code{DVID}, \code{TRANS}, \code{PRED}, \code{ERR}, \code{INIT}, \code{EST})
+#'   \item \code{re}: Between-subject variability matrices (\code{init}, \code{est})
+#'   \item \code{occ}: Between-occasion variability matrices (\code{init}, \code{est})
+#'   \item \code{modelText}: Text content of the model file
+#'  }
+#' @name GCO
+NULL
+
 #' The function to store common parameters description
 #'
 #' @param abreaks A function that generates axis breaks. Default is `scales::pretty_breaks(7)`.
@@ -170,8 +226,8 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
 #'  using the specified fitter. If `FALSE`, only the fit configuration file will
 #'  be generated without running the fit. Set to `FALSE` for file preparation only,
 #'  or `TRUE` to run the complete fitting process. Default is `FALSE`.
-#' @param fpath_i String or sg-fit object. If the string is given, the path to
-#'  `.Rdata` or `.json` file with sg-fit object is expected.
+#' @param fpath_i String or [GFO] object. If the string is given, the path to
+#'  `.Rdata` or `.json` file with [GFO] object is expected.
 #' @param free_stat String. Facet scaling option. One of `"free"`, `"free_x"`,
 #'  `"free_y"`, or `"fixed"`. Default is `'free'`.
 #' @param group_i String. Primary grouping variable for lines. Default is `'VAR'`.

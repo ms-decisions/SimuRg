@@ -3,26 +3,6 @@
 ## Description: Convert Monolix project results to SimuRg objects
 ## Keywords: SimuRg, monolix, converter
 
-#' Generalized SimuRg objects (GFO and GCO)
-#'
-#' @description
-#' SimuRg uses two named list objects to pass model input and fit output between functions.
-#'
-#' **GCO** (generalized control object) describes the model setup used to run a fit:
-#' `headers`, `data`, `model`, `theta`, `ruv`, `re`, `occ`, `covs`, and related fields.
-#' It is written by [sg_fit()] when preparing a fit file and parsed by [sg_converter()]
-#' from a Monolix project.
-#'
-#' **GFO** (generalized fit object) holds fit results and diagnostics:
-#' `SDTAB`, `SUMTAB`, `PATAB`, `OFV`, variance matrices, and related tables.
-#' It is produced by [sg_converter()] and returned from [sg_fit()] when `fit = TRUE`.
-#'
-#' Both objects are returned together as `list(GFO = ..., GCO = ...)` from [sg_converter()]
-#' and [sg_fit()]. Saved `.RData` / `.json` files usually contain a single `GFO` or `GCO`
-#' object. See [sg_converter()] for the full component list.
-#'
-#' @name GFO-GCO
-NULL
 #' Convert Monolix project output to R objects
 #'
 #' @description
@@ -38,42 +18,7 @@ NULL
 #'   and \code{<proj_name>_GFO.RData} (object \code{gfo}).
 #'
 #' @return
-#' Returns a list with the following components:
-#' \itemize{
-#'   \item \code{GFO}: SimuRg generalized fit object output object with:
-#'   \itemize{
-#'     \item \code{SDTAB}: A tibble containing data used for fitting
-#'     \item \code{SUMTAB}: A tibble with parameter summary statistics containing
-#'     \item \code{SIGMAMAT}: Residual variability matrix
-#'     \item \code{OMEGAMAT}: Inter-individual variability matrix
-#'     \item \code{OCCMAT}: Inter-occasion variability matrix (NA if not present)
-#'     \item \code{EVTAB}: A tibble with event information
-#'     \item \code{PATAB}: A tibble with individual parameter estimates
-#'     \item \code{COTAB}: A tibble with continuous covariates
-#'     \item \code{CATAB}: A tibble with categorical covariates
-#'     \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
-#'     \item \code{OFV}: A one-row tibble with model fit criteria parsed from Monolix
-#'       \code{summary.txt}, in this column order: \code{-2LL}, \code{AIC}, \code{BIC}, \code{BICc}.
-#'     \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
-#'     \item \code{CORRMAT}: Correlation matrix of parameter estimates
-#'     \item \code{OPTIONS}: Model options (NULL if not present)
-#'     \item \code{PROJNAME}: Project name
-#'   }
-#'   \item \code{GCO}: SimuRg generalized control object parsed from the mlxtran project with:
-#'   \itemize{
-#'     \item \code{headers}: List of dataset column descriptors (\code{name}, \code{use}, \code{type})
-#'     \item \code{data}: Path to source data file
-#'     \item \code{model}: Path to model file
-#'     \item \code{task_opt}: Task options placeholder (empty object)
-#'     \item \code{covs}: Covariate names detected
-#'     \item \code{project_name}: Project name
-#'     \item \code{theta}: List of population parameter definitions (\code{NAME}, \code{INIT}, \code{EST}, \code{TRANS})
-#'     \item \code{ruv}: Residual error model definition (\code{YNAME}, \code{DVID}, \code{TRANS}, \code{PRED}, \code{ERR}, \code{INIT}, \code{EST})
-#'     \item \code{re}: Between-subject variability matrices (\code{init}, \code{est})
-#'     \item \code{occ}: Between-occasion variability matrices (\code{init}, \code{est})
-#'     \item \code{modelText}: Text content of the model file
-#'   }
-#' }
+#' Returns a list with [GCO] and [GFO] objects
 #'
 #' @details
 #' This function serves as a bridge between Monolix output and R by parsing the .mlxtran file
@@ -84,7 +29,7 @@ NULL
 #' including population parameters, individual parameters, covariates, and diagnostic
 #' metrics.
 #'
-#' If \code{save_file = TRUE}, the function additionally writes \code{GCO} and \code{GFO}
+#' If \code{save_file = TRUE}, the function additionally writes [GCO] and [GFO]
 #' JSON files and \code{.RData} files to \code{folder_path}.
 #'
 #' @examples
@@ -110,7 +55,6 @@ NULL
 #' @importFrom stringr str_c
 #' @import tibble
 #' @import dplyr
-#' @rdname GFO-GCO
 #' @export
 
 sg_converter <- function(folder_path, proj_name, save_file = FALSE){
@@ -1142,29 +1086,29 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   if (sum(grepl("sa$", colnames(sum_dt_i))) > 0 &
       sum(grepl("lin$", colnames(sum_dt_i))) > 0) sum_dt_i <-sum_dt_i %>%
     select(-ends_with("lin"))
-  
+
   # Check for SE and RSE columns existence
   se_cols <- colnames(sum_dt_i)[grepl("^se_", colnames(sum_dt_i))]
   rse_cols <- colnames(sum_dt_i)[grepl("^rse_", colnames(sum_dt_i))]
   has_se <- length(se_cols) > 0
   has_rse <- length(rse_cols) > 0
-  
+
   sumtab <- sum_dt_i %>%
     rename(PAR = parameter, VALUE = value)
-  
+
   # Rename SE and RSE columns if they exist, otherwise create them with NA
   if (has_se) {
     sumtab <- sumtab %>% rename(!!!setNames(se_cols, "SE"))
   } else {
     sumtab <- sumtab %>% mutate(SE = NA_real_)
   }
-  
+
   if (has_rse) {
     sumtab <- sumtab %>% rename(!!!setNames(rse_cols, "RSE"))
   } else {
     sumtab <- sumtab %>% mutate(RSE = NA_real_)
   }
-  
+
   sumtab <- sumtab %>%
     mutate(LCI = VALUE - 1.96*SE, UCI = VALUE + 1.96*SE) %>%
     group_by(PAR) %>%

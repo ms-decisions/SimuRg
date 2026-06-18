@@ -6,8 +6,7 @@
 #' Perform simulations for VPC plot
 #'
 #' @inheritParams sg_dummy
-#' @param fpath_i Either a character string specifying the file path to a saved `sg_fit` object (R data file), or a list object containing the `sg_fit` results directly. The object must contain: `SDTAB`, `EVTAB`, `SUMTAB`, `OMEGAMAT`, `SIGMAMAT`, and optionally `COTAB` and `CATAB`
-#' @param gco Generalized control object. Either an R list or path to Rdata/json file. Either `gco` or `model` file should be specified for simulations model specification. Defauls is `NULL`
+#' @param gco Generalized control object (see [GCO]). Either an R list or path to Rdata/json file. Either  `gco` or `model` file should be specified for simulations model specification. Defauls is `NULL`
 #' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
 #' @returns A dataset with simulation results
 #' @examples
