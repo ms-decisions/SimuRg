@@ -1,4 +1,4 @@
-url: ~
+url: https://ms-decisions.github.io/SimuRg/
 template:
   bootstrap: 5
 
@@ -9,10 +9,11 @@ reference:
   desc: >
     Datasets that were used in package examples
   contents:
-  - warfarin
-  - ds_covval
-  - parest
-  - data_pbc
+  - '`warfarin`'
+  - '`ds_covval`'
+  - '`parest`'
+  - '`data_pbc`'
+
 - subtitle: SimuRg objects
   desc: >
     Examples of SimuRg objects
