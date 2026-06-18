@@ -1,15 +1,20 @@
 # SimuRg <img src="man/figures/logo.png" align="right" height="120"/>
 
-[![CRAN status](https://www.r-pkg.org/badges/version/SimuRg)](https://CRAN.R-project.org/package=SimuRg)
-[![R-CMD-check](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml) 
-[![pkgdown](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/SimuRg)](https://cran.r-project.org/package=SimuRg)
+[![CRAN status](https://www.r-pkg.org/badges/version/SimuRg)](https://CRAN.R-project.org/package=SimuRg) [![R-CMD-check](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml) [![pkgdown](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml) [![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/SimuRg)](https://cran.r-project.org/package=SimuRg)
 
 ## Overview
 
 **SimuRg** provides a comprehensive workflow for non-linear mixed-effects model development in pharmacometrics. The package provides the entire modeling pipeline: from model calibration with Monolix fitter(2023) and output processing to goodness-of-fit visualization, simulation, and sensitivity analysis. To use Monolix, it should be installed.
 
-Key features: - **Model calibration** via the Monolix fitter - **Automated output conversion** into a generalized fit output - **Diagnostic visualization** for model assessment - **Simulation capabilities** for model predictions - **Sensitivity analysis** tools for parameter exploration
+Key features:
+
+-   **Model calibration** via the Monolix or Simurg fitter
+-   **Automated output conversion** into a generalized fit output
+-   **Diagnostic visualization** for model assessment
+-   **Simulation capabilities** for model predictions
+-   **Sensitivity analysis** tools for parameter exploration
+
+
 
 ## Installation
 

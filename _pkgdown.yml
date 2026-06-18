@@ -5,15 +5,6 @@ template:
 reference:
 - title: Datasets and objects
 
-- subtitle: Datasets
-  desc: >
-    Datasets that were used in package examples
-  contents:
-  - '`warfarin`'
-  - '`ds_covval`'
-  - '`parest`'
-  - '`data_pbc`'
-
 - subtitle: SimuRg objects
   desc: >
     Examples of SimuRg objects
