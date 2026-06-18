@@ -5,6 +5,23 @@ template:
 reference:
 - title: Datasets and objects
 
+- subtitle: Datasets
+  desc: >
+    Datasets that were used in package examples
+  contents:
+  - '`warfarin`'
+  - '`ds_covval`'
+  - '`parest`'
+  - '`data_pbc`'
+
+- subtitle: SimuRg objects
+  desc: >
+    Examples of SimuRg objects
+  contents:
+  - gfo4cov
+  - GFO
+  - GCO
+
 - title: Functions
 
 - subtitle: Model fit and building
@@ -52,6 +69,7 @@ reference:
   - sg_covsens_sim
   - sg_covsens_vis
   - sg_predist_sim
+  - sg_predist_vis
   - sg_localsens_sim
   - sg_localsens_vis
   - sg_globalsens_sim
