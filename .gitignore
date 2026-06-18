@@ -3,7 +3,7 @@
 .RData
 .Ruserdata
 example_code
-renv
+renv/library
 man
 *.txt
 *.cpp
