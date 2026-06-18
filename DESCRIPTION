@@ -47,4 +47,5 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
 LazyData: true
-URL: https://ms-decisions.github.io/SimuRg
+URL: https://ms-decisions.github.io/SimuRg/, https://github.com/ms-decisions/SimuRg
+BugReports: https://github.com/ms-decisions/SimuRg/issues
