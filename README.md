@@ -1,6 +1,8 @@
 # SimuRg <img src="man/figures/logo.png" align="right" height="120"/>
 
-[![CRAN status](https://www.r-pkg.org/badges/version/SimuRg)](https://CRAN.R-project.org/package=SimuRg) [![R-CMD-check](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml) [![pkgdown](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/pkgdown.yaml) [![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/SimuRg)](https://cran.r-project.org/package=SimuRg)
+[![CRAN status](https://www.r-pkg.org/badges/version/SimuRg)](https://CRAN.R-project.org/package=SimuRg) 
+[![R-CMD-check](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ms-decisions/SimuRg/actions/workflows/R-CMD-check.yaml) 
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/SimuRg)](https://cran.r-project.org/package=SimuRg)
 
 ## Overview
 
