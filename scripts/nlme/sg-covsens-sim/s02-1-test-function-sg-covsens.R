@@ -131,6 +131,34 @@ model_03 <- RxODE({
 
   Cc_ResErr = Cc*(1 + Cc_b);
 })
+
+
+
+ss_cycle <- 10
+fun_stimes_ss <- function(k){c(
+  k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
+  k*4*7*24 + 2*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1))
+)}
+stimes_ss <- fun_stimes_ss(ss_cycle)
+
+######
+#Test with GFO
+output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
+                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes_ss, et = ev_t_input,
+                         est_covmat = est_covmat,
+                         npop = 10,
+                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
+                         outputs = "Cc", seed = 10)
+#write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
+
+#Test with parameter and covariate datasets
+output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
+                            model = model_03, stimes_ss, et = ev_t_input,
+                            est_covmat = est_covmat,
+                            npop = 10,
+                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
+                            outputs = "Cc")
+
 ####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
 # so that outputs = c("Cc", "Effect") can be tested
@@ -214,32 +242,6 @@ mod_fin_2 <- RxODE({
 })
 
 
-
-ss_cycle <- 10
-fun_stimes_ss <- function(k){c(
-  k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
-  k*4*7*24 + 2*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1))
-)}
-stimes_ss <- fun_stimes_ss(ss_cycle)
-
-######
-#Test with GFO
-output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
-                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes_ss, et = ev_t_input,
-                         est_covmat = est_covmat,
-                         npop = 10,
-                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
-                         outputs = "Cc")
-#write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
-
-#Test with parameter and covariate datasets
-output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
-                            model = model_03, stimes_ss, et = ev_t_input,
-                            est_covmat = est_covmat,
-                            npop = 10,
-                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
-                            outputs = "Cc")
-
 # Test: outputs as a 2-element vector — both PK (Cc) and PD (Effect) outputs
 output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
                             model = mod_fin_2, stimes_ss, et = ev_t_input,
@@ -247,3 +249,5 @@ output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
                             npop = 10,
                             cont_cov_l, cat_cov_l, quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
                             outputs = c("Cc", "Effect"))
+
+

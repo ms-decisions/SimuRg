@@ -300,7 +300,7 @@ p01_parsens <- sg_covsens_vis(
   type           = "PARSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
-  ylab           = "Mean (95% CI) parameter\nchange from reference"
+  lab_y           = "Mean (95% CI) parameter\nchange from reference"
 )
 p01_parsens
 

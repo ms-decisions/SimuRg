@@ -73,16 +73,30 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
     if(!expos){
       par_i <- unique(et_i$PAR)
       if(is.list(par_i)){ par_i <- par_i[[1]] }
-      sim_i <- sg_sim(mod_fin_i, et_i, 0, outputs = par_i, theta = theta_i, omega = omega_i,
+      sim_i <- sg_sim(model = mod_fin_i, et = et_i, stimes = 0, outputs = par_i, theta = theta_i, omega = omega_i,
                       thetamat = thetamat_i, covs = covs_i, npop = nsim, keep = keep_i)
     } else {
-      sim_raw <- sg_sim(mod_fin_i, et_i, stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
+      sim_raw <- sg_sim(mod_fin_i, et_i, stimes = stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
 
-      message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
-                      sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
-                      100 * mean(is.na(sim_raw$VALUE))))
+      # message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
+      #                 sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
+      #                 100 * mean(is.na(sim_raw$VALUE))))
+
+      #Warning / success message
+      outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
+      outputs_label <- paste(outputs_run, collapse = ", ")
+      na_rows <- sum(is.na(sim_raw$VALUE))
+      total_rows <- nrow(sim_raw)
+      na_pct <- if (total_rows > 0) 100 * na_rows / total_rows else 0
+      if (na_rows > 0) {
+        message(sprintf(
+          "Simulation completed for output(s): %s. NA rows detected: %d / %d (%.1f%%).",
+          outputs_label, na_rows, total_rows, na_pct
+        ))
+      }
+      ###
 
       aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
       stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
@@ -167,7 +181,7 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
 #' @param aggr character vector. Exposure aggregation metric(s) applied over
 #'   the simulation time grid.
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
-#'   \code{"mean"} (Cavg).  Default is \code{c("min", "max", "mean")}.
+#'  @param seed integer. Seed for the random number generator.  Default is \code{NULL}.
 #'
 #'@returns A named list of three elements:
 #' \describe{
@@ -347,7 +361,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
                            est_covmat,
                            npop = 5,
                            cont_cov_l, cat_cov_l,  quantiles = c(0.1, 0.9),
-                           outputs  = "Cc", aggr = c("min", "max", "mean")){
+                           outputs  = "Cc", aggr = c("min", "max", "mean"),
+                           seed = NULL){
 
   # --- Input validation ---
   # Data source: must provide either fpath_i alone, or both ds_parest and ds_covs
@@ -383,6 +398,15 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   if (missing(cont_cov_l)) stop("'cont_cov_l' is required: provide the continuous covariate definition list.")
   if (missing(cat_cov_l))  stop("'cat_cov_l' is required: provide the categorical covariate definition list.")
 
+  if (!is.null(seed)) {
+    had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+    if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv)
+    on.exit({
+      if (had_seed) assign(".Random.seed", old_seed, envir = .GlobalEnv)
+      else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) rm(".Random.seed", envir = .GlobalEnv)
+    }, add = TRUE)
+    set.seed(as.integer(seed))
+  }
   # Warn about non-default aggregation choices to alert on typos
   valid_aggr <- c("min", "max", "mean")
   bad_aggr   <- setdiff(aggr, valid_aggr)

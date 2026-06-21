@@ -20,7 +20,7 @@
 #'   categorical covariates, etc.).  Recycled if there are more levels than
 #'   colors.  Default \code{MSDcol[c(1, 3, 4, 5, 6, 7)]}.
 #' @param lab_y Axis label for the numeric scale (this becomes the horizontal
-#'   axis after \code{coord_flip()}).  Default mentions a 95\% interval; change
+#'   axis after \code{coord_flip()}).  Default mentions a 95% interval; change
 #'   if you use different \code{ci_quantiles}.
 #' @param cap Optional figure caption, passed to
 #'   \code{ggplot2::labs(caption = ...)} (e.g. text describing reference
@@ -196,7 +196,7 @@ sg_covsens_vis <- function(
     palette    = MSDcol[c(1, 3, 4, 5, 6, 7)],
     point_size     = 2.5,
     errorbar_width = 0.2,
-    lab_y           = "Mean (95% CI)\nchange from reference",
+    lab_y           = "Mean (90% CI)\nchange from reference",
     cap        = NULL
 ) {
   plot_type <- match.arg(plot_type)

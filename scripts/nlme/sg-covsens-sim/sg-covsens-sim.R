@@ -4,29 +4,9 @@
 ## Keywords: covariates, simulations, sensitivity
 
 ###-----Functions----####
-
-#' @noRd
-funSum_sim <- list(mean   = ~mean(., na.rm = TRUE),
-                   median = ~median(., na.rm = TRUE),
-                   min    = ~min(., na.rm = TRUE),
-                   max    = ~max(., na.rm = TRUE),
-                   sd     = ~sd(., na.rm = TRUE),
-                   P025   = ~quantile(., 0.025, na.rm = TRUE),
-                   P05    = ~quantile(., 0.05,  na.rm = TRUE),
-                   P10    = ~quantile(., 0.10,  na.rm = TRUE),
-                   P15    = ~quantile(., 0.15,  na.rm = TRUE),
-                   P25    = ~quantile(., 0.25,  na.rm = TRUE),
-                   P75    = ~quantile(., 0.75,  na.rm = TRUE),
-                   P85    = ~quantile(., 0.85,  na.rm = TRUE),
-                   P90    = ~quantile(., 0.90,  na.rm = TRUE),
-                   P95    = ~quantile(., 0.95,  na.rm = TRUE),
-                   P975   = ~quantile(., 0.975, na.rm = TRUE),
-                   geom_mean = ~exp(mean(suppressWarnings(log(.)), na.rm = TRUE)),
-                   CV     = ~sd(., na.rm = TRUE)/mean(., na.rm = TRUE)*100)
-
 #' @noRd
 funSum_av <- list(mean   = ~mean(.),
-                  median   = ~median(., na.rm = T))
+                  median   = ~median(., na.rm = TRUE))
 
 #' @noRd
 funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
@@ -34,7 +14,7 @@ funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
                    `Cmax`    = ~max(., na.rm = TRUE))
 
 #' @noRd
-fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
+fun_EtCC <- function(et_base_i, cc_ds_i, cat = FALSE){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
     cc_ds_n <- cc_ds_i %>% filter(COV == n)
 
@@ -60,9 +40,10 @@ fun_EtCC <- function(et_base_i, cc_ds_i, cat = F){
 }
 
 #' @noRd
-fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100, stime_exp = NULL,
+fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsim = 100, stime_exp = NULL,
                         mod_fin_i,
-                        theta_i, thetamat_i, nice_names_i,
+                        theta_i, omega_i, thetamat_i, nice_names_i,
+                        quantiles = c(0.1,0.9),
                         var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
 {
 
@@ -71,7 +52,7 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
   # et_sim_i = ets_cc
   # covs_i = nice_names$COV
   # expos = T
-  # stime_exp = stimes_ss
+  # stime_exp = stimes
   # cat = F; nsim = 5;
   # var_exp = "Cc"
   # theta_i = par_fin_tv
@@ -92,16 +73,24 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
     if(!expos){
       par_i <- unique(et_i$PAR)
       if(is.list(par_i)){ par_i <- par_i[[1]] }
-      sim_i <- sg_sim(mod_fin_i, et_i, 0, outputs = par_i, theta = theta_i ,
+      sim_i <- sg_sim(model = mod_fin_i, et = et_i, stimes = 0, outputs = par_i, theta = theta_i, omega = omega_i,
                       thetamat = thetamat_i, covs = covs_i, npop = nsim, keep = keep_i)
     } else {
-      sim_raw <- sg_sim(mod_fin_i, et_i, stime_exp, outputs = var_exp, theta = theta_i ,
+      sim_raw <- sg_sim(mod_fin_i, et_i, stimes = stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
 
-      message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
-                      sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
-                      100 * mean(is.na(sim_raw$VALUE))))
+outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
+outputs_label <- paste(outputs_run, collapse = ", ")
+na_rows <- sum(is.na(sim_raw$VALUE))
+total_rows <- nrow(sim_raw)
+na_pct <- if (total_rows > 0) 100 * na_rows / total_rows else 0
+if (na_rows > 0) {
+  message(sprintf(
+    "Simulation completed for output(s): %s. NA rows detected: %d / %d (%.1f%%).",
+    outputs_label, na_rows, total_rows, na_pct
+  ))
+}
 
       aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
       stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
@@ -164,86 +153,46 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'   \item \strong{File mode} — supply \code{fpath_i} (path to a SimuRg JSON /
 #'     RData object that contains SUMTAB, CATAB and COTAB).
 #'   \item \strong{Table mode} — supply both \code{ds_parest} (parameter
-#'     estimates) and \code{ds_cov} (covariate dataset).
+#'     estimates) and \code{ds_covs} (covariate dataset).
 #' }
 #'
 #' @inheritParams sg_dummy
-#' @param ds_parest data.frame. Parameter estimates table with columns
-#'   \code{parameter} and \code{value}.
-#'   Required when \code{fpath_i} is \code{NULL}; must be provided together
-#'   with \code{ds_cov}.  Default is \code{NULL}.
-#' @param ds_cov data.frame. Subject-level covariate dataset (one row per
+#' @param ds_covs data.frame. Subject-level covariate dataset (one row per
 #'   subject) containing both continuous and categorical covariate columns.
 #'   Required when \code{fpath_i} is \code{NULL}; must be provided together
 #'   with \code{ds_parest}.  Default is \code{NULL}.
-#' @param mod_fin RxODE model object. Compiled pharmacometric model used for
-#'   simulation.  The model must reference the covariate and parameter names
-#'   declared in \code{cont_cov_l} and \code{cat_cov_l}.
-#' @param stimes_ss numeric vector. Sampling time points for steady-state
+#' @param stimes numeric vector. Sampling time points for steady-state
 #'   simulation (e.g. generated by a cycling function over dosing intervals).
-#' @param ev_t_input data.frame. Event (dosing) table.  Must contain at least
+#' @param et data.frame. Event (dosing) table.  Must contain at least
 #'   columns \code{id}, \code{time}, \code{amt}, \code{evid} and
 #'   \code{Regimen}.  Additional columns such as \code{ii}, \code{addl},
 #'   \code{dur} and \code{Dose} are used when present.
-#' @param est_covmat data.frame. Parameter estimation covariance matrix.  The
-#'   first column (\code{X1}) must list parameter names; remaining columns
-#'   (named identically) form the symmetric variance–covariance matrix.
-#' @param Nsim integer. Number of population-level simulation replicates drawn
+#' @param npop integer. Number of population-level simulation replicates drawn
 #'   from the parameter uncertainty distribution.  Default is \code{5}.
-#' @param cont_cov_l named list. Each element defines one continuous covariate
-#'   and must itself be a list with components:
-#'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the (transformed)
-#'       covariate in the dataset (e.g. \code{"LG_AGE"}).}
-#'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
-#'       untransformed (back-transformed) covariate
-#'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
-#'       \code{NAME}.}
-#'     \item{\code{REF}}{Character or numeric. Reference value for the
-#'       covariate.  Use \code{"median"} to derive from data, or a numeric
-#'       value.}
-#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label for
-#'       plots and tables (e.g. \code{"Age, years"}).}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("CL")}).}
-#'   }
-#' @param cat_cov_l named list. Each element defines one categorical covariate
-#'   and must itself be a list with components:
-#'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the covariate
-#'       (e.g. \code{"SEX"}).}
-#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label.}
-#'     \item{\code{REF}}{Character or \code{NULL}. Reference category value.
-#'       If \code{NULL}, the first factor level (alphabetically) is used.}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("ka")}).}
-#'   }
-#' @param quantiles numeric vector of length 2. Lower and upper quantiles of
-#'   the continuous covariate distribution to test.
-#'   Default is \code{c(0.1, 0.9)}.
-#' @param var_output character vector. Name(s) of the model output variable(s)
+#' @param outputs character vector. Name(s) of the model output variable(s)
 #'   to evaluate (e.g. \code{"Cc"} or \code{c("Cc", "Effect")}).
 #'   Default is \code{"Cc"}.
 #' @param aggr character vector. Exposure aggregation metric(s) applied over
 #'   the simulation time grid.
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
 #'   \code{"mean"} (Cavg).  Default is \code{c("min", "max", "mean")}.
+#' @param seed integer. Seed for the random number generator.  Default is \code{NULL}.
 #'
-#' @returns A list of three elements:
+#'@returns A named list of three elements:
 #' \describe{
-#'   \item{\code{[[1]]} \code{out_cov_par_sens}}{data.frame.
+#'   \item{\code{$PARSENS}}{data.frame.
 #'     Full sensitivity results for model parameters: percent change
 #'     statistics (mean, median, percentiles) for each covariate–parameter
 #'     combination, with columns \code{NICEN}, \code{VAR}, \code{KEY},
 #'     \code{LAB}, \code{Type} and summary statistics
 #'     (\code{mean} through \code{P975}).}
-#'   \item{\code{[[2]]} \code{t_cov_sens_par}}{data.frame.
+#'   \item{\code{$SUMPARSENS}}{data.frame.
 #'     Compact summary table with columns \code{Parameter},
 #'     \code{Covariate}, \code{Cov. percentile}, \code{Cov. value},
 #'     \code{Mean} and \code{90\%CI}.}
-#'   \item{\code{[[3]]} \code{out_cov_exp_sens}}{data.frame.
+#'   \item{\code{$EXPSENS}}{data.frame.
 #'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
-#'     structured identically to \code{out_cov_par_sens}.}
+#'     structured identically to \code{$PARSENS}.}
 #' }
 #'
 #' @details
@@ -254,21 +203,17 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'     quantile or category value and the model is evaluated at time zero (no
 #'     ODE integration) to quantify the direct effect on each parameter.
 #'   \item \strong{Exposure sensitivity} — the full time-course is simulated
-#'     over \code{stimes_ss} and exposure metrics (\code{aggr}) are computed.
+#'     over \code{stimes} and exposure metrics (\code{aggr}) are computed.
 #' }
 #'
-#' Uncertainty is propagated by sampling \code{Nsim} parameter vectors from a
+#' Uncertainty is propagated by sampling \code{npop} parameter vectors from a
 #' multivariate normal distribution parameterised by the population estimates
 #' and the estimation covariance matrix (\code{est_covmat}).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(dplyr)
-#' library(RxODE)
-#'
-#' # --- Data source ---
-#' fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
-#'                        "run_4cov_smrg_results.json", package = "SimuRg")
+#' library(rxode2)
 #'
 #' # --- Covariate definitions ---
 #' cont_cov_l <- list(
@@ -292,11 +237,82 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'   ~id, ~time, ~ii, ~amt, ~addl, ~dur, ~evid, ~Regimen,        ~Dose,
 #'   1,   0,     336, 10,   21,    0.5,  1,     "0.3 mg/kg Q2W", 0.3
 #' )
+#' # --- Model ---
+#' model <- RxODE({
+#'   # Doses in mg
+#'   # Time in hours
+#'
+#'   ### Parameter values
+#'   # Typical values
+#'   ka_pop = 0.073;
+#'   Vd_pop = 14.8;
+#'   CL_pop = 0.347;
+#'
+#'   # Random effects
+#'   omega_ka = 0;
+#'   omega_Vd = 0;
+#'   omega_CL = 0;
+#'
+#'   # Covariate effect
+#'   # Continuous
+#'   beta_CL_LG_AGE = 0.49990114;
+#'   beta_Vd_LG_WEIGHT = 0.60529433;
+#'
+#'   # Categorical
+#'   beta_CL_CYP2C9_1_2 = -0.339;
+#'   beta_CL_CYP2C9_1_3 = -0.574;
+#'   beta_CL_CYP2C9_2_2 = -1.079;
+#'   beta_CL_CYP2C9_2_3 = -0.745;
+#'   beta_CL_CYP2C9_3_3 = -2.13;
+#'
+#'   beta_ka_SEX_1 = -0.12198035;
+#'
+#'   # Residual error
+#'   Cc_b = 0;
+#'
+#'   # Transformations
+#'   ka_tv = exp(ka_pop);
+#'   Vd_tv = exp(Vd_pop);
+#'   CL_tv = exp(CL_pop);
+#'
+#'   CL_multiplier = 1.0;  # Default/reference
+#'   ka_multiplier = 1.0;
+#'
+#'   if (SEX == "1") {ka_multiplier = exp(beta_ka_SEX_1)}
+#'
+#'   if (CYP2C9 == "1") {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_1_2);
+#'   } else if (CYP2C9 == "2") {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_1_3);
+#'   } else if (CYP2C9 == "3") {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_2_2);
+#'   } else if (CYP2C9 == "4") {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_2_3);
+#'   } else if (CYP2C9 == "5") {
+#'     CL_multiplier = exp(beta_CL_CYP2C9_3_3);
+#'   }
+#'
+#'   ka = ka_tv*ka_multiplier*exp(omega_ka);
+#'   Vd = Vd_tv*exp(beta_Vd_LG_WEIGHT * LG_WEIGHT + omega_Vd); #Vd_tv*exp(omega_Vd);
+#'   CL = CL_tv*CL_multiplier*exp(beta_CL_LG_AGE * LG_AGE + omega_CL);
+#'
+#'
+#'   ### Explicit functions
+#'   Cc = Ac/Vd;
+#'
+#'   ### Initial conditions
+#'   Ad(0) = 0;
+#'   Ac(0) = 0;
+#'
+#'   ### Differential equations
+#'   d/dt(Ad) = - ka*Ad;
+#'   d/dt(Ac) = ka*Ad - CL*Cc;
+#'
+#'   Cc_ResErr = Cc*(1 + Cc_b);
+#' })
 #'
 #' # --- Estimation covariance (mock) ---
-#' obj_data   <- read_smrg_obj(fpath_i)
-#' par_fin    <- obj_data$SUMTAB %>% rename(parameter = PAR, value = VALUE)
-#' pnames     <- par_fin$parameter
+#' pnames     <- parest$parameter
 #' npar       <- length(pnames)
 #' set.seed(1)
 #' m_cov      <- matrix(0.02, npar, npar)
@@ -314,17 +330,17 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #'
 #' # --- Run ---
 #' result <- sg_covsens_sim(
-#'   fpath_i, ds_parest = NULL, ds_cov = NULL,
-#'   mod_fin = mod_fin, stimes_ss = stimes_ss, ev_t_input = ev_t_input,
-#'   est_covmat = est_covmat, Nsim = 10,
+#'   fpath_i=NULL, ds_parest = parest, ds_covs = ds_covval,
+#'   model = model, stimes = stimes_ss, et = ev_t_input,
+#'   est_covmat = est_covmat, npop = 10,
 #'   cont_cov_l = cont_cov_l, cat_cov_l = cat_cov_l,
 #'   quantiles = c(0.2, 0.8), aggr = c("max"),
-#'   var_output = "Cc"
+#'   outputs = "Cc"
 #' )
+#' print(result[["PARSENS"]])
+#' print(result[["SUMPARSENS"]])
+#' print(result[["EXPSENS"]])
 #'
-#' out_cov_par_sens <- result[[1]]
-#' t_cov_sens_par   <- result[[2]]
-#' out_cov_exp_sens <- result[[3]]
 #' }
 #'
 #' @seealso \code{\link{sg_sim}}, \code{\link{read_smrg_obj}}
@@ -335,47 +351,57 @@ fun_CovSens <- function(et_sim_i, cat = F, expos = F, covs_i = NULL, nsim = 100,
 #' @importFrom stringr str_detect str_c
 #' @importFrom forcats fct_inorder
 #' @export
-sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
-                           mod_fin, stimes_ss, ev_t_input,
+sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
+                           model, stimes, et,
                            est_covmat,
-                           Nsim = 5,
+                           npop = 5,
                            cont_cov_l, cat_cov_l,  quantiles = c(0.1, 0.9),
-                           var_output  = "Cc", aggr = c("min", "max", "mean")){
+                           outputs  = "Cc", aggr = c("min", "max", "mean"),
+                           seed = NULL){
 
   # --- Input validation ---
-  # Data source: must provide either fpath_i alone, or both ds_parest and ds_cov
+  # Data source: must provide either fpath_i alone, or both ds_parest and ds_covs
   has_fpath   <- !is.null(fpath_i)
-  has_ds      <- !is.null(ds_parest) && !is.null(ds_cov)
-  has_ds_part <- !is.null(ds_parest) || !is.null(ds_cov)
+  has_ds      <- !is.null(ds_parest) && !is.null(ds_covs)
+  has_ds_part <- !is.null(ds_parest) || !is.null(ds_covs)
 
   if (!has_fpath && !has_ds) {
     stop(
       "No data source provided. Supply either:\n",
       "  - 'fpath_i': path to a Simurg output object, OR\n",
-      "  - both 'ds_parest' (parameter estimates) and 'ds_cov' (covariate dataset)."
+      "  - both 'ds_parest' (parameter estimates) and 'ds_covs' (covariate dataset)."
     )
   }
   if (has_fpath && has_ds_part) {
     stop(
-      "'fpath_i' and 'ds_parest'/'ds_cov' are mutually exclusive. ",
+      "'fpath_i' and 'ds_parest'/'ds_covs' are mutually exclusive. ",
       "Supply one data source only."
     )
   }
   if (!has_fpath && has_ds_part && !has_ds) {
-    missing_ds <- if (is.null(ds_parest)) "'ds_parest'" else "'ds_cov'"
+    missing_ds <- if (is.null(ds_parest)) "'ds_parest'" else "'ds_covs'"
     stop(
       "Incomplete data source: ", missing_ds, " is missing. ",
-      "Both 'ds_parest' and 'ds_cov' must be provided together."
+      "Both 'ds_parest' and 'ds_covs' must be provided together."
     )
   }
 
-  if (missing(mod_fin))    stop("'mod_fin' is required: provide the compiled rxode2/nlmixr model object.")
-  if (missing(stimes_ss))  stop("'stimes_ss' is required: provide the steady-state simulation time points.")
-  if (missing(ev_t_input)) stop("'ev_t_input' is required: provide the event table (dosing schedule).")
+  if (missing(model))    stop("'model' is required: provide the compiled rxode2/nlmixr model object.")
+  if (missing(stimes))  stop("'stimes' is required: provide the steady-state simulation time points.")
+  if (missing(et)) stop("'et' is required: provide the event table (dosing schedule).")
   if (missing(est_covmat)) stop("'est_covmat' is required: provide the parameter estimation covariance matrix.")
   if (missing(cont_cov_l)) stop("'cont_cov_l' is required: provide the continuous covariate definition list.")
   if (missing(cat_cov_l))  stop("'cat_cov_l' is required: provide the categorical covariate definition list.")
 
+if (!is.null(seed)) {
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv)
+  on.exit({
+    if (had_seed) assign(".Random.seed", old_seed, envir = .GlobalEnv)
+    else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) rm(".Random.seed", envir = .GlobalEnv)
+  }, add = TRUE)
+  set.seed(as.integer(seed))
+}
   # Warn about non-default aggregation choices to alert on typos
   valid_aggr <- c("min", "max", "mean")
   bad_aggr   <- setdiff(aggr, valid_aggr)
@@ -383,9 +409,10 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
     warning("Unrecognised aggregation function(s) in 'aggr': ",
             paste(bad_aggr, collapse = ", "),
             ". Valid options are: ", paste(valid_aggr, collapse = ", "), ".")
+    aggr <- valid_aggr
   }
   # -------------------------
-
+  ds_catcov <- NULL
   if((!is.null(fpath_i))&(is.null(ds_parest))){
   obj_data <- read_smrg_obj(fpath_i)
   #ds_mod <-  obj_data$SDTAB
@@ -395,14 +422,18 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   data_fin <- ds_ccov %>% left_join(ds_catcov, by = "ID")
   ### Population parameters
   par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)
-  } else if((is.null(fpath_i))&(!is.null(ds_parest))&(!is.null(ds_cov))){
+  } else if((is.null(fpath_i))&(!is.null(ds_parest))&(!is.null(ds_covs))){
     par_fin <- ds_parest
-    data_fin <- ds_cov
+    data_fin <- ds_covs
   }
 
   par_pop <- par_fin %>% filter(str_detect(parameter, "_pop")) %>% select(parameter, value) %>% deframe()
   par_fin_tv <- par_fin %>% filter(str_detect(parameter, "_pop$") | str_detect(parameter, "^beta_")) %>% select(parameter, value) %>%
-    mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  #mutate(value = ifelse(str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_"), log(value), value)) %>% deframe()
+  mutate(value = {
+    cond <- str_detect(parameter, "_pop$") & !str_detect(parameter, "^beta_")
+    ifelse(cond, log(ifelse(cond, value, 1)), value)
+  }) %>% deframe()
 
   ### Reconstruct omega matrix (random effects on K_a and V_pop)
   d_omega <- par_fin %>% filter(str_detect(parameter, "omega_"))
@@ -428,25 +459,89 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
     m_omega_full <- m_omega %*% omega_corr %*% m_omega
   }
 
-  ### Reconstruct residual error model matrix
-  d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
-  m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
-  colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
+  # ### Reconstruct residual error model matrix
+  # d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
+  # m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
+  # colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
 
   m_theta_norm <- est_covmat %>% select_if(is.numeric) %>% as.matrix()
   colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
   m_theta_norm_pop <- m_theta_norm[str_detect(rownames(m_theta_norm), "_pop|beta_"), str_detect(colnames(m_theta_norm), "_pop|beta_")]
 
   #####----Covariate tables----####
+  # Validate and filter cont_cov_l against data_fin columns
+  .missing_cont_name <- map_chr(cont_cov_l, function(x) x$NAME) %>%
+    setdiff(names(data_fin))
+  if (length(.missing_cont_name) > 0) {
+    warning(
+      "The following continuous covariate NAME(s) from 'cont_cov_l' were not found ",
+      "as columns in the covariate data and will be skipped: ",
+      paste(.missing_cont_name, collapse = ", "), "."
+    )
+    cont_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cont_name), cont_cov_l)
+    if (length(cont_cov_l) == 0) {
+      stop(
+        "All continuous covariates in 'cont_cov_l' were removed because their NAME columns ",
+        "are absent from the covariate data. Check 'cont_cov_l' and the dataset."
+      )
+    }
+  }
+
+  .missing_cont_utname <- unlist(Filter(Negate(is.null), map(cont_cov_l, function(x) {
+    ut <- x$UTNAME
+    if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) ut else NULL
+  }))) %>% setdiff(names(data_fin))
+  if (length(.missing_cont_utname) > 0) {
+    warning(
+      "The following continuous covariate UTNAME(s) from 'cont_cov_l' were not found ",
+      "as columns in the covariate data; affected covariates will be skipped: ",
+      paste(.missing_cont_utname, collapse = ", "), "."
+    )
+    cont_cov_l <- Filter(function(x) {
+      ut <- x$UTNAME
+      if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) !(ut %in% .missing_cont_utname) else TRUE
+    }, cont_cov_l)
+    if (length(cont_cov_l) == 0) {
+      stop(
+        "All continuous covariates in 'cont_cov_l' were removed because their UTNAME columns ",
+        "are absent from the covariate data. Check 'cont_cov_l' and the dataset."
+      )
+    }
+  }
+
+  # Validate and filter cat_cov_l against data_fin columns
+  .missing_cat_name <- map_chr(cat_cov_l, function(x) x$NAME) %>%
+    setdiff(names(data_fin))
+  if (length(.missing_cat_name) > 0) {
+    warning(
+      "The following categorical covariate NAME(s) from 'cat_cov_l' were not found ",
+      "as columns in the covariate data and will be skipped: ",
+      paste(.missing_cat_name, collapse = ", "), "."
+    )
+    cat_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cat_name), cat_cov_l)
+    if (length(cat_cov_l) == 0) {
+      stop(
+        "All categorical covariates in 'cat_cov_l' were removed because their NAME columns ",
+        "are absent from the covariate data. Check 'cat_cov_l' and the dataset."
+      )
+    }
+  }
+
   # Continuous covariates table
   cont_cov_vec <- map_chr(cont_cov_l, function(x) x$NAME)
 
   cont_cov <- map_dfr(cont_cov_l, function(x) {
-    tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+    #tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
+    btr <- if (is.null(x$UTNAME) || isTRUE(is.na(x$UTNAME))) x$NAME else x$UTNAME
+    tibble(TR = x$NAME, BTR = btr, PAR = list(x$par_vec))
   })
 
   # Categorical covariates table
   cat_cov_vec <- map_chr(cat_cov_l, function(x) x$NAME)
+
+  if (is.null(ds_catcov)){
+    ds_catcov <- ds_covs %>% select(all_of(c("ID",cat_cov_vec)))
+  }
 
   cat_unique <- map(cat_cov_vec, function(x){
     ds_catcov[[x]] %>% unique()
@@ -514,7 +609,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   ds_cc <- ds_cc %>%
     left_join(ref_lookup, by = "TR") %>%
     group_by(TR) %>%
-    mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    #mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
+    mutate(REF = if_else(REF_spec == "median", median(TVALUE), suppressWarnings(as.numeric(REF_spec)))) %>%
     select(-REF_spec) %>%
     ungroup()
 
@@ -531,7 +627,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
     data$NVALUE[idx]
   }
   ccont_lab_list <- list()
-  for (i in c(1:length(cont_cov_l))){
+  for (i in seq_along(cont_cov_l)){
     ds_cc_i <- ds_cc %>% filter(TR == cont_cov_l[[i]]$NAME)
     q_ccont <- c(unique(ds_cc_i$LP), unique(ds_cc_i$UP), unique(ds_cc_i$REF))
 
@@ -558,6 +654,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   cc_to_test <- ds_cc %>%
     select(COV = TR, BTR, PAR, mean, median, LP, UP, REF) %>%
     unique() %>%
+    mutate(across(c(LP, UP, REF), as.numeric)) %>%
     gather("KEY", "COVVAL", -COV:-median) %>%
     left_join(ccont_lab_df, by = c("COV", "KEY"))
 
@@ -593,7 +690,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   all_cov_ref <- c(cont_cov_ref, cat_cov_ref)
 
   # Combine with event table
-  ev_t_base <- ev_t_input %>%
+  ev_t_base <- et %>%
     mutate(!!!all_cov_ref)
 
   ets_cc <- fun_EtCC(ev_t_base, cc_to_test)
@@ -605,14 +702,20 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
   out_cov_par_sens = NULL
 
   out_cov_par_sens <- bind_rows(
-    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = Nsim,
-                mod_fin_i = mod_fin,
-                var_exp = var_output, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = Nsim, cat = T,
-                mod_fin_i = mod_fin,
-                var_exp = var_output, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Categorical")
+    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = npop,
+                mod_fin_i = model,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names,quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, cat = TRUE, covs_i = nice_names$COV, nsim = npop,
+                mod_fin_i = model,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names,quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Categorical")
     ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
 
   ## Summary of sensitivity of model parameters to covariate values
@@ -622,17 +725,27 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_cov = NULL,
 
   # Sensitivity of exposure parameters to covariate values
   out_cov_exp_sens <- bind_rows(
-    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = Nsim, expos = T, stime_exp = stimes_ss,
-                mod_fin_i = mod_fin,
-                var_exp = var_output, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, covs_i = nice_names$COV, nsim = Nsim, cat = T, expos = T, stime_exp = stimes_ss,
-                mod_fin_i = mod_fin,
-                var_exp = var_output, aggr = aggr, nice_names_i = nice_names,
-                theta_i = par_fin_tv, thetamat_i = m_theta_norm_pop) %>% mutate(Type = "Categorical")
+    fun_CovSens(ets_cc, expos = TRUE, covs_i = nice_names$COV, nsim = npop,
+                stime_exp = stimes,
+                mod_fin_i = model,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names, quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Continuous"),
+    fun_CovSens(ets_catc, cat = TRUE, expos = TRUE, covs_i = nice_names$COV, nsim = npop,
+                stime_exp = stimes,
+                mod_fin_i = model,
+                theta_i = par_fin_tv, omega_i = m_omega_full,
+                thetamat_i = m_theta_norm_pop,
+                nice_names_i = nice_names, quantiles = quantiles,
+                var_exp = outputs, aggr = aggr
+                ) %>% mutate(Type = "Categorical")
   ) %>% mutate(LAB = fct_inorder(LAB), Type = fct_inorder(Type))
 
-  covsens_res = list(out_cov_par_sens, t_cov_sens_par, out_cov_exp_sens)
+  covsens_res = list(PARSENS = out_cov_par_sens,
+                     SUMPARSENS = t_cov_sens_par,
+                     EXPSENS = out_cov_exp_sens)
 
   return(covsens_res)
 
