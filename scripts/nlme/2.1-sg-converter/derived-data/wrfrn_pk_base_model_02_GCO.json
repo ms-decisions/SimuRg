@@ -1,0 +1,148 @@
+{
+  "headers": [
+    {
+      "name": "ID",
+      "use": "identifier",
+      "type": {}
+    },
+    {
+      "name": "TIME",
+      "use": "time",
+      "type": {}
+    },
+    {
+      "name": "DV",
+      "use": "observation",
+      "type": "continuous"
+    },
+    {
+      "name": "DVID",
+      "use": "observationtype",
+      "type": {}
+    },
+    {
+      "name": "ADM",
+      "use": "administration",
+      "type": {}
+    },
+    {
+      "name": "AMT",
+      "use": "amount",
+      "type": {}
+    },
+    {
+      "name": "EVID",
+      "use": "eventidentifier",
+      "type": {}
+    },
+    {
+      "name": "MDV",
+      "use": "missingdependentvariable",
+      "type": {}
+    },
+    {
+      "name": "AGE",
+      "use": "covariate",
+      "type": "continuous"
+    },
+    {
+      "name": "SEX",
+      "use": "covariate",
+      "type": "categorical"
+    },
+    {
+      "name": "WEIGHT",
+      "use": "covariate",
+      "type": "continuous"
+    },
+    {
+      "name": "BMI",
+      "use": "covariate",
+      "type": "continuous"
+    },
+    {
+      "name": "CLCR",
+      "use": "covariate",
+      "type": "continuous"
+    },
+    {
+      "name": "CYP2C9",
+      "use": "covariate",
+      "type": "categorical"
+    },
+    {
+      "name": "VKORC1",
+      "use": "covariate",
+      "type": "categorical"
+    },
+    {
+      "name": "LG_WEIGHT",
+      "use": "covariate",
+      "type": "continuous"
+    },
+    {
+      "name": "LG_AGE",
+      "use": "covariate",
+      "type": "continuous"
+    }
+  ],
+  "data": "../ds-warfarin-pk.csv",
+  "model": "../model-pk-1c.txt",
+  "task_opt": {},
+  "covs": ["AGE", "SEX", "WEIGHT", "BMI", "CLCR", "CYP2C9", "VKORC1", "LG_WEIGHT", "LG_AGE"],
+  "project_name": "wrfrn_pk_base_model_02",
+  "theta": [
+    {
+      "NAME": "ka",
+      "INIT": 0.2,
+      "EST": true,
+      "TRANS": "logNormal"
+    },
+    {
+      "NAME": "Vd",
+      "INIT": 20,
+      "EST": true,
+      "TRANS": "logNormal"
+    },
+    {
+      "NAME": "CL",
+      "INIT": 0.2,
+      "EST": true,
+      "TRANS": "logNormal"
+    }
+  ],
+  "ruv": {
+    "YNAME": "y1",
+    "DVID": "1",
+    "TRANS": "normal",
+    "PRED": "Cc",
+    "ERR": "proportional",
+    "INIT": "NA",
+    "EST": true
+  },
+  "re": {
+    "init": [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ],
+    "est": [
+      [true, null, null],
+      [null, true, null],
+      [null, null, true]
+    ]
+  },
+  "occ": {
+    "init": [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ],
+    "est": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ]
+  },
+  "modelText": "DESCRIPTION:\n; Dose in mg\n; Time in hours\n\n[LONGITUDINAL]\ninput = {ka, Vd, CL}\n\nPK:\ncompartment(cmt = 1, amount = Ad)\niv(cmt = 1, adm = 1)\n\nEQUATION:\n;;; Explicit functions\nCc = Ac/Vd  \t\t\t\t\t\t; mg/L\n\n;;; Initial conditions\nAd_0 = 0  \t\t\t; mg\nAc_0 = 0  \t\t\t; mg\n\n;;; ODEs\nddt_Ad = - ka*Ad \nddt_Ac = ka*Ad - CL*Cc\n\nOUTPUT:\noutput = {Cc}"
+}
