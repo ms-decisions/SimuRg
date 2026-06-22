@@ -203,9 +203,11 @@ NULL
 #' @param emp_perc Logical. Show empirical percentiles. Default is `TRUE`
 #' @param errorbar_width Numeric. Width argument for \code{geom_errorbar}.  Default
 #'   \code{0.2}.
-#' @param est_covmat Data.frame. Parameter estimation covariance matrix.  The
-#'   first column (\code{X1}) must list parameter names; remaining columns
-#'   (named identically) form the symmetric variance–covariance matrix.
+#' @param est_covmat Data.frame. Parameter estimation variance-covariance
+#'   matrix from Monolix `FisherInformation/covarianceEstimatesSA.txt`, read
+#'   with `header = FALSE`. The first row is data (not column headers); the
+#'   first column contains parameter names and remaining columns contain matrix
+#'   values in the same parameter order.
 #' @param et Data.frame. Event table
 #' @param eta_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param par_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`

@@ -70,7 +70,7 @@ data_fin_i <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with c
 # names(est_covmat)[-1] <- pnames
 
 ### Fisher Information Matrix from the project
-est_covmat <- read.csv(file_path_fisher)
+est_covmat <- read.csv(file_path_fisher, header = FALSE)
 
 model_03 <- RxODE({
   # Doses in mg
@@ -158,6 +158,15 @@ output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
                             npop = 10,
                             cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
                             outputs = "Cc")
+# Test Visualization
+p01_parsens <- sg_covsens_vis(
+  covsens_res    = output_01,
+  #type           = "PARSENS",
+  ci_quantiles   = c("P025", "P975"),
+  ci_limits      = c(0.8, 1.25),
+  lab_y           = "Mean (95% CI) parameter\nchange from reference"
+)
+p01_parsens
 
 ####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
@@ -249,5 +258,6 @@ output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
                             npop = 10,
                             cont_cov_l, cat_cov_l, quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
                             outputs = c("Cc", "Effect"))
+
 
 

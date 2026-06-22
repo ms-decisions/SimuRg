@@ -177,8 +177,13 @@ if (na_rows > 0) {
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
 #'   \code{"mean"} (Cavg).  Default is \code{c("min", "max", "mean")}.
 #' @param seed integer. Seed for the random number generator.  Default is \code{NULL}.
+#' @param est_covmat Data.frame. Parameter estimation variance-covariance
+#'   matrix from Monolix `FisherInformation/covarianceEstimatesSA.txt`, read
+#'   with `header = FALSE`. The first row is data (not column headers); the
+#'   first column contains parameter names and remaining columns contain matrix
+#'   values in the same parameter order.
 #'
-#'@returns A named list of three elements:
+#'@returns A named list of four elements:
 #' \describe{
 #'   \item{\code{$PARSENS}}{data.frame.
 #'     Full sensitivity results for model parameters: percent change
@@ -193,6 +198,9 @@ if (na_rows > 0) {
 #'   \item{\code{$EXPSENS}}{data.frame.
 #'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
 #'     structured identically to \code{$PARSENS}.}
+#'   \item{\code{$COVREF}}{data.frame.
+#'     Reference values used for each covariate with columns
+#'     \code{COV}, \code{NICEN}, \code{REF_VALUE}, and \code{REF_SOURCE}.}
 #' }
 #'
 #' @details
@@ -689,6 +697,53 @@ if (!is.null(seed)) {
 
   all_cov_ref <- c(cont_cov_ref, cat_cov_ref)
 
+  cont_cov_ref_tbl <- map_dfr(cont_cov_vec, function(cov_name) {
+    cov_def <- cont_cov_l[[cov_name]]
+    nicen <- cov_def$NICENAME
+    if (is.null(nicen) || is.na(nicen) || nicen == "") nicen <- cov_name
+
+    ref_row <- cc_to_test %>%
+      filter(COV == cov_name, KEY == "REF") %>%
+      slice(1)
+
+    ref_value <- ref_row$BCOVVAL
+    if (length(ref_value) == 0 || is.na(ref_value)) {
+      ref_value <- ref_row$COVVAL
+    }
+    if (length(ref_value) == 0 || is.na(ref_value)) {
+      ref_value <- NA_character_
+    } else {
+      ref_value <- as.character(ref_value)
+    }
+
+    ref_source <- "reference"
+    if (is.character(cov_def$REF) && tolower(cov_def$REF) == "median") {
+      ref_source <- "median"
+    }
+
+    tibble(
+      COV = cov_name,
+      NICEN = nicen,
+      REF_VALUE = ref_value,
+      REF_SOURCE = ref_source
+    )
+  })
+
+  cat_cov_ref_tbl <- map_dfr(cat_cov_vec, function(cov_name) {
+    cov_def <- cat_cov_l[[cov_name]]
+    nicen <- cov_def$NICENAME
+    if (is.null(nicen) || is.na(nicen) || nicen == "") nicen <- cov_name
+
+    tibble(
+      COV = cov_name,
+      NICEN = nicen,
+      REF_VALUE = as.character(cat_cov_ref[[cov_name]]),
+      REF_SOURCE = "reference"
+    )
+  })
+
+  cov_ref_tbl <- bind_rows(cont_cov_ref_tbl, cat_cov_ref_tbl)
+
   # Combine with event table
   ev_t_base <- et %>%
     mutate(!!!all_cov_ref)
@@ -745,7 +800,8 @@ if (!is.null(seed)) {
 
   covsens_res = list(PARSENS = out_cov_par_sens,
                      SUMPARSENS = t_cov_sens_par,
-                     EXPSENS = out_cov_exp_sens)
+                     EXPSENS = out_cov_exp_sens,
+                     COVREF = cov_ref_tbl)
 
   return(covsens_res)
 

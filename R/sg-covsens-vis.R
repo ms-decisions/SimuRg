@@ -223,6 +223,50 @@ sg_covsens_vis <- function(
     ds <- dplyr::filter(ds, !VAR %in% exclude_vars)
   }
 
+  ### Caption writer
+  if (!is.null(exclude_vars)) {
+    ds <- dplyr::filter(ds, !VAR %in% exclude_vars)
+  }
+  .format_ref_value <- function(x) {
+    if (length(x) == 0 || is.null(x) || is.na(x)) return(NA_character_)
+    x_num <- suppressWarnings(as.numeric(x))
+    if (!is.na(x_num)) {
+      return(format(signif(x_num, 4), trim = TRUE, scientific = FALSE))
+    }
+    as.character(x)
+  }
+
+  .build_covref_caption <- function(x) {
+    if (!"COVREF" %in% names(x)) return(NULL)
+    ref_ds <- x$COVREF
+    required_cols <- c("NICEN", "REF_VALUE", "REF_SOURCE")
+    if (!all(required_cols %in% colnames(ref_ds))) return(NULL)
+
+    ref_ds <- ref_ds %>%
+      dplyr::filter(!is.na(NICEN), !is.na(REF_VALUE)) %>%
+      dplyr::distinct(NICEN, .keep_all = TRUE)
+    if (nrow(ref_ds) == 0) return(NULL)
+
+    ref_lines <- vapply(seq_len(nrow(ref_ds)), function(i) {
+      nicen <- ref_ds$NICEN[[i]]
+      ref_value <- .format_ref_value(ref_ds$REF_VALUE[[i]])
+      ref_source <- ref_ds$REF_SOURCE[[i]]
+      if (is.null(ref_source) || is.na(ref_source) || ref_source == "") {
+        ref_source <- "reference"
+      }
+      paste0(nicen, " = ", ref_value, " (", ref_source, ").")
+    }, character(1))
+
+    paste(ref_lines, collapse = "\n")
+  }
+
+  if (is.null(cap)) {
+    cap <- .build_covref_caption(covsens_res)
+  }
+
+
+  ###
+
   p <- ggplot2::ggplot(
     data = ds,
     ggplot2::aes(
