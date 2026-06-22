@@ -14,6 +14,20 @@ funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
                    `Cmax`    = ~max(., na.rm = TRUE))
 
 #' @noRd
+calc_auc_trapz <- function(time, value){
+  ok <- !(is.na(time) | is.na(value))
+  t <- as.numeric(time[ok])
+  y <- as.numeric(value[ok])
+  if(length(t) < 2){
+    return(NA_real_)
+  }
+  ord <- order(t)
+  t <- t[ord]
+  y <- y[ord]
+  sum(diff(t) * (head(y, -1) + tail(y, -1)) / 2)
+}
+
+#' @noRd
 fun_EtCC <- function(et_base_i, cc_ds_i, cat = FALSE){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
     cc_ds_n <- cc_ds_i %>% filter(COV == n)
@@ -50,6 +64,7 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
 
   #Test
   # et_sim_i = ets_cc
+  # mod_fin_i = model
   # covs_i = nice_names$COV
   # expos = T
   # stime_exp = stimes
@@ -57,6 +72,10 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
   # var_exp = "Cc"
   # theta_i = par_fin_tv
   # thetamat_i = m_theta_norm_pop
+  # omega_i = m_omega_full
+  # aggr = c("min", "max", "mean", "auc")
+
+
 
 
   keep_i <- c("Regimen", "KEY", "COV", "COVVAL")
@@ -79,6 +98,21 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       sim_raw <- sg_sim(mod_fin_i, et_i, stimes = stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
+      #Test diagnostic plots
+      # plot_sim_raw <- ggplot2::ggplot(
+      #   sim_raw,
+      #   ggplot2::aes(
+      #     x = TIME,
+      #     y = as.numeric(VALUE),
+      #     color = factor(KEY),
+      #     group = interaction(KEY, POPN)
+      #   )
+      # ) +
+      #   ggplot2::geom_line(alpha = 0.7, linewidth = 0.6) +
+      #   ggplot2::facet_wrap(~VAR, scales = "free_y") +
+      #   ggplot2::labs(x = "Time", y = "Value", color = "Scenario") +
+      #   ggplot2::theme_bw()
+      # plot_sim_raw
 
       # message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
       #                 sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
@@ -98,17 +132,34 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       }
       ###
 
-      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
-      stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
-      funSum_exp_i <- funSum_exp[unname(aggr_map[aggr])]
+      # aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
+      # stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
+      # funSum_exp_i <- funSum_exp[unname(aggr_map[aggr])]
+
+
+      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax", "auc" = "Cauc")
+      stopifnot("aggr must only contain 'mean', 'min', 'max', 'auc'" = all(aggr %in% names(aggr_map)))
+      metric_keep <- unname(aggr_map[aggr])
 
       sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
 
+      # sim_i <- sim_i %>%
+      # group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
+      #   gather("METRIC", "VALUE", -all_of(c("POPN", "VAR", keep_i, covs_i))) %>%
+      #   mutate(VAR = paste(VAR, METRIC, sep = "_")) %>%
+      #   select(-METRIC)
+
       sim_i <- sim_i %>%
-        # group_by_at(vars(all_of(c("POPN", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
-        # gather("VAR", "VALUE", -all_of(c("POPN", keep_i, covs_i)))
-      group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
-        gather("METRIC", "VALUE", -all_of(c("POPN", "VAR", keep_i, covs_i))) %>%
+      group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>%
+        summarise(
+          Cavg = mean(VALUE, na.rm = TRUE),
+          Cmin = min(VALUE, na.rm = TRUE),
+          Cmax = max(VALUE, na.rm = TRUE),
+          Cauc = calc_auc_trapz(TIME, VALUE),
+          .groups = "drop"
+        ) %>%
+        select(all_of(c("POPN", "VAR", keep_i, covs_i, metric_keep))) %>%
+        gather("METRIC", "VALUE", all_of(metric_keep)) %>%
         mutate(VAR = paste(VAR, METRIC, sep = "_")) %>%
         select(-METRIC)
 
@@ -778,14 +829,14 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   out_cov_par_sens = NULL
 
   out_cov_par_sens <- bind_rows(
-    fun_CovSens(ets_cc, covs_i = nice_names$COV, nsim = npop,
+    fun_CovSens(et_sim_i = ets_cc, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
                 theta_i = par_fin_tv, omega_i = m_omega_full,
                 thetamat_i = m_theta_norm_pop,
                 nice_names_i = nice_names,quantiles = quantiles,
                 var_exp = outputs, aggr = aggr
                 ) %>% mutate(Type = "Continuous"),
-    fun_CovSens(ets_catc, cat = TRUE, covs_i = nice_names$COV, nsim = npop,
+    fun_CovSens(et_sim_i = ets_catc, cat = TRUE, covs_i = nice_names$COV, nsim = npop,
                 mod_fin_i = model,
                 theta_i = par_fin_tv, omega_i = m_omega_full,
                 thetamat_i = m_theta_norm_pop,
