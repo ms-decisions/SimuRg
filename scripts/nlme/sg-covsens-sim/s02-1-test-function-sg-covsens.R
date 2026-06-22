@@ -148,7 +148,7 @@ output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
                          est_covmat = est_covmat,
                          npop = 10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
-                         outputs = "Cc", seed = 10)
+                         outputs = "Cc", seed = 10, ci = 90)
 #write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
 #Test with parameter and covariate datasets
@@ -161,7 +161,7 @@ output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
 # Test Visualization
 p01_parsens <- sg_covsens_vis(
   covsens_res    = output_01,
-  #type           = "PARSENS",
+  plot_type      = "PARSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
   lab_y           = "Mean (95% CI) parameter\nchange from reference"

@@ -80,17 +80,23 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
 
-outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
-outputs_label <- paste(outputs_run, collapse = ", ")
-na_rows <- sum(is.na(sim_raw$VALUE))
-total_rows <- nrow(sim_raw)
-na_pct <- if (total_rows > 0) 100 * na_rows / total_rows else 0
-if (na_rows > 0) {
-  message(sprintf(
-    "Simulation completed for output(s): %s. NA rows detected: %d / %d (%.1f%%).",
-    outputs_label, na_rows, total_rows, na_pct
-  ))
-}
+      # message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
+      #                 sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
+      #                 100 * mean(is.na(sim_raw$VALUE))))
+
+      #Warning / success message
+      outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
+      outputs_label <- paste(outputs_run, collapse = ", ")
+      na_rows <- sum(is.na(sim_raw$VALUE))
+      total_rows <- nrow(sim_raw)
+      na_pct <- if (total_rows > 0) 100 * na_rows / total_rows else 0
+      if (na_rows > 0) {
+        message(sprintf(
+          "Simulation completed for output(s): %s. NA rows detected: %d / %d (%.1f%%).",
+          outputs_label, na_rows, total_rows, na_pct
+        ))
+      }
+      ###
 
       aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
       stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
@@ -175,15 +181,12 @@ if (na_rows > 0) {
 #' @param aggr character vector. Exposure aggregation metric(s) applied over
 #'   the simulation time grid.
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
-#'   \code{"mean"} (Cavg).  Default is \code{c("min", "max", "mean")}.
+#' @param ci integer. Confidence interval (CI) level as a percentage.
+#'   Allowed values: \code{95}, \code{90}, \code{80}, \code{70}, \code{50}.
+#'   Default is \code{95}.
 #' @param seed integer. Seed for the random number generator.  Default is \code{NULL}.
-#' @param est_covmat Data.frame. Parameter estimation variance-covariance
-#'   matrix from Monolix `FisherInformation/covarianceEstimatesSA.txt`, read
-#'   with `header = FALSE`. The first row is data (not column headers); the
-#'   first column contains parameter names and remaining columns contain matrix
-#'   values in the same parameter order.
 #'
-#'@returns A named list of four elements:
+#'@returns A named list of three elements:
 #' \describe{
 #'   \item{\code{$PARSENS}}{data.frame.
 #'     Full sensitivity results for model parameters: percent change
@@ -194,13 +197,10 @@ if (na_rows > 0) {
 #'   \item{\code{$SUMPARSENS}}{data.frame.
 #'     Compact summary table with columns \code{Parameter},
 #'     \code{Covariate}, \code{Cov. percentile}, \code{Cov. value},
-#'     \code{Mean} and \code{90\%CI}.}
+#'     \code{Mean} and a \code{<ci>\%CI} column (bounds from \code{ci}).}
 #'   \item{\code{$EXPSENS}}{data.frame.
 #'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
 #'     structured identically to \code{$PARSENS}.}
-#'   \item{\code{$COVREF}}{data.frame.
-#'     Reference values used for each covariate with columns
-#'     \code{COV}, \code{NICEN}, \code{REF_VALUE}, and \code{REF_SOURCE}.}
 #' }
 #'
 #' @details
@@ -365,7 +365,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
                            npop = 5,
                            cont_cov_l, cat_cov_l,  quantiles = c(0.1, 0.9),
                            outputs  = "Cc", aggr = c("min", "max", "mean"),
-                           seed = NULL){
+                           seed = NULL, ci = 95){
 
   # --- Input validation ---
   # Data source: must provide either fpath_i alone, or both ds_parest and ds_covs
@@ -401,15 +401,15 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   if (missing(cont_cov_l)) stop("'cont_cov_l' is required: provide the continuous covariate definition list.")
   if (missing(cat_cov_l))  stop("'cat_cov_l' is required: provide the categorical covariate definition list.")
 
-if (!is.null(seed)) {
-  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-  if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv)
-  on.exit({
-    if (had_seed) assign(".Random.seed", old_seed, envir = .GlobalEnv)
-    else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) rm(".Random.seed", envir = .GlobalEnv)
-  }, add = TRUE)
-  set.seed(as.integer(seed))
-}
+  if (!is.null(seed)) {
+    had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+    if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv)
+    on.exit({
+      if (had_seed) assign(".Random.seed", old_seed, envir = .GlobalEnv)
+      else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) rm(".Random.seed", envir = .GlobalEnv)
+    }, add = TRUE)
+    set.seed(as.integer(seed))
+  }
   # Warn about non-default aggregation choices to alert on typos
   valid_aggr <- c("min", "max", "mean")
   bad_aggr   <- setdiff(aggr, valid_aggr)
@@ -419,6 +419,26 @@ if (!is.null(seed)) {
             ". Valid options are: ", paste(valid_aggr, collapse = ", "), ".")
     aggr <- valid_aggr
   }
+
+  ci <- as.numeric(ci)
+  ci_allowed <- c(95, 90, 80, 70, 50)
+  if (!ci %in% ci_allowed) {
+    warning("'ci' must be one of: ", paste(ci_allowed, collapse = ", "), ". Using 95.")
+    ci <- 95
+  }
+  # Tibble for CI - quantile correspondence (symmetric central intervals)
+  #quantiles <- c("P025", "P05", "P10", "P20", "P30", "P50", "P70", "P80", "P90", "P95")
+  ci_table <- tibble(
+    CI   = c(95, 90, 80, 70, 50),
+    LOW  = c("P025", "P05", "P10", "P15", "P25"),
+    HIGH = c("P975", "P95", "P90", "P85", "P75")
+  )
+  ci_bounds <- ci_table %>% filter(CI == ci)
+  ci_low  <- ci_bounds$LOW
+  ci_high <- ci_bounds$HIGH
+  ci_col  <- paste0(ci, "%CI")
+
+  
   # -------------------------
   ds_catcov <- NULL
   if((!is.null(fpath_i))&(is.null(ds_parest))){
@@ -697,6 +717,7 @@ if (!is.null(seed)) {
 
   all_cov_ref <- c(cont_cov_ref, cat_cov_ref)
 
+  ### Create cov ref table for output
   cont_cov_ref_tbl <- map_dfr(cont_cov_vec, function(cov_name) {
     cov_def <- cont_cov_l[[cov_name]]
     nicen <- cov_def$NICENAME
@@ -710,6 +731,7 @@ if (!is.null(seed)) {
     if (length(ref_value) == 0 || is.na(ref_value)) {
       ref_value <- ref_row$COVVAL
     }
+
     if (length(ref_value) == 0 || is.na(ref_value)) {
       ref_value <- NA_character_
     } else {
@@ -775,8 +797,11 @@ if (!is.null(seed)) {
 
   ## Summary of sensitivity of model parameters to covariate values
   t_cov_sens_par <- out_cov_par_sens %>% mutate_at(vars(mean:P975), signif, 3) %>%
-    mutate(`90%CI` = str_c(P05, ", ", P95), KEY = ifelse(is.na(KEY), "Category", KEY), BCOVVAL = as.character(BCOVVAL), BCOVVAL = ifelse(is.na(BCOVVAL), CATDES, BCOVVAL)) %>%
-    select(Parameter = VAR, Covariate = NICEN, `Cov. percentile` = KEY, `Cov. value` = BCOVVAL, Mean = mean, `90%CI`)
+    mutate(!!ci_col := str_c(.data[[ci_low]], ", ", .data[[ci_high]]),
+           KEY = ifelse(is.na(KEY), "Category", KEY),
+           BCOVVAL = as.character(BCOVVAL),
+           BCOVVAL = ifelse(is.na(BCOVVAL), CATDES, BCOVVAL)) %>%
+    select(Parameter = VAR, Covariate = NICEN, `Cov. percentile` = KEY, `Cov. value` = BCOVVAL, Mean = mean, all_of(ci_col))
 
   # Sensitivity of exposure parameters to covariate values
   out_cov_exp_sens <- bind_rows(
