@@ -205,12 +205,12 @@
 #' @import dplyr
 #' @import tidyr
 #' @export
-sg_sim <- function(model, et, fpath_i = NULL, stimes = NULL, outputs = NULL, theta = NULL,
+sg_sim <- function(model, et,  stimes = NULL, outputs = NULL, theta = NULL,
                    omega = NULL, sigma = NULL, thetamat = NULL, covs = NULL,
                    npop = 1, nsub = 1, aggr = NULL, addcov = TRUE, keep = NULL,
                    scale = NULL, covint = "locf", inits = NULL,
                    byID = NULL, byPOP = NULL, shared = NULL,
-                   ncores = 1, atol = 1e-8, rtol = 1e-6, ...){
+                   ncores = 1, atol = 1e-8, rtol = 1e-6, fpath_i = NULL, ...){
   if (!is.null(fpath_i)) {
     smrg_obj <- read_smrg_obj(fpath_i)
 

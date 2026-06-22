@@ -73,7 +73,8 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
     if(!expos){
       par_i <- unique(et_i$PAR)
       if(is.list(par_i)){ par_i <- par_i[[1]] }
-      sim_i <- sg_sim(mod_fin_i, et_i, 0, outputs = par_i, theta = theta_i, omega = omega_i,
+      sim_i <- sg_sim(model = mod_fin_i, et = et_i, 0,
+                      outputs = par_i, theta = theta_i, omega = omega_i,
                       thetamat = thetamat_i, covs = covs_i, npop = nsim, keep = keep_i)
     } else {
       sim_raw <- sg_sim(mod_fin_i, et_i, stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
