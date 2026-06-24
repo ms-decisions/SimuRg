@@ -1370,8 +1370,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
     gco_path <- file.path(output_dir, str_c(proj_name, "_GCO.json"))
     gfo_path <- file.path(output_dir, str_c(proj_name, "_GFO.json"))
-    writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null"), gco_path)
-    writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null"), gfo_path)
+    writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null", digits = NA), gco_path)
+    writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null", digits = NA), gfo_path)
 
     gco_rdata_path <- file.path(output_dir, str_c(proj_name, "_GCO.RData"))
     gfo_rdata_path <- file.path(output_dir, str_c(proj_name, "_GFO.RData"))
