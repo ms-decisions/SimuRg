@@ -58,7 +58,7 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
                         mod_fin_i,
                         theta_i, omega_i, thetamat_i, nice_names_i,
                         quantiles = c(0.1,0.9),
-                        var_exp = "Cc", aggr = c("min", "max", "mean")) #nsim=1000
+                        var_exp = "Cc", aggr = c("min", "max", "mean", "auc")) #nsim=1000
 {
 
 
@@ -462,7 +462,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     set.seed(as.integer(seed))
   }
   # Warn about non-default aggregation choices to alert on typos
-  valid_aggr <- c("min", "max", "mean")
+  valid_aggr <- c("min", "max", "mean", "auc")
   bad_aggr   <- setdiff(aggr, valid_aggr)
   if (length(bad_aggr) > 0) {
     warning("Unrecognised aggregation function(s) in 'aggr': ",
