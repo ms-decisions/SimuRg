@@ -10,6 +10,9 @@
 * bug in `sg_gof_tp()` was fixed [SD-1458]
 * bugs in `sg_fit()` and `sg_converter()` were fixed [SD-1527], [SD-1532], [SD-1545]
 
+## Documentation:
+* GCO and GFO objects added to documentation
+
 # SimuRg 0.2.0(2026-05-14)
 
 ## Bug fixes: 
