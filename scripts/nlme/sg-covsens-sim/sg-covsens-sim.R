@@ -14,6 +14,20 @@ funSum_exp <- list(`Cavg`   = ~mean(., na.rm = TRUE),
                    `Cmax`    = ~max(., na.rm = TRUE))
 
 #' @noRd
+calc_auc_trapz <- function(time, value){
+  ok <- !(is.na(time) | is.na(value))
+  t <- as.numeric(time[ok])
+  y <- as.numeric(value[ok])
+  if(length(t) < 2){
+    return(NA_real_)
+  }
+  ord <- order(t)
+  t <- t[ord]
+  y <- y[ord]
+  sum(diff(t) * (head(y, -1) + tail(y, -1)) / 2)
+}
+
+#' @noRd
 fun_EtCC <- function(et_base_i, cc_ds_i, cat = FALSE){
   et_scov_i <- unique(cc_ds_i$COV) %>% map(function(n){
     cc_ds_n <- cc_ds_i %>% filter(COV == n)
@@ -83,6 +97,21 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       # message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
       #                 sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
       #                 100 * mean(is.na(sim_raw$VALUE))))
+      #Test diagnostic plots
+      plot_sim_raw <- ggplot2::ggplot(
+        sim_raw,
+        ggplot2::aes(
+          x = TIME,
+          y = as.numeric(VALUE),
+          color = factor(KEY),
+          group = interaction(KEY, POPN)
+        )
+      ) +
+        ggplot2::geom_line(alpha = 0.7, linewidth = 0.6) +
+        ggplot2::facet_wrap(~VAR, scales = "free_y") +
+        ggplot2::labs(x = "Time", y = "Value", color = "Scenario") +
+        ggplot2::theme_bw()
+      plot_sim_raw
 
       #Warning / success message
       outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
@@ -98,17 +127,23 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       }
       ###
 
-      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax")
-      stopifnot("aggr must only contain 'mean', 'min', 'max'" = all(aggr %in% names(aggr_map)))
-      funSum_exp_i <- funSum_exp[unname(aggr_map[aggr])]
+      aggr_map <- c("mean" = "Cavg", "min" = "Cmin", "max" = "Cmax", "auc" = "C_AUC")
+      stopifnot("aggr must only contain 'mean', 'min', 'max', 'auc'" = all(aggr %in% names(aggr_map)))
+      metric_keep <- unname(aggr_map[aggr])
 
       sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
 
       sim_i <- sim_i %>%
-        # group_by_at(vars(all_of(c("POPN", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
-        # gather("VAR", "VALUE", -all_of(c("POPN", keep_i, covs_i)))
-      group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
-        gather("METRIC", "VALUE", -all_of(c("POPN", "VAR", keep_i, covs_i))) %>%
+        group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>%
+        summarise(
+          Cavg = mean(VALUE, na.rm = TRUE),
+          Cmin = min(VALUE, na.rm = TRUE),
+          Cmax = max(VALUE, na.rm = TRUE),
+          C_AUC = calc_auc_trapz(TIME, VALUE),
+          .groups = "drop"
+        ) %>%
+        select(all_of(c("POPN", "VAR", keep_i, covs_i, metric_keep))) %>%
+        gather("METRIC", "VALUE", all_of(metric_keep)) %>%
         mutate(VAR = paste(VAR, METRIC, sep = "_")) %>%
         select(-METRIC)
 
@@ -181,6 +216,7 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
 #' @param aggr character vector. Exposure aggregation metric(s) applied over
 #'   the simulation time grid.
 #'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
+#'   \code{"mean"} (Cavg), \code{"auc"} (C_AUC).
 #' @param ci integer. Confidence interval (CI) level as a percentage.
 #'   Allowed values: \code{95}, \code{90}, \code{80}, \code{70}, \code{50}.
 #'   Default is \code{95}.
@@ -199,7 +235,7 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
 #'     \code{Covariate}, \code{Cov. percentile}, \code{Cov. value},
 #'     \code{Mean} and a \code{<ci>\%CI} column (bounds from \code{ci}).}
 #'   \item{\code{$EXPSENS}}{data.frame.
-#'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
+#'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg, C_AUC) to covariates,
 #'     structured identically to \code{$PARSENS}.}
 #' }
 #'
@@ -411,7 +447,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     set.seed(as.integer(seed))
   }
   # Warn about non-default aggregation choices to alert on typos
-  valid_aggr <- c("min", "max", "mean")
+  valid_aggr <- c("min", "max", "mean", "auc")
   bad_aggr   <- setdiff(aggr, valid_aggr)
   if (length(bad_aggr) > 0) {
     warning("Unrecognised aggregation function(s) in 'aggr': ",

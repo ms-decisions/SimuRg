@@ -144,7 +144,7 @@ stimes_ss <- fun_stimes_ss(ss_cycle)
 ######
 #Test with GFO
 output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
-                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes_ss, et = ev_t_input,
+                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes = stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
                          npop = 10,
                          cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
@@ -162,9 +162,10 @@ output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
 p01_parsens <- sg_covsens_vis(
   covsens_res    = output_01,
   plot_type      = "PARSENS",
-  ci_quantiles   = c("P025", "P975"),
+  #ci_quantiles   = c("P025", "P975"),
+  ci = 50,
   ci_limits      = c(0.8, 1.25),
-  lab_y           = "Mean (95% CI) parameter\nchange from reference"
+  lab_y           = "standard"
 )
 p01_parsens
 
