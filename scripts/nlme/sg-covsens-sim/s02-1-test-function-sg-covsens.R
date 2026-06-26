@@ -1,23 +1,24 @@
 #Title: Test sg_covsens_sim() with wrfrn_03 model
-# Covariates: Vd_VKORC1_gentyp; CL_BMI; no correlations
+# Covariates: Vd_VKORC1_gentyp; CL_BMI; no correlatio
 
+#source("scripts/nlme/sg-covsens-sim/sg-covsens-sim-new.R")
 ####------ Function parameters ------####
 #quantiles <- c(0.2, 0.8)
 cont_cov_l <- list(
   BMI = list(
-    NAME = "BMI",
-    UTNAME = NULL, #(or NA or NULL if UTNAME should be = NAME),
-    REF = "median", #“median” or user-defined number,
-    NICENAME = "Body mass index", #nice name or NULL,
+    #NAME = "BMI",
+    #UTNAME = NULL, #(or NA or NULL if UTNAME should be = NAME),
+    #REF = "median", #“median” or user-defined number,
+    #NICENAME = "Body mass index", #nice name or NULL,
     par_vec = c("CL")
   ))
 
 
 cat_cov_l <- list(
   VKORC1_gentyp = list(
-    NAME = "VKORC1_gentyp",
-    NICENAME = "VKORC1 genotype", #nice name or NULL
-    REF = NULL, # NULL or user-defined value,
+    #NAME = "VKORC1_gentyp",
+    #NICENAME = "VKORC1 genotype", #nice name or NULL
+    #REF = NULL, # NULL or user-defined value,
     par_vec = c("Vd") #c("Vd", "CL")
   ))
 
@@ -147,7 +148,7 @@ output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
                             ds_parest = NULL, ds_covs = NULL, model = model_03, stimes = stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
                          npop = 10,
-                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
+                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean","auc"),
                          outputs = "Cc", seed = 10, ci = 90)
 #write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
@@ -156,18 +157,29 @@ output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
                             model = model_03, stimes_ss, et = ev_t_input,
                             est_covmat = est_covmat,
                             npop = 10,
-                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
+                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean","auc"  ),
                             outputs = "Cc")
 # Test Visualization
 p01_parsens <- sg_covsens_vis(
-  covsens_res    = output_01,
+  covsens_res    = output_02,
   plot_type      = "PARSENS",
   #ci_quantiles   = c("P025", "P975"),
   ci = 50,
   ci_limits      = c(0.8, 1.25),
   lab_y           = "standard"
 )
-p01_parsens
+print(p01_parsens)
+
+p02_expsens <- sg_covsens_vis(
+  covsens_res    = output_02,
+  plot_type      = "EXPSENS",
+  #ci_quantiles   = c("P025", "P975"),
+  ci = 50,
+  ci_limits      = c(0.8, 1.25),
+  lab_y           = "standard",
+  var_nice_names = c(Cc_Cauc = "Conct AUC",Cc_Cmax = "Conct Max",Cc_Cavg = "Conct Mean" )
+)
+p02_expsens
 
 ####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
