@@ -25,6 +25,10 @@
 #' @param cap Optional figure caption, passed to
 #'   \code{ggplot2::labs(caption = ...)} (e.g. text describing reference
 #'   covariate values).  Default \code{NULL}.
+#' @param var_nice_names Named character vector. Display labels for exposure
+#'   facet rows when \code{plot_type = "EXPSENS"}. Names must match the unique
+#'   values in \code{VAR} (after \code{exclude_vars}); length equals the number
+#'   of those unique values. Default \code{NULL} (facets use \code{VAR}).
 #'
 #' @details
 #' Values on the y-axis are ratios relative to the reference scenario: \code{1}
@@ -197,8 +201,9 @@ sg_covsens_vis <- function(
     palette    = MSDcol[c(1, 3, 4, 5, 6, 7)],
     point_size     = 2.5,
     errorbar_width = 0.2,
-    lab_y           = "standard", 
-    cap        = "standard"
+    lab_y           = "standard",
+    cap        = "standard",
+    var_nice_names = NULL
 ) {
   plot_type <- match.arg(plot_type)
 
@@ -222,6 +227,46 @@ sg_covsens_vis <- function(
 
   if (!is.null(exclude_vars)) {
     ds <- dplyr::filter(ds, !VAR %in% exclude_vars)
+  }
+
+  # if (!is.null(var_nice_names)) {
+  #   if (!is.character(var_nice_names) || length(var_nice_names) != length(covsens_res[[plot_type]]$VAR)) {
+  #     stop("'var_nice_names' must be a character vector of the same length as the number of variables in the sensitivity table.")
+  #   }
+  #   ds <- ds %>%
+  #     mutate(VAR_NICE = var_nice_names) %>%
+  #     relocate(VAR_NICE, .after = VAR)
+  # }
+
+  if (!is.null(var_nice_names)) {
+    if (!is.character(var_nice_names)) {
+      stop("'var_nice_names' must be a named character vector.")
+    }
+    if (is.null(names(var_nice_names)) || any(names(var_nice_names) == "")) {
+      stop("'var_nice_names' must be a named character vector; names must match unique 'VAR' values.")
+    }
+    var_unique <- unique(as.character(ds$VAR))
+    if (length(var_nice_names) != length(var_unique)) {
+      stop(
+        "'var_nice_names' must have length ", length(var_unique),
+        " (one label per unique 'VAR' value)."
+      )
+    }
+    if (!setequal(names(var_nice_names), var_unique)) {
+      stop(
+        "'var_nice_names' names must match the unique values in 'VAR': ",
+        paste(var_unique, collapse = ", ")
+      )
+    }
+    nice_levels <- unname(var_nice_names[as.character(var_unique)])
+    ds <- ds %>%
+      mutate(
+        VAR_NICE = factor(
+          unname(var_nice_names[as.character(VAR)]),
+          levels = nice_levels
+        )
+      ) %>%
+      relocate(VAR_NICE, .after = VAR)
   }
  ###
  # Ci-quantiles tibble
@@ -371,6 +416,11 @@ sg_covsens_vis <- function(
     cap <- .build_covref_caption(covsens_res)
   }
 
+  facet_layer <- if (plot_type == "EXPSENS" && !is.null(var_nice_names)) {
+    ggplot2::facet_grid(VAR_NICE ~ ., scales = "free")
+  } else {
+    ggplot2::facet_grid(VAR ~ ., scales = "free")
+  }
 
   ###
 
@@ -404,7 +454,8 @@ sg_covsens_vis <- function(
     ggplot2::scale_color_manual(values = palette) +
     ggplot2::scale_y_continuous(breaks = scales::pretty_breaks(7)) +
     ggplot2::labs(x = NULL, y = lab_y, caption = cap) +
-    ggplot2::facet_grid(VAR ~ ., scales = "free") +
+    #ggplot2::facet_grid(VAR ~ ., scales = "free") +
+    facet_layer +
     ggplot2::coord_flip() +
     ggplot2::theme_bw() +
     ggplot2::theme(
