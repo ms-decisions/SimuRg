@@ -194,6 +194,54 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
   sens_out <- sens_out %>% mutate_at(vars(mean:P975), function(p){p/100+1})
   return(sens_out)
 }
+
+#' @noRd
+normalize_cont_cov_l <- function(cont_cov_l) {
+  if (length(cont_cov_l) == 0) {
+    return(cont_cov_l)
+  }
+  purrr::imap(cont_cov_l, function(cov_def, cov_name) {
+    if (!is.list(cov_def)) {
+      stop("Each element of 'cont_cov_l' must be a list; invalid entry: ", cov_name, ".")
+    }
+    if (!"par_vec" %in% names(cov_def) || is.null(cov_def$par_vec) || length(cov_def$par_vec) == 0) {
+      stop("Each continuous covariate in 'cont_cov_l' must include a non-empty 'par_vec'; missing for: ", cov_name, ".")
+    }
+    list(
+      UTNAME = if ("UTNAME" %in% names(cov_def)) cov_def$UTNAME else NULL,
+      REF = if ("REF" %in% names(cov_def)) cov_def$REF else "median",
+      NICENAME = if ("NICENAME" %in% names(cov_def)) cov_def$NICENAME else NULL,
+      par_vec = cov_def$par_vec
+    )
+  })
+}
+
+#' @noRd
+normalize_cat_cov_l <- function(cat_cov_l) {
+  if (length(cat_cov_l) == 0) {
+    return(cat_cov_l)
+  }
+  purrr::imap(cat_cov_l, function(cov_def, cov_name) {
+    if (!is.list(cov_def)) {
+      stop("Each element of 'cat_cov_l' must be a list; invalid entry: ", cov_name, ".")
+    }
+    if (!"par_vec" %in% names(cov_def) || is.null(cov_def$par_vec) || length(cov_def$par_vec) == 0) {
+      stop("Each categorical covariate in 'cat_cov_l' must include a non-empty 'par_vec'; missing for: ", cov_name, ".")
+    }
+    list(
+      REF = if ("REF" %in% names(cov_def)) cov_def$REF else NULL,
+      NICENAME = if ("NICENAME" %in% names(cov_def)) cov_def$NICENAME else NULL,
+      par_vec = cov_def$par_vec
+    )
+  })
+}
+
+#' @noRd
+cov_nicename <- function(cov_def, cov_name) {
+  nicen <- cov_def$NICENAME
+  if (is.null(nicen) || is.na(nicen) || nicen == "") cov_name else nicen
+}
+
 #####
 
 #' Covariate sensitivity analysis via simulation
@@ -274,21 +322,23 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
 #' library(dplyr)
 #' library(rxode2)
 #'
-#' # --- Covariate definitions ---
+#' # --- Covariate definitions (only par_vec is required) ---
 #' cont_cov_l <- list(
-#'   LG_AGE = list(NAME = "LG_AGE", UTNAME = "AGE",
-#'                 REF = "median", NICENAME = "Age, years",
-#'                 par_vec = c("CL")),
-#'   LG_WEIGHT = list(NAME = "LG_WEIGHT", UTNAME = "WEIGHT",
-#'                    REF = "median", NICENAME = "Weight, kg",
-#'                    par_vec = c("Vd"))
+#'   LG_AGE = list(par_vec = c("CL")),
+#'   LG_WEIGHT = list(
+#'     UTNAME = "WEIGHT",
+#'     NICENAME = "Weight, kg",
+#'     par_vec = c("Vd")
+#'   )
 #' )
 #'
 #' cat_cov_l <- list(
-#'   SEX = list(NAME = "SEX", NICENAME = "Sex",
-#'              REF = "0", par_vec = c("ka")),
-#'   CYP2C9 = list(NAME = "CYP2C9", NICENAME = "CYP2C9 genotype",
-#'                 REF = NULL, par_vec = c("CL"))
+#'   SEX = list(par_vec = c("ka")),
+#'   CYP2C9 = list(
+#'     REF = "1",
+#'     NICENAME = "CYP2C9 genotype",
+#'     par_vec = c("CL")
+#'   )
 #' )
 #'
 #' # --- Dosing ---
@@ -452,6 +502,9 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   if (missing(cont_cov_l)) stop("'cont_cov_l' is required: provide the continuous covariate definition list.")
   if (missing(cat_cov_l))  stop("'cat_cov_l' is required: provide the categorical covariate definition list.")
 
+  cont_cov_l <- normalize_cont_cov_l(cont_cov_l)
+  cat_cov_l <- normalize_cat_cov_l(cat_cov_l)
+
   if (!is.null(seed)) {
     had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
     if (had_seed) old_seed <- get(".Random.seed", envir = .GlobalEnv)
@@ -548,26 +601,25 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   #####----Covariate tables----####
   # Validate and filter cont_cov_l against data_fin columns
-  .missing_cont_name <- map_chr(cont_cov_l, function(x) x$NAME) %>%
-    setdiff(names(data_fin))
+  .missing_cont_name <- setdiff(names(cont_cov_l), names(data_fin))
   if (length(.missing_cont_name) > 0) {
     warning(
-      "The following continuous covariate NAME(s) from 'cont_cov_l' were not found ",
+      "The following continuous covariate names from 'cont_cov_l' were not found ",
       "as columns in the covariate data and will be skipped: ",
       paste(.missing_cont_name, collapse = ", "), "."
     )
-    cont_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cont_name), cont_cov_l)
+    cont_cov_l <- cont_cov_l[setdiff(names(cont_cov_l), .missing_cont_name)]
     if (length(cont_cov_l) == 0) {
       stop(
-        "All continuous covariates in 'cont_cov_l' were removed because their NAME columns ",
+        "All continuous covariates in 'cont_cov_l' were removed because their named columns ",
         "are absent from the covariate data. Check 'cont_cov_l' and the dataset."
       )
     }
   }
 
-  .missing_cont_utname <- unlist(Filter(Negate(is.null), map(cont_cov_l, function(x) {
-    ut <- x$UTNAME
-    if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) ut else NULL
+  .missing_cont_utname <- unlist(Filter(Negate(is.null), map(names(cont_cov_l), function(cov_name) {
+    ut <- cont_cov_l[[cov_name]]$UTNAME
+    if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != cov_name) ut else NULL
   }))) %>% setdiff(names(data_fin))
   if (length(.missing_cont_utname) > 0) {
     warning(
@@ -575,10 +627,10 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
       "as columns in the covariate data; affected covariates will be skipped: ",
       paste(.missing_cont_utname, collapse = ", "), "."
     )
-    cont_cov_l <- Filter(function(x) {
-      ut <- x$UTNAME
-      if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != x$NAME) !(ut %in% .missing_cont_utname) else TRUE
-    }, cont_cov_l)
+    cont_cov_l <- cont_cov_l[purrr::map_lgl(names(cont_cov_l), function(cov_name) {
+      ut <- cont_cov_l[[cov_name]]$UTNAME
+      if (!is.null(ut) && !isTRUE(is.na(ut)) && ut != cov_name) !(ut %in% .missing_cont_utname) else TRUE
+    })]
     if (length(cont_cov_l) == 0) {
       stop(
         "All continuous covariates in 'cont_cov_l' were removed because their UTNAME columns ",
@@ -588,34 +640,33 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   }
 
   # Validate and filter cat_cov_l against data_fin columns
-  .missing_cat_name <- map_chr(cat_cov_l, function(x) x$NAME) %>%
-    setdiff(names(data_fin))
+  .missing_cat_name <- setdiff(names(cat_cov_l), names(data_fin))
   if (length(.missing_cat_name) > 0) {
     warning(
-      "The following categorical covariate NAME(s) from 'cat_cov_l' were not found ",
+      "The following categorical covariate names from 'cat_cov_l' were not found ",
       "as columns in the covariate data and will be skipped: ",
       paste(.missing_cat_name, collapse = ", "), "."
     )
-    cat_cov_l <- Filter(function(x) !(x$NAME %in% .missing_cat_name), cat_cov_l)
+    cat_cov_l <- cat_cov_l[setdiff(names(cat_cov_l), .missing_cat_name)]
     if (length(cat_cov_l) == 0) {
       stop(
-        "All categorical covariates in 'cat_cov_l' were removed because their NAME columns ",
+        "All categorical covariates in 'cat_cov_l' were removed because their named columns ",
         "are absent from the covariate data. Check 'cat_cov_l' and the dataset."
       )
     }
   }
 
   # Continuous covariates table
-  cont_cov_vec <- map_chr(cont_cov_l, function(x) x$NAME)
+  cont_cov_vec <- names(cont_cov_l)
 
-  cont_cov <- map_dfr(cont_cov_l, function(x) {
-    #tibble(TR = x$NAME, BTR = x$UTNAME, PAR = list(x$par_vec))
-    btr <- if (is.null(x$UTNAME) || isTRUE(is.na(x$UTNAME))) x$NAME else x$UTNAME
-    tibble(TR = x$NAME, BTR = btr, PAR = list(x$par_vec))
+  cont_cov <- map_dfr(cont_cov_vec, function(cov_name) {
+    cov <- cont_cov_l[[cov_name]]
+    btr <- if (is.null(cov$UTNAME) || isTRUE(is.na(cov$UTNAME))) cov_name else cov$UTNAME
+    tibble(TR = cov_name, BTR = btr, PAR = list(cov$par_vec))
   })
 
   # Categorical covariates table
-  cat_cov_vec <- map_chr(cat_cov_l, function(x) x$NAME)
+  cat_cov_vec <- names(cat_cov_l)
 
   if (is.null(ds_catcov)){
     ds_catcov <- ds_covs %>% select(all_of(c("ID",cat_cov_vec)))
@@ -631,7 +682,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     vals <- as.character(cat_unique[[x]])
     #ref  <- cat_cov_l[[x]]$REF
     ref <- if (is.null(cat_cov_l[[x]]$REF)) {
-      as.character(levels(factor(data_fin[[cat_cov_l[[x]]$NAME]]))[1])
+      as.character(levels(factor(data_fin[[x]]))[1])
     } else {
       cat_cov_l[[x]]$REF
     }
@@ -645,10 +696,10 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   })
 
   nice_names_cont <- map_dfr(cont_cov_vec, function(x) {
-    tibble(COV = x, NICEN = cont_cov_l[[x]][["NICENAME"]])
+    tibble(COV = x, NICEN = cov_nicename(cont_cov_l[[x]], x))
   })
   nice_names_cat <- map_dfr(cat_cov_vec, function(x) {
-    tibble(COV = x, NICEN = cat_cov_l[[x]][["NICENAME"]])
+    tibble(COV = x, NICEN = cov_nicename(cat_cov_l[[x]], x))
   })
   nice_names <- rbind(nice_names_cont,nice_names_cat)
 
@@ -679,8 +730,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
 
   # Build per-covariate REF lookup from cont_cov_l
-  ref_lookup <- map_dfr(cont_cov_l, function(cov) {
-    tibble(TR = cov$NAME, REF_spec = cov$REF)
+  ref_lookup <- map_dfr(cont_cov_vec, function(cov_name) {
+    tibble(TR = cov_name, REF_spec = cont_cov_l[[cov_name]]$REF)
   })
 
   # Add REF column: use median(TVALUE) when REF_spec == "median", else use the numeric value
@@ -706,7 +757,8 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   }
   ccont_lab_list <- list()
   for (i in seq_along(cont_cov_l)){
-    ds_cc_i <- ds_cc %>% filter(TR == cont_cov_l[[i]]$NAME)
+    cov_name_i <- names(cont_cov_l)[i]
+    ds_cc_i <- ds_cc %>% filter(TR == cov_name_i)
     q_ccont <- c(unique(ds_cc_i$LP), unique(ds_cc_i$UP), unique(ds_cc_i$REF))
 
     ccont_labels <- sapply(
@@ -716,7 +768,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     )
 
     names(ccont_labels) <- c("LP_BTR", "UP_BTR", "REF_BTR")
-    ccont_lab_list[[cont_cov_l[[i]]$NAME]] <- ccont_labels
+    ccont_lab_list[[cov_name_i]] <- ccont_labels
   }
 
   # Convert ccont_lab_list to a long data frame for joining: COV + KEY -> BCOVVAL
@@ -741,13 +793,14 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   catc_to_test <- ds_catc %>% select(-all_of(c(ID))) %>% gather("COV", "COVVAL") %>% unique() %>% left_join(cat_cov, by = c("COV", "COVVAL"))
 
-  # Reference values for continuous covariates: log-scale (NAME) and back-transformed (UTNAME)
-  cont_cov_ref <- do.call(c, unname(map(cont_cov_l, function(cov) {
-    ref_row <- cc_to_test %>% filter(COV == cov$NAME, KEY == "REF")
-    ut_name <- if (is.null(cov$UTNAME) || is.na(cov$UTNAME)) cov$NAME else cov$UTNAME
+  # Reference values for continuous covariates: model scale (list key) and back-transformed (UTNAME)
+  cont_cov_ref <- do.call(c, unname(map(names(cont_cov_l), function(cov_name) {
+    cov <- cont_cov_l[[cov_name]]
+    ref_row <- cc_to_test %>% filter(COV == cov_name, KEY == "REF")
+    ut_name <- if (is.null(cov$UTNAME) || is.na(cov$UTNAME)) cov_name else cov$UTNAME
     setNames(
       list(ref_row %>% pull(COVVAL), ref_row %>% pull(BCOVVAL)),
-      c(cov$NAME, ut_name)
+      c(cov_name, ut_name)
     )
   })))
   cont_cov_ref <- cont_cov_ref[!duplicated(names(cont_cov_ref))]
@@ -755,14 +808,15 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   # Reference values for categorical covariates: use REF if defined, else first factor level
   cat_cov_ref <- setNames(
-    map(cat_cov_l, function(cov) {
+    map(cat_cov_vec, function(cov_name) {
+      cov <- cat_cov_l[[cov_name]]
       if (is.null(cov$REF)) {
-        as.character(levels(factor(data_fin[[cov$NAME]]))[1])
+        as.character(levels(factor(data_fin[[cov_name]]))[1])
       } else {
         cov$REF
       }
     }),
-    map_chr(cat_cov_l, ~ .x$NAME)
+    cat_cov_vec
   )
 
   all_cov_ref <- c(cont_cov_ref, cat_cov_ref)
@@ -770,8 +824,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   ### Create cov ref table for output
   cont_cov_ref_tbl <- map_dfr(cont_cov_vec, function(cov_name) {
     cov_def <- cont_cov_l[[cov_name]]
-    nicen <- cov_def$NICENAME
-    if (is.null(nicen) || is.na(nicen) || nicen == "") nicen <- cov_name
+    nicen <- cov_nicename(cov_def, cov_name)
 
     ref_row <- cc_to_test %>%
       filter(COV == cov_name, KEY == "REF") %>%
@@ -803,8 +856,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
 
   cat_cov_ref_tbl <- map_dfr(cat_cov_vec, function(cov_name) {
     cov_def <- cat_cov_l[[cov_name]]
-    nicen <- cov_def$NICENAME
-    if (is.null(nicen) || is.na(nicen) || nicen == "") nicen <- cov_name
+    nicen <- cov_nicename(cov_def, cov_name)
 
     tibble(
       COV = cov_name,

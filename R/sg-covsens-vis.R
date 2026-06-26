@@ -258,6 +258,9 @@ sg_covsens_vis <- function(
         paste(var_unique, collapse = ", ")
       )
     }
+    if (anyDuplicated(unname(var_nice_names)) > 0) {
+      stop("'var_nice_names' values must be unique.")
+    }
     nice_levels <- unname(var_nice_names[as.character(var_unique)])
     ds <- ds %>%
       mutate(
