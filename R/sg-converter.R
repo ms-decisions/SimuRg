@@ -904,8 +904,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
     modified_string <- input_string
     for (match in regmatches(input_string, matches)) {
-      modified_substring <- gsub(",", ";", match)
-      modified_string <- sub(match, modified_substring, modified_string)
+      modified_substring <- gsub(",", ";", match, fixed = TRUE)
+      modified_string <- sub(match, modified_substring, modified_string, fixed = TRUE)
     }
 
     return(modified_string)
@@ -1285,7 +1285,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     mutate(
       .err = list(parse_error_model(errorModel)),
       YNAME = COL,
-      DVID = as.character(dvid),
+      DVID = as.numeric(dvid),
       TRANS = ruv_trans[.idx],
       PRED = ruv_pred[.idx],
       ERR = .err$err,
@@ -1370,8 +1370,8 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
 
     gco_path <- file.path(output_dir, str_c(proj_name, "_GCO.json"))
     gfo_path <- file.path(output_dir, str_c(proj_name, "_GFO.json"))
-    writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null"), gco_path)
-    writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null"), gfo_path)
+    writeLines(jsonlite::toJSON(gco, pretty = TRUE, auto_unbox = FALSE, null = "null", digits = NA), gco_path)
+    writeLines(jsonlite::toJSON(gfo, pretty = TRUE, auto_unbox = FALSE, null = "null", digits = NA), gfo_path)
 
     gco_rdata_path <- file.path(output_dir, str_c(proj_name, "_GCO.RData"))
     gfo_rdata_path <- file.path(output_dir, str_c(proj_name, "_GFO.RData"))
