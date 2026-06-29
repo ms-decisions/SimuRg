@@ -8,14 +8,12 @@
 
 .cont_cov_l <- list(
   LG_AGE = list(
-    NAME     = "LG_AGE",
     UTNAME   = "AGE",
     REF      = "median",
     NICENAME = "Age, years",
     par_vec  = c("CL")
   ),
   LG_WEIGHT = list(
-    NAME     = "LG_WEIGHT",
     UTNAME   = "WEIGHT",
     REF      = "median",
     NICENAME = "Weight, kg",
@@ -25,13 +23,11 @@
 
 .cat_cov_l <- list(
   SEX = list(
-    NAME     = "SEX",
     NICENAME = "Sex",
     REF      = "0",
     par_vec  = c("ka")
   ),
   CYP2C9 = list(
-    NAME     = "CYP2C9",
     NICENAME = "CYP2C9 genotype",
     REF      = NULL,
     par_vec  = c("CL")
@@ -169,8 +165,8 @@ test_that("sg_covsens_vis applies lab_y and cap to plot labels", {
   expect_equal(p$labels$caption, cap_txt)
 })
 
-test_that("sg_covsens_vis accepts alternate ci_quantiles when columns exist", {
-  p <- sg_covsens_vis(.covsens_res, ci_quantiles = c("P05", "P95"))
+test_that("sg_covsens_vis accepts alternate ci levels", {
+  p <- sg_covsens_vis(.covsens_res, ci = 90)
   pb <- ggplot2::ggplot_build(p)
   expect_s3_class(pb, "ggplot_built")
 })
@@ -205,11 +201,12 @@ test_that("sg_covsens_vis errors when covsens_res lacks requested plot_type", {
   )
 })
 
-test_that("sg_covsens_vis errors when ci_quantiles length is not 2", {
-  expect_error(
-    sg_covsens_vis(.covsens_res, ci_quantiles = "P025"),
-    regexp = "length 2"
+test_that("sg_covsens_vis warns and falls back to 95 when ci is unsupported", {
+  expect_warning(
+    p <- sg_covsens_vis(.covsens_res, ci = 85),
+    regexp = "'ci' must be one of"
   )
+  expect_equal(p$labels$y, "Mean (95% CI)\nchange from reference")
 })
 
 test_that("sg_covsens_vis errors when ci_limits length is not 2", {
@@ -219,9 +216,25 @@ test_that("sg_covsens_vis errors when ci_limits length is not 2", {
   )
 })
 
-test_that("sg_covsens_vis errors when ci_quantiles columns are missing", {
-  expect_error(
-    sg_covsens_vis(.covsens_res, ci_quantiles = c("P025", "NOT_A_COL")),
-    regexp = "Column\\(s\\) not found"
+
+test_that("sg_covsens_vis warns and ignores invalid var_nice_names", {
+  expect_warning(
+    p <- sg_covsens_vis(.covsens_res, var_nice_names = c("Label A", "Label B")),
+    regexp = "must be a named character vector"
   )
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("sg_covsens_vis accepts duplicated var_nice_names values", {
+  parsens_vars <- unique(as.character(.covsens_res$PARSENS$VAR))
+  expect_true(length(parsens_vars) >= 2)
+
+  dup_labels <- stats::setNames(
+    rep("Duplicated label", length(parsens_vars)),
+    parsens_vars
+  )
+
+  p <- sg_covsens_vis(.covsens_res, var_nice_names = dup_labels)
+  pb <- ggplot2::ggplot_build(p)
+  expect_s3_class(pb, "ggplot_built")
 })

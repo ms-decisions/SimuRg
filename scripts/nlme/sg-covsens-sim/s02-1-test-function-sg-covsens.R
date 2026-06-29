@@ -51,6 +51,16 @@ fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
 ###---Input without smrg_object---###
 obj_data <- read_smrg_obj(fpath_i)
 par_sum <- obj_data$SUMTAB
+ds_covmat <- obj_data$COVMAT
+par_names <- par_sum %>% filter(EST=="ESTIMATED") %>% select(PAR) %>% pull()
+ds_covmat <- as_tibble(ds_covmat) %>%
+  mutate(X1 = par_names) %>%
+  select(X1, everything())
+m_theta_01 <- ds_covmat %>% select_if(is.numeric) %>% as.matrix()
+colnames(m_theta_01) <- ds_covmat$X1; rownames(m_theta_01) <- ds_covmat$X1
+
+
+#names(ds_covmat)[-1] <- par_names
 par_fin_i <- par_sum %>% rename(parameter = PAR, value = VALUE) #Exemplar table with parameters
 #write.csv(par_fin_i, file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "par_fin_i.csv"))
 
