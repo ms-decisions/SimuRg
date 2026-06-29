@@ -279,13 +279,14 @@ cov_nicename <- function(cov_def, cov_name) {
 #'   Default is \code{"Cc"}.
 #' @param aggr character vector. Exposure aggregation metric(s) applied over
 #'   the simulation time grid.
-#'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax), \code{"mean"} (Cmean).
+#'   Allowed values: \code{"min"} (Cmin), \code{"max"} (Cmax),
+#'   \code{"mean"} (Cmean), \code{"auc"} (AUC).
 #' @param ci integer. Confidence interval (CI) level as a percentage.
 #'   Allowed values: \code{95}, \code{90}, \code{80}, \code{70}, \code{50}.
 #'   Default is \code{95}.
 #' @param seed integer. Seed for the random number generator.  Default is \code{NULL}.
 #'
-#'@returns A named list of three elements:
+#'@returns A named list of four elements:
 #' \describe{
 #'   \item{\code{$PARSENS}}{data.frame.
 #'     Full sensitivity results for model parameters: percent change
@@ -298,8 +299,13 @@ cov_nicename <- function(cov_def, cov_name) {
 #'     \code{Covariate}, \code{Cov. percentile}, \code{Cov. value},
 #'     \code{Mean} and \code{90\%CI}.}
 #'   \item{\code{$EXPSENS}}{data.frame.
-#'     Sensitivity of exposure metrics (Cmin, Cmax, Cavg) to covariates,
+#'     Sensitivity of exposure metrics (Cmin, Cmax, Cmean, AUC) to covariates,
 #'     structured identically to \code{$PARSENS}.}
+#'   \item{\code{$COVREF}}{data.frame.
+#'     Reference values for each covariate used in the analysis, with columns
+#'     \code{COV}, \code{NICEN}, \code{REF_VALUE} and \code{REF_SOURCE}
+#'     (\code{"reference"} for user-specified values, \code{"median"} when
+#'     \code{REF = "median"} was used for a continuous covariate).}
 #' }
 #'
 #' @details
@@ -462,43 +468,45 @@ cov_nicename <- function(cov_def, cov_name) {
 #' @export
 sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
                            model, stimes, et,
-                           est_covmat,
+                           est_covmat = NULL,
                            npop = 5,
                            cont_cov_l, cat_cov_l,  quantiles = c(0.1, 0.9),
-                           outputs  = "Cc", aggr = c("min", "max", "mean"),
+                           outputs  = "Cc", aggr = c("min", "max", "mean", "auc"),
                            seed = NULL, ci = 95){
 
   # --- Input validation ---
-  # Data source: must provide either fpath_i alone, or both ds_parest and ds_covs
+  # Data source: must provide either fpath_i alone, or both ds_parest,  ds_covs and est_covmat
   has_fpath   <- !is.null(fpath_i)
-  has_ds      <- !is.null(ds_parest) && !is.null(ds_covs)
-  has_ds_part <- !is.null(ds_parest) || !is.null(ds_covs)
+  has_ds      <- !is.null(ds_parest) && !is.null(ds_covs) && !is.null(est_covmat)
+  has_ds_part <- !is.null(ds_parest) || !is.null(ds_covs) || !is.null(est_covmat)
 
   if (!has_fpath && !has_ds) {
     stop(
       "No data source provided. Supply either:\n",
       "  - 'fpath_i': path to a Simurg output object, OR\n",
-      "  - both 'ds_parest' (parameter estimates) and 'ds_covs' (covariate dataset)."
+      "  - all of the following: 'ds_parest' (parameter estimates), 'ds_covs' (covariate dataset) and 'est_covmat' (parameter estimation covariance matrix)."
     )
   }
   if (has_fpath && has_ds_part) {
     stop(
-      "'fpath_i' and 'ds_parest'/'ds_covs' are mutually exclusive. ",
+      "'fpath_i' and 'ds_parest'/'ds_covs'/'est_covmat' are mutually exclusive. ",
       "Supply one data source only."
     )
   }
   if (!has_fpath && has_ds_part && !has_ds) {
-    missing_ds <- if (is.null(ds_parest)) "'ds_parest'" else "'ds_covs'"
+    missing_ds <- c()
+    if (is.null(ds_parest)) missing_ds <- c(missing_ds, "'ds_parest'")
+    if (is.null(ds_covs)) missing_ds <- c(missing_ds, "'ds_covs'")
+    if (is.null(est_covmat)) missing_ds <- c(missing_ds, "'est_covmat'")
     stop(
-      "Incomplete data source: ", missing_ds, " is missing. ",
-      "Both 'ds_parest' and 'ds_covs' must be provided together."
+      "Incomplete data source: missing ", paste(missing_ds, collapse = ", "), ". ",
+      "When 'fpath_i' is NULL, provide all three: 'ds_parest', 'ds_covs' and 'est_covmat'."
     )
   }
 
   if (missing(model))    stop("'model' is required: provide the compiled rxode2/nlmixr model object.")
   if (missing(stimes))  stop("'stimes' is required: provide the steady-state simulation time points.")
   if (missing(et)) stop("'et' is required: provide the event table (dosing schedule).")
-  if (missing(est_covmat)) stop("'est_covmat' is required: provide the parameter estimation covariance matrix.")
   if (missing(cont_cov_l)) stop("'cont_cov_l' is required: provide the continuous covariate definition list.")
   if (missing(cat_cov_l))  stop("'cat_cov_l' is required: provide the categorical covariate definition list.")
 
@@ -550,6 +558,15 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   par_sum <- obj_data$SUMTAB
   ds_catcov <- obj_data$CATAB
   ds_ccov <- obj_data$COTAB
+  ds_covmat <- obj_data$COVMAT
+  par_names <- par_sum %>% filter(EST=="ESTIMATED") %>% select(PAR) %>% pull()
+  ds_covmat <- as_tibble(ds_covmat, .name_repair = "minimal")
+  names(ds_covmat) <- par_names
+  ds_covmat <- ds_covmat %>%
+    mutate(X1 = par_names) %>%
+    select(X1, everything())
+  est_covmat <- ds_covmat
+
   data_fin <- ds_ccov %>% left_join(ds_catcov, by = "ID")
   ### Population parameters
   par_fin <- par_sum %>% rename(parameter = PAR, value = VALUE)

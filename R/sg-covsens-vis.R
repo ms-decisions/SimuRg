@@ -239,37 +239,44 @@ sg_covsens_vis <- function(
   # }
 
   if (!is.null(var_nice_names)) {
+    use_var_nice_names <- TRUE
     if (!is.character(var_nice_names)) {
-      stop("'var_nice_names' must be a named character vector.")
+      warning("'var_nice_names' must be a named character vector. Ignoring 'var_nice_names'.")
+      use_var_nice_names <- FALSE
     }
-    if (is.null(names(var_nice_names)) || any(names(var_nice_names) == "")) {
-      stop("'var_nice_names' must be a named character vector; names must match unique 'VAR' values.")
+    if (use_var_nice_names && (is.null(names(var_nice_names)) || any(names(var_nice_names) == ""))) {
+      warning("'var_nice_names' must be a named character vector; names must match unique 'VAR' values. Ignoring 'var_nice_names'.")
+      use_var_nice_names <- FALSE
     }
     var_unique <- unique(as.character(ds$VAR))
-    if (length(var_nice_names) != length(var_unique)) {
-      stop(
+    if (use_var_nice_names && length(var_nice_names) != length(var_unique)) {
+      warning(
         "'var_nice_names' must have length ", length(var_unique),
-        " (one label per unique 'VAR' value)."
+        " (one label per unique 'VAR' value). Ignoring 'var_nice_names'."
       )
+      use_var_nice_names <- FALSE
     }
-    if (!setequal(names(var_nice_names), var_unique)) {
-      stop(
+    if (use_var_nice_names && !setequal(names(var_nice_names), var_unique)) {
+      warning(
         "'var_nice_names' names must match the unique values in 'VAR': ",
-        paste(var_unique, collapse = ", ")
+        paste(var_unique, collapse = ", "),
+        ". Ignoring 'var_nice_names'."
       )
+      use_var_nice_names <- FALSE
     }
-    if (anyDuplicated(unname(var_nice_names)) > 0) {
-      stop("'var_nice_names' values must be unique.")
+    if (use_var_nice_names) {
+      #nice_levels <- unname(var_nice_names[as.character(var_unique)])
+      # Allow duplicated display labels by de-duplicating factor levels.
+      nice_levels <- unique(unname(var_nice_names[as.character(var_unique)]))
+      ds <- ds %>%
+        mutate(
+          VAR_NICE = factor(
+            unname(var_nice_names[as.character(VAR)]),
+            levels = nice_levels
+          )
+        ) %>%
+        relocate(VAR_NICE, .after = VAR)
     }
-    nice_levels <- unname(var_nice_names[as.character(var_unique)])
-    ds <- ds %>%
-      mutate(
-        VAR_NICE = factor(
-          unname(var_nice_names[as.character(VAR)]),
-          levels = nice_levels
-        )
-      ) %>%
-      relocate(VAR_NICE, .after = VAR)
   }
  ###
  # Ci-quantiles tibble
@@ -419,7 +426,8 @@ sg_covsens_vis <- function(
     cap <- .build_covref_caption(covsens_res)
   }
 
-  facet_layer <- if (plot_type == "EXPSENS" && !is.null(var_nice_names)) {
+  #facet_layer <- if (plot_type == "EXPSENS" && !is.null(var_nice_names)) {
+  facet_layer <- if (plot_type == "EXPSENS" && "VAR_NICE" %in% names(ds)) {
     ggplot2::facet_grid(VAR_NICE ~ ., scales = "free")
   } else {
     ggplot2::facet_grid(VAR ~ ., scales = "free")

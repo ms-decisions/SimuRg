@@ -113,32 +113,30 @@ NULL
 #'  Default is 1e-8.
 #' @param cap A string that specifies the plot caption.
 #' @param cat_cov_l A named list. Each element defines one categorical covariate
-#'   and must itself be a list with components:
+#'   and must itself be a list where \code{par_vec} is required; other
+#'   components are optional/permissible:
 #'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the covariate
-#'       (e.g. \code{"SEX"}).}
-#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label.}
-#'     \item{\code{REF}}{Character or \code{NULL}. Reference category value.
+#'     \item{\code{par_vec}}{Required. Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("ka")}).}
+#'     \item{\code{NICENAME}}{Optional. Character or \code{NULL}. Display label.}
+#'     \item{\code{REF}}{Optional. Character or \code{NULL}. Reference category value.
 #'       If \code{NULL}, the first factor level (alphabetically) is used.}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("ka")}).}
 #'   }
 #' @param cont_cov_l A named list. Each element defines one continuous covariate
-#'   and must itself be a list with components:
+#'   and must itself be a list where \code{par_vec} is required; other
+#'   components are optional/permissible:
 #'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the (transformed)
-#'       covariate in the dataset (e.g. \code{"LG_AGE"}).}
-#'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
+#'     \item{\code{par_vec}}{Required. Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("CL")}).}
+#'     \item{\code{UTNAME}}{Optional. Character or \code{NULL}. Column name of the
 #'       untransformed (back-transformed) covariate
 #'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
-#'       \code{NAME}.}
-#'     \item{\code{REF}}{Character or numeric. Reference value for the
+#'       \name of the covariate.}
+#'     \item{\code{REF}}{Optional. Character or numeric. Reference value for the
 #'       covariate.  Use \code{"median"} to derive from data, or a numeric
 #'       value.}
-#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label for
+#'     \item{\code{NICENAME}}{Optional. Character or \code{NULL}. Display label for
 #'       plots and tables (e.g. \code{"Age, years"}).}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("CL")}).}
 #'   }
 #' @param cov_cols A character vector specifying the names of the columns with covariates.
 #' @param covint String. Specifies the interpolation method for time-varying
@@ -207,7 +205,7 @@ NULL
 #'   matrix from Monolix `FisherInformation/covarianceEstimatesSA.txt`, read
 #'   with `header = FALSE`. The first row is data (not column headers); the
 #'   first column contains parameter names and remaining columns contain matrix
-#'   values in the same parameter order.
+#'   values in the same parameter order. Default is \code{NULL}.
 #' @param et Data.frame. Event table
 #' @param eta_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param par_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
