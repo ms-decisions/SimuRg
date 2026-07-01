@@ -1,7 +1,8 @@
 #' Perform simulations for prediction distribution plots
 #'
 #' @inheritParams sg_dummy
-#' @returns A dataset with simulation results
+#' @returns [GSO]: a data frame with simulation results.
+#' @seealso [GFO], [GMO], [GSO], [sg_sim()]
 #' @examples
 #' \donttest{
 #' library(rxode2)

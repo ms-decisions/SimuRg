@@ -9,8 +9,8 @@
 #' Performs global sensitivity analysis using either PRCC (Partial Rank
 #' Correlation Coefficients with LHS sampling) or eFAST (extended Fourier
 #' Amplitude Sensitivity Test). For each sampled parameter set, the function
-#' runs simulations via [sg_sim()], reduces trajectories to scalar summary
-#' statistics, and computes sensitivity indices for each output–statistic pair.
+#' runs simulations via [sg_sim()], reduces trajectories to scalar [GSO]
+#' summaries, and computes sensitivity indices for each output–statistic pair.
 #'
 #' @inheritParams sg_dummy
 #' @return List with:

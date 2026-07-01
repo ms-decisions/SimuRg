@@ -1,6 +1,6 @@
 #' Generate prediction distribution visualizations from sg_predist_sim () simulation results
 #' @inheritParams sg_dummy
-#' @param ds_sim A data frame containing simulation results, typically obtained from sg_predist_sim().
+#' @param ds_sim [GSO]. Data frame with simulation results, typically from [sg_predist_sim()].
 #' @param dt_obs_fl Logical. If TRUE, observed data points are overlaid on the simulation plots. Default is FALSE.
 #' @param logy Logical. If TRUE, y-axis is displayed on a logarithmic scale. Default is FALSE.
 #' @param legend_fl Logical. If FALSE, the legend is hidden. Default is TRUE.

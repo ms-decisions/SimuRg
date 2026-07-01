@@ -5,7 +5,7 @@
 #' Create residual diagnostic plots
 #'
 #' @description
-#' Generates residual diagnostic plots versus time/predictions.
+#' Generates residual diagnostic plots versus time/predictions from [GFO] `$SDTAB`.
 #' Supports faceting, covariate coloring, quantile binning for
 #' continuous covariates, and optional smoothing.
 #' @inheritParams sg_dummy
@@ -47,6 +47,7 @@
 #'
 #' # Basic plot: individual weighted residuals vs TIME (weighted = TRUE, vs_time = TRUE)
 #' p <- sg_gof_res(mock_obj, smooth = FALSE)
+#' p
 #'
 #' # With covariates and faceting (use RACE as facet and AGE as color)
 #' p <- sg_gof_res(

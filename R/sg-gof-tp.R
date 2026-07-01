@@ -3,7 +3,7 @@
 ## Description: sg-gof-tp and its helper functions
 ## Keywords: SimuRg, sg-gof-tp, goodness-of-fit
 
-#' Plot time profiles of the fitted data
+#' Plot time profiles of observed and predicted values from [GFO] `$SDTAB`.
 #'
 #' @inheritParams sg_dummy
 #' @param pop Logical. If `TRUE` (default), adds population predictions (PRED) as dashed lines and points.
@@ -11,7 +11,7 @@
 #' @param lab_x String. X-ax label. Default is "Time since first dose, h"
 #' @param lab_y String. Y-ax label. Default is "Plasma concentration, mmol/L"
 #' @param sort_by Character vector of column names to sort ID facets by.
-#'        Use "DOSE" to sort by last dose. Other names (e.g. covariates) must exist in SimuRg object.
+#'        Use "DOSE" to sort by last dose. Other names (e.g. covariates) must exist in [GFO].
 #' @param desc Logical. If TRUE, sort in descending order for all columns in `sort_by`.
 #' @returns A list of plots with predicted time profiles, faceted by id
 #' @examples
@@ -19,7 +19,7 @@
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
 #'                         package = "SimuRg")
 #' plot_list <- sg_gof_tp(fpath_i)
-#' print(plot_list[[1]])
+#' plot_list[[1]]
 #' }
 #' @import dplyr
 #' @import ggplot2

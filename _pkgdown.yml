@@ -18,9 +18,14 @@ reference:
   desc: >
     Examples of SimuRg objects
   contents:
-  - gfo4cov
-  - GFO
   - GCO
+  - GFO
+  - GMO
+  - GSI
+  - GSO
+  - gfo4cov
+  - gmo_pk1c
+  - gsi_pk1c
 
 - title: Functions
 

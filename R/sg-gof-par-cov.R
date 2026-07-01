@@ -1,7 +1,7 @@
 #' Plot random effects or individual parameters vs covariates
 #'
 #' Generates ggplot2 visualizations for either random effects (RE) or individual parameters (IndPar)
-#' versus continuous or categorical covariates from a Simurg object.
+#' versus continuous or categorical covariates from a [GFO].
 #'
 #' @inheritParams sg_dummy
 #' @param ptype Character. Type of plot: `"REvsCov"` for random effects or `"IndParvsCov"` for individual parameters.

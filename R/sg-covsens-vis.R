@@ -171,14 +171,16 @@
 #'
 #' p_par <- sg_covsens_vis(result, plot_type = "PARSENS")
 #' p_exp <- sg_covsens_vis(result, plot_type = "EXPSENS")
-#' print(p_par)
-#' print(p_exp)
+#' p_par
+#' p_exp
 #'
 #' # Alternate interval columns (must exist in the sensitivity tables)
-#' sg_covsens_vis(result, ci_quantiles = c("P05", "P95"))
+#' p <- sg_covsens_vis(result, ci_quantiles = c("P05", "P95"))
+#' p
 #'
 #' # Drop selected metrics from the exposure panel
-#' sg_covsens_vis(result, plot_type = "EXPSENS", exclude_vars = c("Cc_Cmin"))
+#' p <- sg_covsens_vis(result, plot_type = "EXPSENS", exclude_vars = c("Cc_Cmin"))
+#' p
 #' }
 #'
 #' @seealso \code{\link{sg_covsens_sim}}

@@ -38,6 +38,7 @@
 #' ds_sim <- make_extended_mock_data()
 #' p <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR', fill_i = 'VAR',
 #'                wrap_i = '~VAR', wrap_ncol = 2)
+#' p
 #' @export
 sg_sim_tp <- function(
   ds_i,

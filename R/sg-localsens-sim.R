@@ -9,7 +9,7 @@
 #' Generates simulation datasets for a model varying each specified parameter
 #' within provided bounds or relative percentage. Supports multiple outputs and covariates.
 #'
-#' @param model An RxODE model object.
+#' @param model [GMO]. RxODE2 model object.
 #' @param params Character vector of parameter names to vary in the analysis.
 #' @param stimes Numeric vector of time points for the simulation.
 #' @param output Character vector of model outputs (variables) to keep. Default is NULL (all outputs).

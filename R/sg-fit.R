@@ -15,9 +15,9 @@
 #'   * `UB` - numeric, upper bound for logit transformation,  `NA` for other transformation
 #'   * `EST` - logical, whether to estimate this parameter.
 #' @param max_wait_time numeric. Maximum time in seconds to wait for fit results to complete. Default is 3600 seconds (1 hour). Set to `Inf` for no timeout.
-#' @returns If `fit = TRUE`, a named list with components [GFO] and [GCO] (generalized fit
-#'   object and generalized control object; see [GFO] and [GCO] and [sg_converter()]). If
+#' @returns If `fit = TRUE`, a named list with components [GFO] and [GCO]. If
 #'   `fit = FALSE`, the fit configuration file is written and `NULL` is returned invisibly.
+#' @seealso [GCO], [GFO], [sg_converter()]
 #' @examples
 #' \donttest{
 #' library(tibble)

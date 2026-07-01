@@ -7,7 +7,7 @@
 #'
 #' Use OFV = -2*LL from gfo$OFV
 #'
-#' @param gfo A generalized fit output object containing `OFV`.
+#' @param gfo [GFO] containing `OFV`.
 #'
 #' @return Numeric scalar OFV.
 #' @keywords internal
@@ -34,7 +34,7 @@ get_ofv <- function(gfo) {
 #' loaded as nested row-lists. When available, this uses `read_smrg_obj()` first
 #' to reuse common SimuRg table-normalization logic.
 #'
-#' @param gfo A generalized fit output object.
+#' @param gfo [GFO].
 #'
 #' @return Data frame with at least standard SUMTAB columns when available.
 #' @keywords internal
@@ -108,8 +108,8 @@ get_ofv <- function(gfo) {
 #' values from `gfo$SUMTAB` are mapped by `PAR = paste0(NAME, "_pop")` and
 #' overwrite `INIT`.
 #'
-#' @param gco A generalized control object containing `theta`.
-#' @param gfo A generalized fit output object containing `SUMTAB`.
+#' @param gco [GCO] containing `theta`.
+#' @param gfo [GFO] containing `SUMTAB`.
 #' @param update_theta_init Logical; when `TRUE`, update INIT from `gfo$SUMTAB`.
 #'
 #' @return Tibble with theta columns and updated `INIT`.
@@ -352,8 +352,8 @@ remove_covariate <- function(covs_list, param, cov) {
 #' - applies optional `test_pairs` filtering with warn+drop for invalid rows
 #' - computes candidate-specific degrees of freedom
 #'
-#' @param gfo Generalized fit output object containing at least `COTAB` and `CATAB`.
-#' @param gco Generalized control object containing at least `headers` and `theta`.
+#' @param gfo [GFO] containing at least `COTAB` and `CATAB`.
+#' @param gco [GCO] containing at least `headers` and `theta`.
 #' @param output_dir Path where fit projects are written.
 #' @param covariates Optional character vector of covariate names to consider.
 #' @param parameters Optional character vector of parameter names to consider.
