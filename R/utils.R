@@ -503,9 +503,13 @@ filter_sdtab_by_DVID <- function(ds, DVID = 1) {
 #' Loads a generalized control object from an `.RData` or `.json` file, or accepts an
 #' already-loaded list.
 #'
-#' @inheritParams sg_dummy
+#' @param ctrl Character path to a `.RData` or `.json` file, or a [GCO] list object.
 #'
-#' @return [GCO] with all table components coerced to data frames.
+#' @return A [GCO] list (see \link{GCO} for components). When `ctrl` is a file path,
+#'   the object is loaded from disk; when `ctrl` is already a list, it is returned
+#'   unchanged.
+#'
+#' @seealso [GCO], [read_smrg_obj()], [sg_fit()], [sg_converter()]
 #' @export
 #'
 read_smrg_ctrl <- function(ctrl) {
