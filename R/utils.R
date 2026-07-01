@@ -505,7 +505,7 @@ filter_sdtab_by_DVID <- function(ds, DVID = 1) {
 #'
 #' @param ctrl Character path to a `.RData` or `.json` file, or a [GCO] list object.
 #'
-#' @return A [GCO] list (see \link{GCO} for components). When `ctrl` is a file path,
+#' @return A [GCO] list. When `ctrl` is a file path,
 #'   the object is loaded from disk; when `ctrl` is already a list, it is returned
 #'   unchanged.
 #'
