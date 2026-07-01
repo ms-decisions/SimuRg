@@ -5,8 +5,9 @@
 
 #' Perform simulations from an rxode2 model
 #'
-#' Runs simulations using an rxode2 model object with explicit R objects for
-#' parameters (theta), variance-covariance (thetamat), omega, and sigma.
+#' Runs simulations using a [GMO] with explicit R objects for parameters (theta),
+#' variance–covariance (thetamat), omega, and sigma. Argument layout is described
+#' in [GSI].
 #'
 #' @inheritParams sg_dummy
 #' @param byID logical. If \code{TRUE}, replicate populations/subjects per event-table ID.
@@ -16,7 +17,7 @@
 #' @param shared logical. If \code{TRUE},
 #'   one shared population draw for all IDs. Default \code{NULL} is treated as \code{TRUE}.
 #' @param ... optional arguments passed to \code{rxode2::rxSolve} (e.g. \code{method}, \code{maxsteps}).
-#' @returns A dataset with simulation results (long format).
+#' @returns [GSO]: a data frame with simulation results (long format).
 #' @details
 #'  Index columns \code{ID}, \code{POPN}, and \code{sim.id} are included depending on what is used:
 #'  \describe{
@@ -41,6 +42,11 @@
 #' library(rxode2)
 #' library(dplyr)
 #' library(tibble)
+#'
+#' # Bundled [GMO] and [GSI] (see ?gmo_pk1c, ?gsi_pk1c)
+#' sim_gmo <- do.call(sg_sim, c(list(model = gmo_pk1c), gsi_pk1c))
+#' head(sim_gmo)
+#'
 #' # Base 1-compartment PK model (no covariate)
 #' mod <- rxode2::rxode2({
 #'   ka_pop = 0.1;

@@ -7,7 +7,7 @@
 #'
 #'
 #' @description
-#' Function generates observed versus predicted (OBS vs PRED/IPRED) scatter plots,
+#' Function generates observed versus predicted scatter plots from [GFO] `$SDTAB`,
 #' a fundamental goodness-of-fit diagnostic tool in pharmacometric modeling.
 #' This visualization assesses model adequacy by comparing observed clinical measurements against model-predicted values,
 #' enabling identification of systematic bias, heteroscedasticity, and model misspecification patterns.
@@ -39,6 +39,7 @@
 #'
 #' # Basic plot
 #' p <- sg_gof_obpr(mock_obj)
+#' p
 #'
 #' # With covariates and faceting
 #' p <- sg_gof_obpr(
@@ -47,6 +48,7 @@
 #'   col_i = "RACE",
 #'   facet_i = "RACE"
 #' )
+#' p
 #' }
 #'
 #' @import dplyr

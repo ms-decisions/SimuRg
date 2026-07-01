@@ -17,8 +17,9 @@
 #'   and also saves two RData files: \code{<proj_name>_GCO.RData} (object \code{gco})
 #'   and \code{<proj_name>_GFO.RData} (object \code{gfo}).
 #'
-#' @return
-#' Returns a list with [GCO] and [GFO] objects
+#' @return Named list with [GCO] and [GFO] components.
+#'
+#' @seealso [GCO], [GFO]
 #'
 #' @details
 #' This function serves as a bridge between Monolix output and R by parsing the .mlxtran file

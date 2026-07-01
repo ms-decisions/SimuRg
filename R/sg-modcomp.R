@@ -6,7 +6,8 @@
 #' Returns dataframe with summary statistics for model comparison
 #'
 #' @inheritParams sg_dummy
-#' @returns A data.frame with model summary metrics for futher comparison
+#' @returns Data frame with model comparison metrics derived from [GFO] `$OFV` and
+#'   related fit outputs.
 #' @examples
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sum_tab <- sg_modcomp(fpath_i, 3)

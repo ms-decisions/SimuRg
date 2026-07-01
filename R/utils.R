@@ -38,60 +38,6 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
                          "y_lower", "y_lower_perc", "y_upper", "y_upper_perc"))
 
 
-#' Generalized Fit Object (GFO)
-#'
-#' @description
-#' Generalized Fit Object (GFO) stores fit results and diagnostic information.
-#' User can create GFO from Monolix project using [sg_converter()] function,
-#' or by optimizing a model with [sg_fit()]. The [sg_fit()] function returns a GFO only
-#' when `fit = TRUE`.
-#'
-#' GFO is a list with the following components:
-#' \itemize{
-#'   \item \code{SDTAB}: A tibble containing data used for fitting
-#'   \item \code{SUMTAB}: A tibble with parameter summary statistics containing
-#'   \item \code{SIGMAMAT}: Residual variability matrix
-#'   \item \code{OMEGAMAT}: Inter-individual variability matrix
-#'   \item \code{OCCMAT}: Inter-occasion variability matrix (NA if not present)
-#'   \item \code{EVTAB}: A tibble with event information
-#'   \item \code{PATAB}: A tibble with individual parameter estimates
-#'   \item \code{COTAB}: A tibble with continuous covariates
-#'   \item \code{CATAB}: A tibble with categorical covariates
-#'   \item \code{REGTAB}: Regression parameters (empty data.frame if not present)
-#'   \item \code{OFV}: A one-row tibble with model fit criteria parsed from Monolix
-#'     \code{summary.txt}, in this column order: \code{-2LL}, \code{AIC}, \code{BIC}, \code{BICc}.
-#'   \item \code{COVMAT}: Variance-covariance matrix of parameter estimates
-#'   \item \code{CORRMAT}: Correlation matrix of parameter estimates
-#'   \item \code{OPTIONS}: Model options (NULL if not present)
-#'   \item \code{PROJNAME}: Project name
-#' }
-#' @name GFO
-NULL
-
-#' Generalized Control Object (GCO)
-#'
-#' @description
-#' Generalized control object (GCO) stores information about the model setup
-#' and options used for model fitting.
-#' Users can create GCO from a Monolix project using [sg_converter()] function,
-#' or by calling [sg_fit()] function.
-#' GCO is a list with the following components:
-#'  \itemize{
-#'   \item \code{headers}: List of dataset column descriptors (\code{name}, \code{use}, \code{type})
-#'   \item \code{data}: Path to source data file
-#'   \item \code{model}: Path to model file
-#'   \item \code{task_opt}: Task options placeholder (empty object)
-#'   \item \code{covs}: Covariate names detected
-#'   \item \code{project_name}: Project name
-#'   \item \code{theta}: List of population parameter definitions (\code{NAME}, \code{INIT}, \code{EST}, \code{TRANS})
-#'   \item \code{ruv}: Residual error model definition (\code{YNAME}, \code{DVID}, \code{TRANS}, \code{PRED}, \code{ERR}, \code{INIT}, \code{EST})
-#'   \item \code{re}: Between-subject variability matrices (\code{init}, \code{est})
-#'   \item \code{occ}: Between-occasion variability matrices (\code{init}, \code{est})
-#'   \item \code{modelText}: Text content of the model file
-#'  }
-#' @name GCO
-NULL
-
 #' The function to store common parameters description
 #'
 #' @param abreaks A function that generates axis breaks. Default is `scales::pretty_breaks(7)`.
@@ -206,7 +152,7 @@ NULL
 #' @param est_covmat Data.frame. Parameter estimation covariance matrix.  The
 #'   first column (\code{X1}) must list parameter names; remaining columns
 #'   (named identically) form the symmetric variance–covariance matrix.
-#' @param et Data.frame. Event table
+#' @param et Data.frame. Event table; a component of [GSI].
 #' @param eta_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param par_seq Vector of strings. Character vector of parameter names to be plotted. If `NULL`, all parameters be included. Default is `NULL`
 #' @param par_type String. A character string specifying the type of parameters used for
@@ -226,8 +172,9 @@ NULL
 #'  using the specified fitter. If `FALSE`, only the fit configuration file will
 #'  be generated without running the fit. Set to `FALSE` for file preparation only,
 #'  or `TRUE` to run the complete fitting process. Default is `FALSE`.
-#' @param fpath_i String or [GFO] object. If the string is given, the path to
-#'  `.Rdata` or `.json` file with [GFO] object is expected.
+#' @param fpath_i String, [GFO], or a named list with a `GFO` component (and
+#'  optionally `GCO`). If a string is given, the path to a `.RData` or `.json`
+#'  file with a fit object is expected.
 #' @param free_stat String. Facet scaling option. One of `"free"`, `"free_x"`,
 #'  `"free_y"`, or `"fixed"`. Default is `'free'`.
 #' @param group_i String. Primary grouping variable for lines. Default is `'VAR'`.
@@ -267,7 +214,7 @@ NULL
 #' @param method One of c("liblsoda", "lsoda", "dop853", "indLin"). Method for solving ODE.
 #' @param min_x Numeric. X-axis minimum limit. Default is `NA`.
 #' @param min_y Numeric. Y-axis minimum limit. Default is `NA`.
-#' @param model RxODE model. The model to simulate from.
+#' @param model [GMO]. RxODE2 model to simulate from.
 #' @param n_bins Integer. Number of bins to use in the histogram. Default is 30.
 #' @param n_quantiles Integer. Number of quantile groups for continuous variables in `col_i`. Default is 3.
 #' @param no_leg Logical. If `TRUE`, the legend is not shown. Default is `FALSE`
@@ -279,7 +226,8 @@ NULL
 #'   * `est` - matrix, logical matrix specifying which interoccasion variance-covariance
 #'    elements to estimate. Use `TRUE` to estimate, `FALSE` to fix, `NA` for
 #'    elements not applicable. Typically all elements are NA when no interoccasion variability is modeled.
-#' @param omega A named matrix or vector.
+#' @param omega Named matrix or vector. Inter-individual variability matrix; a
+#'  component of [GSI].
 #' @param opt_name String. Specify the optimizer/fitter to use for model fitting.
 #'  Currently supported options:
 #'   * `"Monolix"` - uses Monolix Suite for population pharmacokinetic modeling (generates .mlxtran files)
@@ -335,10 +283,11 @@ NULL
 #'  Each of the ODE variables will be divided by the scaling factor. Default is `NULL`.
 #' @param seed Integer. Random seed for synthetic data generation reproducibility. Default is \code{123}.
 #' @param shp_i String. Column name for shape aesthetic. Default is `NULL`.
-#' @param sigma A named matrix representing a sigma covariance matrix or its
-#'  Cholesky decomposition; Default is `NULL`.
+#' @param sigma Named matrix. Residual error variance matrix or its Cholesky
+#'  decomposition; a component of [GSI]. Default is `NULL`.
 #' @param smooth Logical. Add LOESS smooth line. Default is `TRUE`.
-#' @param stimes Vector of numeric. Sampling time points. Default is `NULL`.
+#' @param stimes Numeric vector. Sampling time points; a component of [GSI].
+#'  Default is `NULL`.
 #' @param task_opt String. Additional task options to be passed to the fitting software.
 #'  For Monolix, this can include specific task configurations or optimization settings.
 #'  When `NULL`, default tasks (populationParameters, individualParameters, fim, logLikelihood)
@@ -348,9 +297,11 @@ NULL
 #' @param time_col String. The column to use as a time column. Currently, can be only `TIME`. Default is `TIME`.
 #' @param theor_perc Logical. Show theoretical percentiles. Default is `TRUE`.
 #' @param theor_percCI Logical. Show CI around theoretical percentiles. Default is `TRUE`.
-#' @param theta A named vector or data frame. Values of population parameters to simulate with. Default is `NULL`.
-#' @param thetamat A named variance-covariance matrix (for parameters brought to normal distribution).
-#'  Default is `NULL`.
+#' @param theta Named vector or data frame. Population or baseline parameter values; a
+#'  component of [GSI]. For sensitivity analysis, parameters listed in `params`
+#'  are replaced by sampled values. Default is `NULL`.
+#' @param thetamat Named variance–covariance matrix for parameters on the normal
+#'  scale; a component of [GSI]. Default is `NULL`.
 #' @param tsld Logical. If `TRUE`, uses time since last dose instead of time from first dose. Default is `FALSE`.
 #' @param quantiles A numeric vector of length 2. Lower and upper quantiles of
 #'   the continuous covariate distribution to test.
@@ -360,19 +311,14 @@ NULL
 #' @param wrap_ncol Integer. Number of columns for `facet_wrap`. Default is `NULL`.
 #' @param wrap_nrow Integer. Number of rows for `facet_wrap`. Default is `NULL`.
 #' @param method Character string. `"PRCC"` or `"eFAST"`.
-#' @param model A model object passed to `sg_sim()`.
 #' @param params Character vector of parameter names to vary.
 
 #' @param par_bounds A tibble or data frame with columns `PAR`, `LB`, `UB`.
 #' @param point_size Point size for \code{geom_point}.  Default \code{2.5}.
 #' @param n_sim Integer. Number of samples (LHS size for PRCC, base frequency size for eFAST).
-#' @param stimes A numeric vector of simulation times.
 #' @param output A character vector of outputs to keep. Passed to `sg_sim()`.
 #' @param stat_comp A character vector of summary statistics to compute.
 #'        Supported internally: `"mean","median","min","max","sd","cmax","SS"`.
-#' @param et An event table passed to `sg_sim()`.
-#' @param theta A named numeric vector of baseline parameters. Default is `NULL`.
-#'        Parameters listed in `params` are replaced by sampled values.
 #' @param cov Covariates passed to `sg_sim()`. Default is `NULL`.
 #' @keywords internal
 sg_dummy <- function(
@@ -557,10 +503,13 @@ filter_sdtab_by_DVID <- function(ds, DVID = 1) {
 #' Loads a generalized control object from an `.RData` or `.json` file, or accepts an
 #' already-loaded list.
 #'
-#' @inheritParams sg_dummy
+#' @param ctrl Character path to a `.RData` or `.json` file, or a [GCO] list object.
 #'
-#' @return List. GCO with all table components coerced to
-#'   data frames.
+#' @return A [GCO] list. When `ctrl` is a file path,
+#'   the object is loaded from disk; when `ctrl` is already a list, it is returned
+#'   unchanged.
+#'
+#' @seealso [GCO], [read_smrg_obj()], [sg_fit()], [sg_converter()]
 #' @export
 #'
 read_smrg_ctrl <- function(ctrl) {
@@ -600,8 +549,8 @@ read_smrg_ctrl <- function(ctrl) {
 #'
 #' @inheritParams sg_dummy
 #'
-#' @return List. Generalized fit object with all table components coerced to
-#'   data frames.
+#' @return [GFO], or a named list with `GFO` (and optionally `GCO`) components,
+#'   with all table components coerced to data frames.
 #'
 #'
 #' @examples

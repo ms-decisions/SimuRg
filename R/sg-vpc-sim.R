@@ -6,9 +6,12 @@
 #' Perform simulations for VPC plot
 #'
 #' @inheritParams sg_dummy
-#' @param gco Generalized control object (see [GCO]). Either an R list or path to Rdata/json file. Either  `gco` or `model` file should be specified for simulations model specification. Defauls is `NULL`
+#' @param gco [GCO]. Either an R list or path to an RData/json file. Either
+#'   `gco` or `model` should be specified for model specification. Default is `NULL`.
+#' @param model [GMO]. RxODE2 model used when `gco` is not supplied. Default is `NULL`.
 #' @param npop Integer specifying the number of virtual subjects to simulate per original individual. Higher values provide more robust percentile estimates but increase computation time. Default is `100`
-#' @returns A dataset with simulation results
+#' @returns [GSO]: a data frame with simulation results.
+#' @seealso [GCO], [GMO], [GSI], [GSO], [sg_sim()]
 #' @examples
 #' \donttest{
 #' library(rxode2)
