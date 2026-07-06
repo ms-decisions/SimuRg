@@ -1,49 +1,47 @@
-#' Generate prediction distribution visualizations from sg_predist_sim () simulation results
+#' Generate prediction distribution visualizations from sg_predist_sim() simulation results
 #' @inheritParams sg_dummy
-#' @param ds_sim [GSO]. Data frame with simulation results, typically from [sg_predist_sim()].
+#' @param ds_sim [GSO]. Data frame with simulation results in long format
+#'   (columns `ID`, `TIME`, `VAR`, `VALUE`), typically from [sg_predist_sim()].
 #' @param dt_obs_fl Logical. If TRUE, observed data points are overlaid on the simulation plots. Default is FALSE.
 #' @param logy Logical. If TRUE, y-axis is displayed on a logarithmic scale. Default is FALSE.
 #' @param legend_fl Logical. If FALSE, the legend is hidden. Default is TRUE.
 #' @param pred_interval Character. Prediction interval to display. Options are "95%", "90%", "80%", "50%". Default is "80%".
+#' @param name_y Character. Y-axis label. If `NULL` (default), each plot is labelled
+#'   with its own output variable (the `VAR` value, with any `_ResErr` suffix removed).
 #'
 #' @returns A list of ggplot objects, one per output variable in the simulation dataset.
+#' @seealso [sg_predist_sim()], [sg_vpc_vis()]
 #' @import ggplot2
 #' @import dplyr
-#' @importFrom tidyr pivot_longer
 #' @importFrom purrr map
-#' @importFrom scales pretty_breaks trans_breaks trans_format math_format
+#' @importFrom scales pretty_breaks trans_format math_format
 #' @export
 sg_predist_vis <- function(fpath_i,
                            ds_sim,
                            time_col = "TIME",
-                           name_x = "TIME", name_y = 'DV',
-                           dt_obs_fl = F, logy = F, legend_fl = T,
-                           pred_interval = '80%'){
-  
+                           name_x = "TIME", name_y = NULL,
+                           dt_obs_fl = FALSE, logy = FALSE, legend_fl = TRUE,
+                           pred_interval = "80%") {
+
   MSDcol <- c("#1a1866", "#f2b93b", "#b73b58", "#a2d620", "#5839bb", "#9c4ec7", "#3a6eba", "#efdd3c", "#69686d")
-  
-  if (inherits(fpath_i, "character")) {
-    if (file.exists(fpath_i)) {
-      obj <- get(load(fpath_i))
-    } else {
-      stop("File specified by fpath_i does not exist")
-    }
-  } else if (inherits(fpath_i, "list")) {
-    obj <- fpath_i
-  } else {
-    stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
+
+  # ds_sim from sg_predist_sim() is already in long format (ID, TIME, VAR, VALUE);
+  # no reshaping is needed (see sg_sim() output specification).
+  required_ds_sim_cols <- c("ID", "TIME", "VAR", "VALUE")
+  missing_ds_sim_cols <- setdiff(required_ds_sim_cols, colnames(ds_sim))
+  if (length(missing_ds_sim_cols) > 0) {
+    stop(
+      "ds_sim is missing required columns: ",
+      paste(missing_ds_sim_cols, collapse = ", "),
+      call. = FALSE
+    )
   }
-  
+
+  obj <- read_smrg_obj(fpath_i)
+
   data_fin.noex <-  obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
   data_fin.noex$TIME  <- data_fin.noex[[time_col]]
-  
-  ds_sim_l <- ds_sim %>%
-    pivot_longer(
-      cols = -c(ID, TIME),
-      names_to = "VAR",
-      values_to = "VALUE"
-    )
-  
+
   lower_quantile <- switch(
     pred_interval,
     "95%" = 0.025,
@@ -53,7 +51,7 @@ sg_predist_vis <- function(fpath_i,
     stop("pred_interval must be one of 95%, 90%, 80%, 50%")
   )
   upper_quantile <- 1 - lower_quantile
-  
+
   local_funSum <- list(
     mean   = ~mean(.),
     median = ~median(.),
@@ -64,69 +62,96 @@ sg_predist_vis <- function(fpath_i,
     L_Q    = ~quantile(., lower_quantile),
     H_Q    = ~quantile(., upper_quantile)
   )
-  
-  p_list <- unique(ds_sim_l$VAR) %>% map(function(v){
-    
-    ds_sim_v <- ds_sim_l %>% filter(VAR == v)
-    
-    data_obs_v <- data_fin.noex %>%
-      select(ID, TIME, all_of(v)) %>%
-      rename(DV = all_of(v))
-    
+
+  # ---- Shared plot styling (from sg_vpc_vis) ----
+  p_char <- list(
+    theme_bw(),
+    theme(panel.background = element_rect(fill = "transparent", colour = "black")),
+    theme(strip.text  = element_text(size = 18, colour = "black")),
+    theme(plot.title  = element_text(size = 18, face = "bold")),
+    theme(axis.text   = element_text(size = 14)),
+    theme(axis.title  = element_text(size = 18)),
+    scale_color_manual(values = c(MSDcol[1])),
+    scale_fill_manual(values = c(MSDcol[1]))
+  )
+
+  p_char_leg_T <- list(
+    theme(legend.position = c(0.8, 0.85)),
+    theme(legend.box.background = element_rect(fill = "white", color = "black", linetype = "solid")),
+    theme(legend.box.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")),
+    theme(legend.text = element_text(size = 18)),
+    theme(legend.title = element_blank()),
+    theme(legend.key.size = unit(1, "cm")),
+    theme(legend.margin = margin(0, 0, 0, 0, "cm")),
+    labs(fill = "", color = "")
+  )
+
+  p_char_leg_F <- list(theme(legend.position = "none"))
+
+  p_list <- unique(ds_sim$VAR) %>% map(function(v){
+
+    ds_sim_v <- ds_sim %>% filter(VAR == v)
+
+    # Default the y-axis label to the output variable itself (one plot per VAR);
+    # an explicit `name_y` overrides it.
+    y_lab <- if (is.null(name_y)) sub("_ResErr$", "", v) else name_y
+
     ds_sim_sum <- ds_sim_v %>%
       group_by(TIME, VAR) %>%
-      summarise(across(VALUE, local_funSum), .groups = "drop") %>%
+      summarise(across(VALUE, local_funSum, .names = "{.fn}"), .groups = "drop") %>%
       mutate(
         label_median = "Median",
-        label_band   = paste(pred_interval, "Prediction Interval")
+        label_band   = paste0(pred_interval, " Prediction Interval")
       )
-    
+
     p <- ggplot() +
       geom_ribbon(
         data = ds_sim_sum,
         aes(x = TIME, ymin = L_Q, ymax = H_Q, fill = label_band),
-        alpha = 0.2
+        col = NA, alpha = 0.2
       ) +
       geom_line(
         data = ds_sim_sum,
         aes(x = TIME, y = median, color = label_median),
-        size = 0.9
+        linewidth = 0.8, alpha = 0.8
       ) +
       scale_x_continuous(name = name_x, breaks = pretty_breaks()) +
-      scale_y_continuous(name = name_y, breaks = pretty_breaks()) +
-      scale_color_manual(values = MSDcol[1]) +
-      scale_fill_manual(values = MSDcol[1]) +
-      theme_bw() +
-      theme(
-        axis.text  = element_text(size = 12),
-        axis.title = element_text(size = 14)
-      )
-    
+      p_char
+
     if (dt_obs_fl) {
+      data_obs_v <- data_fin.noex %>%
+        select(ID, TIME, all_of(v)) %>%
+        rename(DV = all_of(v)) %>%
+        mutate(label = "Data")
       p <- p +
         geom_point(
           data = data_obs_v,
-          aes(x = TIME, y = DV),
-          color = "royalblue4",
-          size = 1.5
+          aes(x = TIME, y = DV, shape = label),
+          color = "royalblue4", size = 1.5
         )
     }
-    
+
     if (logy) {
       p <- p +
         scale_y_log10(
-          name = name_y,
-          breaks = scales::trans_breaks("log10", function(x) 10^x),
+          name = y_lab,
+          breaks = 10^seq(-10, 10, 1),
           labels = scales::trans_format("log10", scales::math_format(10^.x))
         )
+    } else {
+      p <- p +
+        scale_y_continuous(name = y_lab, breaks = pretty_breaks())
     }
-    
-    if (!legend_fl) {
-      p <- p + theme(legend.position = "none")
+
+    if (legend_fl) {
+      p <- p + p_char_leg_T
+    } else {
+      p <- p + p_char_leg_F
     }
-    
+
     p
   })
-  
+
+  names(p_list) <- unique(ds_sim$VAR)
   return(p_list)
 }
