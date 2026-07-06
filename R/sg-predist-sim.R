@@ -1,8 +1,11 @@
 #' Perform simulations for prediction distribution plots
 #'
 #' @inheritParams sg_dummy
+#' @param gco Generalized control object (see [GMO]). Either an R list or path to
+#'   Rdata/json file. Either `gco` or `model` should be specified for the
+#'   simulation model specification. Default is `NULL`
 #' @returns [GSO]: a data frame with simulation results.
-#' @seealso [GFO], [GMO], [GSO], [sg_sim()]
+#' @seealso [GFO], [GMO], [GSO], [sg_sim()], [sg_vpc_sim()]
 #' @examples
 #' \donttest{
 #' library(rxode2)
@@ -14,23 +17,23 @@
 #'   # Concentration calculations
 #'   Cc = Ac / V
 #' })
-#' sg_predist_sim(fpath_i, mod_fin, outputs = "Cc")
+#' sg_predist_sim(fpath_i, model = mod_fin, outputs = "Cc")
 #' }
 #' @import rxode2
 #' @importFrom purrr map_dfr
 #' @import dplyr
+#' @importFrom stringr str_remove
+#' @importFrom rlang .data is_null is_empty
 #' @export
-sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, npop = 500){
-  if (inherits(fpath_i, "character")) {
-    if (file.exists(fpath_i)) {
-      obj <- get(load(fpath_i))
-    } else {
-      stop("File specified by fpath_i does not exist")
-    }
-  } else if (inherits(fpath_i, "list")) {
-    obj <- fpath_i
-  } else {
-    stop("fpath_i object should be either an sg_fit object, or a path to saved sg_fit object")
+sg_predist_sim <- function(fpath_i, gco = NULL, model = NULL, time_col = "TIME", outputs = NULL, npop = 500){
+  obj <- read_smrg_obj(fpath_i)
+  if (is_null(model) & is_null(gco)) {
+    stop("Specify either a generalized control object (gco) or model to simulate from")
+  } else if (is_null(model) & !is_null(gco)) {
+    model <- rxode2::rxode2(gmo_converter(gco, output_path = NULL))
+  } else if (!is_null(model) & !is_null(gco)) {
+    message("Both gco and model specified. Model from gco is used for simulations")
+    model <- rxode2::rxode2(gmo_converter(gco))
   }
 
   data_fin.noex <- obj$SDTAB %>% filter(MDV != 1) %>% select(-MDV)
@@ -39,6 +42,7 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
 
   if (!is.null(obj$COTAB)) ev_tab <- merge(ev_tab, obj$COTAB, by = "ID", all.x = TRUE)
   if (!is.null(obj$CATAB)) ev_tab <- merge(ev_tab, obj$CATAB, by = "ID", all.x = TRUE)
+  if (!is_empty(obj$REGTAB)) ev_tab <- merge(ev_tab, obj$REGTAB, by = c("ID", time_col), all.x = TRUE)
 
   covs_i <- c(colnames(obj$COTAB), colnames(obj$CATAB))
   covs_i <- covs_i[covs_i != "ID"]
@@ -47,7 +51,7 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
   par_fin_tv <- obj$SUMTAB %>%
     filter(TYPE == "Typical values") %>%
     select(PAR, VALUE) %>%
-    mutate(PAR = str_remove(PAR, "_pop")) %>%
+    #mutate(PAR = str_remove(PAR, "_pop")) %>%
     deframe()
 
   sim_predist_full <- id_seq %>% map_dfr(function(id_seq.i){
@@ -55,12 +59,12 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
       filter(ID == id_seq.i) %>%
       pull(time)
 
-  ev_tab.i <- ev_tab %>%
+    ev_tab.i <- ev_tab %>%
       filter(ID == id_seq.i) %>%
       rename(DEFID = ID) %>%
       mutate(id = 1)
 
-  sim.i <- sg_sim(model = model,
+    sim.i <- sg_sim(model = model,
                     et = ev_tab.i,
                     stimes = data_fin.noex.i,
                     outputs = outputs,
@@ -68,10 +72,11 @@ sg_predist_sim <- function(fpath_i, model, time_col = "TIME", outputs = NULL, np
                     omega = obj$OMEGAMAT,
                     sigma = NULL,
                     covs = covs_i,
-                    npop = npop,
+                    nsub = npop,
+                    byID = TRUE,
                     addcov = FALSE,
                     ncores = parallel::detectCores()-1) %>%
-                    mutate(ID = id_seq.i)
+      mutate(ID = id_seq.i)
     return(sim.i)
   })
 
