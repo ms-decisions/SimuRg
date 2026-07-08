@@ -5,7 +5,7 @@
 
 
 devtools::load_all()
-# devtools::document()
+devtools::document()
 
 project_name <- "1cmt-RE-Vd-CL-prop-FEMALE-on-Vd-CRCL-on-CL"
 folder_path <- "./scripts/nlme/2.1-sg-converter/monolix-2023/fenoprofen-pk/Monolix/"

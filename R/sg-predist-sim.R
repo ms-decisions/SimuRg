@@ -11,13 +11,17 @@
 #' library(rxode2)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' mod_fin <- rxode2({
-#'   # Differential equations
-#'   d/dt(Ad) = -ka * Ad
-#'   d/dt(Ac) = ka * Ad - Cl/V * Ac
-#'   # Concentration calculations
-#'   Cc = Ac / V
+#'  # Differential equations
+#'  ka = ka_pop*exp(omega_ka)
+#'  V = V_pop
+#'  Cl = Cl_pop*exp(omega_Cl)
+#'  d/dt(Ad) = -ka * Ad
+#'  d/dt(Ac) = ka * Ad - Cl/V * Ac
+#'  # Concentration calculations
+#'  Cc = Ac / V
 #' })
-#' sg_predist_sim(fpath_i, model = mod_fin, outputs = "Cc")
+#' predist_sim <- sg_predist_sim(fpath_i, model = mod_fin, outputs = "Cc")
+#' predist_sim
 #' }
 #' @import rxode2
 #' @importFrom purrr map_dfr
