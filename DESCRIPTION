@@ -3,7 +3,7 @@ Title: Building, Fitting and Evaluating PK/PD Modeles
 Version: 0.2.1
 Authors@R: c(
     person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut")),
-    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut")),
+    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut"), comment = c(ORCID = "0000-0000-0000-0000")),
     person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
     person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
     person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
@@ -16,6 +16,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
     GGally,
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Imports: 
     cluster,
@@ -49,3 +51,4 @@ Depends:
 LazyData: true
 URL: https://ms-decisions.github.io/SimuRg/, https://github.com/ms-decisions/SimuRg
 BugReports: https://github.com/ms-decisions/SimuRg/issues
+VignetteBuilder: knitr

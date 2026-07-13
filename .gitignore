@@ -19,3 +19,4 @@ scripts/nlme/1.1-sg-fit/my_project/
 tests/testthat/_snaps
 docs
 pkgdown
+inst/doc

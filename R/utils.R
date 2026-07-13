@@ -5,8 +5,9 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
                          "DISTRIBUTION", "Distribution",
                          "DT_label", "DV", "DVID", "EST", "Estimate", "ETA",
                          "ETAshrinkage_sd", "ETAshrinkage_var", "EVID", "ID",
-                         "First order", "INIT", "IPRED", "IRES",
-                         "IWRES", "KEY", "LAB", "LABEL", "LARGPVAL", "LCI", "LP", "MDV", "METRIC",
+                         "First order", "H_Q", "INIT", "IPRED", "IRES",
+                         "IWRES", "KEY", "L_Q", "LAB", "LABEL", "LARGPVAL",
+                         "LCI", "LP", "label_band", "label_median", "MDV", "METRIC",
                          "NAME", "NAME_INIT", "NICEN", "NTILE", "NVALUE", "OBS", "OCCMAN", "OUT","P05", "P95", "P975", "PAR", "PAR1",
                          "PAR2", "PAR_NAME", "PAR_f", "Parameter", "PARVAL", "PAR_group", "PCH",
                          "PARVAL_NORM", "PARNAME", "PEARS", "PI", "PNAME", "POPN",
@@ -443,8 +444,7 @@ sg_dummy <- function(
 # Converts SDTAB, EVTAB, COTAB, CATAB, SUMTAB from list-of-rows to one data frame
 # when needed. Idempotent if already data frames.
 
-smrg_ensure_tables_df <- function(obj) {
-  table_names <- c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")
+smrg_ensure_tables_df <- function(obj,  table_names = c("SDTAB", "EVTAB", "COTAB", "CATAB", "SUMTAB")) {
   for (nm in table_names) {
     x <- obj[[nm]]
     if (is.null(x)) next
@@ -525,6 +525,7 @@ read_smrg_ctrl <- function(ctrl) {
         stop("Package 'jsonlite' is required for reading JSON files.")
       }
       result <- jsonlite::fromJSON(ctrl, simplifyVector = TRUE, simplifyDataFrame = TRUE)
+      result <- smrg_ensure_tables_df(result, table_names = "theta")
     } else {
       stop("Unsupported file type: ", ext, ". Supported: .RData, .json")
     }
@@ -782,9 +783,9 @@ gmo_converter <- function(gco_path, output_path = NULL) {
     err_type <- ruvr$ERR
     if (is.null(err_type) || is.null(pred)) next
     if (tolower(err_type) == "combined1") {
-      res_err_lines <- c(res_err_lines, paste0(pred, "_Res_err = ", pred, " * (1 + ", pred, "_b ) + ", pred, "_a;"))
+      res_err_lines <- c(res_err_lines, paste0(pred, "_ResErr = ", pred, " * (1 + ", pred, "_b ) + ", pred, "_a;"))
     } else if (tolower(err_type) == "proportional") {
-      res_err_lines <- c(res_err_lines, paste0(pred, "_Res_err = ", pred, " * (1 + ", pred, "_b );"))
+      res_err_lines <- c(res_err_lines, paste0(pred, "_ResErr = ", pred, " * (1 + ", pred, "_b );"))
     }
   }
   if (length(res_err_lines) > 0) {

@@ -427,7 +427,8 @@ sg_vpc_vis <- function(ds_sim,
 
     data_i_var <- data_i %>%
       filter(DVID == target_dvid) %>%
-      rename(TIME = all_of(time_col), DV = all_of(dv_col))
+      rename(TIME = all_of(time_col), DV = all_of(dv_col)) %>%
+      mutate(DV = as.numeric(DV))
 
     # Store original observed data for overlay
     data_obs <- data_i_var %>%

@@ -900,6 +900,153 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   }
 
 
+  # Build GCO$covs as a list of named lists, one per covariate-parameter pair
+  extract_covs_gco <- function(contr_obj, param_map, param_distributions, col_map_df) {
+
+    # Build map: categorical covariate name -> character vector of category levels
+    cat_cats_map <- list()
+    for (line in contr_obj) {
+      m <- str_match(line, "^\\s*([[:alnum:]_]+)\\s*=\\s*\\{[^}]*categories\\s*=\\s*\\{([^}]+)\\}")
+      if (!is.na(m[1, 2])) {
+        cats_raw <- m[1, 3]
+        cats <- str_extract_all(cats_raw, "'([^']+)'")[[1]] %>% str_remove_all("'")
+        if (length(cats) == 0)
+          cats <- str_extract_all(cats_raw, "\"([^\"]+)\"")[[1]] %>% str_remove_all("\"")
+        cat_cats_map[[m[1, 2]]] <- cats
+      }
+    }
+
+    # Build map: transformed covariate name -> original covariate name
+    # e.g. WTt -> WT, CRCLt -> CRCL (derived in [COVARIATE] EQUATION:)
+    cov_transform_map <- list()
+    orig_covs <- col_map_df %>% filter(use == "covariate") %>% pull(COL)
+    cov_start <- which(str_detect(contr_obj, fixed("[COVARIATE]")))[1]
+    if (!is.na(cov_start)) {
+      cov_end <- which(
+        (str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+          seq_along(contr_obj) > cov_start
+      )[1]
+      if (is.na(cov_end)) cov_end <- length(contr_obj) + 1
+      cov_section <- contr_obj[(cov_start + 1):(cov_end - 1)]
+      eq_idx <- which(str_detect(cov_section, "^\\s*EQUATION:\\s*$"))[1]
+      if (!is.na(eq_idx) && eq_idx < length(cov_section)) {
+        eq_lines <- cov_section[(eq_idx + 1):length(cov_section)]
+        eq_lines <- eq_lines[!str_detect(eq_lines, "^\\s*$") & str_detect(eq_lines, "=")]
+        for (eq_line in eq_lines) {
+          lhs <- str_extract(eq_line, "^[^=]+") %>% str_trim()
+          rhs <- str_remove(eq_line, "^[^=]+=") %>% str_trim()
+          if (is.na(lhs) || lhs == "" || is.na(rhs) || rhs == "") next
+          for (orig in orig_covs) {
+            if (str_detect(rhs, paste0("\\b", orig, "\\b"))) {
+              cov_transform_map[[lhs]] <- orig
+              break
+            }
+          }
+        }
+      }
+    }
+
+    cat_covs <- col_map_df %>% filter(use == "covariate", type == "categorical") %>% pull(COL)
+
+    # Parse [INDIVIDUAL] DEFINITION for covariate-parameter pairs
+    ind_start <- which(str_detect(contr_obj, fixed("[INDIVIDUAL]")))[1]
+    if (is.na(ind_start)) return(list())
+    ind_end <- which(
+      (str_detect(contr_obj, "\\[.*\\]") | str_detect(contr_obj, "\\<.*\\>")) &
+        seq_along(contr_obj) > ind_start
+    )[1]
+    if (is.na(ind_end)) ind_end <- length(contr_obj) + 1
+    ind_section <- contr_obj[(ind_start + 1):(ind_end - 1)]
+    def_idx <- which(str_detect(ind_section, "^\\s*DEFINITION:\\s*$"))[1]
+    if (is.na(def_idx)) return(list())
+    def_lines <- ind_section[(def_idx + 1):length(ind_section)]
+    def_lines <- def_lines[str_detect(def_lines, "=") & str_detect(def_lines, "\\{")]
+
+    covs_list <- list()
+
+    for (line in def_lines) {
+      line_clean <- str_squish(line)
+      par_name <- str_extract(line_clean, "^[^=]+") %>% str_trim()
+      def_part <- str_extract(line_clean, "\\{.*")
+      if (is.na(def_part) || is.na(par_name)) next
+
+      cov_match <- str_match(def_part, "covariate\\s*=\\s*([[:alnum:]_]+)")
+      if (is.na(cov_match[1, 2])) next
+      cov_name_raw <- cov_match[1, 2]
+
+      cov_name_orig <- if (!is.null(cov_transform_map[[cov_name_raw]])) {
+        cov_transform_map[[cov_name_raw]]
+      } else {
+        cov_name_raw
+      }
+
+      is_cat <- cov_name_orig %in% cat_covs || cov_name_raw %in% cat_covs
+
+      coef_braced <- str_match(def_part, "coefficient\\s*=\\s*(\\{[^}]+\\})")
+      coef_single <- str_match(def_part, "coefficient\\s*=\\s*([[:alnum:]_]+)")
+
+      if (is_cat) {
+        beta_par <- NA_character_
+        ref_cat  <- NA
+
+        if (!is.na(coef_braced[1, 2])) {
+          coef_inner <- str_remove_all(coef_braced[1, 2], "[\\{\\}]")
+          coef_parts <- str_split(coef_inner, ",")[[1]] %>% str_trim()
+          cats <- cat_cats_map[[cov_name_raw]]
+          if (is.null(cats)) cats <- cat_cats_map[[cov_name_orig]]
+
+          for (k in seq_along(coef_parts)) {
+            coef_val <- suppressWarnings(as.numeric(coef_parts[k]))
+            if (!is.na(coef_val) && coef_val == 0) {
+              ref_cat <- if (!is.null(cats) && k <= length(cats)) {
+                val <- suppressWarnings(as.numeric(cats[k]))
+                if (is.na(val)) cats[k] else val
+              } else {
+                0
+              }
+            } else if (is.na(suppressWarnings(as.numeric(coef_parts[k])))) {
+              if (is.na(beta_par)) beta_par <- coef_parts[k]
+            }
+          }
+        } else if (!is.na(coef_single[1, 2])) {
+          beta_par <- coef_single[1, 2]
+        }
+
+        init_val <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
+        est_val  <- if (!is.na(beta_par)) {
+          !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
+        } else NA
+
+        covs_list <- c(covs_list, list(list(
+          PAR     = par_name,
+          COVNAME = cov_name_orig,
+          REF     = ref_cat,
+          INIT    = init_val,
+          EST     = est_val
+        )))
+
+      } else {
+        beta_par  <- if (!is.na(coef_single[1, 2])) coef_single[1, 2] else NA_character_
+        init_val  <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
+        est_val   <- if (!is.na(beta_par)) {
+          !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
+        } else NA
+
+        covs_list <- c(covs_list, list(list(
+          PAR     = par_name,
+          COVNAME = cov_name_orig,
+          FUNC    = "linear",
+          TRANS   = "median",
+          INIT    = init_val,
+          EST     = est_val
+        )))
+      }
+    }
+
+    return(covs_list)
+  }
+
+
   replace_commas_in_parentheses <- function(input_string) {
     matches <- gregexpr("\\(([^()]*)\\)", input_string)
 
@@ -1159,7 +1306,13 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
   ## evtab compiling
 
   evtab <- data_file_mod %>% filter(EVID == 1) %>%
-    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL", "II", "DUR", "TINF", "RATE", "SS")))
+    select(any_of(c("ID", "TIME", "OCC", "EVID", "CMT", "ADM", "AMT", "ADDL",
+                    "II", "DUR", "TINF", "RATE", "SS"))) %>%
+    mutate(across(
+      any_of(c("ID", "TIME", "EVID", "CMT", "AMT", "ADDL",
+               "II", "DUR", "TINF", "RATE", "SS")),
+      as.numeric
+    ))
 
 
   ## omegamat compiling
@@ -1210,6 +1363,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     sigmamat[i,i] <-  sumtab$VALUE[sumtab$PAR == resid_par]
   }
   sigmamat <- sigmamat %>% as.matrix()
+  sigmamat[is.na(sigmamat)] <- 0
 
   ## occmat compiling - !!! re-write
   occmat <- matrix()
@@ -1329,7 +1483,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     est = matrix(NA, nrow = length(re_names), ncol = length(re_names), dimnames = list(re_names, re_names))
   )
 
-  covs_gco <- col_map_df %>% filter(use == "covariate") %>% pull(COL)
+  covs_gco <- extract_covs_gco(contr_obj, param_map, param_distributions, col_map_df)
   model_path_raw <- extract_model_path(contr_obj)
   gco <- list(
     headers = headers_gco,
@@ -1344,6 +1498,7 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     occ = occ_gco,
     modelText = extract_model_text(contr_obj, folder_path)
   )
+  gco <- smrg_ensure_tables_df(gco, table_names = "theta")
 
   ## final
   gfo <- list(SDTAB = sdtab,
