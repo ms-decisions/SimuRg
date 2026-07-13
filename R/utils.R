@@ -112,31 +112,31 @@ NULL
 #'  model to check if prior doses do no add anything to the solution.
 #'  Default is 1e-8.
 #' @param cap A string that specifies the plot caption.
-#' @param cat_cov_l A named list. Each element defines one categorical covariate
+#' @param cat_cov_l A named list with. Each element defines one categorical covariate
 #'   and must itself be a list where \code{par_vec} is required; other
-#'   components are optional/permissible:
+#'   components are optional/permissible. Name of each element should be equal the name of the categorical covariate:
 #'   \describe{
-#'     \item{\code{par_vec}}{Required. Character vector. Model parameter(s)
-#'       affected by this covariate (e.g. \code{c("ka")}).}
-#'     \item{\code{NICENAME}}{Optional. Character or \code{NULL}. Display label.}
-#'     \item{\code{REF}}{Optional. Character or \code{NULL}. Reference category value.
-#'       If \code{NULL}, the first factor level (alphabetically) is used.}
+#'     \item{\code{par_vec}}{ Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("ka")}).Required.}
+#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label. Default is \code{NULL}.}
+#'     \item{\code{REF}}{Character or \code{NULL}. Reference category value.
+#'       If \code{NULL}, the first factor level (alphabetically) is used. Default is \code{NULL}.}
 #'   }
 #' @param cont_cov_l A named list. Each element defines one continuous covariate
 #'   and must itself be a list where \code{par_vec} is required; other
-#'   components are optional/permissible:
+#'   components are optional/permissible. Name of each element should be equal the name of the continuous covariate:
 #'   \describe{
-#'     \item{\code{par_vec}}{Required. Character vector. Model parameter(s)
-#'       affected by this covariate (e.g. \code{c("CL")}).}
-#'     \item{\code{UTNAME}}{Optional. Character or \code{NULL}. Column name of the
+#'     \item{\code{par_vec}}{Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("CL")}).Required.}
+#'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
 #'       untransformed (back-transformed) covariate
 #'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
-#'       \name of the covariate.}
-#'     \item{\code{REF}}{Optional. Character or numeric. Reference value for the
+#'       name of the covariate. Default is \code{NULL}.}
+#'     \item{\code{REF}}{Character or numeric. Reference value for the
 #'       covariate.  Use \code{"median"} to derive from data, or a numeric
-#'       value.}
-#'     \item{\code{NICENAME}}{Optional. Character or \code{NULL}. Display label for
-#'       plots and tables (e.g. \code{"Age, years"}).}
+#'       value. Default is \code{"median"}.}
+#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label for
+#'       plots and tables (e.g. \code{"Age, years"}). Default is \code{NULL}.}
 #'   }
 #' @param cov_cols A character vector specifying the names of the columns with covariates.
 #' @param covint String. Specifies the interpolation method for time-varying
@@ -369,7 +369,7 @@ NULL
 #' @param stimes A numeric vector of simulation times.
 #' @param output A character vector of outputs to keep. Passed to `sg_sim()`.
 #' @param stat_comp A character vector of summary statistics to compute.
-#'        Supported internally: `"mean","median","min","max","sd","cmax","SS"`.
+#'        Supported internally: \code{"mean","median","min","max","sd","cmax","SS"}.
 #' @param et An event table passed to `sg_sim()`.
 #' @param theta A named numeric vector of baseline parameters. Default is `NULL`.
 #'        Parameters listed in `params` are replaced by sampled values.

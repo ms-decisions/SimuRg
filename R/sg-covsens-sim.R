@@ -61,23 +61,6 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
                         var_exp = "Cc", aggr = c("min", "max", "mean", "auc")) #nsim=1000
 {
 
-
-  #Test
-  # et_sim_i = ets_cc
-  # mod_fin_i = model
-  # covs_i = nice_names$COV
-  # expos = T
-  # stime_exp = stimes
-  # cat = F; nsim = 5;
-  # var_exp = "Cc"
-  # theta_i = par_fin_tv
-  # thetamat_i = m_theta_norm_pop
-  # omega_i = m_omega_full
-  # aggr = c("min", "max", "mean", "auc")
-
-
-
-
   keep_i <- c("Regimen", "KEY", "COV", "COVVAL")
   if(!cat){
     keep_i <- c(keep_i, "BTR", "BCOVVAL")
@@ -98,25 +81,6 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       sim_raw <- sg_sim(mod_fin_i, et_i, stimes = stime_exp, outputs = var_exp, theta = theta_i, omega = omega_i,
                         thetamat = thetamat_i, covs = covs_i, npop = nsim,
                         keep = keep_i, ncores = max(1, parallel::detectCores()-2))
-      #Test diagnostic plots
-      # plot_sim_raw <- ggplot2::ggplot(
-      #   sim_raw,
-      #   ggplot2::aes(
-      #     x = TIME,
-      #     y = as.numeric(VALUE),
-      #     color = factor(KEY),
-      #     group = interaction(KEY, POPN)
-      #   )
-      # ) +
-      #   ggplot2::geom_line(alpha = 0.7, linewidth = 0.6) +
-      #   ggplot2::facet_wrap(~VAR, scales = "free_y") +
-      #   ggplot2::labs(x = "Time", y = "Value", color = "Scenario") +
-      #   ggplot2::theme_bw()
-      # plot_sim_raw
-
-      # message(sprintf("NA Cc rows: %d / %d (%.1f%%)",
-      #                 sum(is.na(sim_raw$VALUE)), nrow(sim_raw),
-      #                 100 * mean(is.na(sim_raw$VALUE))))
 
       #Warning / success message
       outputs_run <- if ("VAR" %in% names(sim_raw)) unique(as.character(sim_raw$VAR)) else as.character(var_exp)
@@ -142,12 +106,6 @@ fun_CovSens <- function(et_sim_i, cat = FALSE, expos = FALSE, covs_i = NULL, nsi
       metric_keep <- unname(aggr_map[aggr])
 
       sim_i <- sim_raw %>% mutate(VALUE = as.numeric(VALUE))
-
-      # sim_i <- sim_i %>%
-      # group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>% summarise_at(vars(VALUE), funSum_exp_i) %>% ungroup() %>%
-      #   gather("METRIC", "VALUE", -all_of(c("POPN", "VAR", keep_i, covs_i))) %>%
-      #   mutate(VAR = paste(VAR, METRIC, sep = "_")) %>%
-      #   select(-METRIC)
 
       sim_i <- sim_i %>%
       group_by_at(vars(all_of(c("POPN", "VAR", keep_i, covs_i)))) %>%
@@ -607,10 +565,6 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
     m_omega_full <- m_omega %*% omega_corr %*% m_omega
   }
 
-  # ### Reconstruct residual error model matrix
-  # d_reserr <- par_fin %>% filter(!str_detect(parameter, "_pop|omega_|corr_|beta_"))
-  # m_reserr <- diag(d_reserr$value, ncol = length(d_reserr$value))
-  # colnames(m_reserr) <- d_reserr$parameter; rownames(m_reserr) <- d_reserr$parameter
 
   m_theta_norm <- est_covmat %>% select_if(is.numeric) %>% as.matrix()
   colnames(m_theta_norm) <- est_covmat$X1; rownames(m_theta_norm) <- est_covmat$X1
@@ -755,16 +709,11 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
   ds_cc <- ds_cc %>%
     left_join(ref_lookup, by = "TR") %>%
     group_by(TR) %>%
-    #mutate(REF = if_else(REF_spec == "median", median(TVALUE), as.numeric(REF_spec))) %>%
     mutate(REF = if_else(REF_spec == "median", median(TVALUE), suppressWarnings(as.numeric(REF_spec)))) %>%
     select(-REF_spec) %>%
     ungroup()
 
-
-  #ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT)
   ds_cc_reflab <- select(ds_cc, COV = TR, median, LP, UP) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1), " (median)\n", "[",quantiles[[1]]*100,"th percentile: ", round(LP, 1), "; ",quantiles[[2]]*100,"th percentile: ", round(UP, 1), "]"), collapse = "\n")) %>% pull(OUT)
-
-  # ds_cc_reflab <- select(ds_cc, COV = TR, median) %>% unique() %>% left_join(nice_names, by = "COV") %>% summarise(OUT = str_c(str_c(NICEN, " = ", round(median, 1)), collapse = "\n")) %>% pull(OUT) %>% str_c(., "\nResults shown for a dose calculated for the median (reference) patient")
 
   # Calculate low and upper quantile values for Back transformed covariates
   #Take into account that there are several continuous covariates!!!
@@ -921,8 +870,7 @@ sg_covsens_sim <- function(fpath_i = NULL, ds_parest = NULL, ds_covs = NULL,
            BCOVVAL = as.character(BCOVVAL),
            BCOVVAL = ifelse(is.na(BCOVVAL), CATDES, BCOVVAL)) %>%
     select(Parameter = VAR, Covariate = NICEN, `Cov. percentile` = KEY, `Cov. value` = BCOVVAL, Mean = mean, all_of(ci_col))
-    # mutate(`90%CI` = str_c(P05, ", ", P95), KEY = ifelse(is.na(KEY), "Category", KEY), BCOVVAL = as.character(BCOVVAL), BCOVVAL = ifelse(is.na(BCOVVAL), CATDES, BCOVVAL)) %>%
-    # select(Parameter = VAR, Covariate = NICEN, `Cov. percentile` = KEY, `Cov. value` = BCOVVAL, Mean = mean, `90%CI`)
+
 
   # Sensitivity of exposure parameters to covariate values
   out_cov_exp_sens <- bind_rows(

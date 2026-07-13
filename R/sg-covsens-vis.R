@@ -219,24 +219,13 @@ sg_covsens_vis <- function(
 
   ds <- covsens_res[[plot_type]]
 
-  # missing_q <- setdiff(ci_quantiles, colnames(ds))
-  # if (length(missing_q) > 0) {
-  #   stop("Column(s) not found in data: ", paste(missing_q, collapse = ", "),
-  #        ". Adjust 'ci_quantiles'.")
-  # }
+
 
   if (!is.null(exclude_vars)) {
     ds <- dplyr::filter(ds, !VAR %in% exclude_vars)
   }
 
-  # if (!is.null(var_nice_names)) {
-  #   if (!is.character(var_nice_names) || length(var_nice_names) != length(covsens_res[[plot_type]]$VAR)) {
-  #     stop("'var_nice_names' must be a character vector of the same length as the number of variables in the sensitivity table.")
-  #   }
-  #   ds <- ds %>%
-  #     mutate(VAR_NICE = var_nice_names) %>%
-  #     relocate(VAR_NICE, .after = VAR)
-  # }
+
 
   if (!is.null(var_nice_names)) {
     use_var_nice_names <- TRUE
@@ -265,7 +254,7 @@ sg_covsens_vis <- function(
       use_var_nice_names <- FALSE
     }
     if (use_var_nice_names) {
-      #nice_levels <- unname(var_nice_names[as.character(var_unique)])
+
       # Allow duplicated display labels by de-duplicating factor levels.
       nice_levels <- unique(unname(var_nice_names[as.character(var_unique)]))
       ds <- ds %>%
@@ -287,7 +276,6 @@ sg_covsens_vis <- function(
     ci <- 95
   }
   # Tibble for CI - quantile correspondence (symmetric central intervals)
-  #quantiles <- c("P025", "P05", "P10", "P20", "P30", "P50", "P70", "P80", "P90", "P95")
   ci_table <- tibble(
     CI   = c(95, 90, 80, 70, 50),
     LOW  = c("P025", "P05", "P10", "P15", "P25"),
