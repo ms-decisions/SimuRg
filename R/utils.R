@@ -127,7 +127,7 @@ NULL
 #'   components are optional/permissible. Name of each element should be equal the name of the continuous covariate:
 #'   \describe{
 #'     \item{\code{par_vec}}{Character vector. Model parameter(s)
-#'       affected by this covariate (e.g. \code{c("CL")}).Required.}
+#'       affected by this covariate (e.g. \code{c("CL")}).}
 #'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
 #'       untransformed (back-transformed) covariate
 #'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
