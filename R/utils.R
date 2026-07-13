@@ -58,33 +58,31 @@ utils::globalVariables(c(":=", ".", "..density..", ".err", ".header", ".idx", ".
 #'  model to check if prior doses do no add anything to the solution.
 #'  Default is 1e-8.
 #' @param cap A string that specifies the plot caption.
-#' @param cat_cov_l A named list. Each element defines one categorical covariate
-#'   and must itself be a list with components:
+#' @param cat_cov_l A named list with. Each element defines one categorical covariate
+#'   and must itself be a list where \code{par_vec} is required; other
+#'   components are optional/permissible. Name of each element should be equal the name of the categorical covariate:
 #'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the covariate
-#'       (e.g. \code{"SEX"}).}
-#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label.}
+#'     \item{\code{par_vec}}{ Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("ka")}).Required.}
+#'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label. Default is \code{NULL}.}
 #'     \item{\code{REF}}{Character or \code{NULL}. Reference category value.
-#'       If \code{NULL}, the first factor level (alphabetically) is used.}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("ka")}).}
+#'       If \code{NULL}, the first factor level (alphabetically) is used. Default is \code{NULL}.}
 #'   }
 #' @param cont_cov_l A named list. Each element defines one continuous covariate
-#'   and must itself be a list with components:
+#'   and must itself be a list where \code{par_vec} is required; other
+#'   components are optional/permissible. Name of each element should be equal the name of the continuous covariate:
 #'   \describe{
-#'     \item{\code{NAME}}{Character. Column name of the (transformed)
-#'       covariate in the dataset (e.g. \code{"LG_AGE"}).}
+#'     \item{\code{par_vec}}{Character vector. Model parameter(s)
+#'       affected by this covariate (e.g. \code{c("CL")}).}
 #'     \item{\code{UTNAME}}{Character or \code{NULL}. Column name of the
 #'       untransformed (back-transformed) covariate
 #'       (e.g. \code{"AGE"}).  If \code{NULL} or \code{NA}, defaults to
-#'       \code{NAME}.}
+#'       name of the covariate. Default is \code{NULL}.}
 #'     \item{\code{REF}}{Character or numeric. Reference value for the
 #'       covariate.  Use \code{"median"} to derive from data, or a numeric
-#'       value.}
+#'       value. Default is \code{"median"}.}
 #'     \item{\code{NICENAME}}{Character or \code{NULL}. Display label for
-#'       plots and tables (e.g. \code{"Age, years"}).}
-#'     \item{\code{par_vec}}{Character vector. Model parameter(s) affected by
-#'       this covariate (e.g. \code{c("CL")}).}
+#'       plots and tables (e.g. \code{"Age, years"}). Default is \code{NULL}.}
 #'   }
 #' @param cov_cols A character vector specifying the names of the columns with covariates.
 #' @param covint String. Specifies the interpolation method for time-varying

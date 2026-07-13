@@ -1,23 +1,24 @@
 #Title: Test sg_covsens_sim() with wrfrn_03 model
-# Covariates: Vd_VKORC1_gentyp; CL_BMI; no correlations
+# Covariates: Vd_VKORC1_gentyp; CL_BMI; no correlatio
 
+#source("scripts/nlme/sg-covsens-sim/sg-covsens-sim-new.R")
 ####------ Function parameters ------####
 #quantiles <- c(0.2, 0.8)
 cont_cov_l <- list(
   BMI = list(
-    NAME = "BMI",
-    UTNAME = NULL, #(or NA or NULL if UTNAME should be = NAME),
-    REF = "median", #“median” or user-defined number,
-    NICENAME = "Body mass index", #nice name or NULL,
+    #NAME = "BMI",
+    #UTNAME = NULL, #(or NA or NULL if UTNAME should be = NAME),
+    #REF = "median", #“median” or user-defined number,
+    #NICENAME = "Body mass index", #nice name or NULL,
     par_vec = c("CL")
   ))
 
 
 cat_cov_l <- list(
   VKORC1_gentyp = list(
-    NAME = "VKORC1_gentyp",
-    NICENAME = "VKORC1 genotype", #nice name or NULL
-    REF = NULL, # NULL or user-defined value,
+    #NAME = "VKORC1_gentyp",
+    #NICENAME = "VKORC1 genotype", #nice name or NULL
+    #REF = NULL, # NULL or user-defined value,
     par_vec = c("Vd") #c("Vd", "CL")
   ))
 
@@ -50,6 +51,16 @@ fpath_i <- system.file("scripts", "nlme", "sg-covsens-sim",
 ###---Input without smrg_object---###
 obj_data <- read_smrg_obj(fpath_i)
 par_sum <- obj_data$SUMTAB
+ds_covmat <- obj_data$COVMAT
+par_names <- par_sum %>% filter(EST=="ESTIMATED") %>% select(PAR) %>% pull()
+ds_covmat <- as_tibble(ds_covmat) %>%
+  mutate(X1 = par_names) %>%
+  select(X1, everything())
+m_theta_01 <- ds_covmat %>% select_if(is.numeric) %>% as.matrix()
+colnames(m_theta_01) <- ds_covmat$X1; rownames(m_theta_01) <- ds_covmat$X1
+
+
+#names(ds_covmat)[-1] <- par_names
 par_fin_i <- par_sum %>% rename(parameter = PAR, value = VALUE) #Exemplar table with parameters
 #write.csv(par_fin_i, file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "par_fin_i.csv"))
 
@@ -70,7 +81,7 @@ data_fin_i <- ds_ccov %>% left_join(ds_catcov, by = "ID") #Exemplar table with c
 # names(est_covmat)[-1] <- pnames
 
 ### Fisher Information Matrix from the project
-est_covmat <- read.csv(file_path_fisher)
+est_covmat <- read.csv(file_path_fisher, header = FALSE)
 
 model_03 <- RxODE({
   # Doses in mg
@@ -131,6 +142,55 @@ model_03 <- RxODE({
 
   Cc_ResErr = Cc*(1 + Cc_b);
 })
+
+
+
+ss_cycle <- 10
+fun_stimes_ss <- function(k){c(
+  k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
+  k*4*7*24 + 2*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1))
+)}
+stimes_ss <- fun_stimes_ss(ss_cycle)
+
+######
+#Test with GFO
+output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
+                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes = stimes_ss, et = ev_t_input,
+                         est_covmat = est_covmat,
+                         npop = 10,
+                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean","auc"),
+                         outputs = "Cc", seed = 10, ci = 90)
+#write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
+
+#Test with parameter and covariate datasets
+output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
+                            model = model_03, stimes_ss, et = ev_t_input,
+                            est_covmat = est_covmat,
+                            npop = 10,
+                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean","auc"  ),
+                            outputs = "Cc")
+# Test Visualization
+p01_parsens <- sg_covsens_vis(
+  covsens_res    = output_02,
+  plot_type      = "PARSENS",
+  #ci_quantiles   = c("P025", "P975"),
+  ci = 50,
+  ci_limits      = c(0.8, 1.25),
+  lab_y           = "standard"
+)
+print(p01_parsens)
+
+p02_expsens <- sg_covsens_vis(
+  covsens_res    = output_02,
+  plot_type      = "EXPSENS",
+  #ci_quantiles   = c("P025", "P975"),
+  ci = 50,
+  ci_limits      = c(0.8, 1.25),
+  lab_y           = "standard",
+  var_nice_names = c(Cc_Cauc = "Conct AUC",Cc_Cmax = "Conct Max",Cc_Cavg = "Conct Mean" )
+)
+p02_expsens
+
 ####------ Alternative model: PK + PD (Emax), outputs as vector ------####
 # Extends mod_fin with an anticoagulant effect output (INR-like Emax model)
 # so that outputs = c("Cc", "Effect") can be tested
@@ -214,32 +274,6 @@ mod_fin_2 <- RxODE({
 })
 
 
-
-ss_cycle <- 10
-fun_stimes_ss <- function(k){c(
-  k*4*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1)),
-  k*4*7*24 + 2*7*24 + c(seq(0, 23.5, 0.5), seq(24, 335, 1))
-)}
-stimes_ss <- fun_stimes_ss(ss_cycle)
-
-######
-#Test with GFO
-output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
-                            ds_parest = NULL, ds_covs = NULL, model = model_03, stimes_ss, et = ev_t_input,
-                         est_covmat = est_covmat,
-                         npop = 10,
-                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
-                         outputs = "Cc")
-#write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
-
-#Test with parameter and covariate datasets
-output_02 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
-                            model = model_03, stimes_ss, et = ev_t_input,
-                            est_covmat = est_covmat,
-                            npop = 10,
-                            cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
-                            outputs = "Cc")
-
 # Test: outputs as a 2-element vector — both PK (Cc) and PD (Effect) outputs
 output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = data_fin_i,
                             model = mod_fin_2, stimes_ss, et = ev_t_input,
@@ -247,3 +281,6 @@ output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
                             npop = 10,
                             cont_cov_l, cat_cov_l, quantiles = c(0.2, 0.8), aggr = c("max", "mean"),
                             outputs = c("Cc", "Effect"))
+
+
+

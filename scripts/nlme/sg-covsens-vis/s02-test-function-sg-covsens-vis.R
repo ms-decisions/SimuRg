@@ -270,7 +270,7 @@ output_01 <- sg_covsens_sim(fpath_i = fpath_i, #gfo4cov,
                             ds_parest = NULL, ds_covs = NULL, model = mod_fin, stimes_ss, et = ev_t_input,
                          est_covmat = est_covmat,
                          npop = 10,
-                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max"),
+                         cont_cov_l, cat_cov_l,  quantiles = c(0.2, 0.8), aggr = c("max", "auc"),
                          outputs = "Cc")
 #write.csv(output_01[[1]], file = file.path(dirname(rstudioapi::getSourceEditorContext()$path), "output01.csv"), row.names = FALSE)
 
@@ -297,36 +297,50 @@ output_03 <- sg_covsens_sim(fpath_i = NULL, ds_parest = par_fin_i, ds_covs = dat
 # Sensitivity of model parameters to covariate values
 p01_parsens <- sg_covsens_vis(
   covsens_res    = output_01,
-  type           = "PARSENS",
+  plot_type           = "PARSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
-  ylab           = "Mean (95% CI) parameter\nchange from reference"
+  lab_y           = "Mean (95% CI) parameter\nchange from reference"
 )
 p01_parsens
 
 # Sensitivity of simulated exposure (max Cc) to covariate values
 p01_expsens <- sg_covsens_vis(
   covsens_res    = output_01,
-  type           = "EXPSENS",
-  ci_quantiles   = c("P025", "P975"),
+  plot_type           = "EXPSENS",
+  #ci_quantiles   = c("P025", "P975"),
+  ci = 95,
   ci_limits      = c(0.8, 1.25),
-  ylab           = "Mean (95% CI) exposure\nchange from reference"
+  lab_y           = "standard",
+  var_nice_names = c(
+    Cc_Cmax  = "Maximum \nconcentration",
+    Cc_Cauc = "Mean \nconcentration"
+  )
 )
 p01_expsens
 
+ggsave(
+  filename = "scripts/nlme/sg-covsens-vis/p01_expsens_4covs.png",
+  plot     = p01_expsens,
+  width    = 8,
+  height   = 15.2,
+  dpi      = 300,
+  units    = "in"
+)
+
 p03_parsens <- sg_covsens_vis(
   covsens_res    = output_03,
-  type           = "PARSENS",
+  plot_type           = "PARSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
-  ylab           = "Mean (95% CI) parameter\nchange from reference"
+  lab_y           = "Mean (95% CI) parameter\nchange from reference"
 )
 p03_parsens
 
 # Sensitivity of simulated exposure (max Cc) to covariate values
 p03_expsens <- sg_covsens_vis(
   covsens_res    = output_03,
-  type           = "EXPSENS",
+  plot_type           = "EXPSENS",
   ci_quantiles   = c("P025", "P975"),
   ci_limits      = c(0.8, 1.25),
   ylab           = "Mean (95% CI) exposure\nchange from reference"

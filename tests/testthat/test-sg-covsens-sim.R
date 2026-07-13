@@ -8,14 +8,12 @@
 
 .cont_cov_l <- list(
   LG_AGE = list(
-    NAME     = "LG_AGE",
     UTNAME   = "AGE",
     REF      = "median",
     NICENAME = "Age, years",
     par_vec  = c("CL")
   ),
   LG_WEIGHT = list(
-    NAME     = "LG_WEIGHT",
     UTNAME   = "WEIGHT",
     REF      = "median",
     NICENAME = "Weight, kg",
@@ -25,13 +23,11 @@
 
 .cat_cov_l <- list(
   SEX = list(
-    NAME     = "SEX",
     NICENAME = "Sex",
     REF      = "0",
     par_vec  = c("ka")
   ),
   CYP2C9 = list(
-    NAME     = "CYP2C9",
     NICENAME = "CYP2C9 genotype",
     REF      = NULL,
     par_vec  = c("CL")
@@ -114,8 +110,9 @@ set.seed(1)
 .m_cov  <- matrix(0.02, .npar, .npar)
 diag(.m_cov) <- 0.05 + runif(.npar, 0, 0.05)
 .m_cov  <- (.m_cov + t(.m_cov)) / 2
-.est_covmat <- as_tibble(cbind(X1 = .pnames, as.data.frame(.m_cov)))
-names(.est_covmat)[-1] <- .pnames
+.est_covmat <- as_tibble(.m_cov, .name_repair = "minimal")
+names(.est_covmat) <- .pnames
+.est_covmat <- bind_cols(tibble(X1 = .pnames), .est_covmat)
 
 # ---- Helper: run once with file mode (gfo4cov) and cache result ------------
 .output_01 <- sg_covsens_sim(
@@ -125,7 +122,7 @@ names(.est_covmat)[-1] <- .pnames
   model      = .mod_fin,
   stimes  = .stimes_ss,
   et         = .ev_t_input,
-  est_covmat = .est_covmat,
+  est_covmat = NULL,
   npop       = 10,
   cont_cov_l = .cont_cov_l,
   cat_cov_l  = .cat_cov_l,
@@ -156,19 +153,21 @@ names(.est_covmat)[-1] <- .pnames
 # 1. Top-level output structure
 # ============================================================
 
-test_that("sg_covsens_sim returns a named list of length 3", {
+test_that("sg_covsens_sim returns a named list of length 4", {
   expect_type(.output_01, "list")
-  expect_length(.output_01, 3)
-  expect_named(.output_01, c("PARSENS", "SUMPARSENS", "EXPSENS"))
+  expect_length(.output_01, 4)
+  expect_named(.output_01, c("PARSENS", "SUMPARSENS", "EXPSENS", "COVREF"))
 })
 
-test_that("sg_covsens_sim all three list elements are data frames", {
+test_that("sg_covsens_sim all four list elements are data frames", {
   expect_true(is.data.frame(.output_01$PARSENS))
   expect_true(is.data.frame(.output_01$SUMPARSENS))
   expect_true(is.data.frame(.output_01$EXPSENS))
+  expect_true(is.data.frame(.output_01$COVREF))
   expect_true(nrow(.output_01$PARSENS)   > 0)
   expect_true(nrow(.output_01$SUMPARSENS) > 0)
   expect_true(nrow(.output_01$EXPSENS)   > 0)
+  expect_true(nrow(.output_01$COVREF)    > 0)
 })
 
 
@@ -254,8 +253,9 @@ test_that("PARSENS CATDES is present for categorical rows", {
 # ============================================================
 
 test_that("SUMPARSENS has required columns", {
+  ci_col <- grep("%CI$", names(.output_01$SUMPARSENS), value = TRUE)
   required_cols <- c("Parameter", "Covariate", "Cov. percentile",
-                     "Cov. value", "Mean", "90%CI")
+                     "Cov. value", "Mean", ci_col)
   expect_true(all(required_cols %in% names(.output_01$SUMPARSENS)))
 })
 
@@ -266,8 +266,10 @@ test_that("SUMPARSENS Parameter contains expected model parameters", {
   expect_true("ka" %in% params)
 })
 
-test_that("SUMPARSENS 90%CI column is a character with comma-separated values", {
-  ci_vals <- .output_01$SUMPARSENS$`90%CI`
+test_that("SUMPARSENS CI column is a character with comma-separated values", {
+  ci_col <- grep("%CI$", names(.output_01$SUMPARSENS), value = TRUE)
+  expect_equal(length(ci_col), 1)
+  ci_vals <- .output_01$SUMPARSENS[[ci_col]]
   expect_true(is.character(ci_vals))
   expect_true(all(grepl(",", ci_vals)))
 })
@@ -314,13 +316,37 @@ test_that("EXPSENS LAB is a factor", {
 
 
 # ============================================================
-# 5. Table mode (ds_parest + ds_covs) produces consistent output
+# 5. COVREF — covariate reference table
 # ============================================================
 
-test_that("sg_covsens_sim table mode returns a named list of length 3", {
+test_that("COVREF has required columns", {
+  required_cols <- c("COV", "NICEN", "REF_VALUE", "REF_SOURCE")
+  expect_true(all(required_cols %in% names(.output_01$COVREF)))
+})
+
+test_that("COVREF includes both median and reference sources", {
+  sources <- unique(as.character(.output_01$COVREF$REF_SOURCE))
+  expect_true("median" %in% sources)
+  expect_true("reference" %in% sources)
+})
+
+test_that("COVREF NICEN contains expected covariate labels", {
+  nicen <- unique(.output_01$COVREF$NICEN)
+  expect_true("Age, years" %in% nicen)
+  expect_true("Weight, kg" %in% nicen)
+  expect_true("Sex" %in% nicen)
+  expect_true("CYP2C9 genotype" %in% nicen)
+})
+
+
+# ============================================================
+# 6. Table mode (ds_parest + ds_covs) produces consistent output
+# ============================================================
+
+test_that("sg_covsens_sim table mode returns a named list of length 4", {
   expect_type(.output_02, "list")
-  expect_length(.output_02, 3)
-  expect_named(.output_02, c("PARSENS", "SUMPARSENS", "EXPSENS"))
+  expect_length(.output_02, 4)
+  expect_named(.output_02, c("PARSENS", "SUMPARSENS", "EXPSENS", "COVREF"))
 })
 
 test_that("sg_covsens_sim table mode PARSENS has same columns as file mode", {
@@ -337,9 +363,13 @@ test_that("sg_covsens_sim table mode EXPSENS VAR matches file mode", {
                sort(unique(.output_01$EXPSENS$VAR)))
 })
 
+test_that("sg_covsens_sim table mode COVREF has same columns as file mode", {
+  expect_equal(sort(names(.output_02$COVREF)), sort(names(.output_01$COVREF)))
+})
+
 
 # ============================================================
-# 6. Input validation — error handling
+# 7. Input validation — error handling
 # ============================================================
 
 test_that("sg_covsens_sim errors when no data source is provided", {
@@ -410,9 +440,26 @@ test_that("sg_covsens_sim errors when ds_covs is provided without ds_parest", {
   )
 })
 
+test_that("sg_covsens_sim errors when est_covmat is missing in table mode", {
+  expect_error(
+    sg_covsens_sim(
+      fpath_i    = NULL,
+      ds_parest  = parest,
+      ds_covs     = ds_covval,
+      model      = .mod_fin,
+      stimes  = .stimes_ss,
+      et         = .ev_t_input,
+      est_covmat = NULL,
+      cont_cov_l = .cont_cov_l,
+      cat_cov_l  = .cat_cov_l
+    ),
+    regexp = "est_covmat"
+  )
+})
+
 
 # ============================================================
-# 7. aggr argument validation
+# 8. aggr argument validation
 # ============================================================
 
 test_that("sg_covsens_sim warns on unrecognised aggr value", {
@@ -439,7 +486,7 @@ test_that("sg_covsens_sim warns on unrecognised aggr value", {
 
 
 # ============================================================
-# 8. Multiple aggr and multiple outputs
+# 9. Multiple aggr and multiple outputs
 # ============================================================
 
 test_that("sg_covsens_sim EXPSENS VAR reflects multiple aggr metrics", {
