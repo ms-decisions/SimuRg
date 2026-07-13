@@ -213,8 +213,8 @@ cov_nicename <- function(cov_def, cov_name) {
 #'
 #' Two data-source modes are supported (mutually exclusive):
 #' \itemize{
-#'   \item \strong{File mode} — supply \code{fpath_i} (path to a SimuRg JSON /
-#'     RData object that contains SUMTAB, CATAB and COTAB).
+#'   \item \strong{File mode} — supply `fpath_i` (path to a saved object with [GFO]
+#'     tables such as `SUMTAB`, `CATAB`, and `COTAB`).
 #'   \item \strong{Table mode} — supply both \code{ds_parest} (parameter
 #'     estimates) and \code{ds_covs} (covariate dataset).
 #' }

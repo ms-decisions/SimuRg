@@ -125,8 +125,8 @@
 #' )
 #'
 #' # Display plots
-#' print(plots$family_of_curves)
-#' print(plots$tornado)
+#' plots$family_of_curves
+#' plots$tornado
 #' }
 #' @import ggplot2
 #' @import dplyr

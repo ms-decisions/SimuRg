@@ -5,8 +5,7 @@
 #'
 #' Plot distribution or QQ-plot of residuals from NONMEM/Simurg run
 #'@description
-#' This function visualizes residuals from estimation results
-#' stored in a Simurg output object. The residuals can be plotted either as
+#' This function visualizes residuals from [GFO] `$SDTAB`. The residuals can be plotted either as
 #' histograms with overlaid normal density curves, or as QQ-plots to assess
 #' normality.
 #'
@@ -25,13 +24,16 @@
 #' # (default \code{DVID = 1}; pass \code{DVID} or a \code{DVNAME} string to select another endpoint)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
 #'                         package = "SimuRg")
-#' sg_gof_res_dist(fpath_i = fpath_i, res_type = "IWRES")
+#' p <- sg_gof_res_dist(fpath_i = fpath_i, res_type = "IWRES")
+#' p
 #'
 #' # QQ-plots for the same default endpoint
-#' sg_gof_res_dist(fpath_i = fpath_i, res_type = "RES", plot_type = "QQ")
+#' p <- sg_gof_res_dist(fpath_i = fpath_i, res_type = "RES", plot_type = "QQ")
+#' p
 #'
 #' # Several residual columns at once (still one \code{DVID} unless you change it)
-#' sg_gof_res_dist(fpath_i = fpath_i, res_type = c("IWRES", "IRES"))
+#' p <- sg_gof_res_dist(fpath_i = fpath_i, res_type = c("IWRES", "IRES"))
+#' p
 #' @import dplyr
 #' @import tidyr
 #' @import ggplot2

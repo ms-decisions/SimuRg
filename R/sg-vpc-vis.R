@@ -280,7 +280,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #' with prediction intervals derived from simulated data.
 #'
 #' @inheritParams sg_dummy
-#' @param ds_sim A data frame with simulated data containing columns:
+#' @param ds_sim [GSO]. Data frame with simulated data containing columns:
 #'   - ID: simulation replicate identifier
 #'   - TIME: time points
 #'   - VAR: output variable name
@@ -303,7 +303,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #'
 #' @return List of ggplot objects, one for each output variable
 #' @details
-#' For now, the model in the example is NOT the generalized model object (GMO),
+#' For now, the model in the example is NOT a [GMO],
 #' as the parameters in generalized fit object are backtransformed, and,
 #' therefore, not transformed in the model. This issue will be fixed in the next
 #' versions of SimuRg package
@@ -352,6 +352,7 @@ fun_Bin_smrg <- function(ds, n_bins, method = c("kmeans", "ntile", "equal_x", "c
 #'   n_bins = 8,
 #'   pred.corr = TRUE
 #' )
+#' vpc_plots[[1]]
 #' }
 #' @import dplyr tidyr ggplot2 purrr stringr
 #' @export
