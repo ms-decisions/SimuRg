@@ -11,6 +11,24 @@
 #'
 #' @returns A list of ggplot objects, one per output variable in the simulation dataset.
 #' @seealso [sg_predist_sim()], [sg_vpc_vis()]
+#' @examples
+#' \donttest{
+#' library(rxode2)
+#' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
+#' mod_fin <- rxode2({
+#'  # Differential equations
+#'  ka = ka_pop*exp(omega_ka)
+#'  V = V_pop
+#'  Cl = Cl_pop*exp(omega_Cl)
+#'  d/dt(Ad) = -ka * Ad
+#'  d/dt(Ac) = ka * Ad - Cl/V * Ac
+#'  # Concentration calculations
+#'  Cc = Ac / V
+#' })
+#' predist_sim <- sg_predist_sim(fpath_i, model =mod_fin, outputs = "Cc")
+#' predist_vis <- sg_predist_vis(fpath_i,predist_sim)
+#' predist_vis
+#' }
 #' @import ggplot2
 #' @import dplyr
 #' @importFrom purrr map
