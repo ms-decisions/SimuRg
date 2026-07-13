@@ -83,6 +83,8 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
 
+  set.seed(seed)
+
   # Find exact duplicates between synthetic and original
   common_cols <- intersect(names(data_syn), names(data_orig))
   data_syn$row_id <- seq_len(nrow(data_syn))
@@ -103,7 +105,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
     ))
   }
 
-  message("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
+  cat("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
 
   # Add noise to continuous variables for duplicate rows
   if (length(var_cont) > 0) {
@@ -113,13 +115,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
         sd_val <- sd(data_orig[[var]], na.rm = TRUE)
 
         # Add noise only to duplicate rows
-        if (is.null(seed)) {
-          noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
-        } else {
-          withr::with_seed(seed, {
-            noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
-          })
-        }
+        noise <- rnorm(n_duplicates, mean = 0, sd = noise_level * sd_val)
         data_syn[dupl_indices, var] <- data_syn[dupl_indices, var] + noise
 
         # Ensure values stay within reasonable bounds (min/max of original)
@@ -141,13 +137,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
         if (n_levels >= 2) {
           # Randomly select ~20% of duplicate rows to flip for this variable
           n_to_flip <- max(1, ceiling(0.2 * n_duplicates))
-          if (is.null(seed)) {
-            rows_to_flip <- sample(dupl_indices, size = n_to_flip)
-          } else {
-            withr::with_seed(seed, {
-              rows_to_flip <- sample(dupl_indices, size = n_to_flip)
-            })
-          }
+          rows_to_flip <- sample(dupl_indices, size = n_to_flip)
 
           # For each selected row, change to a different level
           for (idx in rows_to_flip) {
@@ -179,19 +169,23 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #'   \item \strong{Search mode} (when \code{seed = NA}): Iteratively searches for \code{nds} datasets that meet the correlation difference threshold
 #' }
 #'
-#' @returns A list of lists, where each element contains results for one generated dataset:
+#' @returns Output format depends on mode:
 #' \itemize{
-#'   \item \code{datagen} - Synthetic dataset returned by \code{synthpop::syn()} (data.frame)
-#'   \item \code{seed} - Random seed used to generate this dataset (integer or NA)
-#'   \item \code{exact_dupl_check} - Logical indicating if exact duplicates exist between original and synthetic data
-#'   \item \code{dplot_umap} - ggplot object with combined UMAP visualization comparing original and synthetic data (or \code{NULL} if diag_plots=FALSE)
-#'   \item \code{ks_test} - Tibble with Kolmogorov-Smirnov p-values and statuses for continuous variables (or \code{NULL} if no continuous variables)
-#'   \item \code{jsd_res} - Weighted mean Jensen-Shannon divergence (JSD) value for categorical variables (numeric or \code{NULL} if no categorical variables)
-#'   \item \code{corr_diff_mean} - Mean absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
-#'   \item \code{corr_diff_max} - Maximum absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
-#'   \item \code{dplot_corr_diff} - ggplot heatmap object showing correlation difference matrix (Synthetic - Original) (or \code{NULL} if diag_plots=FALSE or no continuous variables)
-#'   \item \code{dplot_cont} - List of ggplot histograms for continuous variables (or \code{NULL} if diag_plots=FALSE or no continuous variables)
-#'   \item \code{dplot_cat} - List of ggplot barplots for categorical variables (or \code{NULL} if diag_plots=FALSE or no categorical variables)
+#'   \item In fixed seed mode (when \code{seed} is specified), returns a single list with:
+#'   \itemize{
+#'     \item \code{datagen} - Synthetic dataset
+#'     \item \code{seed} - Random seed used to generate this dataset (integer or NA)
+#'     \item \code{exact_dupl_check} - Logical indicating if exact duplicates exist between original and synthetic data
+#'     \item \code{dplot_umap} - ggplot object with combined UMAP visualization comparing original and synthetic data (or \code{NULL} if diag_plots=FALSE)
+#'     \item \code{ks_test} - Tibble with Kolmogorov-Smirnov results for continuous variables (\code{variable}, formatted \code{p.value}, \code{status}, \code{d_statistic}); when ties are present, a warning is emitted that the test may be approximate (or \code{NULL} if no continuous variables)
+#'     \item \code{jsd_res} - Tibble with per-variable Jensen-Shannon divergence (JSD) for categorical variables (\code{variable}, \code{jsd}, \code{n_levels}), with weighted mean stored in attribute \code{jsd_weighted_mean} (or \code{NULL} if no categorical variables)
+#'     \item \code{corr_diff_mean} - Mean absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
+#'     \item \code{corr_diff_max} - Maximum absolute difference between original and synthetic correlation matrices (numeric or \code{NULL} if no continuous variables)
+#'     \item \code{dplot_corr_diff} - ggplot heatmap object showing correlation difference matrix (Synthetic - Original) (or \code{NULL} if diag_plots=FALSE or no continuous variables)
+#'     \item \code{dplot_cont} - List of ggplot histograms for continuous variables (or \code{NULL} if diag_plots=FALSE or no continuous variables)
+#'     \item \code{dplot_cat} - List of ggplot barplots for categorical variables (or \code{NULL} if diag_plots=FALSE or no categorical variables)
+#'   }
+#'   \item In search mode (when \code{seed = NA}), returns a list of such lists, one per generated dataset.
 #' }
 #' @inheritParams sg_dummy
 #' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
@@ -262,9 +256,9 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @export
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
                        excl_col = NULL,seed = NA,
-                       seed_umap = 123, palette = NULL,
-                       diag_plots = FALSE,
-                       #show_info=FALSE,
+                       seed_umap = NA, palette = NULL,
+                       diag_plots = F,
+                       #show_info=F,
                        remove_duplicates = TRUE,
                        noise_level = 0.10,
                        nds = 1,#number of datasets to generate
@@ -277,7 +271,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   if(!is.null(palette) & length(palette)>1){
     color_p = rep(palette,2)
   } else {color_p = MSDcol_cut
-    message("Default color palette is used")}
+    cat("Default color palette is used")}
 
   #Control parameters for Random Forest (optimized for correlation preservation)
   num_trees = 300          # Increased from 100 for better stability
@@ -321,6 +315,8 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   data_i <- data_i %>%
     drop_na()
 
+
+
   var_char = NULL
 
   # Convert character columns to factor
@@ -356,9 +352,9 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
   # if (show_info){
   # # Print dataset summary
-  #  message("Number of rows in the data_orig:", nrow(data_i), "\n")
-  #  message("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
-  #  message("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
+  #  cat("Number of rows in the data_orig:", nrow(data_i), "\n")
+  #  cat("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
+  #  cat("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
   #}
   data_orig <- data_i
 
@@ -375,11 +371,11 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
   #Synthpop Method
   # if (!is.na(seed)){seed_i = seed} else {seed_i = 123}
-  # message("Seed for synthetic data generation:", seed_i, "\n")
+  # cat("Seed for synthetic data generation:", seed_i, "\n")
 
   # Create optimal visit sequence based on correlations (if enabled)
   if (optimize_visit_seq && length(var_cont) >= 2) {
-    message("Creating correlation-based visit sequence...\n")
+    cat("Creating correlation-based visit sequence...\n")
     visit_sequence <- create_optimal_visit_sequence(data_i, var_cont, var_cat)
   } else {
     # Use default order: all variables in their original order
@@ -392,10 +388,10 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
 
 
-  message(sprintf("RF parameters: trees = %.2f, max_depth = %.2f, , min_node_size = %.2f\n", num_trees, max_depth,
-      min_node_size))
-  message("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
-  message("Variables to synthesize:", length(visit_sequence),
+  cat("RF parameters: trees =", num_trees, ", max_depth =", max_depth,
+      ", min_node_size =", min_node_size, "\n")
+  cat("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
+  cat("Variables to synthesize:", length(visit_sequence),
       "(", length(var_cont), "continuous,", length(var_cat), "categorical )\n")
 
 
@@ -403,17 +399,18 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   # Pass RF parameters directly to syn() function
 
   # Initialize results list
+  results_list_intermediate <- list()
   results_list <- list()
 
   # Check mode: fixed seed or search mode
   if (!is.na(seed)) {
     # === MODE 1: Fixed seed mode ===
-    message("\n=== Fixed seed mode: generating dataset with seed = ", seed, "===\n")
+    cat("\n=== Fixed seed mode: generating dataset with seed =", seed, "===\n")
     mode_fixed_seed <- TRUE
     n_datasets <- 1
   } else {
     # === MODE 2: Search mode (original logic) ===
-    message("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
+    cat("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
     mode_fixed_seed <- FALSE
     n_datasets <- nds
 
@@ -432,7 +429,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     # === GENERATION PHASE ===
     if (mode_fixed_seed) {
       # Fixed seed mode: generate single dataset with specified seed
-      message("\n=== Generating dataset with fixed seed =", seed, "===\n")
+      cat("\n=== Generating dataset with fixed seed =", seed, "===\n")
 
       syn_obj <- syn(data_i,
                      method = method_vector,
@@ -450,7 +447,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
     } else {
       # Search mode: iterate through seeds until target corr_diff is achieved
-      message("\n=== Generating dataset", k, "of", n_datasets, "===\n")
+      cat("\n=== Generating dataset", k, "of", n_datasets, "===\n")
 
       corr_diff_contr <- diff_lim + 0.05
       p <- 0
@@ -476,12 +473,12 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       target_seed <- seed_values[[p]]
 
       if ((p == n_iterations) & (corr_diff_contr > diff_lim)) {
-        message("Target correlation coefficient difference is not obtained\n")
+        cat("Target correlation coefficient difference is not obtained\n")
         target_seed <- NA
       }
 
       res_seeds <- c(res_seeds, target_seed)
-      message("Dataset", k, "generated with seed:", target_seed, "\n")
+      cat("Dataset", k, "generated with seed:", target_seed, "\n")
 
       # Update seed range for next iteration
       i_init <- i
@@ -489,7 +486,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     }
 
     # === DIAGNOSTICS PHASE (common for both modes) ===
-    message("Computing diagnostics for dataset", k, "...\n")
+    cat("Computing diagnostics for dataset", k, "...\n")
 
     # Check for duplicates *between* real and synthetic data (not within each)
     common_cols <- intersect(names(data_i), names(data_syn))
@@ -517,9 +514,9 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         dupl_check_after <- nrow(dplyr::semi_join(data_syn, data_i, by = common_cols)) > 0
 
         if (dupl_check_after) {
-          message("Warning: Some duplicates may still remain after noise addition.\n")
+          cat("Warning: Some duplicates may still remain after noise addition.\n")
         } else {
-          message("Successfully removed all", n_dupl_removed, "exact duplicates.\n")
+          cat("Successfully removed all", n_dupl_removed, "exact duplicates.\n")
         }
       }
     }
@@ -528,42 +525,11 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
     # Initialize diagnostic variables
     ks_results <- NULL
-    corr_diff <- NULL
     JSD_results <- NULL
+    corr_diff <- NULL
+
 
     if (length(var_cont)>0){
-      # Get Kolmogorov-Smirnov test
-      # ks_results <- map_dfr(var_cont, function(var) {
-      #   x <- data_i[[var]]
-      #   y <- data_syn[[var]]
-      #
-      #   # Detect ties across combined samples; ks.test assumes continuous data
-      #   has_ties <- any(duplicated(c(x, y)))
-      #
-      #   # Suppress the default ks.test warning about ties and emit a custom one instead
-      #   ks_result <- suppressWarnings(ks.test(x, y))
-      #   if (has_ties) {
-      #     warning(
-      #       "Kolmogorov-Smirnov test for variable '", var,
-      #       "' may be approximate due to ties in the data",
-      #       call. = FALSE
-      #     )
-      #   }
-      #   p_val <- ks_result$p.value
-      #
-      #   # Format p-value as character to ensure consistent type for bind_rows
-      #   if (p_val < 0.01) {
-      #     p_val_formatted <- "<0.01"
-      #   } else {
-      #     p_val_formatted <- as.character(round(p_val, 4))
-      #   }
-      #
-      #   tibble(
-      #     variable = var,
-      #     p.value = p_val_formatted,
-      #     status = ifelse(p_val > 0.05, "similar", "different")
-      #   )
-      # })
 
       ks_results <- suppressWarnings({
         map_dfr(var_cont, function(var) {
@@ -574,7 +540,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
           has_ties <- any(duplicated(c(x, y)))
 
           # Suppress the default ks.test warning about ties and emit a custom one instead
-          ks_result <- ks.test(x, y)
+         ks_result <- ks.test(x, y)
           if (has_ties) {
             warning(
               "Kolmogorov-Smirnov test for variable '", var,
@@ -583,6 +549,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
             )
           }
           p_val <- ks_result$p.value
+          d_stat <- ks_result$statistic
 
           # Format p-value as character to ensure consistent type for bind_rows
           if (p_val < 0.01) {
@@ -594,7 +561,8 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
           tibble(
             variable = var,
             p.value = p_val_formatted,
-            status = ifelse(p_val > 0.05, "similar", "different")
+            status = ifelse(p_val > 0.05, "no_evidence_of_difference" , "different"),
+            d_statistic = d_stat
           )
         })
       })
@@ -640,8 +608,16 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         length(levels(factor(data_i[[var]])))
       })
       names(n_levels) <- var_cat
-      # Calculate weighted mean of Jensen-Shannon divergence
-      JSD_results<- sum(jsd * n_levels / sum(n_levels))
+
+      JSD_results <- tibble(
+        variable = var_cat,
+        jsd = as.numeric(jsd_by_var),
+        n_levels = n_levels
+      )
+
+      # Weighted mean of Jensen-Shannon divergence (weights = n_levels)
+      jsd_weighted_mean <- sum(JSD_results$jsd * JSD_results$n_levels) / sum(JSD_results$n_levels)
+      attr(JSD_results, "jsd_weighted_mean") <- jsd_weighted_mean
     }
 
     # Preparation for plots
@@ -661,17 +637,19 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         # recipe for preprocessing
         rec <- rec %>%
           step_center(all_of(var_cont)) %>%
-          step_scale(all_of(var_cont)) %>%
-          prep()
+          step_scale(all_of(var_cont))
       }
+      rec <- rec %>% prep()
 
       X_real <- bake(rec, new_data = data_i)
       X_syn  <- bake(rec, new_data = data_syn)
       # UMAP (fit on real data only)
+      if (!is.na(seed_umap)){
+        seed_ii = seed_umap
+        set.seed(seed_ii)
+      } else {seed_ii = 123}
 
-
-
-      message("Seed for UMAP:", seed_umap, "\n")
+      cat("Seed for UMAP:", seed_ii, "\n")
 
       umap_model <- uwot::umap(
         X_real,
@@ -679,13 +657,12 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         min_dist = 0.1,
         metric = "euclidean",
         ret_model = TRUE,
-        ret_nn = TRUE,
-        seed = seed_umap
+        ret_nn = TRUE
       )
 
       # project synthetic data
       emb_real <- umap_model$embedding
-      emb_syn  <- uwot::umap_transform(X_syn, umap_model, seed = seed_umap)
+      emb_syn  <- uwot::umap_transform(X_syn, umap_model)
 
       # Create combined visualization
       umap_df <- rbind(
@@ -705,6 +682,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       if (length(var_cont)>0){
         #Get Continuous histograms
         plist_cont <- var_cont %>% map(function(var){
+
           # Create data frame for plotting
           plot_data <- data.frame(
             value = c(data_i[[var]], data_syn[[var]]),
@@ -713,18 +691,21 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
           )
 
           # Create ggplot histogram
-          ggplot(plot_data, aes(x = value, fill = source)) +
+          p <- ggplot(plot_data, aes(x = value, fill = source)) +
             geom_histogram(alpha = 0.6, bins = 30, position = "identity",
                            color = "black", linewidth = 0.3) +
             scale_fill_manual(
               values = c("Original" = color_p[[1]], "Synthetic" = color_p[[2]])
             ) +
-            labs(title = paste(var, "Distribution"),
+            labs(title = paste(var),
                  x = var,
                  y = "Frequency",
                  fill = "Dataset") +
-            theme(legend.position = "topright")
+            theme(legend.position = "topright",
+                  #axis.title.x = element_blank(),
+                  plot.title = element_text(hjust = 0.5))
         })
+        names(plist_cont) <- var_cont
 
         #Heat map for corr_diff R_diff (using ggplot2 for better visualization)
         # Only create heatmap if there are at least 2 continuous variables
@@ -759,6 +740,7 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       if (length(var_cat)>0){
         # Get barplot table for categorical data
         plist_cat <- var_cat %>% map(function(var){
+
           # Create tables for original and synthetic data
           orig_table <- table(data_i[[var]])
           synth_table <- table(data_syn[[var]])
@@ -775,21 +757,24 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
             geom_col(position = "dodge", color = "black", linewidth = 0.3) +
             scale_fill_manual(values = c("Original" = color_p[[3]],
                                          "Synthetic" = color_p[[4]])) +
-            labs(title = paste(var, "Distribution"),
+            labs(title = paste(var),
                  x = var,
                  y = "Count",
                  fill = "Dataset") +
-            theme(legend.position = "topright",
-                  axis.text.x = element_text(angle = 45, hjust = 1))
+            theme(legend.position = "right",
+                  axis.text.x = element_text(angle = 45, hjust = 1),
+                  axis.title.x = element_blank(),
+                   plot.title = element_text(hjust = 0.5))
         })
+        names(plist_cat) <- var_cat
       }
 
-      if (length(var_cat) == 0){message("No categorical variables to plot\n")}
-      if (length(var_cont) == 0){message("No continuous variables to plot\n")}
+      if (length(var_cat) == 0){cat("No categorical variables to plot\n")}
+      if (length(var_cont) == 0){cat("No continuous variables to plot\n")}
     }
 
     # Store dataset and its diagnostics
-    results_list[[k]] <- list(
+    results_list_intermediate[[k]] <- list(
       datagen = data_syn,
       seed = target_seed,
       exact_dupl_check = dupl_check,
@@ -803,15 +788,18 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       dplot_corr_diff = p_corr_heatmap
     )
 
-    message("Dataset", k, "diagnostics completed.\n")
+    cat("Dataset", k, "diagnostics completed.\n")
   }
 
   # Final summary message
   if (mode_fixed_seed) {
-    message("\n=== Dataset generated with fixed seed =", seed, "===\n")
+    cat("\n=== Dataset generated with fixed seed =", seed, "===\n")
   } else {
-    message("\n=== All", nds, "datasets generated and diagnosed ===\n")
+    cat("\n=== All", nds, "datasets generated and diagnosed ===\n")
   }
+
+  if (mode_fixed_seed) {results_list <- results_list_intermediate[[1]]} else
+    {results_list <- results_list_intermediate}
 
   return(results_list)
 
