@@ -83,6 +83,19 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
 
+  had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_random_seed) {
+    old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  }
+
+  on.exit({
+    if (had_random_seed) {
+      assign(".Random.seed", old_random_seed, envir = .GlobalEnv)
+    } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  }, add = TRUE)
+
   set.seed(seed)
 
   # Find exact duplicates between synthetic and original
@@ -646,6 +659,20 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       # UMAP (fit on real data only)
       if (!is.na(seed_umap)){
         seed_ii = seed_umap
+
+        had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+        if (had_random_seed) {
+          old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+        }
+
+        on.exit({
+          if (had_random_seed) {
+            assign(".Random.seed", old_random_seed, envir = .GlobalEnv)
+          } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+            rm(".Random.seed", envir = .GlobalEnv)
+          }
+        }, add = TRUE)
+
         set.seed(seed_ii)
       } else {seed_ii = 123}
 
