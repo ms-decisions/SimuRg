@@ -323,10 +323,16 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   }
 
 
-  #Exclude rows with NAs.
+  # Exclude columns with only NA values, then exclude rows with NAs.
   data_i <- data_i %>%
+    dplyr::select(where(~ !all(is.na(.)))) %>%
     drop_na()
 
+  # Check the number of columns in the dataset
+  n_cols <- ncol(data_i)
+  if (n_cols==1) {
+    stop("The dataset has only one column. Please add more columns to the dataset.")
+  }
 
 
   var_char = NULL
