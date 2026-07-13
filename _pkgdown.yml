@@ -40,7 +40,7 @@ reference:
   - sg_converter
   - sg_translator
 
-- subtitle: Goofness-of-fit
+- subtitle: Goodness-of-fit
   desc: >
     Functions to access model goodness-of-fit
   contents:

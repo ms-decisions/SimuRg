@@ -1,0 +1,3501 @@
+run_idx,run_name,parameter,estimate,se,rse,type
+1,run001,Vd_pop,64.8632,2.4343,3.753,Typical values
+1,run001,CL_pop,3.798,0.1122,2.953,Typical values
+1,run001,Ka_pop,0.9969,0.133,13.3368,Typical values
+1,run001,omega_Vd,0.3481,0.0205,5.888,Random effects
+1,run001,omega_CL,0.2728,0.0184,6.7472,Random effects
+1,run001,omega_Ka,0.8201,0.0595,7.2589,Random effects
+1,run001,b,0.1402,0.0062,4.4459,Residual error model
+2,run002,Vd_pop,70.1663,2.6685,3.8031,Typical values
+2,run002,CL_pop,4.005,0.1183,2.9543,Typical values
+2,run002,Ka_pop,0.8231,0.0762,9.2568,Typical values
+2,run002,omega_Vd,0.3424,0.0214,6.2369,Random effects
+2,run002,omega_CL,0.2653,0.0187,7.0528,Random effects
+2,run002,omega_Ka,0.5807,0.0393,6.7702,Random effects
+2,run002,b,0.1407,0.0062,4.3913,Residual error model
+3,run003,Vd_pop,66.8222,2.443,3.656,Typical values
+3,run003,CL_pop,4.005,0.1157,2.8899,Typical values
+3,run003,Ka_pop,0.9436,0.1079,11.4328,Typical values
+3,run003,omega_Vd,0.3274,0.0202,6.1775,Random effects
+3,run003,omega_CL,0.2591,0.0187,7.2027,Random effects
+3,run003,omega_Ka,0.7363,0.0545,7.3972,Random effects
+3,run003,b,0.1474,0.0065,4.4428,Residual error model
+4,run004,Vd_pop,64.9071,2.3189,3.5727,Typical values
+4,run004,CL_pop,4.107,0.1235,3.0082,Typical values
+4,run004,Ka_pop,0.9697,0.1095,11.2895,Typical values
+4,run004,omega_Vd,0.3281,0.017,5.1873,Random effects
+4,run004,omega_CL,0.2754,0.018,6.5284,Random effects
+4,run004,omega_Ka,0.7759,0.036,4.637,Random effects
+4,run004,b,0.1328,0.0055,4.134,Residual error model
+5,run005,Vd_pop,64.1998,2.477,3.8583,Typical values
+5,run005,CL_pop,3.8224,0.1383,3.6177,Typical values
+5,run005,Ka_pop,0.9851,0.1079,10.951,Typical values
+5,run005,omega_Vd,0.363,0.0203,5.5871,Random effects
+5,run005,omega_CL,0.3454,0.0218,6.3177,Random effects
+5,run005,omega_Ka,0.6841,0.0444,6.4959,Random effects
+5,run005,b,0.1321,0.006,4.507,Residual error model
+6,run006,Vd_pop,64.1507,2.1996000000000002,3.4289,Typical values
+6,run006,CL_pop,4.2689,0.15310000000000001,3.5865,Typical values
+6,run006,Ka_pop,0.756,0.08,10.582,Typical values
+6,run006,omega_Vd,0.2762,0.0185,6.6976,Random effects
+6,run006,omega_CL,0.3439,0.0227,6.5963,Random effects
+6,run006,omega_Ka,0.7042,0.0528,7.4948,Random effects
+6,run006,b,0.1432,0.0065,4.5167,Residual error model
+7,run007,Vd_pop,66.0772,2.487,3.7638,Typical values
+7,run007,CL_pop,3.9002,0.1225,3.1397,Typical values
+7,run007,Ka_pop,0.8752,0.0964,11.0151,Typical values
+7,run007,omega_Vd,0.3463,0.0213,6.1518,Random effects
+7,run007,omega_CL,0.2876,0.0197,6.8538,Random effects
+7,run007,omega_Ka,0.7242,0.0536,7.402,Random effects
+7,run007,b,0.1389,0.0064,4.6307,Residual error model
+8,run008,Vd_pop,68.1939,2.6025,3.8164,Typical values
+8,run008,CL_pop,3.8726,0.15,3.8725,Typical values
+8,run008,Ka_pop,1.0925,0.1507,13.7967,Typical values
+8,run008,omega_Vd,0.3545,0.0223,6.2831,Random effects
+8,run008,omega_CL,0.3524,0.0238,6.7575,Random effects
+8,run008,omega_Ka,0.7098,0.0663,9.3338,Random effects
+8,run008,b,0.1494,0.0065,4.3358,Residual error model
+9,run009,Vd_pop,67.5218,2.6733,3.9591,Typical values
+9,run009,CL_pop,4.0339,0.1425,3.5314,Typical values
+9,run009,Ka_pop,0.8655,0.0724,8.3679,Typical values
+9,run009,omega_Vd,0.3708,0.0206,5.5602,Random effects
+9,run009,omega_CL,0.3383,0.0211,6.2368,Random effects
+9,run009,omega_Ka,0.4911,0.031,6.3187,Random effects
+9,run009,b,0.1419,0.0059,4.1588,Residual error model
+10,run010,Vd_pop,69.7305,2.8971,4.1547,Typical values
+10,run010,CL_pop,3.8212,0.1443,3.7771,Typical values
+10,run010,Ka_pop,1.0186,0.1256,12.3289,Typical values
+10,run010,omega_Vd,0.4059,0.0234,5.7738,Random effects
+10,run010,omega_CL,0.3506,0.0222,6.342,Random effects
+10,run010,omega_Ka,0.7609,0.0626,8.2271,Random effects
+10,run010,b,0.1322,0.006,4.5655,Residual error model
+11,run011,Vd_pop,68.815,2.546,3.6998,Typical values
+11,run011,CL_pop,4.1634,0.1405,3.3755,Typical values
+11,run011,Ka_pop,0.8045,0.0831,10.3306,Typical values
+11,run011,omega_Vd,0.3405,0.0207,6.0754,Random effects
+11,run011,omega_CL,0.3098,0.0207,6.6657,Random effects
+11,run011,omega_Ka,0.5839,0.059,10.1034,Random effects
+11,run011,b,0.1479,0.0067,4.5064,Residual error model
+12,run012,Vd_pop,69.2922,2.7169,3.921,Typical values
+12,run012,CL_pop,4.0369,0.124,3.0723,Typical values
+12,run012,Ka_pop,0.8487,0.0842,9.9158,Typical values
+12,run012,omega_Vd,0.368,0.0213,5.7762,Random effects
+12,run012,omega_CL,0.2821,0.0186,6.6094,Random effects
+12,run012,omega_Ka,0.6289,0.0377,5.9963,Random effects
+12,run012,b,0.138,0.0058,4.2347,Residual error model
+13,run013,Vd_pop,66.0825,2.28,3.4502,Typical values
+13,run013,CL_pop,4.0609,0.1249,3.0766,Typical values
+13,run013,Ka_pop,1.0192,0.1489,14.6138,Typical values
+13,run013,omega_Vd,0.3059,0.0202,6.6142,Random effects
+13,run013,omega_CL,0.2877,0.0191,6.6395,Random effects
+13,run013,omega_Ka,0.9129,0.0774,8.4802,Random effects
+13,run013,b,0.1342,0.0061,4.5791,Residual error model
+14,run014,Vd_pop,65.7583,2.5085,3.8147,Typical values
+14,run014,CL_pop,4.1708,0.1328,3.1838,Typical values
+14,run014,Ka_pop,0.9564,0.1311,13.7109,Typical values
+14,run014,omega_Vd,0.3466,0.02,5.775,Random effects
+14,run014,omega_CL,0.3099,0.0191,6.167,Random effects
+14,run014,omega_Ka,0.9259,0.0524,5.6583,Random effects
+14,run014,b,0.1286,0.0056,4.3262,Residual error model
+15,run015,Vd_pop,68.1197,2.5,3.6699,Typical values
+15,run015,CL_pop,3.9303,0.1427,3.6311,Typical values
+15,run015,Ka_pop,0.9458,0.106,11.2064,Typical values
+15,run015,omega_Vd,0.3398,0.0214,6.292,Random effects
+15,run015,omega_CL,0.3482,0.0225,6.4484,Random effects
+15,run015,omega_Ka,0.6941,0.059,8.4968,Random effects
+15,run015,b,0.1389,0.0064,4.5963,Residual error model
+16,run016,Vd_pop,64.6096,2.2322,3.4549,Typical values
+16,run016,CL_pop,3.7878,0.1174,3.0999,Typical values
+16,run016,Ka_pop,1.0644,0.121,11.3676,Typical values
+16,run016,omega_Vd,0.3196,0.02,6.2558,Random effects
+16,run016,omega_CL,0.2877,0.0194,6.7331,Random effects
+16,run016,omega_Ka,0.6229,0.0537,8.6296,Random effects
+16,run016,b,0.1419,0.0062,4.3571,Residual error model
+17,run017,Vd_pop,66.0854,2.2904,3.4657,Typical values
+17,run017,CL_pop,3.841,0.1374,3.5771,Typical values
+17,run017,Ka_pop,1.046,0.1116,10.6663,Typical values
+17,run017,omega_Vd,0.3275,0.0202,6.1696,Random effects
+17,run017,omega_CL,0.3478,0.0223,6.3989,Random effects
+17,run017,omega_Ka,0.6324,0.0565,8.9273,Random effects
+17,run017,b,0.1355,0.0061,4.5053,Residual error model
+18,run018,Vd_pop,76.9111,2.7956,3.6349,Typical values
+18,run018,CL_pop,4.0786,0.1443,3.5391,Typical values
+18,run018,Ka_pop,1.0108,0.1163,11.5061,Typical values
+18,run018,omega_Vd,0.3316,0.0216,6.5133,Random effects
+18,run018,omega_CL,0.3281,0.0219,6.6734,Random effects
+18,run018,omega_Ka,0.6395,0.0481,7.5273,Random effects
+18,run018,b,0.1386,0.0061,4.3786,Residual error model
+19,run019,Vd_pop,62.4152,2.6095,4.1809,Typical values
+19,run019,CL_pop,4.0599,0.1368,3.3703,Typical values
+19,run019,Ka_pop,0.77,0.1011,13.1253,Typical values
+19,run019,omega_Vd,0.3656,0.0219,5.981,Random effects
+19,run019,omega_CL,0.3121,0.0203,6.5134,Random effects
+19,run019,omega_Ka,0.9373,0.0593,6.3275,Random effects
+19,run019,b,0.1378,0.0059,4.2902,Residual error model
+20,run020,Vd_pop,62.9025,2.6378,4.1935,Typical values
+20,run020,CL_pop,3.8443,0.125,3.2512,Typical values
+20,run020,Ka_pop,0.9591,0.1103,11.4972,Typical values
+20,run020,omega_Vd,0.3944,0.0213,5.4005,Random effects
+20,run020,omega_CL,0.3042,0.0202,6.6452,Random effects
+20,run020,omega_Ka,0.7773,0.0553,7.1172,Random effects
+20,run020,b,0.1368,0.006,4.3801,Residual error model
+21,run021,Vd_pop,61.6052,2.4486,3.9746,Typical values
+21,run021,CL_pop,3.8911,0.1294,3.3246000000000002,Typical values
+21,run021,Ka_pop,0.9159,0.1273,13.9025,Typical values
+21,run021,omega_Vd,0.3539,0.0224,6.3265,Random effects
+21,run021,omega_CL,0.3089,0.0204,6.6031,Random effects
+21,run021,omega_Ka,0.935,0.0597,6.386,Random effects
+21,run021,b,0.1395,0.0062,4.4141,Residual error model
+22,run022,Vd_pop,74.6852,3.1694,4.2436,Typical values
+22,run022,CL_pop,3.7836,0.1315,3.4754,Typical values
+22,run022,Ka_pop,0.8944,0.0992,11.0962,Typical values
+22,run022,omega_Vd,0.3942,0.0251,6.3611,Random effects
+22,run022,omega_CL,0.3064,0.022,7.1655,Random effects
+22,run022,omega_Ka,0.6436,0.0487,7.561,Random effects
+22,run022,b,0.153,0.0068,4.4216,Residual error model
+23,run023,Vd_pop,68.9226,2.4651,3.5766,Typical values
+23,run023,CL_pop,3.8909,0.1455,3.7401,Typical values
+23,run023,Ka_pop,0.8333,0.0772,9.2693,Typical values
+23,run023,omega_Vd,0.3293,0.0198,6.0077,Random effects
+23,run023,omega_CL,0.3646,0.0229,6.2691,Random effects
+23,run023,omega_Ka,0.5385,0.0468,8.6933,Random effects
+23,run023,b,0.1342,0.0061,4.5624,Residual error model
+24,run024,Vd_pop,64.697,2.7907,4.3135,Typical values
+24,run024,CL_pop,4.165,0.141,3.385,Typical values
+24,run024,Ka_pop,0.7658,0.0784,10.2418,Typical values
+24,run024,omega_Vd,0.4078,0.0221,5.4109,Random effects
+24,run024,omega_CL,0.3199,0.02,6.2473,Random effects
+24,run024,omega_Ka,0.6474,0.044,6.7908,Random effects
+24,run024,b,0.1328,0.0059,4.4544,Residual error model
+25,run025,Vd_pop,70.0157,2.7136,3.8758,Typical values
+25,run025,CL_pop,3.9046,0.1257,3.2203,Typical values
+25,run025,Ka_pop,1.1136,0.1569,14.0926,Typical values
+25,run025,omega_Vd,0.3659,0.0209,5.7211,Random effects
+25,run025,omega_CL,0.2979,0.0164,5.5077,Random effects
+25,run025,omega_Ka,0.956,0.0563,5.8869,Random effects
+25,run025,b,0.132,0.0061,4.6063,Residual error model
+26,run026,Vd_pop,66.298,2.5454,3.8392,Typical values
+26,run026,CL_pop,3.8432,0.1272,3.3109,Typical values
+26,run026,Ka_pop,1.0138,0.1085,10.699,Typical values
+26,run026,omega_Vd,0.3616,0.0213,5.8813,Random effects
+26,run026,omega_CL,0.3089,0.0208,6.7469,Random effects
+26,run026,omega_Ka,0.6546,0.0475,7.2591,Random effects
+26,run026,b,0.1449,0.0065,4.4715,Residual error model
+27,run027,Vd_pop,65.106,2.4897,3.824,Typical values
+27,run027,CL_pop,4.0336,0.1213,3.008,Typical values
+27,run027,Ka_pop,1.0482,0.09,8.5817,Typical values
+27,run027,omega_Vd,0.3658,0.0205,5.5991,Random effects
+27,run027,omega_CL,0.2925,0.0184,6.2957,Random effects
+27,run027,omega_Ka,0.4502,0.0302,6.7112,Random effects
+27,run027,b,0.1387,0.0062,4.4372,Residual error model
+28,run028,Vd_pop,67.3825,2.5211,3.7414,Typical values
+28,run028,CL_pop,4.1437,0.1422,3.4319,Typical values
+28,run028,Ka_pop,0.9865,0.1152,11.6793,Typical values
+28,run028,omega_Vd,0.3409,0.0189,5.5359,Random effects
+28,run028,omega_CL,0.3237,0.0203,6.2636,Random effects
+28,run028,omega_Ka,0.714,0.0601,8.417,Random effects
+28,run028,b,0.1495,0.0063,4.2226,Residual error model
+29,run029,Vd_pop,69.893,2.6482,3.7889,Typical values
+29,run029,CL_pop,3.6914,0.1223,3.3144,Typical values
+29,run029,Ka_pop,1.1205,0.1149,10.2567,Typical values
+29,run029,omega_Vd,0.3564,0.0223,6.2567,Random effects
+29,run029,omega_CL,0.3051,0.0209,6.8653,Random effects
+29,run029,omega_Ka,0.6504,0.0557,8.5591,Random effects
+29,run029,b,0.1395,0.0064,4.5652,Residual error model
+30,run030,Vd_pop,62.9247,2.4529,3.8981,Typical values
+30,run030,CL_pop,3.9859,0.1422,3.5674,Typical values
+30,run030,Ka_pop,0.9756,0.1209,12.3917,Typical values
+30,run030,omega_Vd,0.3539,0.0208,5.8818,Random effects
+30,run030,omega_CL,0.3384,0.021,6.2058,Random effects
+30,run030,omega_Ka,0.8093,0.047,5.8108,Random effects
+30,run030,b,0.1365,0.006,4.409,Residual error model
+31,run031,Vd_pop,61.8835,2.412,3.8976,Typical values
+31,run031,CL_pop,3.8837,0.1245,3.2045,Typical values
+31,run031,Ka_pop,0.8118,0.092,11.3266,Typical values
+31,run031,omega_Vd,0.3408,0.0216,6.3336,Random effects
+31,run031,omega_CL,0.2912,0.0203,6.9825,Random effects
+31,run031,omega_Ka,0.739,0.0616,8.3306,Random effects
+31,run031,b,0.1463,0.0066,4.4914,Residual error model
+32,run032,Vd_pop,62.6653,2.6186,4.1787,Typical values
+32,run032,CL_pop,4.1345,0.1291,3.1213,Typical values
+32,run032,Ka_pop,0.8225,0.0906,11.0128,Typical values
+32,run032,omega_Vd,0.3892,0.0203,5.2095,Random effects
+32,run032,omega_CL,0.2907,0.0187,6.4461,Random effects
+32,run032,omega_Ka,0.6449,0.0402,6.2321,Random effects
+32,run032,b,0.1506,0.0064,4.2273,Residual error model
+33,run033,Vd_pop,66.7973,2.7413,4.1039,Typical values
+33,run033,CL_pop,3.6957,0.1297,3.5093,Typical values
+33,run033,Ka_pop,0.9618,0.1253,13.0253,Typical values
+33,run033,omega_Vd,0.3825,0.0222,5.8013,Random effects
+33,run033,omega_CL,0.325,0.0211,6.4969,Random effects
+33,run033,omega_Ka,0.8503,0.0466,5.4856,Random effects
+33,run033,b,0.1357,0.006,4.4371,Residual error model
+34,run034,Vd_pop,69.699,2.4852,3.5656,Typical values
+34,run034,CL_pop,4.1066,0.1239,3.0163,Typical values
+34,run034,Ka_pop,0.9095,0.0972,10.6877,Typical values
+34,run034,omega_Vd,0.3254,0.0196,6.0205,Random effects
+34,run034,omega_CL,0.2783,0.0188,6.7631,Random effects
+34,run034,omega_Ka,0.6333,0.0418,6.6055,Random effects
+34,run034,b,0.1304,0.0057,4.3371,Residual error model
+35,run035,Vd_pop,70.0614,2.516,3.5912,Typical values
+35,run035,CL_pop,3.8287,0.1372,3.5832,Typical values
+35,run035,Ka_pop,1.1427,0.1396,12.216,Typical values
+35,run035,omega_Vd,0.3273,0.0203,6.2012,Random effects
+35,run035,omega_CL,0.3375,0.0219,6.4858,Random effects
+35,run035,omega_Ka,0.6717,0.067,9.977,Random effects
+35,run035,b,0.1422,0.0063,4.4301,Residual error model
+36,run036,Vd_pop,65.0316,2.2,3.383,Typical values
+36,run036,CL_pop,3.9068,0.1272,3.2554,Typical values
+36,run036,Ka_pop,0.8818,0.0899,10.1974,Typical values
+36,run036,omega_Vd,0.2996,0.0201,6.7197,Random effects
+36,run036,omega_CL,0.3101,0.0203,6.5407,Random effects
+36,run036,omega_Ka,0.6029,0.0616,10.2134,Random effects
+36,run036,b,0.1329,0.0061,4.5912,Residual error model
+37,run037,Vd_pop,65.7231,2.6951,4.1006,Typical values
+37,run037,CL_pop,4.2647,0.1252,2.936,Typical values
+37,run037,Ka_pop,0.9923,0.1288,12.9767,Typical values
+37,run037,omega_Vd,0.3838,0.0203,5.2791,Random effects
+37,run037,omega_CL,0.269,0.0179,6.6393,Random effects
+37,run037,omega_Ka,0.8848,0.0493,5.5725,Random effects
+37,run037,b,0.1401,0.0058,4.1495,Residual error model
+38,run038,Vd_pop,62.8153,2.7078,4.3107,Typical values
+38,run038,CL_pop,4.1522,0.1491,3.59,Typical values
+38,run038,Ka_pop,0.7448,0.0787,10.5655,Typical values
+38,run038,omega_Vd,0.4101,0.0215,5.2322,Random effects
+38,run038,omega_CL,0.3403,0.0208,6.1026,Random effects
+38,run038,omega_Ka,0.6399,0.0346,5.4024,Random effects
+38,run038,b,0.127,0.0055,4.3234,Residual error model
+39,run039,Vd_pop,67.7251,2.6341,3.8894,Typical values
+39,run039,CL_pop,3.9107,0.1606,4.1063,Typical values
+39,run039,Ka_pop,1.0874,0.1562,14.3669,Typical values
+39,run039,omega_Vd,0.3613,0.0206,5.7089,Random effects
+39,run039,omega_CL,0.3892,0.0238,6.1267,Random effects
+39,run039,omega_Ka,0.9324,0.0607,6.5073,Random effects
+39,run039,b,0.143,0.0061,4.2817,Residual error model
+40,run040,Vd_pop,71.213,2.4968,3.506,Typical values
+40,run040,CL_pop,3.9397,0.1342,3.406,Typical values
+40,run040,Ka_pop,0.9234,0.0959,10.3907,Typical values
+40,run040,omega_Vd,0.3266,0.0202,6.1783,Random effects
+40,run040,omega_CL,0.319,0.0209,6.5622,Random effects
+40,run040,omega_Ka,0.5573,0.04,7.1796,Random effects
+40,run040,b,0.141,0.0061,4.293,Residual error model
+41,run041,Vd_pop,70.2234,2.6113,3.7185,Typical values
+41,run041,CL_pop,3.6923,0.118,3.1966,Typical values
+41,run041,Ka_pop,1.3936,0.2219,15.92,Typical values
+41,run041,omega_Vd,0.3541,0.0222,6.2591,Random effects
+41,run041,omega_CL,0.2847,0.0199,6.9897,Random effects
+41,run041,omega_Ka,0.851,0.0872,10.2419,Random effects
+41,run041,b,0.142,0.0063,4.4051,Residual error model
+42,run042,Vd_pop,69.1265,2.311,3.3431,Typical values
+42,run042,CL_pop,4.0597,0.1313,3.2333,Typical values
+42,run042,Ka_pop,1.1104,0.1624,14.6242,Typical values
+42,run042,omega_Vd,0.2985,0.02,6.7141,Random effects
+42,run042,omega_CL,0.3056,0.0205,6.7036,Random effects
+42,run042,omega_Ka,0.8262,0.0658,7.9597,Random effects
+42,run042,b,0.1393,0.0061,4.3488,Residual error model
+43,run043,Vd_pop,67.1865,2.4718,3.679,Typical values
+43,run043,CL_pop,4.0629,0.1498,3.6872,Typical values
+43,run043,Ka_pop,0.9051,0.1207,13.3356,Typical values
+43,run043,omega_Vd,0.3347,0.0196,5.8509,Random effects
+43,run043,omega_CL,0.3556,0.0218,6.1391,Random effects
+43,run043,omega_Ka,0.8594,0.0693,8.0673,Random effects
+43,run043,b,0.1246,0.0056,4.5281,Residual error model
+44,run044,Vd_pop,61.8891,2.5368,4.0989,Typical values
+44,run044,CL_pop,4.2518,0.1402,3.2984,Typical values
+44,run044,Ka_pop,0.8553,0.1126,13.1594,Typical values
+44,run044,omega_Vd,0.3705,0.0208,5.6079,Random effects
+44,run044,omega_CL,0.3042,0.02,6.5629,Random effects
+44,run044,omega_Ka,0.8913,0.0636,7.1335,Random effects
+44,run044,b,0.144,0.0062,4.2884,Residual error model
+45,run045,Vd_pop,67.1839,2.4548,3.6538,Typical values
+45,run045,CL_pop,4.1507,0.1504,3.6242,Typical values
+45,run045,Ka_pop,1.1141,0.1613,14.476,Typical values
+45,run045,omega_Vd,0.3166,0.0211,6.6634,Random effects
+45,run045,omega_CL,0.3476,0.0223,6.4258,Random effects
+45,run045,omega_Ka,0.9552,0.0564,5.9023,Random effects
+45,run045,b,0.1498,0.0065,4.345,Residual error model
+46,run046,Vd_pop,62.2108,2.7221,4.3757,Typical values
+46,run046,CL_pop,4.0033,0.1438,3.5909,Typical values
+46,run046,Ka_pop,0.7567,0.0833,11.0119,Typical values
+46,run046,omega_Vd,0.3992,0.024,6.0105,Random effects
+46,run046,omega_CL,0.3279,0.0219,6.67,Random effects
+46,run046,omega_Ka,0.6542,0.0517,7.9074,Random effects
+46,run046,b,0.1527,0.0068,4.4382,Residual error model
+47,run047,Vd_pop,64.5546,2.4659,3.8199,Typical values
+47,run047,CL_pop,3.9463,0.1339,3.3924,Typical values
+47,run047,Ka_pop,1.0448,0.1372,13.1353,Typical values
+47,run047,omega_Vd,0.3532,0.0199,5.6341,Random effects
+47,run047,omega_CL,0.3227,0.0191,5.9039,Random effects
+47,run047,omega_Ka,0.8824,0.045,5.0991,Random effects
+47,run047,b,0.1321,0.0057,4.2798,Residual error model
+48,run048,Vd_pop,66.3345,2.573,3.8789,Typical values
+48,run048,CL_pop,4.1219,0.1409,3.4187,Typical values
+48,run048,Ka_pop,0.8079,0.0874,10.8216,Typical values
+48,run048,omega_Vd,0.3601,0.0221,6.1323,Random effects
+48,run048,omega_CL,0.3265,0.0205,6.2846,Random effects
+48,run048,omega_Ka,0.6453,0.0611,9.4706,Random effects
+48,run048,b,0.1321,0.0061,4.6092,Residual error model
+49,run049,Vd_pop,67.5864,2.5221,3.7317,Typical values
+49,run049,CL_pop,3.9484,0.1329,3.3666,Typical values
+49,run049,Ka_pop,1.0476,0.1346,12.8434,Typical values
+49,run049,omega_Vd,0.3424,0.0216,6.299,Random effects
+49,run049,omega_CL,0.3171,0.0206,6.4964,Random effects
+49,run049,omega_Ka,0.8072,0.0676,8.3715,Random effects
+49,run049,b,0.1403,0.0063,4.4694,Residual error model
+50,run050,Vd_pop,68.662,2.5853,3.7653,Typical values
+50,run050,CL_pop,4.2144,0.1357,3.2199,Typical values
+50,run050,Ka_pop,0.935,0.1139,12.1811,Typical values
+50,run050,omega_Vd,0.339,0.0223,6.5647,Random effects
+50,run050,omega_CL,0.2985,0.0204,6.847,Random effects
+50,run050,omega_Ka,0.6874,0.0637,9.2686,Random effects
+50,run050,b,0.1477,0.0066,4.4523,Residual error model
+51,run051,Vd_pop,67.5071,2.7065,4.0092,Typical values
+51,run051,CL_pop,4.1574,0.1468,3.5312,Typical values
+51,run051,Ka_pop,0.8937,0.0859,9.6151,Typical values
+51,run051,omega_Vd,0.3784,0.0206,5.4454,Random effects
+51,run051,omega_CL,0.3353,0.0212,6.3194,Random effects
+51,run051,omega_Ka,0.473,0.028,5.9162,Random effects
+51,run051,b,0.1465,0.0059,4.0285,Residual error model
+52,run052,Vd_pop,69.1708,2.5182,3.6406,Typical values
+52,run052,CL_pop,3.8556,0.1242,3.2205,Typical values
+52,run052,Ka_pop,0.8691,0.1001,11.5191,Typical values
+52,run052,omega_Vd,0.3282,0.0222,6.752,Random effects
+52,run052,omega_CL,0.284,0.0204,7.1963,Random effects
+52,run052,omega_Ka,0.6764,0.0602,8.9005,Random effects
+52,run052,b,0.1435,0.0064,4.4671,Residual error model
+53,run053,Vd_pop,67.7917,2.7287,4.0251,Typical values
+53,run053,CL_pop,3.9687,0.1483,3.737,Typical values
+53,run053,Ka_pop,0.9702,0.1259,12.9759,Typical values
+53,run053,omega_Vd,0.3697,0.0235,6.3546,Random effects
+53,run053,omega_CL,0.3407,0.0232,6.7991,Random effects
+53,run053,omega_Ka,0.7376,0.0563,7.6378,Random effects
+53,run053,b,0.1495,0.0065,4.3276,Residual error model
+54,run054,Vd_pop,64.9416,2.4733,3.8086,Typical values
+54,run054,CL_pop,3.8192,0.1238,3.2414,Typical values
+54,run054,Ka_pop,1.1854,0.1621,13.6741,Typical values
+54,run054,omega_Vd,0.3529,0.0216,6.1262,Random effects
+54,run054,omega_CL,0.3099,0.0199,6.4087,Random effects
+54,run054,omega_Ka,0.8043,0.0694,8.6292,Random effects
+54,run054,b,0.1379,0.0062,4.5142,Residual error model
+55,run055,Vd_pop,65.7599,2.6188,3.9823,Typical values
+55,run055,CL_pop,4.2297,0.1366,3.2299,Typical values
+55,run055,Ka_pop,0.7979,0.0836,10.4749,Typical values
+55,run055,omega_Vd,0.3799,0.0213,5.595,Random effects
+55,run055,omega_CL,0.3038,0.0188,6.1741,Random effects
+55,run055,omega_Ka,0.6841,0.0525,7.6772,Random effects
+55,run055,b,0.1344,0.0062,4.5938,Residual error model
+56,run056,Vd_pop,68.5664,2.5716,3.7505,Typical values
+56,run056,CL_pop,3.836,0.151,3.9366,Typical values
+56,run056,Ka_pop,0.9626,0.1156,12.0063,Typical values
+56,run056,omega_Vd,0.3496,0.0195,5.5894,Random effects
+56,run056,omega_CL,0.3812,0.0229,5.999,Random effects
+56,run056,omega_Ka,0.7636,0.0492,6.4454,Random effects
+56,run056,b,0.1346,0.0059,4.4121,Residual error model
+57,run057,Vd_pop,65.3472,2.8825,4.411,Typical values
+57,run057,CL_pop,4.0711,0.1262,3.1011,Typical values
+57,run057,Ka_pop,0.8806,0.1007,11.4354,Typical values
+57,run057,omega_Vd,0.4232,0.0239,5.6435,Random effects
+57,run057,omega_CL,0.2839,0.0196,6.8986,Random effects
+57,run057,omega_Ka,0.7502,0.0543,7.237,Random effects
+57,run057,b,0.1405,0.0064,4.5452,Residual error model
+58,run058,Vd_pop,66.9794,2.509,3.746,Typical values
+58,run058,CL_pop,4.0262,0.1396,3.4676,Typical values
+58,run058,Ka_pop,0.9936,0.1188,11.9579,Typical values
+58,run058,omega_Vd,0.3423,0.02,5.8486,Random effects
+58,run058,omega_CL,0.3222,0.0216,6.699,Random effects
+58,run058,omega_Ka,0.8329,0.0618,7.4146,Random effects
+58,run058,b,0.1422,0.0064,4.5194,Residual error model
+59,run059,Vd_pop,63.7282,2.2817,3.5803,Typical values
+59,run059,CL_pop,3.821,0.1244,3.2564,Typical values
+59,run059,Ka_pop,0.8068,0.0904,11.2055,Typical values
+59,run059,omega_Vd,0.3207,0.0211,6.5877,Random effects
+59,run059,omega_CL,0.3028,0.0203,6.7085,Random effects
+59,run059,omega_Ka,0.6903,0.0637,9.23,Random effects
+59,run059,b,0.1358,0.0062,4.5804,Residual error model
+60,run060,Vd_pop,70.686,2.5669,3.6315,Typical values
+60,run060,CL_pop,3.8217,0.1285,3.3611,Typical values
+60,run060,Ka_pop,0.9579,0.0971,10.139,Typical values
+60,run060,omega_Vd,0.3455,0.0218,6.305,Random effects
+60,run060,omega_CL,0.314,0.0207,6.5988,Random effects
+60,run060,omega_Ka,0.5384,0.0571,10.6051,Random effects
+60,run060,b,0.1341,0.0061,4.5408,Residual error model
+61,run061,Vd_pop,65.7002,2.1357,3.2507,Typical values
+61,run061,CL_pop,4.1247,0.1328,3.2196,Typical values
+61,run061,Ka_pop,1.0003,0.1222,12.2212,Typical values
+61,run061,omega_Vd,0.2869,0.0196,6.8283,Random effects
+61,run061,omega_CL,0.3073,0.0204,6.629,Random effects
+61,run061,omega_Ka,0.7246,0.0594,8.2013,Random effects
+61,run061,b,0.1409,0.0062,4.3784,Residual error model
+62,run062,Vd_pop,60.7246,2.3407,3.8547,Typical values
+62,run062,CL_pop,4.1377,0.1288,3.1124,Typical values
+62,run062,Ka_pop,0.828,0.0904,10.9164,Typical values
+62,run062,omega_Vd,0.3643,0.0205,5.6348,Random effects
+62,run062,omega_CL,0.2986,0.0182,6.1015,Random effects
+62,run062,omega_Ka,0.7147,0.0526,7.3603,Random effects
+62,run062,b,0.1269,0.0057,4.5287,Residual error model
+63,run063,Vd_pop,67.3338,2.2212,3.2988,Typical values
+63,run063,CL_pop,3.9064,0.1144,2.9284,Typical values
+63,run063,Ka_pop,1.0213,0.0874,8.557,Typical values
+63,run063,omega_Vd,0.3009,0.0205,6.8048,Random effects
+63,run063,omega_CL,0.2742,0.0191,6.9634,Random effects
+63,run063,omega_Ka,0.3451,0.0346,10.0348,Random effects
+63,run063,b,0.1464,0.0061,4.1721,Residual error model
+64,run064,Vd_pop,67.5093,2.5118,3.7207,Typical values
+64,run064,CL_pop,3.7957,0.1207,3.1797,Typical values
+64,run064,Ka_pop,1.1504,0.1373,11.9354,Typical values
+64,run064,omega_Vd,0.3497,0.0209,5.9849,Random effects
+64,run064,omega_CL,0.2919,0.0198,6.7917,Random effects
+64,run064,omega_Ka,0.7657,0.0617,8.0549,Random effects
+64,run064,b,0.1341,0.0061,4.5562,Residual error model
+65,run065,Vd_pop,66.1162,2.5775,3.8985,Typical values
+65,run065,CL_pop,4.0709,0.1374,3.3755,Typical values
+65,run065,Ka_pop,1.028,0.1214,11.8062,Typical values
+65,run065,omega_Vd,0.3695,0.0197,5.336,Random effects
+65,run065,omega_CL,0.3185,0.0194,6.0831,Random effects
+65,run065,omega_Ka,0.6697,0.0397,5.9271,Random effects
+65,run065,b,0.1424,0.0063,4.4329,Residual error model
+66,run066,Vd_pop,68.1416,2.6149,3.8375,Typical values
+66,run066,CL_pop,3.9636,0.1396,3.5213,Typical values
+66,run066,Ka_pop,0.945,0.10780000000000001,11.4093,Typical values
+66,run066,omega_Vd,0.358,0.0223,6.2273,Random effects
+66,run066,omega_CL,0.3208,0.022,6.87,Random effects
+66,run066,omega_Ka,0.7168,0.0534,7.4556,Random effects
+66,run066,b,0.1385,0.0062,4.4428,Residual error model
+67,run067,Vd_pop,68.6246,2.8752,4.1898,Typical values
+67,run067,CL_pop,3.9688,0.1569,3.9529,Typical values
+67,run067,Ka_pop,0.9901,0.1121,11.3249,Typical values
+67,run067,omega_Vd,0.4021,0.0204,5.0808,Random effects
+67,run067,omega_CL,0.3804,0.0225,5.9242,Random effects
+67,run067,omega_Ka,0.7366,0.0366,4.9725,Random effects
+67,run067,b,0.1333,0.0057,4.2549,Residual error model
+68,run068,Vd_pop,66.2929,2.4744,3.7325,Typical values
+68,run068,CL_pop,3.9234,0.1239,3.1592,Typical values
+68,run068,Ka_pop,0.8882,0.0859,9.6761,Typical values
+68,run068,omega_Vd,0.3435,0.0214,6.2245,Random effects
+68,run068,omega_CL,0.2916,0.0199,6.8178,Random effects
+68,run068,omega_Ka,0.5699,0.039,6.8488,Random effects
+68,run068,b,0.143,0.0063,4.3778,Residual error model
+69,run069,Vd_pop,67.4607,2.56,3.7948,Typical values
+69,run069,CL_pop,4.0981,0.1422,3.4699,Typical values
+69,run069,Ka_pop,0.8951,0.0891,9.9585,Typical values
+69,run069,omega_Vd,0.3602,0.0205,5.6994,Random effects
+69,run069,omega_CL,0.3258,0.0214,6.5715,Random effects
+69,run069,omega_Ka,0.5186,0.0449,8.6651,Random effects
+69,run069,b,0.1437,0.0061,4.2788,Residual error model
+70,run070,Vd_pop,67.2745,2.5163,3.7404,Typical values
+70,run070,CL_pop,3.9661,0.1377,3.4715,Typical values
+70,run070,Ka_pop,1.1595,0.1277,11.0104,Typical values
+70,run070,omega_Vd,0.3558,0.0203,5.7138,Random effects
+70,run070,omega_CL,0.3273,0.0216,6.6057,Random effects
+70,run070,omega_Ka,0.5315,0.0678,12.7516,Random effects
+70,run070,b,0.1434,0.0062,4.3261,Residual error model
+71,run071,Vd_pop,63.8988,2.5639,4.0125,Typical values
+71,run071,CL_pop,4.1098,0.1445,3.516,Typical values
+71,run071,Ka_pop,0.988,0.1187,12.0097,Typical values
+71,run071,omega_Vd,0.3789,0.021,5.5304,Random effects
+71,run071,omega_CL,0.3331,0.0208,6.2455,Random effects
+71,run071,omega_Ka,0.7769,0.0536,6.9044,Random effects
+71,run071,b,0.1346,0.006,4.4307,Residual error model
+72,run072,Vd_pop,62.9965,2.5743,4.0864,Typical values
+72,run072,CL_pop,3.8294,0.1166,3.0459,Typical values
+72,run072,Ka_pop,0.8537,0.0759,8.8849,Typical values
+72,run072,omega_Vd,0.392,0.0224,5.7215,Random effects
+72,run072,omega_CL,0.2807,0.0188,6.6883,Random effects
+72,run072,omega_Ka,0.5158,0.0476,9.2217,Random effects
+72,run072,b,0.1379,0.0062,4.4843,Residual error model
+73,run073,Vd_pop,68.8808,2.7352,3.9709,Typical values
+73,run073,CL_pop,4.2914,0.1485,3.4605,Typical values
+73,run073,Ka_pop,0.8785,0.0978,11.1368,Typical values
+73,run073,omega_Vd,0.3674,0.0218,5.9342,Random effects
+73,run073,omega_CL,0.3329,0.0209,6.2827,Random effects
+73,run073,omega_Ka,0.7046,0.0562,7.9764,Random effects
+73,run073,b,0.1351,0.0062,4.6136,Residual error model
+74,run074,Vd_pop,67.9454,2.532,3.7266,Typical values
+74,run074,CL_pop,4.1459,0.1338,3.2271,Typical values
+74,run074,Ka_pop,1.0098,0.1228,12.1569,Typical values
+74,run074,omega_Vd,0.3436,0.0178,5.1719,Random effects
+74,run074,omega_CL,0.3018,0.019,6.3083,Random effects
+74,run074,omega_Ka,0.7495,0.0299,3.9905,Random effects
+74,run074,b,0.141,0.0058,4.138,Residual error model
+75,run075,Vd_pop,63.9527,2.9202,4.5662,Typical values
+75,run075,CL_pop,4.1694,0.159,3.8139,Typical values
+75,run075,Ka_pop,0.7563,0.094,12.4332,Typical values
+75,run075,omega_Vd,0.4219,0.0219,5.184,Random effects
+75,run075,omega_CL,0.3701,0.0207,5.5828,Random effects
+75,run075,omega_Ka,0.8689,0.0567,6.5246,Random effects
+75,run075,b,0.1253,0.0057,4.553,Residual error model
+76,run076,Vd_pop,69.7162,2.5159,3.6088,Typical values
+76,run076,CL_pop,4.1731,0.1473,3.529,Typical values
+76,run076,Ka_pop,0.8796,0.0921,10.4705,Typical values
+76,run076,omega_Vd,0.3306,0.0194,5.8677,Random effects
+76,run076,omega_CL,0.3417,0.0204,5.9612,Random effects
+76,run076,omega_Ka,0.6166,0.0448,7.2706,Random effects
+76,run076,b,0.1352,0.0061,4.4964,Residual error model
+77,run077,Vd_pop,68.6534,2.6688,3.8873,Typical values
+77,run077,CL_pop,3.9155,0.1418,3.6219,Typical values
+77,run077,Ka_pop,0.847,0.0882,10.4129,Typical values
+77,run077,omega_Vd,0.3655,0.0183,4.9944,Random effects
+77,run077,omega_CL,0.3399,0.02,5.8901,Random effects
+77,run077,omega_Ka,0.6766,0.0263,3.8906,Random effects
+77,run077,b,0.12,0.0051,4.2658,Residual error model
+78,run078,Vd_pop,66.7838,2.6988,4.0411,Typical values
+78,run078,CL_pop,4.1034,0.1405,3.4236,Typical values
+78,run078,Ka_pop,1.1441,0.1305,11.4074,Typical values
+78,run078,omega_Vd,0.384,0.0226,5.878,Random effects
+78,run078,omega_CL,0.3226,0.0211,6.5367,Random effects
+78,run078,omega_Ka,0.6353,0.0463,7.2927,Random effects
+78,run078,b,0.1449,0.0064,4.439,Residual error model
+79,run079,Vd_pop,66.0863,2.5544,3.8652,Typical values
+79,run079,CL_pop,4.0208,0.1442,3.5876,Typical values
+79,run079,Ka_pop,0.8667,0.0792,9.1387,Typical values
+79,run079,omega_Vd,0.3641,0.0224,6.161,Random effects
+79,run079,omega_CL,0.35,0.022,6.2917,Random effects
+79,run079,omega_Ka,0.4872,0.0519,10.6629,Random effects
+79,run079,b,0.1377,0.0062,4.4843,Residual error model
+80,run080,Vd_pop,65.593,2.8335,4.3199,Typical values
+80,run080,CL_pop,3.9153,0.1133,2.894,Typical values
+80,run080,Ka_pop,0.9916,0.104,10.4933,Typical values
+80,run080,omega_Vd,0.4183,0.0222,5.3113,Random effects
+80,run080,omega_CL,0.2544,0.0167,6.5537,Random effects
+80,run080,omega_Ka,0.6428,0.0374,5.819,Random effects
+80,run080,b,0.1372,0.0058,4.2181,Residual error model
+81,run081,Vd_pop,67.4367,2.8547,4.2331,Typical values
+81,run081,CL_pop,4.0855,0.1484,3.6312,Typical values
+81,run081,Ka_pop,0.9482,0.1247,13.1481,Typical values
+81,run081,omega_Vd,0.4021,0.023,5.7197,Random effects
+81,run081,omega_CL,0.3348,0.0221,6.6066,Random effects
+81,run081,omega_Ka,0.8119,0.0448,5.5185,Random effects
+81,run081,b,0.139,0.0059,4.2602,Residual error model
+82,run082,Vd_pop,69.2257,2.4193,3.4948,Typical values
+82,run082,CL_pop,4.0404,0.1194,2.9554,Typical values
+82,run082,Ka_pop,0.8067,0.0724,8.9784,Typical values
+82,run082,omega_Vd,0.3178,0.0212,6.6687,Random effects
+82,run082,omega_CL,0.2696,0.0186,6.9023,Random effects
+82,run082,omega_Ka,0.4108,0.0534,13.005,Random effects
+82,run082,b,0.1481,0.0065,4.374,Residual error model
+83,run083,Vd_pop,68.3211,2.3258,3.4042,Typical values
+83,run083,CL_pop,4.3009,0.1351,3.1422,Typical values
+83,run083,Ka_pop,0.7931,0.0875,11.0277,Typical values
+83,run083,omega_Vd,0.2817,0.0201,7.1363,Random effects
+83,run083,omega_CL,0.2873,0.0192,6.6666,Random effects
+83,run083,omega_Ka,0.6454,0.0624,9.6717,Random effects
+83,run083,b,0.1505,0.0067,4.4656,Residual error model
+84,run084,Vd_pop,65.5521,2.551,3.8915,Typical values
+84,run084,CL_pop,3.9316,0.1321,3.3604,Typical values
+84,run084,Ka_pop,1.0167,0.1049,10.3217,Typical values
+84,run084,omega_Vd,0.3747,0.0215,5.7391,Random effects
+84,run084,omega_CL,0.3166,0.0191,6.0206,Random effects
+84,run084,omega_Ka,0.6182,0.0518,8.3837,Random effects
+84,run084,b,0.1335,0.006,4.4772,Residual error model
+85,run085,Vd_pop,62.8641,2.5113,3.9948,Typical values
+85,run085,CL_pop,3.7859,0.1275,3.3666,Typical values
+85,run085,Ka_pop,1.0084,0.1287,12.7627,Typical values
+85,run085,omega_Vd,0.3655,0.0224,6.1346,Random effects
+85,run085,omega_CL,0.3208,0.0186,5.8106,Random effects
+85,run085,omega_Ka,0.8007,0.0489,6.1115,Random effects
+85,run085,b,0.147,0.0063,4.2642,Residual error model
+86,run086,Vd_pop,60.7735,2.3808,3.9174,Typical values
+86,run086,CL_pop,4.0207,0.1565,3.8917,Typical values
+86,run086,Ka_pop,0.8211,0.1131,13.7761,Typical values
+86,run086,omega_Vd,0.3418,0.0198,5.7847,Random effects
+86,run086,omega_CL,0.3764,0.0237,6.3081,Random effects
+86,run086,omega_Ka,1.0198,0.0617,6.0489,Random effects
+86,run086,b,0.1302,0.0058,4.4764,Residual error model
+87,run087,Vd_pop,66.9154,2.5627,3.8298,Typical values
+87,run087,CL_pop,4.2261,0.1477,3.4957,Typical values
+87,run087,Ka_pop,0.8446,0.0821,9.7243,Typical values
+87,run087,omega_Vd,0.3528,0.0156,4.4127,Random effects
+87,run087,omega_CL,0.3357,0.0204,6.0644,Random effects
+87,run087,omega_Ka,0.5665,0.0225,3.9806,Random effects
+87,run087,b,0.1381,0.0053,3.8687,Residual error model
+88,run088,Vd_pop,61.6494,2.2694,3.6812,Typical values
+88,run088,CL_pop,4.1394,0.1385,3.3461,Typical values
+88,run088,Ka_pop,0.8116,0.1027,12.6504,Typical values
+88,run088,omega_Vd,0.3381,0.0197,5.832,Random effects
+88,run088,omega_CL,0.3333,0.0201,6.0296,Random effects
+88,run088,omega_Ka,0.867,0.0624,7.1979,Random effects
+88,run088,b,0.1208,0.0056,4.5983,Residual error model
+89,run089,Vd_pop,70.9331,2.7737,3.9102,Typical values
+89,run089,CL_pop,3.4912,0.1392,3.986,Typical values
+89,run089,Ka_pop,1.0273,0.1201,11.6899,Typical values
+89,run089,omega_Vd,0.371,0.022,5.9389,Random effects
+89,run089,omega_CL,0.3647,0.0239,6.5586,Random effects
+89,run089,omega_Ka,0.8082,0.0534,6.6052,Random effects
+89,run089,b,0.1274,0.0058,4.5466,Residual error model
+90,run090,Vd_pop,68.2983,3.012,4.4101,Typical values
+90,run090,CL_pop,3.9119,0.1268,3.2418,Typical values
+90,run090,Ka_pop,0.9417,0.1035,10.9935,Typical values
+90,run090,omega_Vd,0.4217,0.0231,5.4823,Random effects
+90,run090,omega_CL,0.2979,0.0194,6.5235,Random effects
+90,run090,omega_Ka,0.6707,0.0472,7.0446,Random effects
+90,run090,b,0.1399,0.0063,4.5152,Residual error model
+91,run091,Vd_pop,69.4435,2.2521,3.243,Typical values
+91,run091,CL_pop,4.0256,0.1162,2.8869,Typical values
+91,run091,Ka_pop,0.9837,0.1216,12.3575,Typical values
+91,run091,omega_Vd,0.2876,0.019,6.6109,Random effects
+91,run091,omega_CL,0.2636,0.0184,6.997,Random effects
+91,run091,omega_Ka,0.7276,0.0451,6.2002,Random effects
+91,run091,b,0.1424,0.0059,4.1627,Residual error model
+92,run092,Vd_pop,70.4729,2.8926,4.1045,Typical values
+92,run092,CL_pop,3.9555,0.152,3.8429,Typical values
+92,run092,Ka_pop,0.9475,0.1132,11.9515,Typical values
+92,run092,omega_Vd,0.386,0.022,5.6928,Random effects
+92,run092,omega_CL,0.3629,0.0229,6.3208,Random effects
+92,run092,omega_Ka,0.7661,0.0604,7.889,Random effects
+92,run092,b,0.1345,0.0062,4.5819,Residual error model
+93,run093,Vd_pop,68.8828,2.7036,3.9249,Typical values
+93,run093,CL_pop,3.7373,0.1361,3.642,Typical values
+93,run093,Ka_pop,1.048,0.107,10.2107,Typical values
+93,run093,omega_Vd,0.3678,0.0236,6.4208,Random effects
+93,run093,omega_CL,0.3262,0.0229,7.0315,Random effects
+93,run093,omega_Ka,0.6061,0.0526,8.6756,Random effects
+93,run093,b,0.1578,0.007,4.4489,Residual error model
+94,run094,Vd_pop,68.0969,2.8318,4.1585,Typical values
+94,run094,CL_pop,4.3534,0.1474,3.3866,Typical values
+94,run094,Ka_pop,0.98,0.1386,14.1428,Typical values
+94,run094,omega_Vd,0.3909,0.0223,5.7065,Random effects
+94,run094,omega_CL,0.3148,0.0208,6.614,Random effects
+94,run094,omega_Ka,0.8958,0.0665,7.4222,Random effects
+94,run094,b,0.1445,0.0063,4.357,Residual error model
+95,run095,Vd_pop,68.1528,2.7118,3.979,Typical values
+95,run095,CL_pop,3.7605,0.138,3.6684,Typical values
+95,run095,Ka_pop,0.984,0.1037,10.5432,Typical values
+95,run095,omega_Vd,0.3808,0.0226,5.9469,Random effects
+95,run095,omega_CL,0.3467,0.0229,6.6062,Random effects
+95,run095,omega_Ka,0.6481,0.0535,8.2487,Random effects
+95,run095,b,0.1392,0.0063,4.5078,Residual error model
+96,run096,Vd_pop,62.724,2.3656,3.7715,Typical values
+96,run096,CL_pop,3.7053,0.1246,3.3622,Typical values
+96,run096,Ka_pop,0.895,0.1039,11.6081,Typical values
+96,run096,omega_Vd,0.3442,0.0204,5.9315,Random effects
+96,run096,omega_CL,0.3093,0.0206,6.6751,Random effects
+96,run096,omega_Ka,0.7138,0.0527,7.3865,Random effects
+96,run096,b,0.1458,0.0063,4.3475,Residual error model
+97,run097,Vd_pop,63.7893,2.7627,4.3309,Typical values
+97,run097,CL_pop,4.1346,0.1242,3.0038,Typical values
+97,run097,Ka_pop,0.7613,0.0832,10.929,Typical values
+97,run097,omega_Vd,0.3979,0.0205,5.1635,Random effects
+97,run097,omega_CL,0.2816,0.0184,6.5451,Random effects
+97,run097,omega_Ka,0.7805,0.0446,5.7163,Random effects
+97,run097,b,0.13,0.0056,4.2885,Residual error model
+98,run098,Vd_pop,63.5064,2.249,3.5413,Typical values
+98,run098,CL_pop,3.9947,0.1358,3.3992,Typical values
+98,run098,Ka_pop,0.7595,0.0793,10.4407,Typical values
+98,run098,omega_Vd,0.3162,0.0195,6.1782,Random effects
+98,run098,omega_CL,0.3205,0.0207,6.4742,Random effects
+98,run098,omega_Ka,0.6783,0.0322,4.7532,Random effects
+98,run098,b,0.1284,0.0055,4.2977,Residual error model
+99,run099,Vd_pop,66.6231,2.6419,3.9654,Typical values
+99,run099,CL_pop,3.883,0.1577,4.0617,Typical values
+99,run099,Ka_pop,0.898,0.1091,12.155,Typical values
+99,run099,omega_Vd,0.3659,0.0211,5.7533,Random effects
+99,run099,omega_CL,0.3903,0.0237,6.0788,Random effects
+99,run099,omega_Ka,0.7623,0.0474,6.2142,Random effects
+99,run099,b,0.1333,0.0059,4.4056,Residual error model
+100,run100,Vd_pop,65.99,2.5633,3.8845,Typical values
+100,run100,CL_pop,3.9427,0.1208,3.0631,Typical values
+100,run100,Ka_pop,0.9076,0.1069,11.7819,Typical values
+100,run100,omega_Vd,0.365,0.022,6.0206,Random effects
+100,run100,omega_CL,0.2766,0.0162,5.8645,Random effects
+100,run100,omega_Ka,0.775,0.0338,4.3598,Random effects
+100,run100,b,0.1344,0.0054,4.0467,Residual error model
+101,run101,Vd_pop,69.4034,2.4135,3.4776,Typical values
+101,run101,CL_pop,4.1411,0.1389,3.3531,Typical values
+101,run101,Ka_pop,0.8635,0.1018,11.7916,Typical values
+101,run101,omega_Vd,0.3112,0.0192,6.1664,Random effects
+101,run101,omega_CL,0.3128,0.0205,6.5633,Random effects
+101,run101,omega_Ka,0.7457,0.0357,4.7899,Random effects
+101,run101,b,0.1351,0.0057,4.2374,Residual error model
+102,run102,Vd_pop,64.5504,2.6729,4.1408,Typical values
+102,run102,CL_pop,4.0959,0.1266,3.0901,Typical values
+102,run102,Ka_pop,0.7925,0.0899,11.3379,Typical values
+102,run102,omega_Vd,0.3888,0.0224,5.7526,Random effects
+102,run102,omega_CL,0.2908,0.0184,6.3296,Random effects
+102,run102,omega_Ka,0.7019,0.0475,6.7744,Random effects
+102,run102,b,0.1346,0.006,4.4667,Residual error model
+103,run103,Vd_pop,69.3967,2.613,3.7654,Typical values
+103,run103,CL_pop,4.2558,0.1481,3.4791,Typical values
+103,run103,Ka_pop,0.693,0.072,10.3884,Typical values
+103,run103,omega_Vd,0.3234,0.0202,6.2596,Random effects
+103,run103,omega_CL,0.3362,0.0215,6.3794,Random effects
+103,run103,omega_Ka,0.7464,0.0526,7.0466,Random effects
+103,run103,b,0.137,0.0062,4.5575,Residual error model
+104,run104,Vd_pop,66.1037,2.7916,4.223,Typical values
+104,run104,CL_pop,4.0113,0.1407,3.5085,Typical values
+104,run104,Ka_pop,0.8695,0.1163,13.3712,Typical values
+104,run104,omega_Vd,0.3829,0.0226,5.8919,Random effects
+104,run104,omega_CL,0.3229,0.0202,6.2479,Random effects
+104,run104,omega_Ka,0.8162,0.0578,7.0846,Random effects
+104,run104,b,0.1374,0.0061,4.4287,Residual error model
+105,run105,Vd_pop,71.7987,3.0532,4.2525,Typical values
+105,run105,CL_pop,4.0548,0.141,3.477,Typical values
+105,run105,Ka_pop,1.0144,0.1187,11.7006,Typical values
+105,run105,omega_Vd,0.4113,0.0249,6.0435,Random effects
+105,run105,omega_CL,0.3213,0.0216,6.719,Random effects
+105,run105,omega_Ka,0.6366,0.0562,8.8216,Random effects
+105,run105,b,0.1419,0.0063,4.4722,Residual error model
+106,run106,Vd_pop,69.3376,2.2616,3.2617,Typical values
+106,run106,CL_pop,4.0427,0.1393,3.4469,Typical values
+106,run106,Ka_pop,1.0684,0.0951,8.9005,Typical values
+106,run106,omega_Vd,0.3006,0.0186,6.178,Random effects
+106,run106,omega_CL,0.3325,0.0214,6.4282,Random effects
+106,run106,omega_Ka,0.4775,0.0398,8.3354,Random effects
+106,run106,b,0.1343,0.0057,4.2756,Residual error model
+107,run107,Vd_pop,66.4267,2.8116,4.2326,Typical values
+107,run107,CL_pop,4.0461,0.1404,3.469,Typical values
+107,run107,Ka_pop,1.0286,0.1067,10.3744,Typical values
+107,run107,omega_Vd,0.4018,0.0241,6.008,Random effects
+107,run107,omega_CL,0.3318,0.0216,6.5038,Random effects
+107,run107,omega_Ka,0.5417,0.0599,11.0603,Random effects
+107,run107,b,0.149,0.0067,4.4992,Residual error model
+108,run108,Vd_pop,64.9538,2.8057,4.3195,Typical values
+108,run108,CL_pop,3.8894,0.1314,3.3775,Typical values
+108,run108,Ka_pop,0.7403,0.0825,11.1446,Typical values
+108,run108,omega_Vd,0.4129,0.0226,5.4825,Random effects
+108,run108,omega_CL,0.3023,0.0202,6.6932,Random effects
+108,run108,omega_Ka,0.7176,0.0472,6.5736,Random effects
+108,run108,b,0.1369,0.0062,4.5172,Residual error model
+109,run109,Vd_pop,66.3481,2.3405,3.5276,Typical values
+109,run109,CL_pop,4.0886,0.1296,3.1691,Typical values
+109,run109,Ka_pop,1.0116,0.1076,10.6342,Typical values
+109,run109,omega_Vd,0.3248,0.021,6.4765,Random effects
+109,run109,omega_CL,0.3005,0.0201,6.7042,Random effects
+109,run109,omega_Ka,0.5767,0.0544,9.4385,Random effects
+109,run109,b,0.1414,0.0064,4.5016,Residual error model
+110,run110,Vd_pop,68.3474,2.6185,3.8312,Typical values
+110,run110,CL_pop,3.8771,0.1224,3.1578,Typical values
+110,run110,Ka_pop,0.8128,0.0915,11.2539,Typical values
+110,run110,omega_Vd,0.3472,0.0212,6.114,Random effects
+110,run110,omega_CL,0.2797,0.0198,7.0903,Random effects
+110,run110,omega_Ka,0.791,0.053900000000000003,6.8206,Random effects
+110,run110,b,0.1354,0.0063,4.6257,Residual error model
+111,run111,Vd_pop,71.211,3.0404,4.2696,Typical values
+111,run111,CL_pop,3.79,0.1189,3.1377,Typical values
+111,run111,Ka_pop,1.3227,0.1697,12.8328,Typical values
+111,run111,omega_Vd,0.4266,0.0247,5.7978,Random effects
+111,run111,omega_CL,0.2869,0.0193,6.7306,Random effects
+111,run111,omega_Ka,0.6731,0.0615,9.138,Random effects
+111,run111,b,0.1451,0.0064,4.386,Residual error model
+112,run112,Vd_pop,68.4359,2.73,3.9892,Typical values
+112,run112,CL_pop,4.0042,0.1259,3.1447,Typical values
+112,run112,Ka_pop,0.9562,0.1095,11.4508,Typical values
+112,run112,omega_Vd,0.3782,0.0217,5.7359,Random effects
+112,run112,omega_CL,0.2957,0.0192,6.4852,Random effects
+112,run112,omega_Ka,0.7127,0.0516,7.2355,Random effects
+112,run112,b,0.1359,0.006,4.4463,Residual error model
+113,run113,Vd_pop,71.7743,2.8009,3.9024,Typical values
+113,run113,CL_pop,4.0786,0.148,3.6276,Typical values
+113,run113,Ka_pop,1.0209,0.1006,9.8569,Typical values
+113,run113,omega_Vd,0.3778,0.0212,5.6087,Random effects
+113,run113,omega_CL,0.3544,0.0219,6.1877,Random effects
+113,run113,omega_Ka,0.5202,0.0455,8.7469,Random effects
+113,run113,b,0.134,0.0058,4.3615,Residual error model
+114,run114,Vd_pop,65.6561,2.4281,3.6982,Typical values
+114,run114,CL_pop,4.0462,0.124,3.064,Typical values
+114,run114,Ka_pop,0.728,0.0699,9.6087,Typical values
+114,run114,omega_Vd,0.3316,0.02,6.037,Random effects
+114,run114,omega_CL,0.2881,0.0189,6.5715,Random effects
+114,run114,omega_Ka,0.6119,0.0473,7.7289,Random effects
+114,run114,b,0.1325,0.0059,4.4872,Residual error model
+115,run115,Vd_pop,64.5341,2.5452,3.944,Typical values
+115,run115,CL_pop,4.0355,0.138,3.4188,Typical values
+115,run115,Ka_pop,0.7341,0.0761,10.3617,Typical values
+115,run115,omega_Vd,0.3537,0.0186,5.2636,Random effects
+115,run115,omega_CL,0.3244,0.0122,3.75,Random effects
+115,run115,omega_Ka,0.6746,0.0271,4.0203,Random effects
+115,run115,b,0.1321,0.0046,3.4921,Residual error model
+116,run116,Vd_pop,63.2859,2.1266,3.3603,Typical values
+116,run116,CL_pop,3.8582,0.1139,2.9515,Typical values
+116,run116,Ka_pop,1.081,0.1466,13.558,Typical values
+116,run116,omega_Vd,0.2962,0.0201,6.7755,Random effects
+116,run116,omega_CL,0.2749,0.0189,6.8594,Random effects
+116,run116,omega_Ka,0.8561,0.0729,8.5133,Random effects
+116,run116,b,0.1443,0.0065,4.478,Residual error model
+117,run117,Vd_pop,68.4249,2.5489,3.7251,Typical values
+117,run117,CL_pop,3.9975,0.1469,3.6749,Typical values
+117,run117,Ka_pop,0.8557,0.0791,9.2383,Typical values
+117,run117,omega_Vd,0.349,0.0208,5.9542,Random effects
+117,run117,omega_CL,0.3453,0.022,6.3584,Random effects
+117,run117,omega_Ka,0.5284,0.0462,8.7351,Random effects
+117,run117,b,0.1368,0.0061,4.4438,Residual error model
+118,run118,Vd_pop,70.6606,2.9082,4.1157,Typical values
+118,run118,CL_pop,3.9605,0.129,3.2567,Typical values
+118,run118,Ka_pop,1.0253,0.1263,12.3164,Typical values
+118,run118,omega_Vd,0.4007,0.0209,5.2173,Random effects
+118,run118,omega_CL,0.2932,0.0191,6.5275,Random effects
+118,run118,omega_Ka,0.7314,0.0419,5.7224,Random effects
+118,run118,b,0.1346,0.0055,4.0721,Residual error model
+119,run119,Vd_pop,70.9789,2.7016,3.8062,Typical values
+119,run119,CL_pop,4.0673,0.1466,3.6048,Typical values
+119,run119,Ka_pop,0.7839,0.0805,10.2651,Typical values
+119,run119,omega_Vd,0.344,0.0184,5.3593,Random effects
+119,run119,omega_CL,0.3363,0.0221,6.5809,Random effects
+119,run119,omega_Ka,0.601,0.0292,4.8551,Random effects
+119,run119,b,0.1401,0.0057,4.0962,Residual error model
+120,run120,Vd_pop,66.1107,2.2845,3.4556,Typical values
+120,run120,CL_pop,4.1793,0.1353,3.237,Typical values
+120,run120,Ka_pop,1.1866,0.1824,15.3703,Typical values
+120,run120,omega_Vd,0.3051,0.02,6.5687,Random effects
+120,run120,omega_CL,0.3086,0.0202,6.553,Random effects
+120,run120,omega_Ka,0.9344,0.0817,8.7435,Random effects
+120,run120,b,0.1494,0.0067,4.4684,Residual error model
+121,run121,Vd_pop,69.6078,2.4423,3.5087,Typical values
+121,run121,CL_pop,3.7887,0.144,3.8008,Typical values
+121,run121,Ka_pop,1.2321,0.1783,14.4738,Typical values
+121,run121,omega_Vd,0.3232,0.0184,5.7057,Random effects
+121,run121,omega_CL,0.3634,0.0235,6.4633,Random effects
+121,run121,omega_Ka,0.8423,0.0504,5.9868,Random effects
+121,run121,b,0.1422,0.0061,4.2837,Residual error model
+122,run122,Vd_pop,69.4453,2.5641,3.6922,Typical values
+122,run122,CL_pop,3.9072,0.1306,3.3431,Typical values
+122,run122,Ka_pop,1.1708,0.1454,12.4192,Typical values
+122,run122,omega_Vd,0.3511,0.0211,6.0201,Random effects
+122,run122,omega_CL,0.318,0.0213,6.6821,Random effects
+122,run122,omega_Ka,0.7684,0.0577,7.5094,Random effects
+122,run122,b,0.1342,0.0061,4.5163,Residual error model
+123,run123,Vd_pop,66.2292,2.8899,4.3636,Typical values
+123,run123,CL_pop,3.9052,0.1532,3.9231,Typical values
+123,run123,Ka_pop,0.8518,0.0923,10.8413,Typical values
+123,run123,omega_Vd,0.402,0.0241,5.9927,Random effects
+123,run123,omega_CL,0.3674,0.0241,6.5568,Random effects
+123,run123,omega_Ka,0.6334,0.0576,9.088,Random effects
+123,run123,b,0.1452,0.0065,4.4701,Residual error model
+124,run124,Vd_pop,68.5968,2.7147,3.9575,Typical values
+124,run124,CL_pop,4.0103,0.1252,3.1227,Typical values
+124,run124,Ka_pop,1.1167,0.1322,11.8402,Typical values
+124,run124,omega_Vd,0.3781,0.0226,5.987,Random effects
+124,run124,omega_CL,0.2897,0.0196,6.7767,Random effects
+124,run124,omega_Ka,0.7352,0.0606,8.2397,Random effects
+124,run124,b,0.1375,0.0063,4.5654,Residual error model
+125,run125,Vd_pop,66.3696,2.6045,3.9243,Typical values
+125,run125,CL_pop,4.1064,0.1401,3.4124,Typical values
+125,run125,Ka_pop,0.8386,0.0993,11.8392,Typical values
+125,run125,omega_Vd,0.3511,0.0215,6.1375,Random effects
+125,run125,omega_CL,0.317,0.0208,6.5673,Random effects
+125,run125,omega_Ka,0.8083,0.0643,7.9578,Random effects
+125,run125,b,0.1399,0.0065,4.6144,Residual error model
+126,run126,Vd_pop,66.2747,2.587,3.9035,Typical values
+126,run126,CL_pop,4.0403,0.13,3.2171,Typical values
+126,run126,Ka_pop,0.8615,0.0913,10.6013,Typical values
+126,run126,omega_Vd,0.3604,0.0187,5.1883,Random effects
+126,run126,omega_CL,0.2962,0.0193,6.5297,Random effects
+126,run126,omega_Ka,0.6808,0.0296,4.3476,Random effects
+126,run126,b,0.1377,0.0056,4.0727,Residual error model
+127,run127,Vd_pop,69.8474,2.8586,4.0927,Typical values
+127,run127,CL_pop,3.9017,0.1401,3.5896,Typical values
+127,run127,Ka_pop,1.2628,0.1529,12.1102,Typical values
+127,run127,omega_Vd,0.3977,0.0228,5.7209,Random effects
+127,run127,omega_CL,0.3356,0.0219,6.5392,Random effects
+127,run127,omega_Ka,0.6193,0.0595,9.6062,Random effects
+127,run127,b,0.1461,0.0064,4.3936,Residual error model
+128,run128,Vd_pop,66.3215,2.5547,3.852,Typical values
+128,run128,CL_pop,4.1858,0.1468,3.5061,Typical values
+128,run128,Ka_pop,0.7578,0.0876,11.5617,Typical values
+128,run128,omega_Vd,0.3376,0.0207,6.1412,Random effects
+128,run128,omega_CL,0.3372,0.0217,6.4364,Random effects
+128,run128,omega_Ka,0.7744,0.0566,7.309,Random effects
+128,run128,b,0.1468,0.0067,4.5332,Residual error model
+129,run129,Vd_pop,67.1424,2.4978,3.7201,Typical values
+129,run129,CL_pop,4.0042,0.1268,3.1677,Typical values
+129,run129,Ka_pop,0.9866,0.1225,12.4203,Typical values
+129,run129,omega_Vd,0.3404,0.0222,6.5324,Random effects
+129,run129,omega_CL,0.2942,0.02,6.7814,Random effects
+129,run129,omega_Ka,0.7885,0.0569,7.2167,Random effects
+129,run129,b,0.1403,0.0062,4.44,Residual error model
+130,run130,Vd_pop,70.2357,2.5572,3.6408,Typical values
+130,run130,CL_pop,4.0037,0.1262,3.1522,Typical values
+130,run130,Ka_pop,1.0102,0.1296,12.8283,Typical values
+130,run130,omega_Vd,0.3407,0.021,6.1699,Random effects
+130,run130,omega_CL,0.2976,0.0197,6.6188,Random effects
+130,run130,omega_Ka,0.7912,0.0677,8.5616,Random effects
+130,run130,b,0.1352,0.0062,4.5859,Residual error model
+131,run131,Vd_pop,70.5821,2.9364,4.1603,Typical values
+131,run131,CL_pop,3.9764,0.1432,3.6012,Typical values
+131,run131,Ka_pop,0.9904,0.1238,12.503,Typical values
+131,run131,omega_Vd,0.3909,0.0222,5.6873,Random effects
+131,run131,omega_CL,0.3344,0.0215,6.4185,Random effects
+131,run131,omega_Ka,0.7637,0.0561,7.3501,Random effects
+131,run131,b,0.1402,0.0063,4.4595,Residual error model
+132,run132,Vd_pop,62.7206,2.1381,3.4089,Typical values
+132,run132,CL_pop,4.1591,0.1456,3.4996,Typical values
+132,run132,Ka_pop,0.786,0.084,10.6901,Typical values
+132,run132,omega_Vd,0.2976,0.0185,6.2198,Random effects
+132,run132,omega_CL,0.3499,0.0213,6.0903,Random effects
+132,run132,omega_Ka,0.6733,0.0537,7.9749,Random effects
+132,run132,b,0.1296,0.0059,4.5597,Residual error model
+133,run133,Vd_pop,64.8115,2.4519,3.7831,Typical values
+133,run133,CL_pop,4.2373,0.1313,3.0993,Typical values
+133,run133,Ka_pop,0.9288,0.1152,12.4081,Typical values
+133,run133,omega_Vd,0.3488,0.0201,5.7491,Random effects
+133,run133,omega_CL,0.2933,0.0166,5.6761,Random effects
+133,run133,omega_Ka,0.7778,0.0348,4.4794,Random effects
+133,run133,b,0.1357,0.0054,3.9584,Residual error model
+134,run134,Vd_pop,70.981,2.8278,3.9838,Typical values
+134,run134,CL_pop,4.0232,0.1435,3.5656,Typical values
+134,run134,Ka_pop,0.9918,0.1377,13.8878,Typical values
+134,run134,omega_Vd,0.3616,0.0193,5.3271,Random effects
+134,run134,omega_CL,0.3306,0.0209,6.3328,Random effects
+134,run134,omega_Ka,0.9134,0.0427,4.6707,Random effects
+134,run134,b,0.1391,0.0058,4.1729,Residual error model
+135,run135,Vd_pop,63.6376,2.6146,4.1086,Typical values
+135,run135,CL_pop,4.1082,0.1304,3.1729,Typical values
+135,run135,Ka_pop,0.726,0.0735,10.1194,Typical values
+135,run135,omega_Vd,0.3759,0.0213,5.6562,Random effects
+135,run135,omega_CL,0.2929,0.0195,6.6749,Random effects
+135,run135,omega_Ka,0.6306,0.0501,7.9409,Random effects
+135,run135,b,0.138,0.0061,4.4327,Residual error model
+136,run136,Vd_pop,68.1512,2.6519,3.8912,Typical values
+136,run136,CL_pop,3.8777,0.1443,3.7214,Typical values
+136,run136,Ka_pop,0.9984,0.153,15.3246,Typical values
+136,run136,omega_Vd,0.3653,0.0189,5.1848,Random effects
+136,run136,omega_CL,0.3447,0.0219,6.3675,Random effects
+136,run136,omega_Ka,1.0424,0.0461,4.4208,Random effects
+136,run136,b,0.1354,0.0054,4.015,Residual error model
+137,run137,Vd_pop,63.8362,2.7148,4.2528,Typical values
+137,run137,CL_pop,3.9464,0.1236,3.1328,Typical values
+137,run137,Ka_pop,0.7793,0.0921,11.8193,Typical values
+137,run137,omega_Vd,0.3944,0.0204,5.1756,Random effects
+137,run137,omega_CL,0.2895,0.0133,4.5844,Random effects
+137,run137,omega_Ka,0.7655,0.0358,4.6725,Random effects
+137,run137,b,0.1349,0.0053,3.9474,Residual error model
+138,run138,Vd_pop,65.131,2.3902,3.6698,Typical values
+138,run138,CL_pop,3.8605,0.1413,3.6593,Typical values
+138,run138,Ka_pop,0.9853,0.1051,10.6664,Typical values
+138,run138,omega_Vd,0.3443,0.0193,5.6003,Random effects
+138,run138,omega_CL,0.3523,0.0204,5.7984,Random effects
+138,run138,omega_Ka,0.6786,0.0425,6.2634,Random effects
+138,run138,b,0.1339,0.0061,4.5489,Residual error model
+139,run139,Vd_pop,66.979,2.7975,4.1766,Typical values
+139,run139,CL_pop,4.0261,0.1365,3.3897,Typical values
+139,run139,Ka_pop,0.6971,0.0686,9.8426,Typical values
+139,run139,omega_Vd,0.3886,0.0209,5.3795,Random effects
+139,run139,omega_CL,0.3119,0.0194,6.2134,Random effects
+139,run139,omega_Ka,0.5899,0.0409,6.9273,Random effects
+139,run139,b,0.1413,0.006,4.2285,Residual error model
+140,run140,Vd_pop,65.9479,2.5743,3.9036,Typical values
+140,run140,CL_pop,4.0862,0.1328,3.2493,Typical values
+140,run140,Ka_pop,0.8762,0.0863,9.8518,Typical values
+140,run140,omega_Vd,0.3621,0.0215,5.9484,Random effects
+140,run140,omega_CL,0.3059,0.0197,6.4323,Random effects
+140,run140,omega_Ka,0.6154,0.0493,8.019,Random effects
+140,run140,b,0.1384,0.0062,4.4929,Residual error model
+141,run141,Vd_pop,66.6206,2.578,3.8697,Typical values
+141,run141,CL_pop,4.0209,0.1321,3.2853,Typical values
+141,run141,Ka_pop,1.0691,0.1433,13.4024,Typical values
+141,run141,omega_Vd,0.3613,0.0212,5.8601,Random effects
+141,run141,omega_CL,0.3057,0.02,6.5509,Random effects
+141,run141,omega_Ka,0.7971,0.057,7.1557,Random effects
+141,run141,b,0.1426,0.0062,4.3409,Residual error model
+142,run142,Vd_pop,71.4083,2.5146,3.5214,Typical values
+142,run142,CL_pop,4.0422,0.1436,3.553,Typical values
+142,run142,Ka_pop,0.9989,0.1222,12.2328,Typical values
+142,run142,omega_Vd,0.3237,0.0207,6.3879,Random effects
+142,run142,omega_CL,0.3334,0.0223,6.6909,Random effects
+142,run142,omega_Ka,0.7387,0.0657,8.89,Random effects
+142,run142,b,0.1437,0.0064,4.4726,Residual error model
+143,run143,Vd_pop,65.8634,2.495,3.7882,Typical values
+143,run143,CL_pop,3.8598,0.1428,3.7,Typical values
+143,run143,Ka_pop,1.01,0.1122,11.108,Typical values
+143,run143,omega_Vd,0.3532,0.0187,5.2932,Random effects
+143,run143,omega_CL,0.3549,0.0196,5.5207,Random effects
+143,run143,omega_Ka,0.5921,0.0234,3.9472,Random effects
+143,run143,b,0.1505,0.0059,3.9309,Residual error model
+144,run144,Vd_pop,63.1611,2.5515,4.0396,Typical values
+144,run144,CL_pop,4.0166,0.1236,3.0772,Typical values
+144,run144,Ka_pop,0.8285,0.0984,11.8748,Typical values
+144,run144,omega_Vd,0.374,0.0213,5.6991,Random effects
+144,run144,omega_CL,0.2874,0.0188,6.559,Random effects
+144,run144,omega_Ka,0.7527,0.0606,8.0465,Random effects
+144,run144,b,0.1412,0.0063,4.4538,Residual error model
+145,run145,Vd_pop,70.2668,2.7531,3.9181,Typical values
+145,run145,CL_pop,3.9708,0.1549,3.9018,Typical values
+145,run145,Ka_pop,1.0304,0.1319,12.8058,Typical values
+145,run145,omega_Vd,0.3644,0.0214,5.8604,Random effects
+145,run145,omega_CL,0.3709,0.0235,6.334,Random effects
+145,run145,omega_Ka,0.847,0.0547,6.4599,Random effects
+145,run145,b,0.1348,0.006,4.4811,Residual error model
+146,run146,Vd_pop,65.1557,2.5558,3.9227,Typical values
+146,run146,CL_pop,3.9852,0.1354,3.3968,Typical values
+146,run146,Ka_pop,1.0489,0.1252,11.9325,Typical values
+146,run146,omega_Vd,0.3682,0.0222,6.0286,Random effects
+146,run146,omega_CL,0.3266,0.0212,6.4863,Random effects
+146,run146,omega_Ka,0.7391,0.0565,7.6422,Random effects
+146,run146,b,0.1374,0.0063,4.5525,Residual error model
+147,run147,Vd_pop,66.64,2.3318,3.4991,Typical values
+147,run147,CL_pop,3.9837,0.1354,3.3998,Typical values
+147,run147,Ka_pop,0.9113,0.1017,11.1559,Typical values
+147,run147,omega_Vd,0.3216,0.02,6.2066,Random effects
+147,run147,omega_CL,0.3298,0.0212,6.4321,Random effects
+147,run147,omega_Ka,0.6875,0.0522,7.5928,Random effects
+147,run147,b,0.1336,0.006,4.4677,Residual error model
+148,run148,Vd_pop,67.2756,2.5628,3.8094,Typical values
+148,run148,CL_pop,4.0248,0.128,3.1801,Typical values
+148,run148,Ka_pop,0.9711,0.1285,13.2368,Typical values
+148,run148,omega_Vd,0.3497,0.0219,6.2753,Random effects
+148,run148,omega_CL,0.2927,0.0199,6.8072,Random effects
+148,run148,omega_Ka,0.8033,0.0392,4.8743,Random effects
+148,run148,b,0.1491,0.0065,4.3556,Residual error model
+149,run149,Vd_pop,65.6041,2.3579,3.5941,Typical values
+149,run149,CL_pop,4.1207,0.1336,3.2412,Typical values
+149,run149,Ka_pop,0.9256,0.1038,11.2112,Typical values
+149,run149,omega_Vd,0.3063,0.0201,6.5701,Random effects
+149,run149,omega_CL,0.3056,0.0204,6.6853,Random effects
+149,run149,omega_Ka,0.6664,0.0544,8.1671,Random effects
+149,run149,b,0.1511,0.0067,4.4542,Residual error model
+150,run150,Vd_pop,66.4913,2.5794,3.8793,Typical values
+150,run150,CL_pop,4.191,0.1353,3.2278,Typical values
+150,run150,Ka_pop,0.8691,0.1038,11.9465,Typical values
+150,run150,omega_Vd,0.3554,0.0208,5.8623,Random effects
+150,run150,omega_CL,0.2915,0.0204,6.9839,Random effects
+150,run150,omega_Ka,0.7897,0.0617,7.8144,Random effects
+150,run150,b,0.1438,0.0064,4.4735,Residual error model
+151,run151,Vd_pop,61.3764,2.4051,3.9186,Typical values
+151,run151,CL_pop,3.9946,0.1469,3.6784,Typical values
+151,run151,Ka_pop,0.8833,0.1015,11.4915,Typical values
+151,run151,omega_Vd,0.366,0.0196,5.3623,Random effects
+151,run151,omega_CL,0.3491,0.0219,6.2674,Random effects
+151,run151,omega_Ka,0.8033,0.0529,6.5827,Random effects
+151,run151,b,0.1295,0.0058,4.5017,Residual error model
+152,run152,Vd_pop,64.1431,2.5474,3.9715,Typical values
+152,run152,CL_pop,4.3778,0.168,3.8369,Typical values
+152,run152,Ka_pop,0.7743,0.093,12.0164,Typical values
+152,run152,omega_Vd,0.341,0.0212,6.2027,Random effects
+152,run152,omega_CL,0.3663,0.0234,6.389,Random effects
+152,run152,omega_Ka,0.7811,0.0561,7.1773,Random effects
+152,run152,b,0.1464,0.0066,4.5283,Residual error model
+153,run153,Vd_pop,71.1065,2.8032,3.9422,Typical values
+153,run153,CL_pop,3.8245,0.1401,3.6624,Typical values
+153,run153,Ka_pop,1.1684,0.1663,14.2302,Typical values
+153,run153,omega_Vd,0.3657,0.0211,5.7751,Random effects
+153,run153,omega_CL,0.3325,0.0224,6.7241,Random effects
+153,run153,omega_Ka,0.8898,0.0569,6.3899,Random effects
+153,run153,b,0.1457,0.0063,4.3505,Residual error model
+154,run154,Vd_pop,65.2042,2.7598,4.2326,Typical values
+154,run154,CL_pop,4.0367,0.1153,2.8569,Typical values
+154,run154,Ka_pop,0.7223,0.0741,10.2614,Typical values
+154,run154,omega_Vd,0.3965,0.0234,5.8944,Random effects
+154,run154,omega_CL,0.2495,0.0178,7.1532,Random effects
+154,run154,omega_Ka,0.6377,0.052,8.1526,Random effects
+154,run154,b,0.1423,0.0064,4.4859,Residual error model
+155,run155,Vd_pop,68.7437,2.6305,3.8265,Typical values
+155,run155,CL_pop,4.41,0.1307,2.9626,Typical values
+155,run155,Ka_pop,0.7796,0.0866,11.114,Typical values
+155,run155,omega_Vd,0.3402,0.0216,6.3592,Random effects
+155,run155,omega_CL,0.2748,0.0186,6.7703,Random effects
+155,run155,omega_Ka,0.6751,0.0376,5.5653,Random effects
+155,run155,b,0.1467,0.0062,4.2148,Residual error model
+156,run156,Vd_pop,66.0782,2.4321,3.6807,Typical values
+156,run156,CL_pop,4.0003,0.1349,3.3731,Typical values
+156,run156,Ka_pop,1.0049,0.1119,11.1399,Typical values
+156,run156,omega_Vd,0.338,0.0212,6.278,Random effects
+156,run156,omega_CL,0.3166,0.0214,6.7516,Random effects
+156,run156,omega_Ka,0.6145,0.0612,9.9667,Random effects
+156,run156,b,0.1425,0.0064,4.4799,Residual error model
+157,run157,Vd_pop,67.5745,2.6044,3.8541,Typical values
+157,run157,CL_pop,3.9117,0.1245,3.1827,Typical values
+157,run157,Ka_pop,1.0213,0.1527,14.9535,Typical values
+157,run157,omega_Vd,0.3497,0.0218,6.2461,Random effects
+157,run157,omega_CL,0.2904,0.0199,6.864,Random effects
+157,run157,omega_Ka,0.9043,0.0688,7.6102,Random effects
+157,run157,b,0.1494,0.0065,4.3374,Residual error model
+158,run158,Vd_pop,65.3029,2.2841,3.4977,Typical values
+158,run158,CL_pop,3.7628,0.1226,3.257,Typical values
+158,run158,Ka_pop,0.8908,0.0927,10.4058,Typical values
+158,run158,omega_Vd,0.3117,0.0201,6.4544,Random effects
+158,run158,omega_CL,0.3085,0.0204,6.6152,Random effects
+158,run158,omega_Ka,0.659,0.0556,8.4406,Random effects
+158,run158,b,0.1405,0.0063,4.4929,Residual error model
+159,run159,Vd_pop,69.0178,2.4819,3.5961,Typical values
+159,run159,CL_pop,3.9465,0.1467,3.7167,Typical values
+159,run159,Ka_pop,0.9756,0.1046,10.7199,Typical values
+159,run159,omega_Vd,0.3366,0.0177,5.2723,Random effects
+159,run159,omega_CL,0.361,0.0227,6.2748,Random effects
+159,run159,omega_Ka,0.6616,0.0529,7.9904,Random effects
+159,run159,b,0.1334,0.0057,4.3025,Residual error model
+160,run160,Vd_pop,67.4193,2.5358,3.7612,Typical values
+160,run160,CL_pop,4.0924,0.1288,3.1477,Typical values
+160,run160,Ka_pop,0.8427,0.0849,10.0686,Typical values
+160,run160,omega_Vd,0.3329,0.0224,6.7336,Random effects
+160,run160,omega_CL,0.2961,0.0199,6.7096,Random effects
+160,run160,omega_Ka,0.5568,0.06,10.7752,Random effects
+160,run160,b,0.1502,0.0068,4.5195,Residual error model
+161,run161,Vd_pop,70.3444,2.5954,3.6896,Typical values
+161,run161,CL_pop,3.8437,0.13,3.3816,Typical values
+161,run161,Ka_pop,1.0488,0.1333,12.7139,Typical values
+161,run161,omega_Vd,0.3452,0.0217,6.2789,Random effects
+161,run161,omega_CL,0.3131,0.0206,6.5934,Random effects
+161,run161,omega_Ka,0.7136,0.0532,7.4574,Random effects
+161,run161,b,0.1404,0.0062,4.3966,Residual error model
+162,run162,Vd_pop,64.5504,2.9435,4.56,Typical values
+162,run162,CL_pop,4.3183,0.1383,3.2034,Typical values
+162,run162,Ka_pop,0.803,0.0952,11.8527,Typical values
+162,run162,omega_Vd,0.4134,0.0238,5.7638,Random effects
+162,run162,omega_CL,0.2954,0.0199,6.7274,Random effects
+162,run162,omega_Ka,0.8005,0.0546,6.8228,Random effects
+162,run162,b,0.1534,0.0069,4.4669,Residual error model
+163,run163,Vd_pop,68.826,3.2757,4.7595,Typical values
+163,run163,CL_pop,3.8428,0.1053,2.7396,Typical values
+163,run163,Ka_pop,1.032,0.129,12.5006,Typical values
+163,run163,omega_Vd,0.4776,0.0257,5.3787,Random effects
+163,run163,omega_CL,0.2343,0.017,7.2608,Random effects
+163,run163,omega_Ka,0.6835,0.0438,6.4072,Random effects
+163,run163,b,0.1412,0.0059,4.1922,Residual error model
+164,run164,Vd_pop,66.997,2.3706,3.5384,Typical values
+164,run164,CL_pop,4.2126,0.1142,2.7113,Typical values
+164,run164,Ka_pop,0.9951,0.1391,13.9742,Typical values
+164,run164,omega_Vd,0.3016,0.0193,6.4089,Random effects
+164,run164,omega_CL,0.2455,0.0152,6.1882,Random effects
+164,run164,omega_Ka,0.9807,0.0611,6.2319,Random effects
+164,run164,b,0.1401,0.0062,4.4533,Residual error model
+165,run165,Vd_pop,67.5308,2.3946,3.546,Typical values
+165,run165,CL_pop,3.9691,0.1247,3.1419,Typical values
+165,run165,Ka_pop,0.8811,0.1104,12.5347,Typical values
+165,run165,omega_Vd,0.3096,0.0195,6.292,Random effects
+165,run165,omega_CL,0.2816,0.0196,6.9482,Random effects
+165,run165,omega_Ka,0.8465,0.0612,7.2267,Random effects
+165,run165,b,0.1416,0.0063,4.423,Residual error model
+166,run166,Vd_pop,62.806,2.3943,3.8123,Typical values
+166,run166,CL_pop,4.2446,0.1306,3.077,Typical values
+166,run166,Ka_pop,0.7897,0.0927,11.7351,Typical values
+166,run166,omega_Vd,0.3343,0.0207,6.1783,Random effects
+166,run166,omega_CL,0.2847,0.019,6.6664,Random effects
+166,run166,omega_Ka,0.7513,0.0482,6.4161,Random effects
+166,run166,b,0.1522,0.0064,4.2235,Residual error model
+167,run167,Vd_pop,68.9491,2.5913,3.7583,Typical values
+167,run167,CL_pop,3.9901,0.1246,3.1226,Typical values
+167,run167,Ka_pop,0.8091,0.0979,12.0998,Typical values
+167,run167,omega_Vd,0.3503,0.0196,5.5908,Random effects
+167,run167,omega_CL,0.2717,0.0189,6.9453,Random effects
+167,run167,omega_Ka,0.7421,0.0466,6.2817,Random effects
+167,run167,b,0.1426,0.006,4.2298,Residual error model
+168,run168,Vd_pop,68.7383,3.0111,4.3805,Typical values
+168,run168,CL_pop,4.1568,0.169,4.0656,Typical values
+168,run168,Ka_pop,0.7906,0.0947,11.9791,Typical values
+168,run168,omega_Vd,0.3939,0.0231,5.8633,Random effects
+168,run168,omega_CL,0.3917,0.0245,6.2524,Random effects
+168,run168,omega_Ka,0.8284,0.0519,6.2599,Random effects
+168,run168,b,0.1367,0.0062,4.5217,Residual error model
+169,run169,Vd_pop,66.8867,2.6653,3.9848,Typical values
+169,run169,CL_pop,3.9526,0.1343,3.399,Typical values
+169,run169,Ka_pop,0.8731,0.0856,9.8074,Typical values
+169,run169,omega_Vd,0.3714,0.0223,6.0172,Random effects
+169,run169,omega_CL,0.3176,0.021,6.5984,Random effects
+169,run169,omega_Ka,0.6014,0.0456,7.5799,Random effects
+169,run169,b,0.1433,0.0064,4.4766,Residual error model
+170,run170,Vd_pop,66.7774,2.4219,3.6268,Typical values
+170,run170,CL_pop,4.1481,0.1415,3.4112,Typical values
+170,run170,Ka_pop,0.7956,0.0878,11.0326,Typical values
+170,run170,omega_Vd,0.316,0.0149,4.7206,Random effects
+170,run170,omega_CL,0.3268,0.0195,5.954,Random effects
+170,run170,omega_Ka,0.8133,0.0307,3.7719,Random effects
+170,run170,b,0.1361,0.0054,3.9656,Residual error model
+171,run171,Vd_pop,65.1973,2.3541,3.6107,Typical values
+171,run171,CL_pop,4.0442,0.1362,3.3687,Typical values
+171,run171,Ka_pop,0.9007,0.0881,9.7853,Typical values
+171,run171,omega_Vd,0.331,0.0204,6.1653,Random effects
+171,run171,omega_CL,0.3225,0.0211,6.5459,Random effects
+171,run171,omega_Ka,0.5335,0.0565,10.5894,Random effects
+171,run171,b,0.1388,0.0061,4.4066,Residual error model
+172,run172,Vd_pop,69.7614,2.7974,4.0099,Typical values
+172,run172,CL_pop,4.1356,0.1524,3.685,Typical values
+172,run172,Ka_pop,1.052,0.1344,12.7733,Typical values
+172,run172,omega_Vd,0.3791,0.0227,5.9813,Random effects
+172,run172,omega_CL,0.3433,0.0228,6.6494,Random effects
+172,run172,omega_Ka,0.7072,0.0505,7.1423,Random effects
+172,run172,b,0.1537,0.0066,4.2898,Residual error model
+173,run173,Vd_pop,65.7619,2.6627,4.0489,Typical values
+173,run173,CL_pop,4.1969,0.1471,3.504,Typical values
+173,run173,Ka_pop,0.8053,0.096,11.9188,Typical values
+173,run173,omega_Vd,0.3631,0.0217,5.9677,Random effects
+173,run173,omega_CL,0.3271,0.0217,6.6443,Random effects
+173,run173,omega_Ka,0.7655,0.0511,6.6788,Random effects
+173,run173,b,0.1418,0.0062,4.3611,Residual error model
+174,run174,Vd_pop,69.8826,2.8676,4.1035,Typical values
+174,run174,CL_pop,3.9855,0.1436,3.6033,Typical values
+174,run174,Ka_pop,1.0443,0.1464,14.0164,Typical values
+174,run174,omega_Vd,0.3886,0.0224,5.7625,Random effects
+174,run174,omega_CL,0.3295,0.022,6.6738,Random effects
+174,run174,omega_Ka,0.86,0.0573,6.6645,Random effects
+174,run174,b,0.1388,0.0061,4.3848,Residual error model
+175,run175,Vd_pop,68.2554,2.8771,4.2152,Typical values
+175,run175,CL_pop,4.1634,0.1549,3.721,Typical values
+175,run175,Ka_pop,0.8372,0.0886,10.5858,Typical values
+175,run175,omega_Vd,0.4005,0.0224,5.5929,Random effects
+175,run175,omega_CL,0.3535,0.0223,6.3116,Random effects
+175,run175,omega_Ka,0.6911,0.0515,7.447,Random effects
+175,run175,b,0.1385,0.0063,4.5342,Residual error model
+176,run176,Vd_pop,63.1238,2.417,3.8289,Typical values
+176,run176,CL_pop,4.0011,0.138,3.4484,Typical values
+176,run176,Ka_pop,0.8118,0.0895,11.026,Typical values
+176,run176,omega_Vd,0.3592,0.0201,5.5929,Random effects
+176,run176,omega_CL,0.3325,0.0212,6.367,Random effects
+176,run176,omega_Ka,0.7305,0.0531,7.2647,Random effects
+176,run176,b,0.1352,0.006,4.4697,Residual error model
+177,run177,Vd_pop,71.8897,2.5699,3.5748,Typical values
+177,run177,CL_pop,3.7475,0.1426,3.8058,Typical values
+177,run177,Ka_pop,1.0722,0.1006,9.38,Typical values
+177,run177,omega_Vd,0.3394,0.0221,6.5214,Random effects
+177,run177,omega_CL,0.3613,0.024,6.6514,Random effects
+177,run177,omega_Ka,0.3955,0.0573,14.5009,Random effects
+177,run177,b,0.1468,0.0065,4.4032,Residual error model
+178,run178,Vd_pop,64.9057,2.6496,4.0822,Typical values
+178,run178,CL_pop,4.1961,0.1403,3.3446,Typical values
+178,run178,Ka_pop,0.8427,0.0924,10.9661,Typical values
+178,run178,omega_Vd,0.3809,0.0203,5.327,Random effects
+178,run178,omega_CL,0.3231,0.0199,6.1567,Random effects
+178,run178,omega_Ka,0.7266,0.0365,5.0236,Random effects
+178,run178,b,0.1317,0.0055,4.1791,Residual error model
+179,run179,Vd_pop,66.9218,2.4972,3.7315,Typical values
+179,run179,CL_pop,4.1506,0.1352,3.2565,Typical values
+179,run179,Ka_pop,0.8882,0.0993,11.1758,Typical values
+179,run179,omega_Vd,0.343,0.0208,6.0523,Random effects
+179,run179,omega_CL,0.3104,0.0201,6.4852,Random effects
+179,run179,omega_Ka,0.7615,0.0477,6.2584,Random effects
+179,run179,b,0.1349,0.0061,4.4995,Residual error model
+180,run180,Vd_pop,71.6909,2.9521,4.1178,Typical values
+180,run180,CL_pop,4.0144,0.1534,3.8205,Typical values
+180,run180,Ka_pop,0.9309,0.1113,11.9523,Typical values
+180,run180,omega_Vd,0.3718,0.0231,6.215,Random effects
+180,run180,omega_CL,0.3397,0.0239,7.0222,Random effects
+180,run180,omega_Ka,0.705,0.0613,8.6932,Random effects
+180,run180,b,0.1538,0.0068,4.4165,Residual error model
+181,run181,Vd_pop,67.8782,2.688,3.9601,Typical values
+181,run181,CL_pop,4.0054,0.137,3.42,Typical values
+181,run181,Ka_pop,0.9402,0.0928,9.8703,Typical values
+181,run181,omega_Vd,0.3728,0.0205,5.4953,Random effects
+181,run181,omega_CL,0.3137,0.021,6.6898,Random effects
+181,run181,omega_Ka,0.5541,0.0335,6.0458,Random effects
+181,run181,b,0.145,0.006,4.1175,Residual error model
+182,run182,Vd_pop,66.8321,2.8397,4.2489,Typical values
+182,run182,CL_pop,4.0918,0.1303,3.1833,Typical values
+182,run182,Ka_pop,0.9096,0.1134,12.4637,Typical values
+182,run182,omega_Vd,0.4036,0.0231,5.7132,Random effects
+182,run182,omega_CL,0.3045,0.0196,6.4424,Random effects
+182,run182,omega_Ka,0.8548,0.0604,7.0663,Random effects
+182,run182,b,0.1256,0.0058,4.6072,Residual error model
+183,run183,Vd_pop,67.5368,2.1849,3.2351,Typical values
+183,run183,CL_pop,4.033,0.1304,3.2321,Typical values
+183,run183,Ka_pop,0.8014,0.0768,9.589,Typical values
+183,run183,omega_Vd,0.288,0.0166,5.7473,Random effects
+183,run183,omega_CL,0.3033,0.0203,6.6849,Random effects
+183,run183,omega_Ka,0.5967,0.0283,4.7512,Random effects
+183,run183,b,0.1343,0.0056,4.1641,Residual error model
+184,run184,Vd_pop,67.177,2.5491,3.7946,Typical values
+184,run184,CL_pop,4.1314,0.1441,3.4874,Typical values
+184,run184,Ka_pop,0.8347,0.0789,9.4514,Typical values
+184,run184,omega_Vd,0.3605,0.0197,5.4734,Random effects
+184,run184,omega_CL,0.3301,0.0206,6.2266,Random effects
+184,run184,omega_Ka,0.618,0.0421,6.8153,Random effects
+184,run184,b,0.1303,0.0058,4.4286,Residual error model
+185,run185,Vd_pop,65.8698,2.569,3.9001,Typical values
+185,run185,CL_pop,3.7604,0.1118,2.9723,Typical values
+185,run185,Ka_pop,1.1115,0.1571,14.1322,Typical values
+185,run185,omega_Vd,0.3595,0.0231,6.4156,Random effects
+185,run185,omega_CL,0.2647,0.0192,7.2586,Random effects
+185,run185,omega_Ka,0.8254,0.0705,8.5359,Random effects
+185,run185,b,0.146,0.0064,4.3586,Residual error model
+186,run186,Vd_pop,68.3386,2.5157,3.6812,Typical values
+186,run186,CL_pop,4.0663,0.1548,3.8071,Typical values
+186,run186,Ka_pop,0.8058,0.0883,10.963,Typical values
+186,run186,omega_Vd,0.328,0.0206,6.2914,Random effects
+186,run186,omega_CL,0.3525,0.0212,6.0173,Random effects
+186,run186,omega_Ka,0.6869,0.0358,5.217,Random effects
+186,run186,b,0.1446,0.006,4.1315,Residual error model
+187,run187,Vd_pop,72.3024,2.6056,3.6038,Typical values
+187,run187,CL_pop,3.9457,0.1279,3.2406,Typical values
+187,run187,Ka_pop,0.8546,0.0926,10.8382,Typical values
+187,run187,omega_Vd,0.3339,0.0223,6.6723,Random effects
+187,run187,omega_CL,0.2861,0.0204,7.1373,Random effects
+187,run187,omega_Ka,0.547,0.0632,11.5558,Random effects
+187,run187,b,0.1423,0.0063,4.394,Residual error model
+188,run188,Vd_pop,66.3162,2.5578,3.857,Typical values
+188,run188,CL_pop,3.8801,0.1285,3.311,Typical values
+188,run188,Ka_pop,1.0158,0.1211,11.9199,Typical values
+188,run188,omega_Vd,0.3543,0.0229,6.4544,Random effects
+188,run188,omega_CL,0.3038,0.0211,6.9492,Random effects
+188,run188,omega_Ka,0.6071,0.0559,9.209,Random effects
+188,run188,b,0.1538,0.0066,4.3178,Residual error model
+189,run189,Vd_pop,70.6493,2.4356,3.4475,Typical values
+189,run189,CL_pop,4.2663,0.1467,3.4383,Typical values
+189,run189,Ka_pop,0.8535,0.1013,11.8722,Typical values
+189,run189,omega_Vd,0.30620000000000003,0.0194,6.3403,Random effects
+189,run189,omega_CL,0.3207,0.0206,6.4196,Random effects
+189,run189,omega_Ka,0.7626,0.0628,8.2414,Random effects
+189,run189,b,0.1404,0.0063,4.5044,Residual error model
+190,run190,Vd_pop,64.5222,2.0779,3.2205,Typical values
+190,run190,CL_pop,3.9459,0.1329,3.3682,Typical values
+190,run190,Ka_pop,1.0277,0.1176,11.4466,Typical values
+190,run190,omega_Vd,0.2759,0.0201,7.2853,Random effects
+190,run190,omega_CL,0.32,0.0212,6.6384,Random effects
+190,run190,omega_Ka,0.7151,0.0694,9.7016,Random effects
+190,run190,b,0.1461,0.0066,4.5408,Residual error model
+191,run191,Vd_pop,70.7811,2.5193,3.5593,Typical values
+191,run191,CL_pop,3.9855,0.1455,3.6515,Typical values
+191,run191,Ka_pop,0.9937,0.1042,10.4872,Typical values
+191,run191,omega_Vd,0.3173,0.0209,6.5922,Random effects
+191,run191,omega_CL,0.3439,0.0225,6.5424,Random effects
+191,run191,omega_Ka,0.4934,0.0589,11.9428,Random effects
+191,run191,b,0.1517,0.0066,4.3754,Residual error model
+192,run192,Vd_pop,69.1131,2.6297,3.8049,Typical values
+192,run192,CL_pop,4.0773,0.1294,3.1725,Typical values
+192,run192,Ka_pop,0.9088,0.0918,10.1034,Typical values
+192,run192,omega_Vd,0.3448,0.0215,6.2394,Random effects
+192,run192,omega_CL,0.2917,0.0205,7.0188,Random effects
+192,run192,omega_Ka,0.5742,0.056,9.7486,Random effects
+192,run192,b,0.1486,0.0065,4.406,Residual error model
+193,run193,Vd_pop,64.7235,2.4024,3.7118,Typical values
+193,run193,CL_pop,3.7542,0.1233,3.2832,Typical values
+193,run193,Ka_pop,0.9056,0.0888,9.8086,Typical values
+193,run193,omega_Vd,0.3389,0.0182,5.3678,Random effects
+193,run193,omega_CL,0.3092,0.0199,6.4369,Random effects
+193,run193,omega_Ka,0.5839,0.025,4.2893,Random effects
+193,run193,b,0.1391,0.0059,4.2239,Residual error model
+194,run194,Vd_pop,67.3106,2.4194,3.5944,Typical values
+194,run194,CL_pop,3.9484,0.1292,3.2723,Typical values
+194,run194,Ka_pop,0.8842,0.0746,8.4381,Typical values
+194,run194,omega_Vd,0.3412,0.0177,5.1982,Random effects
+194,run194,omega_CL,0.3065,0.0189,6.1682,Random effects
+194,run194,omega_Ka,0.565,0.0234,4.1406,Random effects
+194,run194,b,0.132,0.0057,4.3031,Residual error model
+195,run195,Vd_pop,69.5516,2.5899,3.7237,Typical values
+195,run195,CL_pop,4.0703,0.1551,3.8106,Typical values
+195,run195,Ka_pop,0.9983,0.096,9.6148,Typical values
+195,run195,omega_Vd,0.3533,0.0214,6.0633,Random effects
+195,run195,omega_CL,0.3707,0.0233,6.2957,Random effects
+195,run195,omega_Ka,0.5123,0.0529,10.326,Random effects
+195,run195,b,0.1411,0.0064,4.5034,Residual error model
+196,run196,Vd_pop,70.1648,2.552,3.6371000000000002,Typical values
+196,run196,CL_pop,3.9515,0.1558,3.9425,Typical values
+196,run196,Ka_pop,0.8403,0.0914,10.8814,Typical values
+196,run196,omega_Vd,0.3289,0.0203,6.1832,Random effects
+196,run196,omega_CL,0.3828,0.0243,6.3586,Random effects
+196,run196,omega_Ka,0.6796,0.0575,8.4655,Random effects
+196,run196,b,0.1356,0.0062,4.5513,Residual error model
+197,run197,Vd_pop,66.9691,2.7806,4.152,Typical values
+197,run197,CL_pop,4.0915,0.1431,3.4977,Typical values
+197,run197,Ka_pop,0.7107,0.0728,10.2504,Typical values
+197,run197,omega_Vd,0.3696,0.0195,5.2656,Random effects
+197,run197,omega_CL,0.3277,0.0202,6.1682,Random effects
+197,run197,omega_Ka,0.6773,0.0291,4.2998,Random effects
+197,run197,b,0.1429,0.006,4.2088,Residual error model
+198,run198,Vd_pop,72.3155,2.8628,3.9588,Typical values
+198,run198,CL_pop,3.9658,0.1424,3.5918,Typical values
+198,run198,Ka_pop,0.9523,0.0964,10.1238,Typical values
+198,run198,omega_Vd,0.3637,0.0244,6.7125,Random effects
+198,run198,omega_CL,0.3393,0.023,6.7664,Random effects
+198,run198,omega_Ka,0.608,0.0628,10.3354,Random effects
+198,run198,b,0.1511,0.0069,4.5869,Residual error model
+199,run199,Vd_pop,71.721,2.6007,3.6261,Typical values
+199,run199,CL_pop,3.9614,0.1412,3.5632,Typical values
+199,run199,Ka_pop,0.753,0.0672,8.9253,Typical values
+199,run199,omega_Vd,0.3278,0.0192,5.8456,Random effects
+199,run199,omega_CL,0.3324,0.022,6.6279,Random effects
+199,run199,omega_Ka,0.5084,0.0232,4.5698,Random effects
+199,run199,b,0.1344,0.0054,4.0362,Residual error model
+200,run200,Vd_pop,71.8448,2.4988,3.478,Typical values
+200,run200,CL_pop,4.1154,0.1237,3.0061,Typical values
+200,run200,Ka_pop,0.9806,0.089,9.0726,Typical values
+200,run200,omega_Vd,0.3104,0.0205,6.6046,Random effects
+200,run200,omega_CL,0.2741,0.0192,7.0084,Random effects
+200,run200,omega_Ka,0.376,0.0456,12.1135,Random effects
+200,run200,b,0.1558,0.0064,4.1161,Residual error model
+201,run201,Vd_pop,63.6002,2.6787,4.2118,Typical values
+201,run201,CL_pop,4.1305,0.1395,3.377,Typical values
+201,run201,Ka_pop,0.8908,0.0936,10.5021,Typical values
+201,run201,omega_Vd,0.3972,0.0222,5.5804,Random effects
+201,run201,omega_CL,0.3194,0.0208,6.5276,Random effects
+201,run201,omega_Ka,0.639,0.0428,6.7026,Random effects
+201,run201,b,0.1458,0.0061,4.2092,Residual error model
+202,run202,Vd_pop,63.5349,2.566,4.0387,Typical values
+202,run202,CL_pop,3.9778,0.158,3.9729,Typical values
+202,run202,Ka_pop,0.884,0.1257,14.2188,Typical values
+202,run202,omega_Vd,0.3641,0.0218,5.9755,Random effects
+202,run202,omega_CL,0.3841,0.0244,6.3438,Random effects
+202,run202,omega_Ka,0.9059,0.0621,6.8509,Random effects
+202,run202,b,0.1501,0.0067,4.4738,Residual error model
+203,run203,Vd_pop,70.2466,2.7891,3.9705,Typical values
+203,run203,CL_pop,3.9499,0.1639,4.1491,Typical values
+203,run203,Ka_pop,1.1046,0.145,13.1293,Typical values
+203,run203,omega_Vd,0.3783,0.02,5.2791,Random effects
+203,run203,omega_CL,0.3984,0.0242,6.0697,Random effects
+203,run203,omega_Ka,0.8472,0.0622,7.346,Random effects
+203,run203,b,0.1353,0.0058,4.2532,Residual error model
+204,run204,Vd_pop,72.2944,2.9281,4.0503,Typical values
+204,run204,CL_pop,3.9647,0.1571,3.9632,Typical values
+204,run204,Ka_pop,0.9138,0.1137,12.4413,Typical values
+204,run204,omega_Vd,0.3884,0.021,5.417,Random effects
+204,run204,omega_CL,0.3714,0.0218,5.8746,Random effects
+204,run204,omega_Ka,0.8246,0.0468,5.6709,Random effects
+204,run204,b,0.1287,0.0057,4.4466,Residual error model
+205,run205,Vd_pop,69.8444,2.7205,3.8951,Typical values
+205,run205,CL_pop,4.1359,0.1552,3.7514,Typical values
+205,run205,Ka_pop,1.1001,0.1371,12.4661,Typical values
+205,run205,omega_Vd,0.3693,0.0218,5.9031,Random effects
+205,run205,omega_CL,0.3568,0.0234,6.5494,Random effects
+205,run205,omega_Ka,0.7547,0.0641,8.4971,Random effects
+205,run205,b,0.1358,0.0061,4.4874,Residual error model
+206,run206,Vd_pop,62.6823,2.3763,3.791,Typical values
+206,run206,CL_pop,3.8267,0.1315,3.4367,Typical values
+206,run206,Ka_pop,0.9086,0.1075,11.8332,Typical values
+206,run206,omega_Vd,0.3448,0.0203,5.889,Random effects
+206,run206,omega_CL,0.3299,0.021,6.3759,Random effects
+206,run206,omega_Ka,0.7463,0.0561,7.5198,Random effects
+206,run206,b,0.1383,0.0061,4.3891,Residual error model
+207,run207,Vd_pop,65.3124,2.422,3.7084,Typical values
+207,run207,CL_pop,4.0072,0.1294,3.2284,Typical values
+207,run207,Ka_pop,0.9692,0.1019,10.5189,Typical values
+207,run207,omega_Vd,0.3414,0.0189,5.5308,Random effects
+207,run207,omega_CL,0.3109,0.0194,6.2507,Random effects
+207,run207,omega_Ka,0.6187,0.045,7.2759,Random effects
+207,run207,b,0.1361,0.0058,4.2533,Residual error model
+208,run208,Vd_pop,71.1257,2.8345,3.9852,Typical values
+208,run208,CL_pop,3.6785,0.1337,3.6355,Typical values
+208,run208,Ka_pop,1.0994,0.101,9.1901,Typical values
+208,run208,omega_Vd,0.3787,0.0237,6.253,Random effects
+208,run208,omega_CL,0.3323,0.0227,6.8436,Random effects
+208,run208,omega_Ka,0.4274,0.0306,7.1673,Random effects
+208,run208,b,0.1465,0.0061,4.1438,Residual error model
+209,run209,Vd_pop,68.257,2.6276,3.8496,Typical values
+209,run209,CL_pop,4.1612,0.1397,3.3571,Typical values
+209,run209,Ka_pop,0.7583,0.0915,12.0606,Typical values
+209,run209,omega_Vd,0.3457,0.0216,6.2401,Random effects
+209,run209,omega_CL,0.322,0.0205,6.3678,Random effects
+209,run209,omega_Ka,0.8979,0.0599,6.6695,Random effects
+209,run209,b,0.1297,0.0061,4.7051,Residual error model
+210,run210,Vd_pop,70.3578,2.8618,4.0676,Typical values
+210,run210,CL_pop,4.1324,0.1343,3.2491,Typical values
+210,run210,Ka_pop,0.8864,0.0874,9.8651,Typical values
+210,run210,omega_Vd,0.384,0.0229,5.9539,Random effects
+210,run210,omega_CL,0.2982,0.0206,6.9114,Random effects
+210,run210,omega_Ka,0.5376,0.0402,7.4741,Random effects
+210,run210,b,0.1409,0.0061,4.3103,Residual error model
+211,run211,Vd_pop,67.187,2.5746000000000002,3.832,Typical values
+211,run211,CL_pop,4.0546,0.1318,3.2512,Typical values
+211,run211,Ka_pop,0.8629,0.083,9.6207,Typical values
+211,run211,omega_Vd,0.3636,0.02,5.4961,Random effects
+211,run211,omega_CL,0.3033,0.0191,6.2948,Random effects
+211,run211,omega_Ka,0.61240000000000006,0.0448,7.3211,Random effects
+211,run211,b,0.1361,0.006,4.3738,Residual error model
+212,run212,Vd_pop,65.762,2.3125,3.5164,Typical values
+212,run212,CL_pop,3.9315,0.123,3.1292,Typical values
+212,run212,Ka_pop,0.8633,0.076,8.8082,Typical values
+212,run212,omega_Vd,0.3225,0.0183,5.6615,Random effects
+212,run212,omega_CL,0.2957,0.0176,5.9626,Random effects
+212,run212,omega_Ka,0.5476,0.0276,5.0397,Random effects
+212,run212,b,0.1408,0.0059,4.213,Residual error model
+213,run213,Vd_pop,69.1186,2.5359,3.669,Typical values
+213,run213,CL_pop,3.8459,0.1332,3.463,Typical values
+213,run213,Ka_pop,1.0794,0.0857,7.9396,Typical values
+213,run213,omega_Vd,0.3606,0.0214,5.9431,Random effects
+213,run213,omega_CL,0.3248,0.0216,6.6385,Random effects
+213,run213,omega_Ka,0.4144,0.037,8.9325,Random effects
+213,run213,b,0.134,0.0059,4.3828,Residual error model
+214,run214,Vd_pop,67.8445,2.6745,3.9421,Typical values
+214,run214,CL_pop,4.1124,0.1488,3.6182,Typical values
+214,run214,Ka_pop,0.8411,0.1011,12.0208,Typical values
+214,run214,omega_Vd,0.3636,0.0203,5.5821,Random effects
+214,run214,omega_CL,0.3365,0.0219,6.5226,Random effects
+214,run214,omega_Ka,0.8052,0.0554,6.8795,Random effects
+214,run214,b,0.1344,0.0058,4.3503,Residual error model
+215,run215,Vd_pop,69.9252,2.5357,3.6263,Typical values
+215,run215,CL_pop,4.1098,0.1385,3.37,Typical values
+215,run215,Ka_pop,1.2569,0.15,11.9359,Typical values
+215,run215,omega_Vd,0.342,0.0214,6.2478,Random effects
+215,run215,omega_CL,0.3197,0.0214,6.702,Random effects
+215,run215,omega_Ka,0.6133,0.0599,9.7591,Random effects
+215,run215,b,0.1457,0.0063,4.294,Residual error model
+216,run216,Vd_pop,64.8299,2.3375,3.6057,Typical values
+216,run216,CL_pop,3.9579,0.1303,3.2912,Typical values
+216,run216,Ka_pop,0.8378,0.0788,9.4096,Typical values
+216,run216,omega_Vd,0.3386,0.0185,5.462,Random effects
+216,run216,omega_CL,0.3097,0.0197,6.3483,Random effects
+216,run216,omega_Ka,0.6567,0.0401,6.1119,Random effects
+216,run216,b,0.1272,0.0056,4.4368,Residual error model
+217,run217,Vd_pop,71.9446,2.885,4.01,Typical values
+217,run217,CL_pop,3.7515,0.151,4.0247,Typical values
+217,run217,Ka_pop,1.0673,0.1177,11.0272,Typical values
+217,run217,omega_Vd,0.387,0.0189,4.8792,Random effects
+217,run217,omega_CL,0.3847,0.0226,5.8734,Random effects
+217,run217,omega_Ka,0.6579,0.0367,5.5754,Random effects
+217,run217,b,0.1288,0.0054,4.2251,Residual error model
+218,run218,Vd_pop,64.204,2.5162,3.9191,Typical values
+218,run218,CL_pop,3.864,0.1414,3.6592,Typical values
+218,run218,Ka_pop,0.9679,0.1152,11.9073,Typical values
+218,run218,omega_Vd,0.3705,0.0197,5.3058,Random effects
+218,run218,omega_CL,0.351,0.0217,6.183,Random effects
+218,run218,omega_Ka,0.6912,0.0388,5.6107,Random effects
+218,run218,b,0.1377,0.0058,4.1824,Residual error model
+219,run219,Vd_pop,65.0619,2.8772,4.4222,Typical values
+219,run219,CL_pop,4.0899,0.1456,3.5598,Typical values
+219,run219,Ka_pop,0.8483,0.1065,12.5542,Typical values
+219,run219,omega_Vd,0.4157,0.0225,5.4199,Random effects
+219,run219,omega_CL,0.3302,0.0214,6.4781,Random effects
+219,run219,omega_Ka,0.8112,0.0526,6.4831,Random effects
+219,run219,b,0.1413,0.0062,4.4108,Residual error model
+220,run220,Vd_pop,66.0805,2.3815,3.604,Typical values
+220,run220,CL_pop,4.0524,0.1476,3.6428,Typical values
+220,run220,Ka_pop,0.7809,0.0823,10.5346,Typical values
+220,run220,omega_Vd,0.3303,0.021,6.3428,Random effects
+220,run220,omega_CL,0.3355,0.0219,6.5289,Random effects
+220,run220,omega_Ka,0.5678,0.0375,6.6088,Random effects
+220,run220,b,0.1382,0.0059,4.2357,Residual error model
+221,run221,Vd_pop,66.4207,2.4673,3.7147,Typical values
+221,run221,CL_pop,4.0739,0.1359,3.3347,Typical values
+221,run221,Ka_pop,1.0353,0.1235,11.9277,Typical values
+221,run221,omega_Vd,0.3537,0.0199,5.625,Random effects
+221,run221,omega_CL,0.3169,0.0204,6.4295,Random effects
+221,run221,omega_Ka,0.731,0.0355,4.8572,Random effects
+221,run221,b,0.1357,0.0057,4.2294,Residual error model
+222,run222,Vd_pop,68.595,2.6881,3.9188,Typical values
+222,run222,CL_pop,3.8893,0.125,3.2142,Typical values
+222,run222,Ka_pop,1.126,0.1529,13.5778,Typical values
+222,run222,omega_Vd,0.3749,0.022,5.8781,Random effects
+222,run222,omega_CL,0.3011,0.0202,6.7141,Random effects
+222,run222,omega_Ka,0.9058,0.0687,7.5798,Random effects
+222,run222,b,0.1307,0.006,4.5894,Residual error model
+223,run223,Vd_pop,67.0264,2.4572,3.6661,Typical values
+223,run223,CL_pop,3.8034,0.1378,3.6218,Typical values
+223,run223,Ka_pop,0.9829,0.1065,10.834,Typical values
+223,run223,omega_Vd,0.3305,0.0213,6.4421,Random effects
+223,run223,omega_CL,0.3408,0.0226,6.6237,Random effects
+223,run223,omega_Ka,0.6899,0.0414,6.0031,Random effects
+223,run223,b,0.1487,0.0065,4.3687,Residual error model
+224,run224,Vd_pop,70.7317,2.7052,3.8246000000000002,Typical values
+224,run224,CL_pop,3.7777,0.1337,3.5386,Typical values
+224,run224,Ka_pop,1.0958,0.1195,10.9088,Typical values
+224,run224,omega_Vd,0.376,0.0222,5.894,Random effects
+224,run224,omega_CL,0.3423,0.0214,6.2618,Random effects
+224,run224,omega_Ka,0.6058,0.0501,8.2774,Random effects
+224,run224,b,0.1252,0.0057,4.5216,Residual error model
+225,run225,Vd_pop,63.0836,2.1276,3.3727,Typical values
+225,run225,CL_pop,3.954,0.1428,3.6122,Typical values
+225,run225,Ka_pop,0.9292,0.0941,10.1247,Typical values
+225,run225,omega_Vd,0.3063,0.0185,6.0302,Random effects
+225,run225,omega_CL,0.3497,0.0221,6.3194,Random effects
+225,run225,omega_Ka,0.6242,0.052,8.3381,Random effects
+225,run225,b,0.1309,0.006,4.5512,Residual error model
+226,run226,Vd_pop,66.3709,2.8077,4.2303,Typical values
+226,run226,CL_pop,4.1733,0.1405,3.3661,Typical values
+226,run226,Ka_pop,0.8951,0.1148,12.8249,Typical values
+226,run226,omega_Vd,0.3972,0.0206,5.1936,Random effects
+226,run226,omega_CL,0.32,0.0145,4.5298,Random effects
+226,run226,omega_Ka,0.89,0.0411,4.6161,Random effects
+226,run226,b,0.1281,0.0052,4.0774,Residual error model
+227,run227,Vd_pop,70.8567,2.6081,3.6808,Typical values
+227,run227,CL_pop,3.9902,0.1579,3.9572,Typical values
+227,run227,Ka_pop,0.9573,0.0775,8.0941,Typical values
+227,run227,omega_Vd,0.3469,0.0193,5.5633,Random effects
+227,run227,omega_CL,0.3805,0.0243,6.3755,Random effects
+227,run227,omega_Ka,0.4515,0.0279,6.1753,Random effects
+227,run227,b,0.1347,0.0056,4.1388,Residual error model
+228,run228,Vd_pop,68.6168,2.416,3.5209,Typical values
+228,run228,CL_pop,4.1178,0.13,3.1579,Typical values
+228,run228,Ka_pop,0.8941,0.0867,9.6965,Typical values
+228,run228,omega_Vd,0.3256,0.016,4.9281,Random effects
+228,run228,omega_CL,0.2992,0.0194,6.4694,Random effects
+228,run228,omega_Ka,0.6111,0.0248,4.0506,Random effects
+228,run228,b,0.1293,0.0052,4.0344,Residual error model
+229,run229,Vd_pop,63.8452,2.2961,3.5964,Typical values
+229,run229,CL_pop,4.1612,0.1323,3.1802,Typical values
+229,run229,Ka_pop,0.9888,0.1367,13.8225,Typical values
+229,run229,omega_Vd,0.3274,0.02,6.113,Random effects
+229,run229,omega_CL,0.3023,0.0191,6.3332,Random effects
+229,run229,omega_Ka,0.8975,0.0673,7.4943,Random effects
+229,run229,b,0.1329,0.006,4.5044,Residual error model
+230,run230,Vd_pop,71.0172,2.8906,4.0703,Typical values
+230,run230,CL_pop,4.1211,0.1443,3.5024,Typical values
+230,run230,Ka_pop,1.2584,0.1989,15.8089,Typical values
+230,run230,omega_Vd,0.3842,0.0224,5.822,Random effects
+230,run230,omega_CL,0.32,0.0213,6.6602,Random effects
+230,run230,omega_Ka,0.9971,0.0561,5.6312,Random effects
+230,run230,b,0.1424,0.0062,4.3256,Residual error model
+231,run231,Vd_pop,71.5865,2.5678,3.587,Typical values
+231,run231,CL_pop,4.0716,0.1455,3.5724,Typical values
+231,run231,Ka_pop,0.9658,0.0924,9.5704,Typical values
+231,run231,omega_Vd,0.3284,0.0174,5.3101,Random effects
+231,run231,omega_CL,0.3387,0.0189,5.5894,Random effects
+231,run231,omega_Ka,0.5142,0.0222,4.3148,Random effects
+231,run231,b,0.1424,0.0053,3.7536,Residual error model
+232,run232,Vd_pop,68.9821,2.3821,3.4533,Typical values
+232,run232,CL_pop,4.1051,0.1536,3.7428,Typical values
+232,run232,Ka_pop,0.8994,0.1095,12.179,Typical values
+232,run232,omega_Vd,0.3037,0.0184,6.0632,Random effects
+232,run232,omega_CL,0.3586,0.0231,6.4277,Random effects
+232,run232,omega_Ka,0.8059,0.0558,6.9232,Random effects
+232,run232,b,0.1318,0.0058,4.3673,Residual error model
+233,run233,Vd_pop,65.7028,2.6679,4.0606,Typical values
+233,run233,CL_pop,4.0142,0.1338,3.332,Typical values
+233,run233,Ka_pop,0.839,0.0956,11.3956,Typical values
+233,run233,omega_Vd,0.3738,0.0214,5.7188,Random effects
+233,run233,omega_CL,0.3083,0.0193,6.2604,Random effects
+233,run233,omega_Ka,0.7472,0.0548,7.3281,Random effects
+233,run233,b,0.1438,0.0065,4.5064,Residual error model
+234,run234,Vd_pop,69.1366,2.7513,3.9795,Typical values
+234,run234,CL_pop,4.0095,0.1426,3.557,Typical values
+234,run234,Ka_pop,0.8697,0.094,10.8061,Typical values
+234,run234,omega_Vd,0.374,0.0235,6.2844,Random effects
+234,run234,omega_CL,0.334,0.022,6.5968,Random effects
+234,run234,omega_Ka,0.5443,0.06,11.0255,Random effects
+234,run234,b,0.1428,0.0064,4.5065,Residual error model
+235,run235,Vd_pop,67.6348,2.7058,4.0006,Typical values
+235,run235,CL_pop,3.9457,0.146,3.6996000000000002,Typical values
+235,run235,Ka_pop,0.9966,0.1192,11.9595,Typical values
+235,run235,omega_Vd,0.3879,0.0219,5.6373,Random effects
+235,run235,omega_CL,0.3586,0.022,6.1247,Random effects
+235,run235,omega_Ka,0.7554,0.0583,7.7229,Random effects
+235,run235,b,0.1312,0.006,4.5597,Residual error model
+236,run236,Vd_pop,64.2912,2.9571,4.5996,Typical values
+236,run236,CL_pop,4.1716,0.1326,3.1776,Typical values
+236,run236,Ka_pop,1.1059,0.1821,16.4657,Typical values
+236,run236,omega_Vd,0.4293,0.0244,5.6763,Random effects
+236,run236,omega_CL,0.2914,0.0191,6.568,Random effects
+236,run236,omega_Ka,1.1407,0.0618,5.415,Random effects
+236,run236,b,0.1417,0.0062,4.3721,Residual error model
+237,run237,Vd_pop,67.895,2.7093,3.9905,Typical values
+237,run237,CL_pop,4.024,0.142,3.5285,Typical values
+237,run237,Ka_pop,0.9015,0.1068,11.8446,Typical values
+237,run237,omega_Vd,0.3815,0.0182,4.7805,Random effects
+237,run237,omega_CL,0.3247,0.0209,6.4355,Random effects
+237,run237,omega_Ka,0.6771,0.0301,4.4416,Random effects
+237,run237,b,0.135,0.0054,3.9721,Residual error model
+238,run238,Vd_pop,66.8862,2.7622,4.1296,Typical values
+238,run238,CL_pop,3.9002,0.1443,3.6985,Typical values
+238,run238,Ka_pop,0.9079,0.0856,9.4263,Typical values
+238,run238,omega_Vd,0.3972,0.0205,5.1568,Random effects
+238,run238,omega_CL,0.3441,0.0218,6.3326,Random effects
+238,run238,omega_Ka,0.6258,0.032,5.1117,Random effects
+238,run238,b,0.1343,0.0056,4.1948,Residual error model
+239,run239,Vd_pop,68.0272,2.2507,3.3085,Typical values
+239,run239,CL_pop,3.7449,0.124,3.3109,Typical values
+239,run239,Ka_pop,1.0956,0.1286,11.7378,Typical values
+239,run239,omega_Vd,0.3052,0.0196,6.431,Random effects
+239,run239,omega_CL,0.314,0.0209,6.6665,Random effects
+239,run239,omega_Ka,0.7066,0.062,8.7777,Random effects
+239,run239,b,0.1348,0.0061,4.5101,Residual error model
+240,run240,Vd_pop,69.6949,2.5491,3.6575,Typical values
+240,run240,CL_pop,4.0946,0.141,3.4446,Typical values
+240,run240,Ka_pop,0.8586,0.0916,10.6639,Typical values
+240,run240,omega_Vd,0.3271,0.0208,6.3479,Random effects
+240,run240,omega_CL,0.3173,0.0215,6.7822,Random effects
+240,run240,omega_Ka,0.6403,0.0507,7.9218,Random effects
+240,run240,b,0.1541,0.0067,4.3732,Residual error model
+241,run241,Vd_pop,68.6431,2.4927,3.6314,Typical values
+241,run241,CL_pop,4.0468,0.1266,3.1288,Typical values
+241,run241,Ka_pop,0.9295,0.094,10.1164,Typical values
+241,run241,omega_Vd,0.3469,0.0196,5.6618,Random effects
+241,run241,omega_CL,0.2878,0.0187,6.4849,Random effects
+241,run241,omega_Ka,0.6458,0.0493,7.6339,Random effects
+241,run241,b,0.1293,0.0059,4.5305,Residual error model
+242,run242,Vd_pop,66.9638,2.61,3.8976,Typical values
+242,run242,CL_pop,4.1522,0.1354,3.2608,Typical values
+242,run242,Ka_pop,0.7712,0.0795,10.3059,Typical values
+242,run242,omega_Vd,0.3468,0.019,5.4873,Random effects
+242,run242,omega_CL,0.2992,0.0196,6.5644,Random effects
+242,run242,omega_Ka,0.614,0.0243,3.9532,Random effects
+242,run242,b,0.154,0.006,3.9272,Residual error model
+243,run243,Vd_pop,63.5836,2.8028,4.408,Typical values
+243,run243,CL_pop,3.9025,0.1379,3.5349,Typical values
+243,run243,Ka_pop,0.9276,0.1099,11.8508,Typical values
+243,run243,omega_Vd,0.4227,0.0225,5.3205,Random effects
+243,run243,omega_CL,0.3305,0.0212,6.41,Random effects
+243,run243,omega_Ka,0.7206,0.0524,7.271,Random effects
+243,run243,b,0.1331,0.0057,4.3123,Residual error model
+244,run244,Vd_pop,67.5678,2.6023,3.8514,Typical values
+244,run244,CL_pop,4.0531,0.154,3.8006,Typical values
+244,run244,Ka_pop,0.9448,0.0974,10.3069,Typical values
+244,run244,omega_Vd,0.351,0.0196,5.585,Random effects
+244,run244,omega_CL,0.3632,0.0223,6.1293,Random effects
+244,run244,omega_Ka,0.5835,0.036,6.1656,Random effects
+244,run244,b,0.1529,0.0064,4.1751,Residual error model
+245,run245,Vd_pop,72.4342,2.5117,3.4676,Typical values
+245,run245,CL_pop,3.9704,0.1275,3.2107,Typical values
+245,run245,Ka_pop,0.9593,0.0812,8.461,Typical values
+245,run245,omega_Vd,0.308,0.02,6.51,Random effects
+245,run245,omega_CL,0.2948,0.0197,6.676,Random effects
+245,run245,omega_Ka,0.4056,0.0423,10.4159,Random effects
+245,run245,b,0.1562,0.0066,4.2114,Residual error model
+246,run246,Vd_pop,63.4266,2.7416,4.3224,Typical values
+246,run246,CL_pop,3.8708,0.1281,3.3087,Typical values
+246,run246,Ka_pop,0.9548,0.1138,11.9181,Typical values
+246,run246,omega_Vd,0.3931,0.0216,5.4934,Random effects
+246,run246,omega_CL,0.3065,0.0207,6.7512,Random effects
+246,run246,omega_Ka,0.7624,0.0455,5.9747,Random effects
+246,run246,b,0.1508,0.0066,4.3632,Residual error model
+247,run247,Vd_pop,72.1414,3.0784,4.2672,Typical values
+247,run247,CL_pop,4.0965,0.1388,3.3879,Typical values
+247,run247,Ka_pop,0.928,0.1021,11.0062,Typical values
+247,run247,omega_Vd,0.4008,0.0211,5.2743,Random effects
+247,run247,omega_CL,0.3092,0.0189,6.1128,Random effects
+247,run247,omega_Ka,0.6672,0.0316,4.7304,Random effects
+247,run247,b,0.1471,0.0059,4.0111,Residual error model
+248,run248,Vd_pop,66.1369,2.749,4.1565,Typical values
+248,run248,CL_pop,3.914,0.1455,3.718,Typical values
+248,run248,Ka_pop,0.8129,0.0988,12.158,Typical values
+248,run248,omega_Vd,0.3767,0.022,5.8336,Random effects
+248,run248,omega_CL,0.3408,0.0226,6.6349,Random effects
+248,run248,omega_Ka,0.852,0.059,6.9298,Random effects
+248,run248,b,0.1353,0.0061,4.5396,Residual error model
+249,run249,Vd_pop,66.854,2.8363,4.2424,Typical values
+249,run249,CL_pop,4.0317,0.1423,3.5303,Typical values
+249,run249,Ka_pop,0.9091,0.1012,11.1364,Typical values
+249,run249,omega_Vd,0.3968,0.0226,5.6848,Random effects
+249,run249,omega_CL,0.334,0.0219,6.5636,Random effects
+249,run249,omega_Ka,0.6721,0.0487,7.2472,Random effects
+249,run249,b,0.1505,0.0068,4.5157,Residual error model
+250,run250,Vd_pop,72.168,2.681,3.715,Typical values
+250,run250,CL_pop,3.8417,0.1464,3.8102,Typical values
+250,run250,Ka_pop,1.0833,0.1221,11.2758,Typical values
+250,run250,omega_Vd,0.3509,0.0209,5.9684,Random effects
+250,run250,omega_CL,0.3633,0.0237,6.5288,Random effects
+250,run250,omega_Ka,0.7079,0.056,7.9095,Random effects
+250,run250,b,0.1305,0.006,4.611,Residual error model
+251,run251,Vd_pop,65.3073,2.4208,3.7067,Typical values
+251,run251,CL_pop,4.1558,0.1308,3.1472,Typical values
+251,run251,Ka_pop,0.9105,0.0891,9.787,Typical values
+251,run251,omega_Vd,0.3304,0.0187,5.6625,Random effects
+251,run251,omega_CL,0.2911,0.0198,6.8051,Random effects
+251,run251,omega_Ka,0.6137,0.0431,7.0249,Random effects
+251,run251,b,0.1423,0.0061,4.3085,Residual error model
+252,run252,Vd_pop,63.7598,2.572,4.034,Typical values
+252,run252,CL_pop,3.9705,0.1452,3.6577,Typical values
+252,run252,Ka_pop,0.8994,0.1147,12.7491,Typical values
+252,run252,omega_Vd,0.3754,0.0174,4.6475,Random effects
+252,run252,omega_CL,0.3445,0.0191,5.537,Random effects
+252,run252,omega_Ka,0.8122,0.0301,3.7041,Random effects
+252,run252,b,0.1336,0.0051,3.8373,Residual error model
+253,run253,Vd_pop,63.6797,2.3927,3.7574,Typical values
+253,run253,CL_pop,4.1902,0.1351,3.2242,Typical values
+253,run253,Ka_pop,0.9009,0.1046,11.6053,Typical values
+253,run253,omega_Vd,0.344,0.0206,5.9947,Random effects
+253,run253,omega_CL,0.3063,0.02,6.5354,Random effects
+253,run253,omega_Ka,0.7585,0.0555,7.3164,Random effects
+253,run253,b,0.1348,0.0061,4.561,Residual error model
+254,run254,Vd_pop,62.2866,2.641,4.2401,Typical values
+254,run254,CL_pop,3.9864,0.1326,3.3263,Typical values
+254,run254,Ka_pop,0.8325,0.1026,12.3237,Typical values
+254,run254,omega_Vd,0.3911,0.0199,5.0753,Random effects
+254,run254,omega_CL,0.3116,0.02,6.4141,Random effects
+254,run254,omega_Ka,0.8415,0.046,5.4627,Random effects
+254,run254,b,0.1356,0.0056,4.1473,Residual error model
+255,run255,Vd_pop,64.8989,2.6259,4.0462,Typical values
+255,run255,CL_pop,4.2543,0.1352,3.178,Typical values
+255,run255,Ka_pop,0.7231,0.0873,12.0766,Typical values
+255,run255,omega_Vd,0.3664,0.0226,6.1554,Random effects
+255,run255,omega_CL,0.284,0.0193,6.783,Random effects
+255,run255,omega_Ka,0.7769,0.0423,5.4439,Random effects
+255,run255,b,0.141,0.0061,4.3221,Residual error model
+256,run256,Vd_pop,70.4721,2.5834,3.6658,Typical values
+256,run256,CL_pop,3.9465,0.1428,3.6188,Typical values
+256,run256,Ka_pop,1.0042,0.109,10.8493,Typical values
+256,run256,omega_Vd,0.3347,0.0188,5.6219,Random effects
+256,run256,omega_CL,0.3372,0.0214,6.3599,Random effects
+256,run256,omega_Ka,0.6226,0.0471,7.5707,Random effects
+256,run256,b,0.1456,0.006,4.1241,Residual error model
+257,run257,Vd_pop,70.4787,2.9922,4.2456,Typical values
+257,run257,CL_pop,4.3053,0.1506,3.4974,Typical values
+257,run257,Ka_pop,0.7738,0.0841,10.8656,Typical values
+257,run257,omega_Vd,0.3913,0.0229,5.862,Random effects
+257,run257,omega_CL,0.3212,0.0217,6.7426,Random effects
+257,run257,omega_Ka,0.698,0.0523,7.4932,Random effects
+257,run257,b,0.1415,0.0063,4.4833,Residual error model
+258,run258,Vd_pop,67.2867,2.4136,3.587,Typical values
+258,run258,CL_pop,3.7246,0.1534,4.1187,Typical values
+258,run258,Ka_pop,0.9368,0.1019,10.8774,Typical values
+258,run258,omega_Vd,0.3258,0.02,6.1252,Random effects
+258,run258,omega_CL,0.3975,0.0244,6.1377,Random effects
+258,run258,omega_Ka,0.6711,0.0522,7.7846,Random effects
+258,run258,b,0.1355,0.0059,4.3727,Residual error model
+259,run259,Vd_pop,69.8396,2.574,3.6856,Typical values
+259,run259,CL_pop,3.9615,0.1559,3.9366,Typical values
+259,run259,Ka_pop,0.8771,0.0927,10.5705,Typical values
+259,run259,omega_Vd,0.3339,0.0208,6.2275,Random effects
+259,run259,omega_CL,0.3691,0.0237,6.4268,Random effects
+259,run259,omega_Ka,0.6565,0.0452,6.8911,Random effects
+259,run259,b,0.1369,0.006,4.38,Residual error model
+260,run260,Vd_pop,66.4225,2.4226,3.6473,Typical values
+260,run260,CL_pop,4.2209,0.116,2.7479,Typical values
+260,run260,Ka_pop,0.9881,0.1172,11.86,Typical values
+260,run260,omega_Vd,0.3329,0.0211,6.351,Random effects
+260,run260,omega_CL,0.2545,0.0178,6.9994,Random effects
+260,run260,omega_Ka,0.7084,0.0553,7.8087,Random effects
+260,run260,b,0.1521,0.0066,4.3637,Residual error model
+261,run261,Vd_pop,61.5021,2.2323,3.6296,Typical values
+261,run261,CL_pop,4.128,0.1139,2.7584,Typical values
+261,run261,Ka_pop,0.6872,0.0816,11.8698,Typical values
+261,run261,omega_Vd,0.3089,0.0208,6.7407,Random effects
+261,run261,omega_CL,0.2479,0.0173,6.965,Random effects
+261,run261,omega_Ka,0.7244,0.0626,8.6402,Random effects
+261,run261,b,0.1511,0.0068,4.4852,Residual error model
+262,run262,Vd_pop,68.6101,2.7015,3.9375,Typical values
+262,run262,CL_pop,3.9508,0.1566,3.9632,Typical values
+262,run262,Ka_pop,0.9,0.10780000000000001,11.9822,Typical values
+262,run262,omega_Vd,0.3515,0.0216,6.1312,Random effects
+262,run262,omega_CL,0.3745,0.0242,6.45,Random effects
+262,run262,omega_Ka,0.7881,0.0582,7.3834,Random effects
+262,run262,b,0.1459,0.0065,4.4692,Residual error model
+263,run263,Vd_pop,64.6751,2.6012,4.022,Typical values
+263,run263,CL_pop,4.1207,0.1337,3.2448,Typical values
+263,run263,Ka_pop,0.931,0.1147,12.3187,Typical values
+263,run263,omega_Vd,0.3778,0.0221,5.8548,Random effects
+263,run263,omega_CL,0.3013,0.0198,6.5709,Random effects
+263,run263,omega_Ka,0.6827,0.0571,8.3608,Random effects
+263,run263,b,0.1476,0.0063,4.2672,Residual error model
+264,run264,Vd_pop,70.0077,2.8978,4.1392,Typical values
+264,run264,CL_pop,3.8759,0.1366,3.525,Typical values
+264,run264,Ka_pop,0.8456,0.1012,11.9673,Typical values
+264,run264,omega_Vd,0.3893,0.0229,5.885,Random effects
+264,run264,omega_CL,0.3096,0.0215,6.9311,Random effects
+264,run264,omega_Ka,0.7784,0.0602,7.7338,Random effects
+264,run264,b,0.1388,0.0062,4.4779,Residual error model
+265,run265,Vd_pop,64.598,2.1879,3.387,Typical values
+265,run265,CL_pop,3.8906,0.1324,3.4034,Typical values
+265,run265,Ka_pop,1.0781,0.152,14.0958,Typical values
+265,run265,omega_Vd,0.2997,0.0193,6.4383,Random effects
+265,run265,omega_CL,0.3236,0.0212,6.5576,Random effects
+265,run265,omega_Ka,0.9413,0.0743,7.8888,Random effects
+265,run265,b,0.1372,0.0061,4.4634,Residual error model
+266,run266,Vd_pop,70.1051,2.7117,3.868,Typical values
+266,run266,CL_pop,4.0184,0.1589,3.9543,Typical values
+266,run266,Ka_pop,0.9089,0.1346,14.8134,Typical values
+266,run266,omega_Vd,0.3475,0.0212,6.0924,Random effects
+266,run266,omega_CL,0.3651,0.0231,6.322,Random effects
+266,run266,omega_Ka,0.9548,0.0757,7.9301,Random effects
+266,run266,b,0.132,0.006,4.5521,Residual error model
+267,run267,Vd_pop,67.544,2.6912,3.9844,Typical values
+267,run267,CL_pop,4.0542,0.138,3.4046,Typical values
+267,run267,Ka_pop,0.9232,0.1149,12.4467,Typical values
+267,run267,omega_Vd,0.3716,0.0196,5.2654,Random effects
+267,run267,omega_CL,0.3169,0.0209,6.5823,Random effects
+267,run267,omega_Ka,0.7699,0.0498,6.4699,Random effects
+267,run267,b,0.135,0.0057,4.2116,Residual error model
+268,run268,Vd_pop,70.9233,2.9037,4.0941,Typical values
+268,run268,CL_pop,3.9114,0.1369,3.4998,Typical values
+268,run268,Ka_pop,0.9497,0.1084,11.4174,Typical values
+268,run268,omega_Vd,0.3845,0.0221,5.7441,Random effects
+268,run268,omega_CL,0.3204,0.02,6.2432,Random effects
+268,run268,omega_Ka,0.7058,0.032,4.5357,Random effects
+268,run268,b,0.1404,0.0057,4.0851,Residual error model
+269,run269,Vd_pop,67.1783,2.4053,3.5804,Typical values
+269,run269,CL_pop,4.2566,0.1445,3.3957,Typical values
+269,run269,Ka_pop,0.7653,0.0803,10.4974,Typical values
+269,run269,omega_Vd,0.3114,0.0183,5.8836,Random effects
+269,run269,omega_CL,0.3208,0.0209,6.5253,Random effects
+269,run269,omega_Ka,0.6789,0.0469,6.911,Random effects
+269,run269,b,0.1356,0.006,4.4528,Residual error model
+270,run270,Vd_pop,68.6146,2.6591,3.8754,Typical values
+270,run270,CL_pop,3.8087,0.1316,3.4566,Typical values
+270,run270,Ka_pop,0.873,0.081,9.278,Typical values
+270,run270,omega_Vd,0.3644,0.0227,6.218,Random effects
+270,run270,omega_CL,0.3232,0.0213,6.5878,Random effects
+270,run270,omega_Ka,0.5176,0.0432,8.3393,Random effects
+270,run270,b,0.1407,0.0063,4.4469,Residual error model
+271,run271,Vd_pop,66.9122,2.5623,3.8293,Typical values
+271,run271,CL_pop,4.0838,0.1377,3.3717,Typical values
+271,run271,Ka_pop,0.8999,0.1116,12.4036,Typical values
+271,run271,omega_Vd,0.3528,0.0206,5.8369,Random effects
+271,run271,omega_CL,0.3153,0.0204,6.4695,Random effects
+271,run271,omega_Ka,0.8231,0.0617,7.5004,Random effects
+271,run271,b,0.1404,0.0063,4.4979,Residual error model
+272,run272,Vd_pop,65.7084,2.7495,4.1844,Typical values
+272,run272,CL_pop,3.8913,0.1349,3.4669,Typical values
+272,run272,Ka_pop,0.9344,0.1069,11.4394,Typical values
+272,run272,omega_Vd,0.4077,0.022,5.3856,Random effects
+272,run272,omega_CL,0.3273,0.019,5.8021,Random effects
+272,run272,omega_Ka,0.7155,0.0477,6.6688,Random effects
+272,run272,b,0.1339,0.0059,4.4238,Residual error model
+273,run273,Vd_pop,63.1603,2.2927,3.6301,Typical values
+273,run273,CL_pop,3.9597,0.1338,3.3801,Typical values
+273,run273,Ka_pop,0.885,0.1112,12.5697,Typical values
+273,run273,omega_Vd,0.3102,0.0199,6.4273,Random effects
+273,run273,omega_CL,0.3143,0.02,6.362,Random effects
+273,run273,omega_Ka,0.875,0.061,6.9705,Random effects
+273,run273,b,0.1407,0.0064,4.5212,Residual error model
+274,run274,Vd_pop,64.1549,2.5721,4.0092,Typical values
+274,run274,CL_pop,4.0679,0.1315,3.2317,Typical values
+274,run274,Ka_pop,0.8804,0.1044,11.8588,Typical values
+274,run274,omega_Vd,0.3807,0.019,4.9836,Random effects
+274,run274,omega_CL,0.2986,0.0169,5.6619,Random effects
+274,run274,omega_Ka,0.7206,0.0551,7.6431,Random effects
+274,run274,b,0.1409,0.0062,4.4108,Residual error model
+275,run275,Vd_pop,67.7226,2.6043,3.8455,Typical values
+275,run275,CL_pop,4.34,0.1412,3.253,Typical values
+275,run275,Ka_pop,0.8849,0.0981,11.087,Typical values
+275,run275,omega_Vd,0.3512,0.0206,5.8657,Random effects
+275,run275,omega_CL,0.303,0.0201,6.6275,Random effects
+275,run275,omega_Ka,0.7185,0.0324,4.5038,Random effects
+275,run275,b,0.1473,0.006,4.0577,Residual error model
+276,run276,Vd_pop,63.3183,2.3372,3.6912,Typical values
+276,run276,CL_pop,3.998,0.1156,2.8922,Typical values
+276,run276,Ka_pop,0.8349,0.0956,11.4491,Typical values
+276,run276,omega_Vd,0.3311,0.0197,5.9508,Random effects
+276,run276,omega_CL,0.2602,0.0176,6.7453,Random effects
+276,run276,omega_Ka,0.7795,0.0512,6.5658,Random effects
+276,run276,b,0.1326,0.0057,4.3246,Residual error model
+277,run277,Vd_pop,64.8727,2.6954,4.1549,Typical values
+277,run277,CL_pop,3.7996,0.1441,3.7936,Typical values
+277,run277,Ka_pop,0.9316,0.1072,11.502,Typical values
+277,run277,omega_Vd,0.4013,0.0212,5.2749,Random effects
+277,run277,omega_CL,0.3626,0.0221,6.0964,Random effects
+277,run277,omega_Ka,0.7099,0.0517,7.2774,Random effects
+277,run277,b,0.1246,0.0055,4.4461,Residual error model
+278,run278,Vd_pop,63.5203,2.1873,3.4436,Typical values
+278,run278,CL_pop,4.1743,0.1425,3.4128,Typical values
+278,run278,Ka_pop,0.7358,0.0792,10.7631,Typical values
+278,run278,omega_Vd,0.2928,0.0179,6.1075,Random effects
+278,run278,omega_CL,0.3281,0.0212,6.4683,Random effects
+278,run278,omega_Ka,0.6354,0.0572,9.0013,Random effects
+278,run278,b,0.1451,0.0062,4.2449,Residual error model
+279,run279,Vd_pop,71.1022,2.802,3.9409,Typical values
+279,run279,CL_pop,3.9699,0.1301,3.278,Typical values
+279,run279,Ka_pop,0.9891,0.1263,12.77,Typical values
+279,run279,omega_Vd,0.3749,0.0233,6.2041,Random effects
+279,run279,omega_CL,0.3029,0.0201,6.6261,Random effects
+279,run279,omega_Ka,0.7643,0.0629,8.2252,Random effects
+279,run279,b,0.138,0.0063,4.5582,Residual error model
+280,run280,Vd_pop,65.7328,2.4671,3.7532,Typical values
+280,run280,CL_pop,4.1799,0.1373,3.2844,Typical values
+280,run280,Ka_pop,0.8465,0.0966,11.4074,Typical values
+280,run280,omega_Vd,0.3294,0.0208,6.315,Random effects
+280,run280,omega_CL,0.3071,0.0208,6.7585,Random effects
+280,run280,omega_Ka,0.7586,0.0535,7.0566,Random effects
+280,run280,b,0.1427,0.0063,4.4487,Residual error model
+281,run281,Vd_pop,68.7077,2.6802,3.9009,Typical values
+281,run281,CL_pop,4.1212,0.1181,2.8664,Typical values
+281,run281,Ka_pop,1.0337,0.1385,13.4,Typical values
+281,run281,omega_Vd,0.3642,0.0215,5.8924,Random effects
+281,run281,omega_CL,0.2596,0.018,6.9291,Random effects
+281,run281,omega_Ka,0.8497,0.0627,7.3809,Random effects
+281,run281,b,0.1357,0.0061,4.4971,Residual error model
+282,run282,Vd_pop,65.5534,2.397,3.6565,Typical values
+282,run282,CL_pop,4.026,0.1256,3.1186,Typical values
+282,run282,Ka_pop,0.8481,0.0872,10.2833,Typical values
+282,run282,omega_Vd,0.326,0.0193,5.9191,Random effects
+282,run282,omega_CL,0.2936,0.0193,6.5723,Random effects
+282,run282,omega_Ka,0.6602,0.0447,6.772,Random effects
+282,run282,b,0.1411,0.0062,4.4074,Residual error model
+283,run283,Vd_pop,65.286,2.7801,4.2584,Typical values
+283,run283,CL_pop,3.993,0.1426,3.5714,Typical values
+283,run283,Ka_pop,0.9243,0.094,10.1692,Typical values
+283,run283,omega_Vd,0.4155,0.0223,5.3744,Random effects
+283,run283,omega_CL,0.3393,0.0209,6.1464,Random effects
+283,run283,omega_Ka,0.6117,0.0499,8.1561,Random effects
+283,run283,b,0.1323,0.0059,4.4544,Residual error model
+284,run284,Vd_pop,70.9091,2.5991,3.6654,Typical values
+284,run284,CL_pop,3.852,0.1488,3.862,Typical values
+284,run284,Ka_pop,1.0671,0.1378,12.9163,Typical values
+284,run284,omega_Vd,0.3277,0.0217,6.6113,Random effects
+284,run284,omega_CL,0.365,0.0241,6.5993,Random effects
+284,run284,omega_Ka,0.749,0.0723,9.6548,Random effects
+284,run284,b,0.1504,0.0068,4.4894,Residual error model
+285,run285,Vd_pop,65.5027,2.4388,3.7233,Typical values
+285,run285,CL_pop,4.2909,0.1219,2.8413,Typical values
+285,run285,Ka_pop,0.8639,0.1046,12.11,Typical values
+285,run285,omega_Vd,0.3378,0.0221,6.5295,Random effects
+285,run285,omega_CL,0.2651,0.0182,6.8699,Random effects
+285,run285,omega_Ka,0.7352,0.0629,8.5569,Random effects
+285,run285,b,0.1389,0.0062,4.4807,Residual error model
+286,run286,Vd_pop,63.4904,2.5428,4.005,Typical values
+286,run286,CL_pop,4.0947,0.1371,3.3478,Typical values
+286,run286,Ka_pop,1.2404,0.1969,15.8743,Typical values
+286,run286,omega_Vd,0.3851,0.0192,4.9768,Random effects
+286,run286,omega_CL,0.3227,0.018,5.5784,Random effects
+286,run286,omega_Ka,0.9727,0.074,7.6091,Random effects
+286,run286,b,0.1282,0.0056,4.4052,Residual error model
+287,run287,Vd_pop,68.2526,2.5371,3.7173,Typical values
+287,run287,CL_pop,3.9094,0.1364,3.4882,Typical values
+287,run287,Ka_pop,0.9458,0.1087,11.4894,Typical values
+287,run287,omega_Vd,0.3423,0.0191,5.5889,Random effects
+287,run287,omega_CL,0.3332,0.0216,6.4703,Random effects
+287,run287,omega_Ka,0.6554,0.0512,7.8143,Random effects
+287,run287,b,0.1365,0.0059,4.3352,Residual error model
+288,run288,Vd_pop,68.5746,2.5257,3.6831,Typical values
+288,run288,CL_pop,4.0642,0.1414,3.4796,Typical values
+288,run288,Ka_pop,0.899,0.0905,10.0663,Typical values
+288,run288,omega_Vd,0.3522,0.0207,5.8826,Random effects
+288,run288,omega_CL,0.3362,0.0206,6.1224,Random effects
+288,run288,omega_Ka,0.5973,0.0464,7.7705,Random effects
+288,run288,b,0.1269,0.0057,4.4699,Residual error model
+289,run289,Vd_pop,69.402,2.6548,3.8252,Typical values
+289,run289,CL_pop,4.1945,0.1259,3.0026,Typical values
+289,run289,Ka_pop,0.8354,0.0938,11.2274,Typical values
+289,run289,omega_Vd,0.3515,0.0214,6.0848,Random effects
+289,run289,omega_CL,0.2801,0.0189,6.7408,Random effects
+289,run289,omega_Ka,0.7058,0.0572,8.0981,Random effects
+289,run289,b,0.1389,0.0062,4.4856,Residual error model
+290,run290,Vd_pop,66.2414,2.5317,3.822,Typical values
+290,run290,CL_pop,3.8834,0.1386,3.5685,Typical values
+290,run290,Ka_pop,0.895,0.1062,11.8701,Typical values
+290,run290,omega_Vd,0.3402,0.0211,6.2004,Random effects
+290,run290,omega_CL,0.3329,0.0219,6.5823,Random effects
+290,run290,omega_Ka,0.8084,0.058,7.1794,Random effects
+290,run290,b,0.1442,0.0064,4.4445,Residual error model
+291,run291,Vd_pop,64.4184,2.5837,4.0108,Typical values
+291,run291,CL_pop,4.1269,0.1269,3.0745,Typical values
+291,run291,Ka_pop,1.0403,0.1357,13.0411,Typical values
+291,run291,omega_Vd,0.3719,0.0214,5.7527,Random effects
+291,run291,omega_CL,0.2923,0.0191,6.5315,Random effects
+291,run291,omega_Ka,0.824,0.0578,7.0198,Random effects
+291,run291,b,0.1384,0.0061,4.4351,Residual error model
+292,run292,Vd_pop,65.7028,2.4782,3.7718,Typical values
+292,run292,CL_pop,3.8775,0.1277,3.2946,Typical values
+292,run292,Ka_pop,0.9053,0.0942,10.401,Typical values
+292,run292,omega_Vd,0.3494,0.0204,5.8265,Random effects
+292,run292,omega_CL,0.3093,0.02,6.4601,Random effects
+292,run292,omega_Ka,0.6916,0.0547,7.9125,Random effects
+292,run292,b,0.1308,0.006,4.5927,Residual error model
+293,run293,Vd_pop,63.5299,2.4953,3.9278,Typical values
+293,run293,CL_pop,3.876,0.1258,3.2447,Typical values
+293,run293,Ka_pop,0.9177,0.1077,11.7337,Typical values
+293,run293,omega_Vd,0.3718,0.0211,5.6681,Random effects
+293,run293,omega_CL,0.3022,0.0199,6.5721,Random effects
+293,run293,omega_Ka,0.7733,0.0464,5.9986,Random effects
+293,run293,b,0.1315,0.0058,4.3765,Residual error model
+294,run294,Vd_pop,66.9933,2.409,3.5958,Typical values
+294,run294,CL_pop,4.0094,0.1435,3.5801,Typical values
+294,run294,Ka_pop,0.8967,0.0902,10.0547,Typical values
+294,run294,omega_Vd,0.3273,0.0209,6.3887,Random effects
+294,run294,omega_CL,0.3454,0.0224,6.4818,Random effects
+294,run294,omega_Ka,0.599,0.0565,9.4305,Random effects
+294,run294,b,0.1395,0.0063,4.5242000000000004,Residual error model
+295,run295,Vd_pop,61.4752,2.523,4.1042,Typical values
+295,run295,CL_pop,4.2378,0.1435,3.3858,Typical values
+295,run295,Ka_pop,0.7617,0.0763,10.0162,Typical values
+295,run295,omega_Vd,0.3764,0.0223,5.9142,Random effects
+295,run295,omega_CL,0.3288,0.0207,6.2876,Random effects
+295,run295,omega_Ka,0.6605,0.0486,7.3527,Random effects
+295,run295,b,0.1353,0.0063,4.6374,Residual error model
+296,run296,Vd_pop,66.8842,2.8758,4.2997,Typical values
+296,run296,CL_pop,4.063,0.1348,3.3172,Typical values
+296,run296,Ka_pop,1.0799,0.1606,14.8712,Typical values
+296,run296,omega_Vd,0.4098,0.0212,5.1791,Random effects
+296,run296,omega_CL,0.3093,0.0191,6.1763,Random effects
+296,run296,omega_Ka,0.9805,0.0529,5.3983,Random effects
+296,run296,b,0.1272,0.0057,4.4485,Residual error model
+297,run297,Vd_pop,68.8239,2.5792,3.7476,Typical values
+297,run297,CL_pop,3.7431,0.1116,2.9804,Typical values
+297,run297,Ka_pop,1.0033,0.0972,9.6863,Typical values
+297,run297,omega_Vd,0.3545,0.0199,5.6124,Random effects
+297,run297,omega_CL,0.2753,0.0184,6.7018,Random effects
+297,run297,omega_Ka,0.5725,0.0271,4.7312,Random effects
+297,run297,b,0.1286,0.0056,4.3472,Residual error model
+298,run298,Vd_pop,63.4936,2.6241,4.1328,Typical values
+298,run298,CL_pop,3.8004,0.1455,3.8278,Typical values
+298,run298,Ka_pop,0.7691,0.0988,12.8484,Typical values
+298,run298,omega_Vd,0.3746,0.0211,5.6328,Random effects
+298,run298,omega_CL,0.3567,0.0228,6.3989,Random effects
+298,run298,omega_Ka,0.888,0.0579,6.5161,Random effects
+298,run298,b,0.1318,0.0059,4.4535,Residual error model
+299,run299,Vd_pop,67.5507,2.5611,3.7913,Typical values
+299,run299,CL_pop,3.9509,0.1171,2.9634,Typical values
+299,run299,Ka_pop,0.8506,0.0929,10.9168,Typical values
+299,run299,omega_Vd,0.3555,0.0213,5.99,Random effects
+299,run299,omega_CL,0.2637,0.0183,6.9434,Random effects
+299,run299,omega_Ka,0.6743,0.0562,8.3302,Random effects
+299,run299,b,0.1346,0.0061,4.5018,Residual error model
+300,run300,Vd_pop,66.0291,2.4767,3.751,Typical values
+300,run300,CL_pop,3.8391,0.1356,3.5308,Typical values
+300,run300,Ka_pop,0.932,0.1106,11.863,Typical values
+300,run300,omega_Vd,0.3477,0.021,6.0355,Random effects
+300,run300,omega_CL,0.3373,0.0217,6.4484,Random effects
+300,run300,omega_Ka,0.8039,0.0545,6.7729,Random effects
+300,run300,b,0.1287,0.0059,4.6022,Residual error model
+301,run301,Vd_pop,64.5267,2.7624,4.281,Typical values
+301,run301,CL_pop,3.8829,0.1325,3.4126,Typical values
+301,run301,Ka_pop,0.8374,0.0833,9.9482,Typical values
+301,run301,omega_Vd,0.4119,0.0218,5.3007,Random effects
+301,run301,omega_CL,0.3263,0.0204,6.241,Random effects
+301,run301,omega_Ka,0.6214,0.0344,5.5315,Random effects
+301,run301,b,0.1363,0.006,4.4034,Residual error model
+302,run302,Vd_pop,68.4128,2.6533,3.8784,Typical values
+302,run302,CL_pop,3.7852,0.1369,3.6156,Typical values
+302,run302,Ka_pop,0.9286,0.1077,11.5947,Typical values
+302,run302,omega_Vd,0.368,0.0214,5.8281,Random effects
+302,run302,omega_CL,0.3335,0.0222,6.6496,Random effects
+302,run302,omega_Ka,0.7313,0.0606,8.2895,Random effects
+302,run302,b,0.1358,0.0061,4.5098,Residual error model
+303,run303,Vd_pop,68.4943,2.4045,3.5104,Typical values
+303,run303,CL_pop,4.2289,0.1651,3.904,Typical values
+303,run303,Ka_pop,0.8337,0.081,9.7128,Typical values
+303,run303,omega_Vd,0.3139,0.0181,5.7813,Random effects
+303,run303,omega_CL,0.383,0.0228,5.9476,Random effects
+303,run303,omega_Ka,0.5197,0.0588,11.3209,Random effects
+303,run303,b,0.1449,0.0065,4.4626,Residual error model
+304,run304,Vd_pop,66.6528,2.6618,3.9936,Typical values
+304,run304,CL_pop,4.1339,0.1429,3.4556,Typical values
+304,run304,Ka_pop,1.0291,0.1181,11.4726,Typical values
+304,run304,omega_Vd,0.3681,0.0207,5.6226,Random effects
+304,run304,omega_CL,0.3363,0.0199,5.9105,Random effects
+304,run304,omega_Ka,0.6924,0.0448,6.4715,Random effects
+304,run304,b,0.1443,0.0064,4.4675,Residual error model
+305,run305,Vd_pop,65.8979,2.6944,4.0887,Typical values
+305,run305,CL_pop,4.094,0.1174,2.8688,Typical values
+305,run305,Ka_pop,0.7656,0.0746,9.745,Typical values
+305,run305,omega_Vd,0.3909,0.0217,5.548,Random effects
+305,run305,omega_CL,0.2714,0.0156,5.7365,Random effects
+305,run305,omega_Ka,0.6435,0.0243,3.779,Random effects
+305,run305,b,0.1315,0.0053,4.0415,Residual error model
+306,run306,Vd_pop,70.2567,2.7142,3.8632,Typical values
+306,run306,CL_pop,4.0187,0.1529,3.8051,Typical values
+306,run306,Ka_pop,0.9855,0.1272,12.903,Typical values
+306,run306,omega_Vd,0.3545,0.0213,6.0111,Random effects
+306,run306,omega_CL,0.3624,0.023,6.3542,Random effects
+306,run306,omega_Ka,0.8888,0.0662,7.449,Random effects
+306,run306,b,0.1333,0.0061,4.5934,Residual error model
+307,run307,Vd_pop,70.744,2.8093,3.9711,Typical values
+307,run307,CL_pop,3.8345,0.1266,3.3013,Typical values
+307,run307,Ka_pop,0.9254,0.1012,10.9366,Typical values
+307,run307,omega_Vd,0.3703,0.023,6.2124,Random effects
+307,run307,omega_CL,0.2883,0.0207,7.1633,Random effects
+307,run307,omega_Ka,0.6648,0.0583,8.774,Random effects
+307,run307,b,0.1424,0.0063,4.444,Residual error model
+308,run308,Vd_pop,69.2879,2.6349,3.8028,Typical values
+308,run308,CL_pop,4.1929,0.1327,3.1648,Typical values
+308,run308,Ka_pop,0.8477,0.0934,11.0131,Typical values
+308,run308,omega_Vd,0.3477,0.0204,5.871,Random effects
+308,run308,omega_CL,0.2899,0.0192,6.6208,Random effects
+308,run308,omega_Ka,0.6899,0.0451,6.5416,Random effects
+308,run308,b,0.1379,0.0059,4.2769,Residual error model
+309,run309,Vd_pop,70.6669,2.6018,3.6818,Typical values
+309,run309,CL_pop,3.932,0.1544,3.9277,Typical values
+309,run309,Ka_pop,0.9106,0.0932,10.235,Typical values
+309,run309,omega_Vd,0.3543,0.0211,5.9514,Random effects
+309,run309,omega_CL,0.3726,0.0243,6.5286,Random effects
+309,run309,omega_Ka,0.5262,0.041,7.7989,Random effects
+309,run309,b,0.1361,0.0058,4.286,Residual error model
+310,run310,Vd_pop,65.6442,2.6345,4.0134,Typical values
+310,run310,CL_pop,3.9986,0.1272,3.1815,Typical values
+310,run310,Ka_pop,0.9524,0.1079,11.3334,Typical values
+310,run310,omega_Vd,0.3806,0.0228,5.9776,Random effects
+310,run310,omega_CL,0.2969,0.0198,6.6753,Random effects
+310,run310,omega_Ka,0.65,0.0533,8.2034,Random effects
+310,run310,b,0.1456,0.0066,4.5149,Residual error model
+311,run311,Vd_pop,68.5749,2.7887,4.0666,Typical values
+311,run311,CL_pop,4.0482,0.1337,3.3039,Typical values
+311,run311,Ka_pop,1.0142,0.1313,12.9456,Typical values
+311,run311,omega_Vd,0.3777,0.0222,5.8815,Random effects
+311,run311,omega_CL,0.2993,0.02,6.6752,Random effects
+311,run311,omega_Ka,0.8048,0.0591,7.3486,Random effects
+311,run311,b,0.1527,0.0067,4.3703,Residual error model
+312,run312,Vd_pop,65.3579,2.4823,3.798,Typical values
+312,run312,CL_pop,4.2903,0.1428,3.3275,Typical values
+312,run312,Ka_pop,0.8266,0.0822,9.9428,Typical values
+312,run312,omega_Vd,0.3492,0.0177,5.0707,Random effects
+312,run312,omega_CL,0.3118,0.0178,5.7119,Random effects
+312,run312,omega_Ka,0.6267,0.0246,3.9272,Random effects
+312,run312,b,0.1405,0.0054,3.8567,Residual error model
+313,run313,Vd_pop,67.5121,2.3387,3.4642,Typical values
+313,run313,CL_pop,4.0842,0.1358,3.3255,Typical values
+313,run313,Ka_pop,1.0245,0.1125,10.982,Typical values
+313,run313,omega_Vd,0.3214,0.0197,6.1192,Random effects
+313,run313,omega_CL,0.3142,0.0207,6.5824,Random effects
+313,run313,omega_Ka,0.5983,0.0556,9.29,Random effects
+313,run313,b,0.1415,0.0061,4.3353,Residual error model
+314,run314,Vd_pop,64.1799,2.3129,3.6038,Typical values
+314,run314,CL_pop,4.0396,0.1389,3.4373,Typical values
+314,run314,Ka_pop,0.836,0.0927,11.0875,Typical values
+314,run314,omega_Vd,0.3293,0.0198,6.0172,Random effects
+314,run314,omega_CL,0.3285,0.0214,6.5085,Random effects
+314,run314,omega_Ka,0.7924,0.0572,7.2128,Random effects
+314,run314,b,0.1245,0.0058,4.6346,Residual error model
+315,run315,Vd_pop,66.2811,2.5977,3.9192,Typical values
+315,run315,CL_pop,4.2252,0.1451,3.4334,Typical values
+315,run315,Ka_pop,0.8448,0.0894,10.5846,Typical values
+315,run315,omega_Vd,0.3711,0.0216,5.8102,Random effects
+315,run315,omega_CL,0.3261,0.0207,6.3453,Random effects
+315,run315,omega_Ka,0.641,0.0437,6.8144,Random effects
+315,run315,b,0.1338,0.0059,4.398,Residual error model
+316,run316,Vd_pop,67.6107,2.3788,3.5184,Typical values
+316,run316,CL_pop,4.1956,0.1311,3.1248,Typical values
+316,run316,Ka_pop,0.9997,0.125,12.4992,Typical values
+316,run316,omega_Vd,0.3172,0.0197,6.2007,Random effects
+316,run316,omega_CL,0.2996,0.0195,6.5109,Random effects
+316,run316,omega_Ka,0.7072,0.0557,7.8749,Random effects
+316,run316,b,0.1393,0.0062,4.4812,Residual error model
+317,run317,Vd_pop,65.7881,2.6464,4.0226,Typical values
+317,run317,CL_pop,3.8442,0.1167,3.0366,Typical values
+317,run317,Ka_pop,1.1355,0.1574,13.8636,Typical values
+317,run317,omega_Vd,0.3875,0.0223,5.7545,Random effects
+317,run317,omega_CL,0.2813,0.0183,6.5231,Random effects
+317,run317,omega_Ka,0.7844,0.0601,7.66,Random effects
+317,run317,b,0.13,0.0058,4.4987,Residual error model
+318,run318,Vd_pop,66.2224,2.4258,3.6631,Typical values
+318,run318,CL_pop,3.8432,0.1262,3.2825,Typical values
+318,run318,Ka_pop,0.9213,0.1007,10.9246,Typical values
+318,run318,omega_Vd,0.3382,0.0217,6.4148,Random effects
+318,run318,omega_CL,0.3008,0.0205,6.8017,Random effects
+318,run318,omega_Ka,0.6267,0.0624,9.9614,Random effects
+318,run318,b,0.1362,0.0061,4.5145,Residual error model
+319,run319,Vd_pop,64.5506,2.7215,4.2161,Typical values
+319,run319,CL_pop,3.8706,0.1275,3.2941,Typical values
+319,run319,Ka_pop,0.8397,0.1012,12.0506,Typical values
+319,run319,omega_Vd,0.386,0.0214,5.5559,Random effects
+319,run319,omega_CL,0.2957,0.0189,6.3831,Random effects
+319,run319,omega_Ka,0.802,0.0589,7.3412,Random effects
+319,run319,b,0.147,0.0067,4.5589,Residual error model
+320,run320,Vd_pop,63.21,2.5515,4.0365,Typical values
+320,run320,CL_pop,4.2229,0.1498,3.5468,Typical values
+320,run320,Ka_pop,0.927,0.1208,13.0339,Typical values
+320,run320,omega_Vd,0.3708,0.0205,5.5364,Random effects
+320,run320,omega_CL,0.3389,0.021,6.1959,Random effects
+320,run320,omega_Ka,0.9244,0.0597,6.4596,Random effects
+320,run320,b,0.124,0.0056,4.5152,Residual error model
+321,run321,Vd_pop,68.1832,2.3503,3.4471,Typical values
+321,run321,CL_pop,4.1293,0.1436,3.4767,Typical values
+321,run321,Ka_pop,0.8526,0.0987,11.5784,Typical values
+321,run321,omega_Vd,0.3031,0.0205,6.7531,Random effects
+321,run321,omega_CL,0.3275,0.0213,6.4954,Random effects
+321,run321,omega_Ka,0.7235,0.0476,6.5853,Random effects
+321,run321,b,0.1398,0.0061,4.3749,Residual error model
+322,run322,Vd_pop,66.4429,2.5965,3.9078,Typical values
+322,run322,CL_pop,4.1016,0.1209,2.9485,Typical values
+322,run322,Ka_pop,0.8254,0.1018,12.3329,Typical values
+322,run322,omega_Vd,0.3559,0.0212,5.966,Random effects
+322,run322,omega_CL,0.2635,0.0183,6.9539,Random effects
+322,run322,omega_Ka,0.7822,0.0483,6.1749,Random effects
+322,run322,b,0.1446,0.0061,4.2448,Residual error model
+323,run323,Vd_pop,66.8053,2.6631,3.9864,Typical values
+323,run323,CL_pop,3.8398,0.1543,4.0178,Typical values
+323,run323,Ka_pop,0.8235,0.0922,11.1954,Typical values
+323,run323,omega_Vd,0.373,0.019,5.0992,Random effects
+323,run323,omega_CL,0.3826,0.0237,6.2,Random effects
+323,run323,omega_Ka,0.7354,0.0473,6.4284,Random effects
+323,run323,b,0.1294,0.0055,4.251,Residual error model
+324,run324,Vd_pop,64.7044,2.5414,3.9277,Typical values
+324,run324,CL_pop,4.1147,0.1346,3.2711,Typical values
+324,run324,Ka_pop,0.8916,0.0876,9.825,Typical values
+324,run324,omega_Vd,0.366,0.0191,5.2151,Random effects
+324,run324,omega_CL,0.3124,0.0147,4.7033,Random effects
+324,run324,omega_Ka,0.6698,0.0329,4.9104,Random effects
+324,run324,b,0.1346,0.0056,4.1369,Residual error model
+325,run325,Vd_pop,64.0638,2.4754,3.864,Typical values
+325,run325,CL_pop,4.1822,0.1557,3.7231,Typical values
+325,run325,Ka_pop,0.9548,0.1143,11.9745,Typical values
+325,run325,omega_Vd,0.3494,0.0174,4.9712,Random effects
+325,run325,omega_CL,0.3536,0.0212,5.9971,Random effects
+325,run325,omega_Ka,0.729,0.0283,3.8767,Random effects
+325,run325,b,0.1493,0.0058,3.8745,Residual error model
+326,run326,Vd_pop,65.3641,2.6833,4.1052,Typical values
+326,run326,CL_pop,4.027,0.139,3.4524,Typical values
+326,run326,Ka_pop,0.7459,0.076,10.1875,Typical values
+326,run326,omega_Vd,0.3784,0.0219,5.7752,Random effects
+326,run326,omega_CL,0.3244,0.0189,5.815,Random effects
+326,run326,omega_Ka,0.5916,0.0436,7.3625,Random effects
+326,run326,b,0.1428,0.0063,4.4027,Residual error model
+327,run327,Vd_pop,67.0292,2.6968,4.0233,Typical values
+327,run327,CL_pop,3.8158,0.1327,3.4786,Typical values
+327,run327,Ka_pop,0.9873,0.1353,13.7005,Typical values
+327,run327,omega_Vd,0.3611,0.0212,5.8581,Random effects
+327,run327,omega_CL,0.3249,0.0214,6.5929,Random effects
+327,run327,omega_Ka,0.872,0.0412,4.7283,Random effects
+327,run327,b,0.1506,0.0065,4.3321,Residual error model
+328,run328,Vd_pop,70.2244,2.7159,3.8674,Typical values
+328,run328,CL_pop,3.9688,0.1418,3.573,Typical values
+328,run328,Ka_pop,0.7932,0.0985,12.419,Typical values
+328,run328,omega_Vd,0.3344,0.0211,6.313,Random effects
+328,run328,omega_CL,0.3243,0.0219,6.7665,Random effects
+328,run328,omega_Ka,0.7806,0.0519,6.6518,Random effects
+328,run328,b,0.1464,0.0062,4.2312,Residual error model
+329,run329,Vd_pop,67.4583,2.38,3.5281,Typical values
+329,run329,CL_pop,4.0966,0.143,3.4896,Typical values
+329,run329,Ka_pop,0.9153,0.1209,13.2061,Typical values
+329,run329,omega_Vd,0.2978,0.0216,7.2668,Random effects
+329,run329,omega_CL,0.3312,0.0219,6.6141,Random effects
+329,run329,omega_Ka,0.7876,0.0825,10.4791,Random effects
+329,run329,b,0.1501,0.0067,4.4483,Residual error model
+330,run330,Vd_pop,65.5009,2.7202,4.1529,Typical values
+330,run330,CL_pop,4.0438,0.1276,3.1543,Typical values
+330,run330,Ka_pop,0.8904,0.1106,12.4178,Typical values
+330,run330,omega_Vd,0.3823,0.0222,5.8168,Random effects
+330,run330,omega_CL,0.2912,0.0195,6.6878,Random effects
+330,run330,omega_Ka,0.855,0.0562,6.5711,Random effects
+330,run330,b,0.1322,0.0058,4.4233,Residual error model
+331,run331,Vd_pop,68.428,2.7245,3.9816,Typical values
+331,run331,CL_pop,4.039,0.1472,3.6437,Typical values
+331,run331,Ka_pop,0.8594,0.1131,13.1615,Typical values
+331,run331,omega_Vd,0.3616,0.0224,6.2071,Random effects
+331,run331,omega_CL,0.346,0.0223,6.4486,Random effects
+331,run331,omega_Ka,0.8809,0.0681,7.7258,Random effects
+331,run331,b,0.1344,0.0062,4.6066,Residual error model
+332,run332,Vd_pop,66.9492,2.6151,3.9061,Typical values
+332,run332,CL_pop,3.8765,0.1495,3.8561,Typical values
+332,run332,Ka_pop,0.9854,0.0845,8.5707,Typical values
+332,run332,omega_Vd,0.3654,0.0207,5.6727,Random effects
+332,run332,omega_CL,0.3643,0.0242,6.6421,Random effects
+332,run332,omega_Ka,0.4841,0.0418,8.629,Random effects
+332,run332,b,0.142,0.0062,4.3711,Residual error model
+333,run333,Vd_pop,64.9296,2.4656,3.7974,Typical values
+333,run333,CL_pop,3.9373,0.1401,3.5589,Typical values
+333,run333,Ka_pop,0.9324,0.0879,9.4248,Typical values
+333,run333,omega_Vd,0.3624,0.0206,5.6887,Random effects
+333,run333,omega_CL,0.3419,0.0219,6.417,Random effects
+333,run333,omega_Ka,0.4994,0.0531,10.6253,Random effects
+333,run333,b,0.1397,0.0063,4.4906,Residual error model
+334,run334,Vd_pop,69.5879,2.5878,3.7187,Typical values
+334,run334,CL_pop,4.0265,0.141,3.502,Typical values
+334,run334,Ka_pop,1.053,0.1532,14.5522,Typical values
+334,run334,omega_Vd,0.3411,0.022,6.4463,Random effects
+334,run334,omega_CL,0.3248,0.022,6.7716,Random effects
+334,run334,omega_Ka,0.8494,0.0755,8.8823,Random effects
+334,run334,b,0.1483,0.0067,4.5399,Residual error model
+335,run335,Vd_pop,71.0238,2.8343,3.9907,Typical values
+335,run335,CL_pop,3.8552,0.1235,3.2028,Typical values
+335,run335,Ka_pop,1.2632,0.193,15.2773,Typical values
+335,run335,omega_Vd,0.371,0.023,6.2009,Random effects
+335,run335,omega_CL,0.2849,0.0206,7.2241,Random effects
+335,run335,omega_Ka,0.9575,0.0526,5.4942,Random effects
+335,run335,b,0.1516,0.0064,4.2293,Residual error model
+336,run336,Vd_pop,74.5532,3.2254,4.3263,Typical values
+336,run336,CL_pop,3.6282,0.13,3.5834,Typical values
+336,run336,Ka_pop,1.1189,0.158,14.1186,Typical values
+336,run336,omega_Vd,0.4206,0.0238,5.6566,Random effects
+336,run336,omega_CL,0.3186,0.022,6.9013,Random effects
+336,run336,omega_Ka,0.8346,0.0658,7.8835,Random effects
+336,run336,b,0.1431,0.0064,4.4959,Residual error model
+337,run337,Vd_pop,67.738,2.5138,3.711,Typical values
+337,run337,CL_pop,3.8665,0.1433,3.7061,Typical values
+337,run337,Ka_pop,1.0793,0.1703,15.7771,Typical values
+337,run337,omega_Vd,0.3298,0.0189,5.725,Random effects
+337,run337,omega_CL,0.354,0.0218,6.1554,Random effects
+337,run337,omega_Ka,0.9849,0.076,7.7165,Random effects
+337,run337,b,0.1409,0.006,4.2275,Residual error model
+338,run338,Vd_pop,69.1936,2.5897,3.7427,Typical values
+338,run338,CL_pop,4.1042,0.1384,3.3722,Typical values
+338,run338,Ka_pop,0.9061,0.0916,10.1132,Typical values
+338,run338,omega_Vd,0.3545,0.021,5.9369,Random effects
+338,run338,omega_CL,0.3142,0.0207,6.5923,Random effects
+338,run338,omega_Ka,0.6101,0.0514,8.4206,Random effects
+338,run338,b,0.1378,0.0062,4.4837,Residual error model
+339,run339,Vd_pop,70.5956,2.6593,3.767,Typical values
+339,run339,CL_pop,3.624,0.1412,3.8952,Typical values
+339,run339,Ka_pop,0.9717,0.0827,8.513,Typical values
+339,run339,omega_Vd,0.3476,0.0216,6.2263,Random effects
+339,run339,omega_CL,0.3581,0.0242,6.7603,Random effects
+339,run339,omega_Ka,0.4403,0.035,7.9427,Random effects
+339,run339,b,0.1445,0.0061,4.2042,Residual error model
+340,run340,Vd_pop,65.7493,2.4449,3.7185,Typical values
+340,run340,CL_pop,4.1386,0.1462,3.5327,Typical values
+340,run340,Ka_pop,0.9482,0.1086,11.4526,Typical values
+340,run340,omega_Vd,0.3439,0.0199,5.7988,Random effects
+340,run340,omega_CL,0.3379,0.0216,6.3785,Random effects
+340,run340,omega_Ka,0.6593,0.0559,8.4785,Random effects
+340,run340,b,0.1312,0.0059,4.4697,Residual error model
+341,run341,Vd_pop,69.4453,2.82,4.0607,Typical values
+341,run341,CL_pop,3.9899,0.139,3.4827,Typical values
+341,run341,Ka_pop,1.0469,0.1348,12.8773,Typical values
+341,run341,omega_Vd,0.3959,0.0233,5.8957,Random effects
+341,run341,omega_CL,0.3098,0.0212,6.8434,Random effects
+341,run341,omega_Ka,0.7367,0.0656,8.911,Random effects
+341,run341,b,0.1398,0.0063,4.5185,Residual error model
+342,run342,Vd_pop,66.6657,2.5285,3.7928,Typical values
+342,run342,CL_pop,3.9957,0.1468,3.6727,Typical values
+342,run342,Ka_pop,0.9596,0.1167,12.1588,Typical values
+342,run342,omega_Vd,0.3526,0.0213,6.0496,Random effects
+342,run342,omega_CL,0.345,0.0225,6.5168,Random effects
+342,run342,omega_Ka,0.7068,0.0603,8.5301,Random effects
+342,run342,b,0.1403,0.0062,4.4273,Residual error model
+343,run343,Vd_pop,66.6271,2.7952,4.1952,Typical values
+343,run343,CL_pop,3.9879,0.1443,3.6196,Typical values
+343,run343,Ka_pop,0.7021,0.0744,10.5933,Typical values
+343,run343,omega_Vd,0.3853,0.0219,5.6909,Random effects
+343,run343,omega_CL,0.3385,0.0217,6.418,Random effects
+343,run343,omega_Ka,0.6443,0.0486,7.5469,Random effects
+343,run343,b,0.1316,0.006,4.53,Residual error model
+344,run344,Vd_pop,70.0898,2.552,3.6411,Typical values
+344,run344,CL_pop,3.974,0.1319,3.3188,Typical values
+344,run344,Ka_pop,0.9185,0.0927,10.0884,Typical values
+344,run344,omega_Vd,0.3317,0.0204,6.1453,Random effects
+344,run344,omega_CL,0.3133,0.0209,6.6653,Random effects
+344,run344,omega_Ka,0.5394,0.0268,4.9749,Random effects
+344,run344,b,0.1499,0.0062,4.1573,Residual error model
+345,run345,Vd_pop,67.4296,2.639,3.9136,Typical values
+345,run345,CL_pop,4.1155,0.141,3.4256,Typical values
+345,run345,Ka_pop,0.8803,0.0759,8.625,Typical values
+345,run345,omega_Vd,0.3689,0.0215,5.826,Random effects
+345,run345,omega_CL,0.3232,0.0208,6.4271,Random effects
+345,run345,omega_Ka,0.4615,0.0416,9.007,Random effects
+345,run345,b,0.1452,0.0063,4.3192,Residual error model
+346,run346,Vd_pop,72.7524,2.9031,3.9904,Typical values
+346,run346,CL_pop,3.834,0.1419,3.7014,Typical values
+346,run346,Ka_pop,1.1288,0.1375,12.1797,Typical values
+346,run346,omega_Vd,0.3765,0.0207,5.4892,Random effects
+346,run346,omega_CL,0.3505,0.0219,6.2629,Random effects
+346,run346,omega_Ka,0.7167,0.0384,5.3646,Random effects
+346,run346,b,0.1379,0.0058,4.2241,Residual error model
+347,run347,Vd_pop,70.4736,2.7273,3.87,Typical values
+347,run347,CL_pop,4.0672,0.1413,3.473,Typical values
+347,run347,Ka_pop,0.9126,0.1047,11.4755,Typical values
+347,run347,omega_Vd,0.3653,0.0222,6.0829,Random effects
+347,run347,omega_CL,0.3275,0.0212,6.4758,Random effects
+347,run347,omega_Ka,0.6817,0.0568,8.3326,Random effects
+347,run347,b,0.1314,0.0059,4.489,Residual error model
+348,run348,Vd_pop,64.8007,2.4153,3.7272,Typical values
+348,run348,CL_pop,4.0651,0.1145,2.8174,Typical values
+348,run348,Ka_pop,1.2679,0.2241,17.6746,Typical values
+348,run348,omega_Vd,0.3356,0.0207,6.1581,Random effects
+348,run348,omega_CL,0.2566,0.0176,6.8401,Random effects
+348,run348,omega_Ka,1.1786,0.0739,6.2714,Random effects
+348,run348,b,0.1349,0.0058,4.3158,Residual error model
+349,run349,Vd_pop,70.3461,2.6682,3.793,Typical values
+349,run349,CL_pop,4.107,0.1421,3.4597,Typical values
+349,run349,Ka_pop,0.9826,0.1015,10.3297,Typical values
+349,run349,omega_Vd,0.3591,0.0214,5.9685,Random effects
+349,run349,omega_CL,0.3318,0.0214,6.4551,Random effects
+349,run349,omega_Ka,0.5938,0.0592,9.9677,Random effects
+349,run349,b,0.1337,0.006,4.5088,Residual error model
+350,run350,Vd_pop,60.0162,2.6362,4.3925,Typical values
+350,run350,CL_pop,3.9535,0.1262,3.1915,Typical values
+350,run350,Ka_pop,0.9131,0.1172,12.8355,Typical values
+350,run350,omega_Vd,0.421,0.0224,5.3122,Random effects
+350,run350,omega_CL,0.2994,0.019,6.3306,Random effects
+350,run350,omega_Ka,0.8308,0.0502,6.0448,Random effects
+350,run350,b,0.1309,0.0058,4.4517,Residual error model
+351,run351,Vd_pop,70.3567,2.3778,3.3796,Typical values
+351,run351,CL_pop,4.0827,0.1362,3.3366,Typical values
+351,run351,Ka_pop,1.1152,0.1481,13.2793,Typical values
+351,run351,omega_Vd,0.3079,0.02,6.4906,Random effects
+351,run351,omega_CL,0.307,0.0206,6.7196,Random effects
+351,run351,omega_Ka,0.7704,0.066,8.5631,Random effects
+351,run351,b,0.14,0.0062,4.4384,Residual error model
+352,run352,Vd_pop,68.1282,2.2858,3.3551,Typical values
+352,run352,CL_pop,4.2956,0.1407,3.2751,Typical values
+352,run352,Ka_pop,0.81,0.0781,9.6385,Typical values
+352,run352,omega_Vd,0.2999,0.0187,6.2354,Random effects
+352,run352,omega_CL,0.3105,0.0201,6.4718,Random effects
+352,run352,omega_Ka,0.5467,0.027,4.9438,Random effects
+352,run352,b,0.1359,0.0059,4.3543,Residual error model
+353,run353,Vd_pop,67.4265,2.8753,4.2643,Typical values
+353,run353,CL_pop,3.8944,0.1334,3.4258,Typical values
+353,run353,Ka_pop,0.8247,0.1043,12.6491,Typical values
+353,run353,omega_Vd,0.3993,0.0226,5.6521,Random effects
+353,run353,omega_CL,0.3173,0.0205,6.4536,Random effects
+353,run353,omega_Ka,0.8462,0.0543,6.4169,Random effects
+353,run353,b,0.1328,0.006,4.4963,Residual error model
+354,run354,Vd_pop,71.6327,2.5141,3.5098,Typical values
+354,run354,CL_pop,3.9074,0.1405,3.5947,Typical values
+354,run354,Ka_pop,1.0037,0.1024,10.2072,Typical values
+354,run354,omega_Vd,0.3262,0.02,6.1384,Random effects
+354,run354,omega_CL,0.3379,0.022,6.511,Random effects
+354,run354,omega_Ka,0.6172,0.0476,7.7052,Random effects
+354,run354,b,0.132,0.0058,4.4172,Residual error model
+355,run355,Vd_pop,69.6814,2.6565,3.8123,Typical values
+355,run355,CL_pop,4.0788,0.1524,3.7374,Typical values
+355,run355,Ka_pop,0.9009,0.0929,10.3081,Typical values
+355,run355,omega_Vd,0.3481,0.0206,5.9156,Random effects
+355,run355,omega_CL,0.3499,0.0231,6.6114,Random effects
+355,run355,omega_Ka,0.6004,0.0377,6.2807,Random effects
+355,run355,b,0.1415,0.006,4.2315,Residual error model
+356,run356,Vd_pop,62.7686,2.3449,3.7358,Typical values
+356,run356,CL_pop,3.9957,0.1387,3.4723,Typical values
+356,run356,Ka_pop,0.8192,0.0927,11.3158,Typical values
+356,run356,omega_Vd,0.3346,0.0203,6.064,Random effects
+356,run356,omega_CL,0.325,0.021,6.4765,Random effects
+356,run356,omega_Ka,0.7343,0.0469,6.3929,Random effects
+356,run356,b,0.1409,0.0062,4.3874,Residual error model
+357,run357,Vd_pop,64.4371,2.3262,3.6101,Typical values
+357,run357,CL_pop,3.9845,0.1305,3.2751,Typical values
+357,run357,Ka_pop,0.7633,0.0763,10.0018,Typical values
+357,run357,omega_Vd,0.3165,0.0204,6.4419,Random effects
+357,run357,omega_CL,0.3029,0.0202,6.6777,Random effects
+357,run357,omega_Ka,0.656,0.0446,6.8007,Random effects
+357,run357,b,0.1387,0.0061,4.3813,Residual error model
+358,run358,Vd_pop,69.0009,2.6289,3.8099,Typical values
+358,run358,CL_pop,3.7769,0.1406,3.7237,Typical values
+358,run358,Ka_pop,1.1371,0.134,11.7862,Typical values
+358,run358,omega_Vd,0.3523,0.0215,6.1024,Random effects
+358,run358,omega_CL,0.35,0.0223,6.3597,Random effects
+358,run358,omega_Ka,0.6509,0.0367,5.6316,Random effects
+358,run358,b,0.1453,0.0062,4.2907,Residual error model
+359,run359,Vd_pop,68.9083,2.4892,3.6123,Typical values
+359,run359,CL_pop,4.07,0.1331,3.2693,Typical values
+359,run359,Ka_pop,1.0916,0.1244,11.3939,Typical values
+359,run359,omega_Vd,0.3362,0.0207,6.1579,Random effects
+359,run359,omega_CL,0.3077,0.0205,6.6775,Random effects
+359,run359,omega_Ka,0.7288,0.0639,8.7642,Random effects
+359,run359,b,0.1404,0.0064,4.5945,Residual error model
+360,run360,Vd_pop,66.4792,2.5876,3.8923,Typical values
+360,run360,CL_pop,3.8325,0.1212,3.1617,Typical values
+360,run360,Ka_pop,1.1384,0.1505,13.2214,Typical values
+360,run360,omega_Vd,0.3701,0.0235,6.3603,Random effects
+360,run360,omega_CL,0.2927,0.0198,6.7591,Random effects
+360,run360,omega_Ka,0.7115,0.0527,7.4035,Random effects
+360,run360,b,0.1399,0.0061,4.3878,Residual error model
+361,run361,Vd_pop,67.4388,2.7857,4.1307,Typical values
+361,run361,CL_pop,4.093,0.1438,3.5134,Typical values
+361,run361,Ka_pop,0.7249,0.0773,10.6589,Typical values
+361,run361,omega_Vd,0.3694,0.0214,5.7888,Random effects
+361,run361,omega_CL,0.3251,0.0214,6.5934,Random effects
+361,run361,omega_Ka,0.6878,0.0457,6.649,Random effects
+361,run361,b,0.1471,0.0065,4.3955,Residual error model
+362,run362,Vd_pop,64.3449,2.5741,4.0004,Typical values
+362,run362,CL_pop,3.9327,0.138,3.5085,Typical values
+362,run362,Ka_pop,1.0308,0.1449,14.0554,Typical values
+362,run362,omega_Vd,0.3632,0.0216,5.9504,Random effects
+362,run362,omega_CL,0.3244,0.0214,6.5914,Random effects
+362,run362,omega_Ka,0.9678,0.0668,6.9019,Random effects
+362,run362,b,0.1388,0.0064,4.5951,Residual error model
+363,run363,Vd_pop,70.3909,2.504,3.5573,Typical values
+363,run363,CL_pop,4.0401,0.1389,3.4375,Typical values
+363,run363,Ka_pop,1.0172,0.1151,11.3123,Typical values
+363,run363,omega_Vd,0.3209,0.02,6.2477,Random effects
+363,run363,omega_CL,0.3224,0.0209,6.4893,Random effects
+363,run363,omega_Ka,0.662,0.0355,5.357,Random effects
+363,run363,b,0.1431,0.0061,4.2624,Residual error model
+364,run364,Vd_pop,64.0936,2.6223,4.0913,Typical values
+364,run364,CL_pop,3.9933,0.1378,3.4505,Typical values
+364,run364,Ka_pop,0.7123,0.0824,11.571,Typical values
+364,run364,omega_Vd,0.3692,0.0217,5.8864,Random effects
+364,run364,omega_CL,0.3238,0.0212,6.5378,Random effects
+364,run364,omega_Ka,0.763,0.0554,7.256,Random effects
+364,run364,b,0.1374,0.0062,4.5374,Residual error model
+365,run365,Vd_pop,66.9727,2.4861,3.7121,Typical values
+365,run365,CL_pop,4.1515,0.1344,3.2369,Typical values
+365,run365,Ka_pop,0.9046,0.1067,11.7905,Typical values
+365,run365,omega_Vd,0.3409,0.0206,6.042,Random effects
+365,run365,omega_CL,0.3085,0.0205,6.6421,Random effects
+365,run365,omega_Ka,0.7165,0.0489,6.8308,Random effects
+365,run365,b,0.1408,0.0061,4.3573,Residual error model
+366,run366,Vd_pop,67.3778,2.5409,3.7711,Typical values
+366,run366,CL_pop,3.8259,0.1221,3.1917,Typical values
+366,run366,Ka_pop,0.9574,0.114,11.9094,Typical values
+366,run366,omega_Vd,0.3513,0.0213,6.0767,Random effects
+366,run366,omega_CL,0.2866,0.02,6.9633,Random effects
+366,run366,omega_Ka,0.6877,0.0603,8.7622,Random effects
+366,run366,b,0.1445,0.0065,4.5227,Residual error model
+367,run367,Vd_pop,66.6083,2.7548,4.1358,Typical values
+367,run367,CL_pop,4.1996,0.1425,3.3924,Typical values
+367,run367,Ka_pop,0.7367,0.0795,10.7865,Typical values
+367,run367,omega_Vd,0.3913,0.021,5.3582,Random effects
+367,run367,omega_CL,0.3196,0.0194,6.0718,Random effects
+367,run367,omega_Ka,0.6871,0.0477,6.9375,Random effects
+367,run367,b,0.1263,0.0055,4.3582,Residual error model
+368,run368,Vd_pop,63.0772,2.4375,3.8643,Typical values
+368,run368,CL_pop,3.8606,0.1324,3.4299,Typical values
+368,run368,Ka_pop,0.8199,0.105,12.811,Typical values
+368,run368,omega_Vd,0.3537,0.0201,5.69,Random effects
+368,run368,omega_CL,0.3115,0.0162,5.206,Random effects
+368,run368,omega_Ka,0.7805,0.0291,3.7223,Random effects
+368,run368,b,0.1396,0.0053,3.8122,Residual error model
+369,run369,Vd_pop,72.3823,2.631,3.6348,Typical values
+369,run369,CL_pop,4.1266,0.1359,3.2943,Typical values
+369,run369,Ka_pop,0.8357,0.0911,10.899,Typical values
+369,run369,omega_Vd,0.3226,0.0203,6.303,Random effects
+369,run369,omega_CL,0.3072,0.0204,6.651,Random effects
+369,run369,omega_Ka,0.73,0.0549,7.5229,Random effects
+369,run369,b,0.1409,0.0063,4.4373,Residual error model
+370,run370,Vd_pop,70.434,2.6789,3.8035,Typical values
+370,run370,CL_pop,4.0492,0.1358,3.3537,Typical values
+370,run370,Ka_pop,0.8957,0.1023,11.4198,Typical values
+370,run370,omega_Vd,0.3484,0.0213,6.1239,Random effects
+370,run370,omega_CL,0.3093,0.0208,6.7396,Random effects
+370,run370,omega_Ka,0.7294,0.0431,5.9128,Random effects
+370,run370,b,0.14,0.006,4.2979,Residual error model
+371,run371,Vd_pop,68.1474,2.6462,3.8831,Typical values
+371,run371,CL_pop,4.1933,0.1489,3.5499,Typical values
+371,run371,Ka_pop,1.1152,0.1685,15.1102,Typical values
+371,run371,omega_Vd,0.3543,0.0215,6.0582,Random effects
+371,run371,omega_CL,0.3301,0.0217,6.5633,Random effects
+371,run371,omega_Ka,0.9695,0.0769,7.9345,Random effects
+371,run371,b,0.1454,0.0065,4.4451,Residual error model
+372,run372,Vd_pop,72.3591,2.5801,3.5657,Typical values
+372,run372,CL_pop,3.8534,0.1378,3.5768,Typical values
+372,run372,Ka_pop,0.901,0.0854,9.484,Typical values
+372,run372,omega_Vd,0.3205,0.0218,6.7912,Random effects
+372,run372,omega_CL,0.3274,0.0229,6.9825,Random effects
+372,run372,omega_Ka,0.4686,0.0374,7.9735,Random effects
+372,run372,b,0.1496,0.0063,4.2218,Residual error model
+373,run373,Vd_pop,67.5304,2.6272,3.8904,Typical values
+373,run373,CL_pop,4.0209,0.1497,3.7218,Typical values
+373,run373,Ka_pop,0.9782,0.1184,12.1052,Typical values
+373,run373,omega_Vd,0.3616,0.0195,5.3881,Random effects
+373,run373,omega_CL,0.3486,0.0228,6.5362,Random effects
+373,run373,omega_Ka,0.7322,0.0604,8.2447,Random effects
+373,run373,b,0.1449,0.0061,4.2335,Residual error model
+374,run374,Vd_pop,68.9831,2.8001,4.0592,Typical values
+374,run374,CL_pop,3.9585,0.1366,3.4518,Typical values
+374,run374,Ka_pop,0.9172,0.1024,11.1672,Typical values
+374,run374,omega_Vd,0.3804,0.0199,5.2261,Random effects
+374,run374,omega_CL,0.3189,0.0208,6.5192,Random effects
+374,run374,omega_Ka,0.7009,0.0619,8.8379,Random effects
+374,run374,b,0.1424,0.006,4.244,Residual error model
+375,run375,Vd_pop,69.2236,2.6854,3.8793,Typical values
+375,run375,CL_pop,4.318,0.1541,3.5683,Typical values
+375,run375,Ka_pop,0.9523,0.1279,13.4262,Typical values
+375,run375,omega_Vd,0.3493,0.0199,5.6902,Random effects
+375,run375,omega_CL,0.3354,0.0216,6.4403,Random effects
+375,run375,omega_Ka,0.8597,0.0608,7.0718,Random effects
+375,run375,b,0.1456,0.0063,4.3045,Residual error model
+376,run376,Vd_pop,64.4082,2.5085,3.8946,Typical values
+376,run376,CL_pop,3.8294,0.1295,3.3818,Typical values
+376,run376,Ka_pop,0.8763,0.0892,10.1793,Typical values
+376,run376,omega_Vd,0.3532,0.022,6.2214,Random effects
+376,run376,omega_CL,0.3106,0.0213,6.8591,Random effects
+376,run376,omega_Ka,0.5536,0.0507,9.1609,Random effects
+376,run376,b,0.1506,0.0067,4.4162,Residual error model
+377,run377,Vd_pop,68.0131,2.3606,3.4708,Typical values
+377,run377,CL_pop,3.7342,0.1214,3.2512,Typical values
+377,run377,Ka_pop,0.8497,0.0847,9.9644,Typical values
+377,run377,omega_Vd,0.3155,0.0204,6.4599,Random effects
+377,run377,omega_CL,0.3031,0.0202,6.6708,Random effects
+377,run377,omega_Ka,0.6261,0.0561,8.9614,Random effects
+377,run377,b,0.1351,0.0062,4.5998,Residual error model
+378,run378,Vd_pop,66.9254,2.4284,3.6286,Typical values
+378,run378,CL_pop,4.0925,0.1301,3.1802,Typical values
+378,run378,Ka_pop,0.848,0.0855,10.0849,Typical values
+378,run378,omega_Vd,0.3422,0.0219,6.395,Random effects
+378,run378,omega_CL,0.2913,0.0198,6.8075,Random effects
+378,run378,omega_Ka,0.5021,0.0556,11.0807,Random effects
+378,run378,b,0.1413,0.0064,4.5,Residual error model
+379,run379,Vd_pop,64.9469,2.3855,3.673,Typical values
+379,run379,CL_pop,4.0509,0.1237,3.0537,Typical values
+379,run379,Ka_pop,0.8874,0.1095,12.3341,Typical values
+379,run379,omega_Vd,0.3437,0.0205,5.958,Random effects
+379,run379,omega_CL,0.2849,0.0188,6.593,Random effects
+379,run379,omega_Ka,0.8311,0.0636,7.6487,Random effects
+379,run379,b,0.1275,0.0059,4.6192,Residual error model
+380,run380,Vd_pop,64.4862,2.7379,4.2457,Typical values
+380,run380,CL_pop,4.0808,0.125,3.0621,Typical values
+380,run380,Ka_pop,0.8218,0.0856,10.4131,Typical values
+380,run380,omega_Vd,0.4012,0.0227,5.6503,Random effects
+380,run380,omega_CL,0.285,0.0187,6.5465,Random effects
+380,run380,omega_Ka,0.6348,0.0388,6.1099,Random effects
+380,run380,b,0.1359,0.0059,4.358,Residual error model
+381,run381,Vd_pop,65.3856,2.5836,3.9514,Typical values
+381,run381,CL_pop,3.9354,0.1245,3.1633,Typical values
+381,run381,Ka_pop,0.9735,0.1054,10.8263,Typical values
+381,run381,omega_Vd,0.3743,0.0215,5.7333,Random effects
+381,run381,omega_CL,0.292,0.0192,6.577,Random effects
+381,run381,omega_Ka,0.6947,0.0573,8.243,Random effects
+381,run381,b,0.127,0.0058,4.5723,Residual error model
+382,run382,Vd_pop,71.3802,2.762,3.8695,Typical values
+382,run382,CL_pop,4.1791,0.1495,3.5778,Typical values
+382,run382,Ka_pop,1.1387,0.1469,12.9027,Typical values
+382,run382,omega_Vd,0.3619,0.0222,6.1339,Random effects
+382,run382,omega_CL,0.3352,0.0215,6.4242,Random effects
+382,run382,omega_Ka,0.7464,0.0642,8.5988,Random effects
+382,run382,b,0.137,0.0061,4.4356,Residual error model
+383,run383,Vd_pop,64.9085,2.756,4.246,Typical values
+383,run383,CL_pop,3.9484,0.1408,3.5648,Typical values
+383,run383,Ka_pop,0.8271,0.0958,11.5864,Typical values
+383,run383,omega_Vd,0.4,0.0181,4.5176,Random effects
+383,run383,omega_CL,0.3362,0.0207,6.1584,Random effects
+383,run383,omega_Ka,0.7988,0.0339,4.2437,Random effects
+383,run383,b,0.1351,0.0053,3.9436,Residual error model
+384,run384,Vd_pop,63.798,2.8749,4.5062,Typical values
+384,run384,CL_pop,4.2261,0.1222,2.892,Typical values
+384,run384,Ka_pop,0.7726,0.108,13.9791,Typical values
+384,run384,omega_Vd,0.4127,0.0218,5.2782,Random effects
+384,run384,omega_CL,0.2671,0.0157,5.8881,Random effects
+384,run384,omega_Ka,1.0288,0.0548,5.3297,Random effects
+384,run384,b,0.13,0.0059,4.5411,Residual error model
+385,run385,Vd_pop,67.1227,2.5908,3.8598,Typical values
+385,run385,CL_pop,4.0434,0.1213,2.9997,Typical values
+385,run385,Ka_pop,0.7913,0.0728,9.2045,Typical values
+385,run385,omega_Vd,0.3628,0.0224,6.1707,Random effects
+385,run385,omega_CL,0.2794,0.0189,6.7795,Random effects
+385,run385,omega_Ka,0.509,0.0449,8.8231,Random effects
+385,run385,b,0.14,0.0063,4.4944,Residual error model
+386,run386,Vd_pop,67.6892,2.7568,4.0727,Typical values
+386,run386,CL_pop,3.9916,0.1334,3.3428,Typical values
+386,run386,Ka_pop,1.0517,0.1419,13.4935,Typical values
+386,run386,omega_Vd,0.3861,0.0197,5.1128,Random effects
+386,run386,omega_CL,0.3118,0.0202,6.4783,Random effects
+386,run386,omega_Ka,0.8016,0.0519,6.471,Random effects
+386,run386,b,0.1349,0.0056,4.1643,Residual error model
+387,run387,Vd_pop,68.4567,2.8878,4.2185,Typical values
+387,run387,CL_pop,4.0326,0.1351,3.3506,Typical values
+387,run387,Ka_pop,0.8396,0.0809,9.6415,Typical values
+387,run387,omega_Vd,0.4099,0.0216,5.2809,Random effects
+387,run387,omega_CL,0.3109,0.0199,6.3932,Random effects
+387,run387,omega_Ka,0.5394,0.0409,7.5839,Random effects
+387,run387,b,0.1332,0.0058,4.3458,Residual error model
+388,run388,Vd_pop,64.7751,2.4548,3.7896,Typical values
+388,run388,CL_pop,4.144,0.1304,3.1466,Typical values
+388,run388,Ka_pop,0.8698,0.0891,10.2438,Typical values
+388,run388,omega_Vd,0.3558,0.0197,5.533,Random effects
+388,run388,omega_CL,0.297,0.0192,6.4614,Random effects
+388,run388,omega_Ka,0.5776,0.0456,7.8903,Random effects
+388,run388,b,0.1393,0.006,4.3236,Residual error model
+389,run389,Vd_pop,70.104,2.5393,3.6222,Typical values
+389,run389,CL_pop,4.1345,0.1433,3.4659,Typical values
+389,run389,Ka_pop,1.099,0.1338,12.1776,Typical values
+389,run389,omega_Vd,0.3302,0.0199,6.0217,Random effects
+389,run389,omega_CL,0.3358,0.0201,5.9925,Random effects
+389,run389,omega_Ka,0.7435,0.0417,5.6129,Random effects
+389,run389,b,0.1386,0.006,4.3602,Residual error model
+390,run390,Vd_pop,66.0729,2.545,3.8519,Typical values
+390,run390,CL_pop,3.9801,0.1249,3.1382,Typical values
+390,run390,Ka_pop,0.8863,0.099,11.1687,Typical values
+390,run390,omega_Vd,0.3645,0.0214,5.8814,Random effects
+390,run390,omega_CL,0.2904,0.0195,6.7181,Random effects
+390,run390,omega_Ka,0.7039,0.0494,7.0195,Random effects
+390,run390,b,0.1379,0.0062,4.523,Residual error model
+391,run391,Vd_pop,70.1214,2.6669,3.8033,Typical values
+391,run391,CL_pop,3.9927,0.1478,3.702,Typical values
+391,run391,Ka_pop,1.0207,0.1348,13.2038,Typical values
+391,run391,omega_Vd,0.3552,0.022,6.1875,Random effects
+391,run391,omega_CL,0.354,0.0226,6.3703,Random effects
+391,run391,omega_Ka,0.5772,0.0476,8.2385,Random effects
+391,run391,b,0.1486,0.0063,4.2546,Residual error model
+392,run392,Vd_pop,69.1347,2.7449,3.9703,Typical values
+392,run392,CL_pop,3.7868,0.1428,3.7704,Typical values
+392,run392,Ka_pop,0.9851,0.1231,12.4935,Typical values
+392,run392,omega_Vd,0.3649,0.0206,5.6503,Random effects
+392,run392,omega_CL,0.3448,0.0222,6.4251,Random effects
+392,run392,omega_Ka,0.646,0.0276,4.2721,Random effects
+392,run392,b,0.1595,0.0063,3.9576,Residual error model
+393,run393,Vd_pop,64.5743,2.3422,3.6272,Typical values
+393,run393,CL_pop,4.0292,0.1292,3.2057,Typical values
+393,run393,Ka_pop,1.1427,0.1594,13.9478,Typical values
+393,run393,omega_Vd,0.3314,0.0196,5.9061,Random effects
+393,run393,omega_CL,0.3066,0.0194,6.3269,Random effects
+393,run393,omega_Ka,0.9815,0.058,5.9137,Random effects
+393,run393,b,0.1281,0.0057,4.4514,Residual error model
+394,run394,Vd_pop,63.6607,2.7477,4.3162,Typical values
+394,run394,CL_pop,4.3974,0.153,3.4791,Typical values
+394,run394,Ka_pop,0.6243,0.0638,10.2164,Typical values
+394,run394,omega_Vd,0.3981,0.0231,5.8138,Random effects
+394,run394,omega_CL,0.3324,0.0207,6.2366,Random effects
+394,run394,omega_Ka,0.6428,0.0519,8.0703,Random effects
+394,run394,b,0.1373,0.0062,4.5384,Residual error model
+395,run395,Vd_pop,68.8548,2.5528,3.7076,Typical values
+395,run395,CL_pop,3.7707,0.1317,3.4933,Typical values
+395,run395,Ka_pop,1.1105,0.1052,9.4733,Typical values
+395,run395,omega_Vd,0.3513,0.0214,6.0778,Random effects
+395,run395,omega_CL,0.3322,0.021,6.3094,Random effects
+395,run395,omega_Ka,0.4767,0.0294,6.1675,Random effects
+395,run395,b,0.1406,0.0058,4.1054,Residual error model
+396,run396,Vd_pop,65.1587,2.4512,3.7619,Typical values
+396,run396,CL_pop,3.7915,0.1372,3.6195,Typical values
+396,run396,Ka_pop,1.0478,0.12,11.4496,Typical values
+396,run396,omega_Vd,0.36,0.0203,5.6454,Random effects
+396,run396,omega_CL,0.3437,0.017,4.9425,Random effects
+396,run396,omega_Ka,0.6999,0.0369,5.2681,Random effects
+396,run396,b,0.1326,0.0055,4.1447,Residual error model
+397,run397,Vd_pop,68.5001,2.8331,4.1359,Typical values
+397,run397,CL_pop,3.9353,0.1424,3.6189,Typical values
+397,run397,Ka_pop,0.7843,0.0821,10.463,Typical values
+397,run397,omega_Vd,0.3773,0.0184,4.8766,Random effects
+397,run397,omega_CL,0.3277,0.0206,6.2966,Random effects
+397,run397,omega_Ka,0.6931,0.0298,4.3045,Random effects
+397,run397,b,0.1413,0.0056,3.9667,Residual error model
+398,run398,Vd_pop,68.7048,2.3843,3.4703,Typical values
+398,run398,CL_pop,3.8596,0.1407,3.6445,Typical values
+398,run398,Ka_pop,1.0062,0.12,11.9224,Typical values
+398,run398,omega_Vd,0.303,0.02,6.5976,Random effects
+398,run398,omega_CL,0.3506,0.0225,6.4127,Random effects
+398,run398,omega_Ka,0.7814,0.0631,8.0709,Random effects
+398,run398,b,0.1323,0.006,4.5321,Residual error model
+399,run399,Vd_pop,67.6858,2.4041,3.5518,Typical values
+399,run399,CL_pop,3.9312,0.1266,3.2195,Typical values
+399,run399,Ka_pop,0.8947,0.0923,10.3197,Typical values
+399,run399,omega_Vd,0.3339,0.0213,6.3894,Random effects
+399,run399,omega_CL,0.2996,0.0203,6.788,Random effects
+399,run399,omega_Ka,0.582,0.0566,9.7239,Random effects
+399,run399,b,0.1461,0.0067,4.5816,Residual error model
+400,run400,Vd_pop,60.6652,2.3138,3.8141,Typical values
+400,run400,CL_pop,4.1434,0.141,3.404,Typical values
+400,run400,Ka_pop,0.6976,0.0716,10.2701,Typical values
+400,run400,omega_Vd,0.3376,0.0191,5.6424,Random effects
+400,run400,omega_CL,0.3244,0.02,6.1697,Random effects
+400,run400,omega_Ka,0.6963,0.0467,6.7071,Random effects
+400,run400,b,0.132,0.0058,4.4255,Residual error model
+401,run401,Vd_pop,62.8929,2.3216,3.6913,Typical values
+401,run401,CL_pop,4.1139,0.1398,3.3987,Typical values
+401,run401,Ka_pop,0.8326,0.0879,10.5576,Typical values
+401,run401,omega_Vd,0.3408,0.0191,5.6113,Random effects
+401,run401,omega_CL,0.3262,0.0205,6.2975,Random effects
+401,run401,omega_Ka,0.6567,0.046,7.0119,Random effects
+401,run401,b,0.1387,0.0063,4.5059,Residual error model
+402,run402,Vd_pop,63.1236,2.3367,3.7018,Typical values
+402,run402,CL_pop,3.856,0.1181,3.063,Typical values
+402,run402,Ka_pop,1.0818,0.1367,12.6338,Typical values
+402,run402,omega_Vd,0.3412,0.0206,6.0508,Random effects
+402,run402,omega_CL,0.2822,0.019,6.7439,Random effects
+402,run402,omega_Ka,0.8396,0.0579,6.9004,Random effects
+402,run402,b,0.1398,0.0063,4.4963,Residual error model
+403,run403,Vd_pop,69.0921,2.837,4.1061,Typical values
+403,run403,CL_pop,3.9959,0.1388,3.4728,Typical values
+403,run403,Ka_pop,0.936,0.1157,12.36,Typical values
+403,run403,omega_Vd,0.3838,0.0231,6.011,Random effects
+403,run403,omega_CL,0.3245,0.0214,6.5829,Random effects
+403,run403,omega_Ka,0.7094,0.0681,9.5972,Random effects
+403,run403,b,0.1459,0.0065,4.4473,Residual error model
+404,run404,Vd_pop,68.5907,2.6953,3.9296,Typical values
+404,run404,CL_pop,4.1783,0.1449,3.4677,Typical values
+404,run404,Ka_pop,1.0022,0.1242,12.3891,Typical values
+404,run404,omega_Vd,0.3526,0.0163,4.6162,Random effects
+404,run404,omega_CL,0.3265,0.0196,6.0035,Random effects
+404,run404,omega_Ka,0.8102,0.0305,3.7658,Random effects
+404,run404,b,0.1489,0.0058,3.8775,Residual error model
+405,run405,Vd_pop,65.1833,2.5859,3.9671,Typical values
+405,run405,CL_pop,4.1211,0.147,3.5675,Typical values
+405,run405,Ka_pop,0.8623,0.1068,12.3892,Typical values
+405,run405,omega_Vd,0.3561,0.0204,5.7355,Random effects
+405,run405,omega_CL,0.3396,0.022,6.4744,Random effects
+405,run405,omega_Ka,0.8745,0.0573,6.5499,Random effects
+405,run405,b,0.1363,0.0059,4.3455,Residual error model
+406,run406,Vd_pop,64.8696,2.8079,4.3285,Typical values
+406,run406,CL_pop,4.2728,0.1406,3.2911,Typical values
+406,run406,Ka_pop,0.8314,0.097,11.6692,Typical values
+406,run406,omega_Vd,0.4124,0.0224,5.4401,Random effects
+406,run406,omega_CL,0.3058,0.0194,6.337,Random effects
+406,run406,omega_Ka,0.7046,0.0545,7.7325,Random effects
+406,run406,b,0.1331,0.0059,4.4062,Residual error model
+407,run407,Vd_pop,66.172,2.8626,4.3259,Typical values
+407,run407,CL_pop,4.0829,0.1346,3.2959,Typical values
+407,run407,Ka_pop,0.8795,0.1223,13.91,Typical values
+407,run407,omega_Vd,0.4007,0.0223,5.5587,Random effects
+407,run407,omega_CL,0.3043,0.0198,6.4905,Random effects
+407,run407,omega_Ka,0.9579,0.0676,7.0565,Random effects
+407,run407,b,0.137,0.0061,4.4761,Residual error model
+408,run408,Vd_pop,67.2588,2.7687,4.1165,Typical values
+408,run408,CL_pop,3.9197,0.1403,3.5788,Typical values
+408,run408,Ka_pop,0.8754,0.1095,12.5045,Typical values
+408,run408,omega_Vd,0.3803,0.0233,6.118,Random effects
+408,run408,omega_CL,0.3275,0.022,6.7283,Random effects
+408,run408,omega_Ka,0.7936,0.0636,8.0178,Random effects
+408,run408,b,0.1377,0.0063,4.5493,Residual error model
+409,run409,Vd_pop,73.7972,2.4335,3.2975,Typical values
+409,run409,CL_pop,3.9957,0.1566,3.9191,Typical values
+409,run409,Ka_pop,1.1128,0.1358,12.2045,Typical values
+409,run409,omega_Vd,0.3006,0.0195,6.4969,Random effects
+409,run409,omega_CL,0.3797,0.024,6.3153,Random effects
+409,run409,omega_Ka,0.7126,0.0647,9.0843,Random effects
+409,run409,b,0.129,0.0059,4.5646,Residual error model
+410,run410,Vd_pop,66.2973,2.7112,4.0895,Typical values
+410,run410,CL_pop,4.2542,0.1375,3.2311,Typical values
+410,run410,Ka_pop,0.7596,0.0894,11.7727,Typical values
+410,run410,omega_Vd,0.3678,0.0204,5.5537,Random effects
+410,run410,omega_CL,0.2958,0.0197,6.6768,Random effects
+410,run410,omega_Ka,0.7793,0.0543,6.9687,Random effects
+410,run410,b,0.1401,0.0061,4.3348,Residual error model
+411,run411,Vd_pop,68.0336,2.9957,4.4032,Typical values
+411,run411,CL_pop,3.9112,0.1514,3.8718,Typical values
+411,run411,Ka_pop,0.9707,0.1005,10.3562,Typical values
+411,run411,omega_Vd,0.4257,0.0231,5.4308,Random effects
+411,run411,omega_CL,0.3693,0.0227,6.1532,Random effects
+411,run411,omega_Ka,0.5794,0.0472,8.1393,Random effects
+411,run411,b,0.1464,0.0066,4.4879,Residual error model
+412,run412,Vd_pop,71.2387,2.892,4.0597,Typical values
+412,run412,CL_pop,4.0001,0.1338,3.3456,Typical values
+412,run412,Ka_pop,0.9082,0.0977,10.7617,Typical values
+412,run412,omega_Vd,0.3831,0.0238,6.2037,Random effects
+412,run412,omega_CL,0.3087,0.021,6.7995,Random effects
+412,run412,omega_Ka,0.5318,0.0358,6.7221,Random effects
+412,run412,b,0.1516,0.0064,4.2208,Residual error model
+413,run413,Vd_pop,69.5827,2.537,3.6461,Typical values
+413,run413,CL_pop,3.9447,0.1493,3.7841,Typical values
+413,run413,Ka_pop,0.7788,0.0807,10.3682,Typical values
+413,run413,omega_Vd,0.3262,0.0215,6.5907,Random effects
+413,run413,omega_CL,0.3518,0.0232,6.5881,Random effects
+413,run413,omega_Ka,0.6264,0.0523,8.3543,Random effects
+413,run413,b,0.1431,0.0065,4.5407,Residual error model
+414,run414,Vd_pop,64.0032,2.5338,3.9589,Typical values
+414,run414,CL_pop,4.0453,0.1251,3.0915,Typical values
+414,run414,Ka_pop,1.0326,0.1346,13.0331,Typical values
+414,run414,omega_Vd,0.3731,0.0213,5.6964,Random effects
+414,run414,omega_CL,0.2879,0.0193,6.6919,Random effects
+414,run414,omega_Ka,0.8159,0.0656,8.0403,Random effects
+414,run414,b,0.1415,0.0062,4.4088,Residual error model
+415,run415,Vd_pop,63.4854,2.514,3.96,Typical values
+415,run415,CL_pop,4.2744,0.1446,3.3821,Typical values
+415,run415,Ka_pop,0.6042,0.0673,11.1373,Typical values
+415,run415,omega_Vd,0.3504,0.0208,5.9372,Random effects
+415,run415,omega_CL,0.3249,0.0202,6.2238,Random effects
+415,run415,omega_Ka,0.7951,0.0487,6.1254,Random effects
+415,run415,b,0.1348,0.006,4.4648,Residual error model
+416,run416,Vd_pop,67.5778,2.7644,4.0907,Typical values
+416,run416,CL_pop,3.9323,0.1419,3.6083,Typical values
+416,run416,Ka_pop,0.8138,0.0893,10.9692,Typical values
+416,run416,omega_Vd,0.377,0.0238,6.3047,Random effects
+416,run416,omega_CL,0.3343,0.0218,6.5232,Random effects
+416,run416,omega_Ka,0.6182,0.043,6.9487,Random effects
+416,run416,b,0.1458,0.0062,4.2429,Residual error model
+417,run417,Vd_pop,70.3957,2.5739,3.6564,Typical values
+417,run417,CL_pop,3.7927,0.1454,3.8348,Typical values
+417,run417,Ka_pop,1.0436,0.1155,11.0717,Typical values
+417,run417,omega_Vd,0.3285,0.0217,6.617,Random effects
+417,run417,omega_CL,0.3445,0.024,6.9541,Random effects
+417,run417,omega_Ka,0.643,0.0312,4.8461,Random effects
+417,run417,b,0.1516,0.0065,4.259,Residual error model
+418,run418,Vd_pop,64.4796,2.7649,4.2881,Typical values
+418,run418,CL_pop,4.0223,0.1297,3.2237,Typical values
+418,run418,Ka_pop,0.7646,0.0906,11.848,Typical values
+418,run418,omega_Vd,0.4021,0.022,5.4719,Random effects
+418,run418,omega_CL,0.2951,0.0177,5.9842,Random effects
+418,run418,omega_Ka,0.7782,0.0493,6.3314,Random effects
+418,run418,b,0.1271,0.0057,4.4598,Residual error model
+419,run419,Vd_pop,70.838,2.6472,3.737,Typical values
+419,run419,CL_pop,3.9638,0.1272,3.2092,Typical values
+419,run419,Ka_pop,1.0979,0.1339,12.1993,Typical values
+419,run419,omega_Vd,0.3503,0.0206,5.8679,Random effects
+419,run419,omega_CL,0.292,0.0201,6.8698,Random effects
+419,run419,omega_Ka,0.7216,0.0358,4.9669,Random effects
+419,run419,b,0.1458,0.0061,4.2048,Residual error model
+420,run420,Vd_pop,69.7064,2.9521,4.2351,Typical values
+420,run420,CL_pop,3.8676,0.137,3.5411,Typical values
+420,run420,Ka_pop,1.0298,0.1112,10.7931,Typical values
+420,run420,omega_Vd,0.4047,0.0229,5.6476,Random effects
+420,run420,omega_CL,0.3308,0.0216,6.5421,Random effects
+420,run420,omega_Ka,0.5631,0.0494,8.7805,Random effects
+420,run420,b,0.1441,0.0062,4.2874,Residual error model
+421,run421,Vd_pop,69.6975,2.5149,3.6083,Typical values
+421,run421,CL_pop,3.9494,0.1318,3.3372,Typical values
+421,run421,Ka_pop,1.1939,0.1563,13.0895,Typical values
+421,run421,omega_Vd,0.3424,0.0206,6.0217,Random effects
+421,run421,omega_CL,0.3091,0.021,6.7801,Random effects
+421,run421,omega_Ka,0.78,0.0668,8.558,Random effects
+421,run421,b,0.1391,0.0063,4.4953,Residual error model
+422,run422,Vd_pop,66.1008,2.6503,4.0095,Typical values
+422,run422,CL_pop,3.7525,0.1357,3.6161,Typical values
+422,run422,Ka_pop,0.9426,0.1015,10.7712,Typical values
+422,run422,omega_Vd,0.3799,0.0218,5.7313,Random effects
+422,run422,omega_CL,0.34,0.0214,6.3079,Random effects
+422,run422,omega_Ka,0.6869,0.051,7.4199,Random effects
+422,run422,b,0.131,0.0058,4.4608,Residual error model
+423,run423,Vd_pop,63.1255,2.1108,3.3438,Typical values
+423,run423,CL_pop,4.2425,0.1326,3.1265,Typical values
+423,run423,Ka_pop,0.7814,0.0764,9.7715,Typical values
+423,run423,omega_Vd,0.2975,0.0175,5.8932,Random effects
+423,run423,omega_CL,0.2992,0.0193,6.4462,Random effects
+423,run423,omega_Ka,0.6357,0.0431,6.7763,Random effects
+423,run423,b,0.1344,0.0057,4.2716,Residual error model
+424,run424,Vd_pop,65.5107,2.5921,3.9567,Typical values
+424,run424,CL_pop,4.1235,0.1185,2.8736,Typical values
+424,run424,Ka_pop,0.9841,0.1154,11.7262,Typical values
+424,run424,omega_Vd,0.3883,0.0209,5.3937,Random effects
+424,run424,omega_CL,0.2633,0.0177,6.7173,Random effects
+424,run424,omega_Ka,0.7502,0.048,6.394,Random effects
+424,run424,b,0.1281,0.0056,4.3735,Residual error model
+425,run425,Vd_pop,72.4043,2.6393,3.6452,Typical values
+425,run425,CL_pop,3.7066,0.1374,3.7058,Typical values
+425,run425,Ka_pop,1.0102,0.113,11.1819,Typical values
+425,run425,omega_Vd,0.3412,0.0202,5.9332,Random effects
+425,run425,omega_CL,0.3367,0.0221,6.5771,Random effects
+425,run425,omega_Ka,0.6814,0.0475,6.9656,Random effects
+425,run425,b,0.1384,0.0059,4.25,Residual error model
+426,run426,Vd_pop,69.2797,2.9136,4.2055,Typical values
+426,run426,CL_pop,3.9715,0.1206,3.0368,Typical values
+426,run426,Ka_pop,0.9915,0.1177,11.8674,Typical values
+426,run426,omega_Vd,0.4083,0.0218,5.3323,Random effects
+426,run426,omega_CL,0.2764,0.012,4.3465,Random effects
+426,run426,omega_Ka,0.7053,0.0328,4.6566,Random effects
+426,run426,b,0.1301,0.005,3.8226,Residual error model
+427,run427,Vd_pop,63.2472,2.6193,4.1414,Typical values
+427,run427,CL_pop,3.8957,0.1119,2.8734,Typical values
+427,run427,Ka_pop,0.9357,0.1247,13.3302,Typical values
+427,run427,omega_Vd,0.3797,0.0222,5.8369,Random effects
+427,run427,omega_CL,0.2544,0.0179,7.0197,Random effects
+427,run427,omega_Ka,0.9672,0.0672,6.9443,Random effects
+427,run427,b,0.1378,0.0063,4.5437,Residual error model
+428,run428,Vd_pop,66.5396,2.3208,3.4879,Typical values
+428,run428,CL_pop,4.0307,0.1338,3.3208,Typical values
+428,run428,Ka_pop,0.8781,0.099,11.2756,Typical values
+428,run428,omega_Vd,0.3038,0.0199,6.5552,Random effects
+428,run428,omega_CL,0.3125,0.0207,6.6391,Random effects
+428,run428,omega_Ka,0.7427,0.0585,7.8733,Random effects
+428,run428,b,0.1425,0.0064,4.4669,Residual error model
+429,run429,Vd_pop,63.3808,2.2426,3.5383,Typical values
+429,run429,CL_pop,4.2607,0.1251,2.9372,Typical values
+429,run429,Ka_pop,0.9339,0.1162,12.4437,Typical values
+429,run429,omega_Vd,0.3151,0.0193,6.1308,Random effects
+429,run429,omega_CL,0.2746,0.0186,6.7904,Random effects
+429,run429,omega_Ka,0.74,0.0682,9.2175,Random effects
+429,run429,b,0.1511,0.0067,4.4072,Residual error model
+430,run430,Vd_pop,67.8704,2.7628,4.0707,Typical values
+430,run430,CL_pop,3.9113,0.1304,3.3338,Typical values
+430,run430,Ka_pop,0.9617,0.1177,12.2419,Typical values
+430,run430,omega_Vd,0.3814,0.0224,5.8729,Random effects
+430,run430,omega_CL,0.306,0.0201,6.5841,Random effects
+430,run430,omega_Ka,0.7689,0.0627,8.1561,Random effects
+430,run430,b,0.1396,0.0062,4.4325,Residual error model
+431,run431,Vd_pop,64.7014,2.7395,4.2341,Typical values
+431,run431,CL_pop,4.0307,0.1577,3.9133,Typical values
+431,run431,Ka_pop,0.8446,0.0859,10.1755,Typical values
+431,run431,omega_Vd,0.3973,0.0218,5.4837,Random effects
+431,run431,omega_CL,0.3737,0.0237,6.3398,Random effects
+431,run431,omega_Ka,0.6137,0.0386,6.2937,Random effects
+431,run431,b,0.1455,0.0063,4.3002,Residual error model
+432,run432,Vd_pop,70.4328,2.574,3.6545,Typical values
+432,run432,CL_pop,4.1687,0.1299,3.1171,Typical values
+432,run432,Ka_pop,0.7746,0.0663,8.561,Typical values
+432,run432,omega_Vd,0.3384,0.0197,5.8168,Random effects
+432,run432,omega_CL,0.2863,0.0174,6.0806,Random effects
+432,run432,omega_Ka,0.5843,0.0417,7.1433,Random effects
+432,run432,b,0.1235,0.0057,4.5966,Residual error model
+433,run433,Vd_pop,68.5398,2.7119,3.9567,Typical values
+433,run433,CL_pop,3.7871,0.1251,3.3046,Typical values
+433,run433,Ka_pop,1.0344,0.1277,12.3449,Typical values
+433,run433,omega_Vd,0.3819,0.0214,5.5997,Random effects
+433,run433,omega_CL,0.3,0.0205,6.8417,Random effects
+433,run433,omega_Ka,0.7617,0.0438,5.7528,Random effects
+433,run433,b,0.1346,0.0056,4.1622,Residual error model
+434,run434,Vd_pop,64.2379,2.7976,4.3551,Typical values
+434,run434,CL_pop,4.1818,0.1356,3.2435,Typical values
+434,run434,Ka_pop,0.9642,0.1724,17.8791,Typical values
+434,run434,omega_Vd,0.3944,0.0225,5.6991,Random effects
+434,run434,omega_CL,0.2954,0.0196,6.6439,Random effects
+434,run434,omega_Ka,1.2495,0.0793,6.343,Random effects
+434,run434,b,0.1449,0.0063,4.3328,Residual error model
+435,run435,Vd_pop,64.0735,2.3971,3.7411,Typical values
+435,run435,CL_pop,4.1394,0.1395,3.3707,Typical values
+435,run435,Ka_pop,0.8801,0.0987,11.2121,Typical values
+435,run435,omega_Vd,0.3503,0.0202,5.7767,Random effects
+435,run435,omega_CL,0.3208,0.02,6.2496,Random effects
+435,run435,omega_Ka,0.7377,0.0459,6.2284,Random effects
+435,run435,b,0.1216,0.0055,4.5513,Residual error model
+436,run436,Vd_pop,65.5521,2.7824,4.2446,Typical values
+436,run436,CL_pop,3.9637,0.1407,3.5504,Typical values
+436,run436,Ka_pop,0.834,0.1055,12.645,Typical values
+436,run436,omega_Vd,0.3884,0.0226,5.8259,Random effects
+436,run436,omega_CL,0.3383,0.0217,6.4006,Random effects
+436,run436,omega_Ka,0.8071,0.0664,8.2273,Random effects
+436,run436,b,0.1426,0.0064,4.5056,Residual error model
+437,run437,Vd_pop,65.0821,2.9283,4.4994,Typical values
+437,run437,CL_pop,4.0426,0.139,3.4377,Typical values
+437,run437,Ka_pop,0.8286,0.0832,10.0461,Typical values
+437,run437,omega_Vd,0.4362,0.0243,5.5813,Random effects
+437,run437,omega_CL,0.3359,0.021,6.2432,Random effects
+437,run437,omega_Ka,0.6338,0.0506,7.9876,Random effects
+437,run437,b,0.133,0.0061,4.5516,Residual error model
+438,run438,Vd_pop,64.2428,2.3683,3.6865,Typical values
+438,run438,CL_pop,3.9004,0.1416,3.6297,Typical values
+438,run438,Ka_pop,0.9694,0.1104,11.3887,Typical values
+438,run438,omega_Vd,0.3403,0.0205,6.0251,Random effects
+438,run438,omega_CL,0.3483,0.0218,6.2679,Random effects
+438,run438,omega_Ka,0.6876,0.0404,5.8758,Random effects
+438,run438,b,0.1313,0.0057,4.3398,Residual error model
+439,run439,Vd_pop,65.2384,2.2601,3.4644,Typical values
+439,run439,CL_pop,3.8418,0.1374,3.5754,Typical values
+439,run439,Ka_pop,0.8536,0.0909,10.6491,Typical values
+439,run439,omega_Vd,0.3104,0.0194,6.2499,Random effects
+439,run439,omega_CL,0.3455,0.0221,6.4007,Random effects
+439,run439,omega_Ka,0.7212,0.0429,5.954,Random effects
+439,run439,b,0.1293,0.0057,4.4406,Residual error model
+440,run440,Vd_pop,69.2073,2.8768,4.1567,Typical values
+440,run440,CL_pop,3.7752,0.119,3.1514,Typical values
+440,run440,Ka_pop,1.0932,0.1161,10.6169,Typical values
+440,run440,omega_Vd,0.4136,0.0239,5.7757,Random effects
+440,run440,omega_CL,0.2852,0.0192,6.7278,Random effects
+440,run440,omega_Ka,0.496,0.0451,9.093,Random effects
+440,run440,b,0.1362,0.0059,4.3614,Residual error model
+441,run441,Vd_pop,61.9199,2.4415,3.943,Typical values
+441,run441,CL_pop,3.996,0.1395,3.4921,Typical values
+441,run441,Ka_pop,0.8982,0.107,11.9093,Typical values
+441,run441,omega_Vd,0.3582,0.0192,5.349,Random effects
+441,run441,omega_CL,0.335,0.0205,6.1243,Random effects
+441,run441,omega_Ka,0.8423,0.0465,5.5261,Random effects
+441,run441,b,0.131,0.0059,4.5347,Residual error model
+442,run442,Vd_pop,68.6633,2.5724,3.7464,Typical values
+442,run442,CL_pop,3.9333,0.1371,3.4848,Typical values
+442,run442,Ka_pop,0.8658,0.09,10.3981,Typical values
+442,run442,omega_Vd,0.3477,0.0211,6.0602,Random effects
+442,run442,omega_CL,0.3279,0.0215,6.5655,Random effects
+442,run442,omega_Ka,0.6184,0.0555,8.9762,Random effects
+442,run442,b,0.136,0.0062,4.553,Residual error model
+443,run443,Vd_pop,71.3193,2.6087,3.6577,Typical values
+443,run443,CL_pop,3.929,0.1386,3.5264,Typical values
+443,run443,Ka_pop,0.9416,0.0923,9.8015,Typical values
+443,run443,omega_Vd,0.3371,0.0217,6.4479,Random effects
+443,run443,omega_CL,0.3273,0.022,6.7175,Random effects
+443,run443,omega_Ka,0.5276,0.0513,9.7151,Random effects
+443,run443,b,0.1464,0.0065,4.453,Residual error model
+444,run444,Vd_pop,74.1002,2.9114,3.929,Typical values
+444,run444,CL_pop,3.9385,0.1467,3.7256,Typical values
+444,run444,Ka_pop,1.0774,0.1604,14.8902,Typical values
+444,run444,omega_Vd,0.3608,0.0217,6.0133,Random effects
+444,run444,omega_CL,0.3373,0.0204,6.0448,Random effects
+444,run444,omega_Ka,0.6952,0.0386,5.5565,Random effects
+444,run444,b,0.157,0.0062,3.9551,Residual error model
+445,run445,Vd_pop,68.9357,2.4493,3.553,Typical values
+445,run445,CL_pop,4.0993,0.1374,3.353,Typical values
+445,run445,Ka_pop,0.9171,0.105,11.4546,Typical values
+445,run445,omega_Vd,0.3207,0.021,6.5538,Random effects
+445,run445,omega_CL,0.3068,0.0207,6.7517,Random effects
+445,run445,omega_Ka,0.69,0.0383,5.5544,Random effects
+445,run445,b,0.136,0.0058,4.281,Residual error model
+446,run446,Vd_pop,68.3398,2.9354,4.2953,Typical values
+446,run446,CL_pop,3.8907,0.1334,3.4284,Typical values
+446,run446,Ka_pop,0.968,0.1082,11.173,Typical values
+446,run446,omega_Vd,0.415,0.0223,5.3767,Random effects
+446,run446,omega_CL,0.3122,0.0208,6.6485,Random effects
+446,run446,omega_Ka,0.7197,0.0414,5.7578,Random effects
+446,run446,b,0.1387,0.006,4.3525,Residual error model
+447,run447,Vd_pop,68.2144,2.3907,3.5046,Typical values
+447,run447,CL_pop,4.1681,0.1145,2.7464,Typical values
+447,run447,Ka_pop,0.8189,0.0903,11.0279,Typical values
+447,run447,omega_Vd,0.3018,0.02,6.6102,Random effects
+447,run447,omega_CL,0.2465,0.0176,7.1533,Random effects
+447,run447,omega_Ka,0.7587,0.0577,7.606,Random effects
+447,run447,b,0.1425,0.0065,4.5465,Residual error model
+448,run448,Vd_pop,64.7061,2.3623,3.6507,Typical values
+448,run448,CL_pop,4.0079,0.135,3.3692,Typical values
+448,run448,Ka_pop,0.9976,0.1317,13.2039,Typical values
+448,run448,omega_Vd,0.3238,0.0193,5.9734,Random effects
+448,run448,omega_CL,0.3167,0.0193,6.096,Random effects
+448,run448,omega_Ka,0.7702,0.0482,6.2535,Random effects
+448,run448,b,0.1415,0.0059,4.1983,Residual error model
+449,run449,Vd_pop,69.163,2.6222,3.7913,Typical values
+449,run449,CL_pop,4.0496,0.146,3.6057,Typical values
+449,run449,Ka_pop,1.0699,0.1187,11.0941,Typical values
+449,run449,omega_Vd,0.3612,0.0213,5.8926,Random effects
+449,run449,omega_CL,0.3406,0.022,6.445,Random effects
+449,run449,omega_Ka,0.6586,0.0372,5.6453,Random effects
+449,run449,b,0.1417,0.006,4.2027,Residual error model
+450,run450,Vd_pop,72.8806,2.9131,3.9971,Typical values
+450,run450,CL_pop,4.1444,0.134,3.233,Typical values
+450,run450,Ka_pop,0.9048,0.0978,10.8071,Typical values
+450,run450,omega_Vd,0.3707,0.0228,6.1434,Random effects
+450,run450,omega_CL,0.2991,0.0199,6.6463,Random effects
+450,run450,omega_Ka,0.573,0.0575,10.0348,Random effects
+450,run450,b,0.1513,0.0066,4.3629,Residual error model
+451,run451,Vd_pop,65.0932,2.504,3.8468,Typical values
+451,run451,CL_pop,4.2005,0.1189,2.8308,Typical values
+451,run451,Ka_pop,0.8442,0.0758,8.9731,Typical values
+451,run451,omega_Vd,0.3665,0.0204,5.5675,Random effects
+451,run451,omega_CL,0.2631,0.0174,6.6093,Random effects
+451,run451,omega_Ka,0.5719,0.0395,6.9023,Random effects
+451,run451,b,0.1303,0.0059,4.4986,Residual error model
+452,run452,Vd_pop,71.5876,2.6908,3.7588,Typical values
+452,run452,CL_pop,3.8626,0.1593,4.1236,Typical values
+452,run452,Ka_pop,0.939,0.0996,10.6096,Typical values
+452,run452,omega_Vd,0.3315,0.0209,6.2939,Random effects
+452,run452,omega_CL,0.393,0.0256,6.5256,Random effects
+452,run452,omega_Ka,0.6407,0.0459,7.1662,Random effects
+452,run452,b,0.1479,0.0067,4.5421,Residual error model
+453,run453,Vd_pop,68.1223,2.7442,4.0284,Typical values
+453,run453,CL_pop,3.982,0.1268,3.1848,Typical values
+453,run453,Ka_pop,0.8155,0.0974,11.9475,Typical values
+453,run453,omega_Vd,0.3731,0.0221,5.9273,Random effects
+453,run453,omega_CL,0.2839,0.0188,6.62,Random effects
+453,run453,omega_Ka,0.7435,0.0363,4.8859,Random effects
+453,run453,b,0.1386,0.0059,4.2273,Residual error model
+454,run454,Vd_pop,64.2761,2.6062,4.0547,Typical values
+454,run454,CL_pop,4.0906,0.1326,3.2427,Typical values
+454,run454,Ka_pop,0.8751,0.1141,13.036,Typical values
+454,run454,omega_Vd,0.3657,0.0215,5.8693,Random effects
+454,run454,omega_CL,0.3083,0.0166,5.3734,Random effects
+454,run454,omega_Ka,0.8599,0.0323,3.7546,Random effects
+454,run454,b,0.1379,0.0054,3.9421,Residual error model
+455,run455,Vd_pop,69.0578,2.6037,3.7703,Typical values
+455,run455,CL_pop,3.9104,0.136,3.479,Typical values
+455,run455,Ka_pop,0.8758,0.0976,11.1464,Typical values
+455,run455,omega_Vd,0.3512,0.021,5.9796,Random effects
+455,run455,omega_CL,0.3346,0.0208,6.2149,Random effects
+455,run455,omega_Ka,0.6762,0.0547,8.0911,Random effects
+455,run455,b,0.1291,0.0058,4.4978,Residual error model
+456,run456,Vd_pop,68.8902,2.4559,3.565,Typical values
+456,run456,CL_pop,3.8848,0.1439,3.7035,Typical values
+456,run456,Ka_pop,1.0288,0.1456,14.1529,Typical values
+456,run456,omega_Vd,0.3244,0.0194,5.9802,Random effects
+456,run456,omega_CL,0.3491,0.0213,6.0897,Random effects
+456,run456,omega_Ka,0.9552,0.0626,6.5506,Random effects
+456,run456,b,0.1289,0.0058,4.4684,Residual error model
+457,run457,Vd_pop,66.0096,2.7116,4.1079,Typical values
+457,run457,CL_pop,4.2485,0.1547,3.6419,Typical values
+457,run457,Ka_pop,0.87,0.0883,10.1458,Typical values
+457,run457,omega_Vd,0.3914,0.0218,5.578,Random effects
+457,run457,omega_CL,0.3536,0.0218,6.1597,Random effects
+457,run457,omega_Ka,0.6594,0.0516,7.8215,Random effects
+457,run457,b,0.129,0.0059,4.5673,Residual error model
+458,run458,Vd_pop,70.8664,2.9138,4.1117,Typical values
+458,run458,CL_pop,4.0705,0.1375,3.3772,Typical values
+458,run458,Ka_pop,0.9686,0.1329,13.721,Typical values
+458,run458,omega_Vd,0.3862,0.0212,5.4953,Random effects
+458,run458,omega_CL,0.3083,0.0176,5.7172,Random effects
+458,run458,omega_Ka,0.8684,0.0323,3.7214,Random effects
+458,run458,b,0.1373,0.0054,3.954,Residual error model
+459,run459,Vd_pop,73.2268,3.0341,4.1434,Typical values
+459,run459,CL_pop,3.873,0.1546,3.992,Typical values
+459,run459,Ka_pop,1.2172,0.1317,10.8236,Typical values
+459,run459,omega_Vd,0.404,0.0228,5.6479,Random effects
+459,run459,omega_CL,0.3641,0.0244,6.7056,Random effects
+459,run459,omega_Ka,0.5264,0.0614,11.6587,Random effects
+459,run459,b,0.1497,0.0065,4.327,Residual error model
+460,run460,Vd_pop,67.7145,2.608,3.8515,Typical values
+460,run460,CL_pop,4.3086,0.135,3.1343,Typical values
+460,run460,Ka_pop,0.8887,0.1018,11.4569,Typical values
+460,run460,omega_Vd,0.3634,0.0189,5.2063,Random effects
+460,run460,omega_CL,0.2912,0.0179,6.1367,Random effects
+460,run460,omega_Ka,0.7759,0.0321,4.1364,Random effects
+460,run460,b,0.1286,0.0054,4.2217,Residual error model
+461,run461,Vd_pop,65.704,2.5521,3.8843,Typical values
+461,run461,CL_pop,4.0758,0.1358,3.3317,Typical values
+461,run461,Ka_pop,1.0288,0.1475,14.333,Typical values
+461,run461,omega_Vd,0.3715,0.0214,5.7728,Random effects
+461,run461,omega_CL,0.3182,0.02,6.2802,Random effects
+461,run461,omega_Ka,0.8636,0.0625,7.2318,Random effects
+461,run461,b,0.1338,0.006,4.4465,Residual error model
+462,run462,Vd_pop,65.5973,2.6396,4.024,Typical values
+462,run462,CL_pop,3.7132,0.1217,3.2787,Typical values
+462,run462,Ka_pop,0.8246,0.0715,8.6729,Typical values
+462,run462,omega_Vd,0.3902,0.0222,5.6911,Random effects
+462,run462,omega_CL,0.3056,0.0201,6.5743,Random effects
+462,run462,omega_Ka,0.5835,0.043,7.367,Random effects
+462,run462,b,0.1235,0.0057,4.6077,Residual error model
+463,run463,Vd_pop,69.087,2.8526,4.129,Typical values
+463,run463,CL_pop,3.6433,0.1378,3.7817,Typical values
+463,run463,Ka_pop,1.1181,0.1545,13.8147,Typical values
+463,run463,omega_Vd,0.3963,0.0211,5.3162,Random effects
+463,run463,omega_CL,0.3492,0.0222,6.345,Random effects
+463,run463,omega_Ka,0.9131,0.0514,5.6285,Random effects
+463,run463,b,0.1291,0.0055,4.2889,Residual error model
+464,run464,Vd_pop,67.914,3.1198,4.5937,Typical values
+464,run464,CL_pop,3.8613,0.1468,3.8015,Typical values
+464,run464,Ka_pop,0.9962,0.1262,12.6636,Typical values
+464,run464,omega_Vd,0.4475,0.0248,5.5337,Random effects
+464,run464,omega_CL,0.3524,0.0221,6.2644,Random effects
+464,run464,omega_Ka,0.7031,0.0606,8.6256,Random effects
+464,run464,b,0.1371,0.0062,4.5122,Residual error model
+465,run465,Vd_pop,66.7129,2.39,3.5825,Typical values
+465,run465,CL_pop,4.2237,0.1367,3.236,Typical values
+465,run465,Ka_pop,1.0112,0.1047,10.3502,Typical values
+465,run465,omega_Vd,0.328,0.0195,5.9332,Random effects
+465,run465,omega_CL,0.3085,0.0198,6.4103,Random effects
+465,run465,omega_Ka,0.5749,0.0495,8.6067,Random effects
+465,run465,b,0.1445,0.0064,4.4009,Residual error model
+466,run466,Vd_pop,68.7122,2.7058,3.9379,Typical values
+466,run466,CL_pop,3.9994,0.1274,3.1864,Typical values
+466,run466,Ka_pop,0.8938,0.1129,12.6367,Typical values
+466,run466,omega_Vd,0.3608,0.0224,6.2114,Random effects
+466,run466,omega_CL,0.2961,0.0198,6.6964,Random effects
+466,run466,omega_Ka,0.8191,0.0501,6.1209,Random effects
+466,run466,b,0.1429,0.0064,4.4496,Residual error model
+467,run467,Vd_pop,69.8811,2.4821,3.5519,Typical values
+467,run467,CL_pop,4.0647,0.1462,3.5972,Typical values
+467,run467,Ka_pop,1.3516,0.1795,13.2793,Typical values
+467,run467,omega_Vd,0.3295,0.0212,6.4493,Random effects
+467,run467,omega_CL,0.3428,0.0226,6.5903,Random effects
+467,run467,omega_Ka,0.6799,0.0753,11.0679,Random effects
+467,run467,b,0.143,0.0064,4.481,Residual error model
+468,run468,Vd_pop,68.0024,2.5735,3.7845,Typical values
+468,run468,CL_pop,3.9495,0.1345,3.4066,Typical values
+468,run468,Ka_pop,1.029,0.118,11.465,Typical values
+468,run468,omega_Vd,0.3525,0.0211,5.9787,Random effects
+468,run468,omega_CL,0.3228,0.0212,6.5764,Random effects
+468,run468,omega_Ka,0.6719,0.0552,8.2207,Random effects
+468,run468,b,0.1423,0.0063,4.4506,Residual error model
+469,run469,Vd_pop,70.3216,2.6881,3.8226,Typical values
+469,run469,CL_pop,3.8574,0.1391,3.6064,Typical values
+469,run469,Ka_pop,1.0474,0.1063,10.1485,Typical values
+469,run469,omega_Vd,0.3604,0.022,6.1107,Random effects
+469,run469,omega_CL,0.3379,0.0222,6.5733,Random effects
+469,run469,omega_Ka,0.4674,0.051,10.92,Random effects
+469,run469,b,0.1333,0.0058,4.362,Residual error model
+470,run470,Vd_pop,69.7483,2.7468,3.9382,Typical values
+470,run470,CL_pop,4.0215,0.1274,3.168,Typical values
+470,run470,Ka_pop,0.7792,0.076,9.7575,Typical values
+470,run470,omega_Vd,0.3672,0.0224,6.0897,Random effects
+470,run470,omega_CL,0.297,0.0195,6.5778,Random effects
+470,run470,omega_Ka,0.588,0.046,7.8249,Random effects
+470,run470,b,0.1317,0.0061,4.6213,Residual error model
+471,run471,Vd_pop,69.8855,3.0903,4.422,Typical values
+471,run471,CL_pop,4.0239,0.151,3.7531,Typical values
+471,run471,Ka_pop,0.8176,0.0903,11.0496,Typical values
+471,run471,omega_Vd,0.4238,0.023,5.4327,Random effects
+471,run471,omega_CL,0.3434,0.0217,6.3179,Random effects
+471,run471,omega_Ka,0.6911,0.05,7.2381,Random effects
+471,run471,b,0.1387,0.0061,4.425,Residual error model
+472,run472,Vd_pop,63.537,2.8051,4.4149,Typical values
+472,run472,CL_pop,3.9488,0.1354,3.428,Typical values
+472,run472,Ka_pop,0.8375,0.0887,10.5968,Typical values
+472,run472,omega_Vd,0.4243,0.0233,5.4961,Random effects
+472,run472,omega_CL,0.3051,0.0195,6.3968,Random effects
+472,run472,omega_Ka,0.6263,0.0497,7.9339,Random effects
+472,run472,b,0.1433,0.0064,4.4545,Residual error model
+473,run473,Vd_pop,70.5901,2.7859,3.9466,Typical values
+473,run473,CL_pop,3.9258,0.141,3.5925,Typical values
+473,run473,Ka_pop,0.9832,0.1027,10.443,Typical values
+473,run473,omega_Vd,0.3738,0.0222,5.9334,Random effects
+473,run473,omega_CL,0.3365,0.0223,6.6401,Random effects
+473,run473,omega_Ka,0.6549,0.0548,8.3601,Random effects
+473,run473,b,0.1349,0.0061,4.5442,Residual error model
+474,run474,Vd_pop,65.612,2.6225,3.997,Typical values
+474,run474,CL_pop,4.0408,0.1405,3.4767,Typical values
+474,run474,Ka_pop,0.8998,0.1072,11.9137,Typical values
+474,run474,omega_Vd,0.3765,0.0209,5.549,Random effects
+474,run474,omega_CL,0.3303,0.0207,6.2527,Random effects
+474,run474,omega_Ka,0.7087,0.0453,6.3878,Random effects
+474,run474,b,0.1305,0.0057,4.3528,Residual error model
+475,run475,Vd_pop,69.1428,2.6117,3.7773,Typical values
+475,run475,CL_pop,4.1158,0.1244,3.0231,Typical values
+475,run475,Ka_pop,0.9619,0.1077,11.1988,Typical values
+475,run475,omega_Vd,0.3503,0.0206,5.8717,Random effects
+475,run475,omega_CL,0.2677,0.0183,6.8336,Random effects
+475,run475,omega_Ka,0.6382,0.041,6.4243,Random effects
+475,run475,b,0.1434,0.006,4.2147,Residual error model
+476,run476,Vd_pop,66.6789,2.6136,3.9197,Typical values
+476,run476,CL_pop,3.9747,0.1252,3.1504,Typical values
+476,run476,Ka_pop,1.013,0.1445,14.2612,Typical values
+476,run476,omega_Vd,0.3588,0.0222,6.1851,Random effects
+476,run476,omega_CL,0.2824,0.019,6.7139,Random effects
+476,run476,omega_Ka,0.9521,0.0695,7.2987,Random effects
+476,run476,b,0.1354,0.0061,4.4845,Residual error model
+477,run477,Vd_pop,65.9424,2.5207,3.8226,Typical values
+477,run477,CL_pop,3.9283,0.1353,3.4446,Typical values
+477,run477,Ka_pop,0.8476,0.0827,9.7611,Typical values
+477,run477,omega_Vd,0.3464,0.0208,6.0157,Random effects
+477,run477,omega_CL,0.3221,0.0204,6.3275,Random effects
+477,run477,omega_Ka,0.5787,0.0464,8.0146,Random effects
+477,run477,b,0.1412,0.0061,4.3341,Residual error model
+478,run478,Vd_pop,66.64,2.4893,3.7354,Typical values
+478,run478,CL_pop,4.1916,0.1476,3.5211,Typical values
+478,run478,Ka_pop,0.7478,0.0821,10.9779,Typical values
+478,run478,omega_Vd,0.3355,0.0209,6.2334,Random effects
+478,run478,omega_CL,0.3363,0.0205,6.0865,Random effects
+478,run478,omega_Ka,0.727,0.0545,7.4918,Random effects
+478,run478,b,0.1328,0.0061,4.6243,Residual error model
+479,run479,Vd_pop,68.9153,2.8056,4.0711,Typical values
+479,run479,CL_pop,4.0794,0.1379,3.3801,Typical values
+479,run479,Ka_pop,0.8861,0.0858,9.6806,Typical values
+479,run479,omega_Vd,0.3807,0.0226,5.9482,Random effects
+479,run479,omega_CL,0.3153,0.0206,6.5422,Random effects
+479,run479,omega_Ka,0.5439,0.0485,8.9167,Random effects
+479,run479,b,0.1469,0.0065,4.4191,Residual error model
+480,run480,Vd_pop,69.6135,2.8391,4.0784,Typical values
+480,run480,CL_pop,4.0114,0.1422,3.5459,Typical values
+480,run480,Ka_pop,0.9206,0.1088,11.8159,Typical values
+480,run480,omega_Vd,0.372,0.0221,5.9327,Random effects
+480,run480,omega_CL,0.3326,0.022,6.6227,Random effects
+480,run480,omega_Ka,0.7548,0.053900000000000003,7.1366,Random effects
+480,run480,b,0.1462,0.0065,4.4739,Residual error model
+481,run481,Vd_pop,65.0842,2.7301,4.1947,Typical values
+481,run481,CL_pop,3.892,0.1462,3.7573,Typical values
+481,run481,Ka_pop,0.8121,0.1025,12.6192,Typical values
+481,run481,omega_Vd,0.3776,0.0237,6.2822,Random effects
+481,run481,omega_CL,0.3439,0.0228,6.6339,Random effects
+481,run481,omega_Ka,0.7886,0.0528,6.6946,Random effects
+481,run481,b,0.1486,0.0066,4.4219,Residual error model
+482,run482,Vd_pop,64.2224,2.331,3.6296,Typical values
+482,run482,CL_pop,4.0567,0.1276,3.1443,Typical values
+482,run482,Ka_pop,0.7496,0.0802,10.6972,Typical values
+482,run482,omega_Vd,0.3175,0.0194,6.0962,Random effects
+482,run482,omega_CL,0.2938,0.0194,6.5872,Random effects
+482,run482,omega_Ka,0.7007,0.0492,7.022,Random effects
+482,run482,b,0.139,0.006,4.2895,Residual error model
+483,run483,Vd_pop,71.0271,2.8768,4.0503,Typical values
+483,run483,CL_pop,4.0716,0.1354,3.3258,Typical values
+483,run483,Ka_pop,0.9758,0.095,9.7337,Typical values
+483,run483,omega_Vd,0.3927,0.0222,5.6424,Random effects
+483,run483,omega_CL,0.3111,0.0196,6.2923,Random effects
+483,run483,omega_Ka,0.5472,0.0478,8.732,Random effects
+483,run483,b,0.1345,0.006,4.4397,Residual error model
+484,run484,Vd_pop,71.3085,2.7524,3.8599,Typical values
+484,run484,CL_pop,4.2827,0.1582,3.6941,Typical values
+484,run484,Ka_pop,0.8303,0.0859,10.344,Typical values
+484,run484,omega_Vd,0.3513,0.0218,6.2009,Random effects
+484,run484,omega_CL,0.3511,0.0228,6.5036,Random effects
+484,run484,omega_Ka,0.6455,0.0471,7.2995,Random effects
+484,run484,b,0.1454,0.0065,4.4546,Residual error model
+485,run485,Vd_pop,67.5728,2.8414,4.205,Typical values
+485,run485,CL_pop,4.1968,0.1413,3.3678,Typical values
+485,run485,Ka_pop,0.8991,0.1251,13.9167,Typical values
+485,run485,omega_Vd,0.3858,0.0198,5.1361,Random effects
+485,run485,omega_CL,0.3061,0.0137,4.4621,Random effects
+485,run485,omega_Ka,0.9728,0.0436,4.4838,Random effects
+485,run485,b,0.1367,0.0054,3.9777,Residual error model
+486,run486,Vd_pop,66.2938,2.7754,4.1864,Typical values
+486,run486,CL_pop,3.9935,0.1442,3.6119,Typical values
+486,run486,Ka_pop,0.853,0.1061,12.4404,Typical values
+486,run486,omega_Vd,0.3873,0.0197,5.0809,Random effects
+486,run486,omega_CL,0.3423,0.0155,4.5132,Random effects
+486,run486,omega_Ka,0.8471,0.0394,4.6556,Random effects
+486,run486,b,0.132,0.0054,4.0898,Residual error model
+487,run487,Vd_pop,70.9205,2.7034,3.8119,Typical values
+487,run487,CL_pop,3.9505,0.1358,3.4365,Typical values
+487,run487,Ka_pop,0.9272,0.1009,10.8829,Typical values
+487,run487,omega_Vd,0.3537,0.0202,5.7236,Random effects
+487,run487,omega_CL,0.3082,0.0195,6.3136,Random effects
+487,run487,omega_Ka,0.7051,0.0269,3.8192,Random effects
+487,run487,b,0.1443,0.0058,4.0241,Residual error model
+488,run488,Vd_pop,68.1626,2.467,3.6192,Typical values
+488,run488,CL_pop,4.1142,0.149,3.6212,Typical values
+488,run488,Ka_pop,1.0636,0.1097,10.3157,Typical values
+488,run488,omega_Vd,0.3407,0.0192,5.6211,Random effects
+488,run488,omega_CL,0.352,0.0223,6.3316,Random effects
+488,run488,omega_Ka,0.6336,0.0455,7.1826,Random effects
+488,run488,b,0.1359,0.006,4.4153,Residual error model
+489,run489,Vd_pop,69.3974,2.6053,3.7542,Typical values
+489,run489,CL_pop,4.0419,0.1323,3.2729,Typical values
+489,run489,Ka_pop,0.9241,0.073,7.8966,Typical values
+489,run489,omega_Vd,0.3565,0.0219,6.1528,Random effects
+489,run489,omega_CL,0.2989,0.02,6.7002,Random effects
+489,run489,omega_Ka,0.4296,0.048,11.1721,Random effects
+489,run489,b,0.1412,0.0063,4.4535,Residual error model
+490,run490,Vd_pop,67.456,2.5713,3.8118,Typical values
+490,run490,CL_pop,4.2026,0.1284,3.0559,Typical values
+490,run490,Ka_pop,0.8262,0.0726,8.7886,Typical values
+490,run490,omega_Vd,0.3465,0.0216,6.248,Random effects
+490,run490,omega_CL,0.2848,0.0193,6.7705,Random effects
+490,run490,omega_Ka,0.5143,0.0371,7.2137,Random effects
+490,run490,b,0.148,0.0063,4.2712,Residual error model
+491,run491,Vd_pop,69.2254,2.6063,3.7649,Typical values
+491,run491,CL_pop,3.892,0.1383,3.5524,Typical values
+491,run491,Ka_pop,0.8606,0.0891,10.3583,Typical values
+491,run491,omega_Vd,0.3447,0.0207,6.0093,Random effects
+491,run491,omega_CL,0.3346,0.0206,6.1539,Random effects
+491,run491,omega_Ka,0.6937,0.0489,7.0453,Random effects
+491,run491,b,0.1356,0.006,4.4308,Residual error model
+492,run492,Vd_pop,71.9827,2.9849,4.1467,Typical values
+492,run492,CL_pop,4.0055,0.1364,3.4063,Typical values
+492,run492,Ka_pop,1.147,0.1329,11.5851,Typical values
+492,run492,omega_Vd,0.3913,0.024,6.1417,Random effects
+492,run492,omega_CL,0.3134,0.0214,6.8255,Random effects
+492,run492,omega_Ka,0.6428,0.0439,6.8233,Random effects
+492,run492,b,0.1495,0.0064,4.2614,Residual error model
+493,run493,Vd_pop,69.8581,2.6674,3.8184,Typical values
+493,run493,CL_pop,4.12,0.1441,3.4966,Typical values
+493,run493,Ka_pop,1.0457,0.1299,12.4202,Typical values
+493,run493,omega_Vd,0.3556,0.0209,5.8695,Random effects
+493,run493,omega_CL,0.3272,0.021,6.4295,Random effects
+493,run493,omega_Ka,0.7788,0.0534,6.8528,Random effects
+493,run493,b,0.1402,0.0062,4.4167,Residual error model
+494,run494,Vd_pop,66.4114,2.709,4.0791,Typical values
+494,run494,CL_pop,4.0841,0.1292,3.1642,Typical values
+494,run494,Ka_pop,0.8629,0.1037,12.0152,Typical values
+494,run494,omega_Vd,0.3831,0.0222,5.797,Random effects
+494,run494,omega_CL,0.2978,0.0194,6.5011,Random effects
+494,run494,omega_Ka,0.7949,0.0613,7.7123,Random effects
+494,run494,b,0.1314,0.006,4.5957,Residual error model
+495,run495,Vd_pop,67.8149,2.8156,4.1518,Typical values
+495,run495,CL_pop,3.9056,0.1456,3.7267,Typical values
+495,run495,Ka_pop,0.898,0.096,10.6853,Typical values
+495,run495,omega_Vd,0.39,0.0228,5.8536,Random effects
+495,run495,omega_CL,0.3519,0.0229,6.5157,Random effects
+495,run495,omega_Ka,0.6661,0.0582,8.7313,Random effects
+495,run495,b,0.1378,0.0062,4.504,Residual error model
+496,run496,Vd_pop,67.7472,2.8508,4.2081,Typical values
+496,run496,CL_pop,3.899,0.1264,3.2425,Typical values
+496,run496,Ka_pop,0.8952,0.0976,10.9007,Typical values
+496,run496,omega_Vd,0.4024,0.0234,5.8048,Random effects
+496,run496,omega_CL,0.2926,0.02,6.8384,Random effects
+496,run496,omega_Ka,0.6752,0.047,6.9561,Random effects
+496,run496,b,0.1353,0.0061,4.5224,Residual error model
+497,run497,Vd_pop,65.7077,2.46,3.7438,Typical values
+497,run497,CL_pop,4.1799,0.1377,3.2945,Typical values
+497,run497,Ka_pop,0.8733,0.0942,10.7817,Typical values
+497,run497,omega_Vd,0.3444,0.0199,5.7864,Random effects
+497,run497,omega_CL,0.3108,0.0199,6.4126,Random effects
+497,run497,omega_Ka,0.6608,0.048,7.2702,Random effects
+497,run497,b,0.1329,0.006,4.4868,Residual error model
+498,run498,Vd_pop,67.8386,2.4897,3.6701,Typical values
+498,run498,CL_pop,3.9684,0.1408,3.5476,Typical values
+498,run498,Ka_pop,1.1485,0.1505,13.1068,Typical values
+498,run498,omega_Vd,0.336,0.0209,6.2327,Random effects
+498,run498,omega_CL,0.3367,0.0221,6.5656,Random effects
+498,run498,omega_Ka,0.7557,0.0634,8.3944,Random effects
+498,run498,b,0.1378,0.0061,4.42,Residual error model
+499,run499,Vd_pop,65.3799,2.622,4.0104,Typical values
+499,run499,CL_pop,4.001,0.1492,3.7291,Typical values
+499,run499,Ka_pop,0.8211,0.1015,12.3655,Typical values
+499,run499,omega_Vd,0.3768,0.0221,5.8551,Random effects
+499,run499,omega_CL,0.3539,0.0227,6.42,Random effects
+499,run499,omega_Ka,0.8477,0.0578,6.8233,Random effects
+499,run499,b,0.1357,0.0061,4.519,Residual error model
+500,run500,Vd_pop,64.3849,2.9905,4.6447,Typical values
+500,run500,CL_pop,3.8908,0.1228,3.1568,Typical values
+500,run500,Ka_pop,0.7617,0.0882,11.5834,Typical values
+500,run500,omega_Vd,0.4417,0.0248,5.6102,Random effects
+500,run500,omega_CL,0.2917,0.0188,6.4384,Random effects
+500,run500,omega_Ka,0.7847,0.0449,5.7242,Random effects
+500,run500,b,0.1297,0.0057,4.4297,Residual error model
