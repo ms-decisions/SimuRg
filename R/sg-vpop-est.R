@@ -2,7 +2,7 @@
 ## First created: 2025-07-17
 ## Description: Covariate simulation from original dataset
 ## Keywords: covariates, simulations
-## Version: v1.1 - add JS and KL metrics, covariate matrix, merge umap
+
 
 
 # Comparison of correlation matrices
@@ -82,6 +82,18 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 # Remove exact duplicates between synthetic and original data by adding noise
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
+  had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_random_seed) {
+    old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  }
+
+  on.exit({
+    if (had_random_seed) {
+      assign(".Random.seed", old_random_seed, envir = .GlobalEnv)
+    } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  }, add = TRUE)
 
   set.seed(seed)
 
@@ -192,7 +204,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
 #' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
 #' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}), generates a single dataset with this seed (fixed seed mode). If \code{NA}, uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{NA})
-#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
+#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{42})
 #' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
 #' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
 #' @param remove_duplicates logical flag. If \code{TRUE}, automatically removes exact duplicates between original and synthetic data by adding controlled noise (optional, default: \code{TRUE})
@@ -646,8 +658,22 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
       # UMAP (fit on real data only)
       if (!is.na(seed_umap)){
         seed_ii = seed_umap
+
+        had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+        if (had_random_seed) {
+          old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+        }
+
+        on.exit({
+          if (had_random_seed) {
+            assign(".Random.seed", old_random_seed, envir = .GlobalEnv)
+          } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+            rm(".Random.seed", envir = .GlobalEnv)
+          }
+        }, add = TRUE)
+
         set.seed(seed_ii)
-      } else {seed_ii = 123}
+      } else {seed_ii = 42}
 
       cat("Seed for UMAP:", seed_ii, "\n")
 
