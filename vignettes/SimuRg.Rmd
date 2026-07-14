@@ -39,6 +39,7 @@ library(tibble)
 library(dplyr)
 library(stringr)
 library(readr)
+library(SimuRg)
 model <- system.file("extdata", "models", "model_PK_1c.txt", package = "SimuRg")
 read_lines(model)
 ```
