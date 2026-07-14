@@ -200,7 +200,8 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
 #' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
 #' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
-#' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}), generates a single dataset with this seed (fixed seed mode). If \code{NA}, uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{NA})
+#' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}, not \code{NULL}), generates a single dataset with this seed (fixed seed mode).
+#' If \code{NA} or \code{NULL} uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{123})
 #' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{42})
 #' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
 #' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
@@ -264,7 +265,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @importFrom philentropy distance
 #' @export
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
-                       excl_col = NULL,seed = NA,
+                       excl_col = NULL,seed = 123,
                        seed_umap = 42, palette = NULL,
                        diag_plots = FALSE,
                        remove_duplicates = TRUE,
