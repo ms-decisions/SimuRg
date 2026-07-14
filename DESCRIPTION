@@ -2,12 +2,12 @@ Package: SimuRg
 Title: Building, Fitting and Evaluating PK/PD Modeles 
 Version: 0.2.1
 Authors@R: c(
-    person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut")),
-    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut"), comment = c(ORCID = "0000-0000-0000-0000")),
-    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut"),
-    person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut"),
-    person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut"),
-    person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut")
+    person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut"), comment = c(ORCID = " 0000-0001-7066-0811")),
+    person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut"), comment = c(ORCID = "0009-0007-1547-5200")),
+    person("Yaroslav", "Ugolkov", , "yaroslav.ugolkov@msdecisions.tech", role = "aut", comment = c(ORCID = "0000-0003-3590-7860")),
+    person("Anatoly", "Pokladyuk", , "anatoly.pokladyuk@msdecisions.tech", role = "aut", comment = c(ORCID = "0009-0003-4680-9518")),
+    person("Alina", "Melnikova", , "alina.melnikova@msdecisions.tech", role = "aut", comment = c(ORCID = "0000-0001-9019-0263")),
+    person("Victoria", "Kulesh", , "victoria.kulesh@msdecisions.tech", role = "aut", comment = c(ORCID = "0000-0001-9289-7262"))
   )
 Description: Provides a unified workflow for building, fitting using external engines, and evaluating ordinary differential equation (ODE)-based pharmacokinetic/pharmacodynamic (PK/PD) models. Supports generation of estimation scenarios and control files for external engines (e.g., 'Monolix'), simulation of models using 'rxode2', and creation of goodness-of-fit diagnostics. Includes tools for covariate modeling, virtual population design, and local and global sensitivity analyses.
 License: MIT + file LICENSE
