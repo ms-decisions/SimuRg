@@ -7,14 +7,8 @@
 
 test_that("sg-vpop-est file load works", {
 
-  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  # load(fpath_i)
   output <- sg_vpop_est(data_i = data_pbc, diag_plots = TRUE, id_col = "id",
                         excl_col = "years", seed = 123)
-
-  # Output is now a list of lists
-  #expect_type(output, "list")
-  #expect_length(output, 1)  # Default generates 1 dataset
 
   # Check first dataset structure
   result <- output
@@ -50,23 +44,12 @@ test_that("sg-vpop-est does not work on empty dataset", {
 # Basic functionality tests
 test_that("sg_vpop_est returns correct structure with simple continuous data", {
   # Create larger test data to avoid duplicate warnings
-  #skip_if(T)
   set.seed(42)
-  # test_data <- data.frame(
-  #   x1 = rnorm(200, mean = 10, sd = 2),
-  #   x2 = rnorm(200, mean = 20, sd = 3)
-  # )
-  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  # load(fpath_i)
+
   test_data <- data_pbc %>% select(years, age)
 
   output <-
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
-
-
-  # Check output structure - now a list of lists
-  # expect_type(output, "list")
-  # expect_length(output, 1)
 
   result <- output
   expect_named(result, c("datagen", "seed", "exact_dupl_check", "dplot_cont",
@@ -100,7 +83,6 @@ test_that("sg_vpop_est returns correct structure with simple continuous data", {
 
 test_that("sg_vpop_est works with mixed continuous and categorical data", {
   # Create larger test data with both continuous and categorical variables
-  #skip_if(T)
   set.seed(43)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -200,7 +182,6 @@ test_that("sg_vpop_est excludes exclcol when specified", {
 })
 
 test_that("sg_vpop_est uses seed for reproducibility", {
-  #skip_if(T)
   set.seed(48)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -806,4 +787,66 @@ test_that("remove_exact_duplicates noise_level increases perturbation magnitude"
   high_shift <- mean(abs(high_noise$data_cleaned$x[dupl_idx] - data_syn$x[dupl_idx]))
 
   expect_gt(high_shift, low_shift)
+})
+
+test_that("sg_vpop_est handles dataset with only one column", {
+  set.seed(70)
+  test_data <- data.frame(
+    x = rnorm(200, mean = 10, sd = 2)
+  )
+
+  expect_error(sg_vpop_est(data_i = test_data, seed = 123, diag_plots = FALSE, remove_duplicates = TRUE), "The dataset has only one column. Please add more columns to the dataset.")
+})
+
+test_that("sg_vpop_est drops all-NA columns before row-wise NA filtering", {
+  #skip_if(T)
+  set.seed(520)
+  test_data <- data.frame(
+    x1 = rnorm(200, mean = 10, sd = 2),
+    x2 = rep(NA_real_, 200)
+  )
+
+  expect_error(
+    sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE),
+    "The dataset has only one column. Please add more columns to the dataset."
+  )
+})
+
+test_that("sg_vpop_est treats seed_umap NULL and NA as deterministic default 42", {
+  set.seed(501)
+  test_data <- data.frame(
+    x1 = rnorm(220, mean = 10, sd = 2),
+    x2 = rnorm(220, mean = 20, sd = 3)
+  )
+
+  output_default <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = 42,
+    remove_duplicates = TRUE
+  )
+
+  output_null <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = NULL,
+    remove_duplicates = TRUE
+  )
+
+  output_na <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = NA,
+    remove_duplicates = TRUE
+  )
+
+  default_umap_data <- ggplot_build(output_default$dplot_umap)$data
+  null_umap_data <- ggplot_build(output_null$dplot_umap)$data
+  na_umap_data <- ggplot_build(output_na$dplot_umap)$data
+
+  expect_equal(null_umap_data, default_umap_data)
+  expect_equal(na_umap_data, default_umap_data)
 })
