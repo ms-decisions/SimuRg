@@ -269,9 +269,8 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @export
 sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
                        excl_col = NULL,seed = NA,
-                       seed_umap = NA, palette = NULL,
-                       diag_plots = F,
-                       #show_info=F,
+                       seed_umap = 42, palette = NULL,
+                       diag_plots = FALSE,
                        remove_duplicates = TRUE,
                        noise_level = 0.10,
                        nds = 1,#number of datasets to generate
@@ -292,15 +291,6 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   min_node_size = 5        # Decreased from 30 for finer splits
   #use_smoothing = TRUE     # Enable smoothing for continuous variables
   optimize_visit_seq = TRUE # Use correlation-based visit sequence
-
-  ### Comment!!!! - Testing code below (comment out for production)
-  # data_orig <- read.csv("functions/datasets/data_gbsg2.csv") %>% head(300)  # Change to your dataset path
-  # data_i = data_orig; nobj = NA; id_col = NULL; minnumlev = 3;npop = 1
-  # excl_col = NULL;
-  # seed = 98;
-  # seed_umap = 42; palette = NULL;
-  # diag_plots = F; remove_duplicates = TRUE;
-  # noise_level = 0.10; tg_corrdif = 0.1; nds = 5
 
   #####--------------- Processing ---------------#####
   #Exclude ID column and Exclusion columns
@@ -328,6 +318,10 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   data_i <- data_i %>%
     dplyr::select(where(~ !all(is.na(.)))) %>%
     drop_na()
+
+      #Check seed values
+  if (is.null(seed)){seed = NA}
+  if (is.null(seed_umap) || is.na(seed_umap)){seed_umap = 42}
 
 # Check the number of columns in the dataset
 n_cols <- ncol(data_i)
@@ -363,17 +357,8 @@ if (n_cols==1) {
   var_cat  <- names(data_i)[is_cat]
   var_all <- c(var_cont, var_cat)
 
-
-
   n_orig <- nrow(data_i)
 
-
-  # if (show_info){
-  # # Print dataset summary
-  #  cat("Number of rows in the data_orig:", nrow(data_i), "\n")
-  #  cat("Number and names of continuous columns - ", length(var_cont), ":", paste(var_cont, collapse = ", "), "\n")
-  #  cat("Number and names of categorical columns - ", length(var_cat), ":", paste(var_cat, collapse = ", "), "\n")
-  #}
   data_orig <- data_i
 
   # Ensure data_i is a tibble to satisfy synthpop list-argument requirements
@@ -533,8 +518,6 @@ if (n_cols==1) {
 
         if (dupl_check_after) {
           cat("Warning: Some duplicates may still remain after noise addition.\n")
-        } else {
-          cat("Successfully removed all", n_dupl_removed, "exact duplicates.\n")
         }
       }
     }
@@ -662,35 +645,17 @@ if (n_cols==1) {
       X_real <- bake(rec, new_data = data_i)
       X_syn  <- bake(rec, new_data = data_syn)
       # UMAP (fit on real data only)
-      if (!is.na(seed_umap)){
-        seed_ii = seed_umap
-
-        had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-        if (had_random_seed) {
-          old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-        }
-
-        on.exit({
-          if (had_random_seed) {
-            assign(".Random.seed", old_random_seed, envir = .GlobalEnv)
-          } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
-            rm(".Random.seed", envir = .GlobalEnv)
-          }
-        }, add = TRUE)
-
-        set.seed(seed_ii)
-      } else {seed_ii = 123}
-
-      cat("Seed for UMAP:", seed_ii, "\n")
-
+      
       umap_model <- uwot::umap(
         X_real,
         n_neighbors = 15,
         min_dist = 0.1,
         metric = "euclidean",
         ret_model = TRUE,
-        ret_nn = TRUE
+        ret_nn = TRUE,
+        seed = seed_umap
       )
+      cat("UMAP model created with seed:", seed_umap, "\n")
 
       # project synthetic data
       emb_real <- umap_model$embedding
