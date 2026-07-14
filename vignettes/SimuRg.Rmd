@@ -39,7 +39,7 @@ library(tibble)
 library(dplyr)
 library(stringr)
 library(readr)
-library(SimuRg)
+
 model <- system.file("extdata", "models", "model_PK_1c.txt", package = "SimuRg")
 read_lines(model)
 ```
@@ -210,8 +210,11 @@ Another option of SimuRg package is not to fit a model inside the package, but j
 ```{r read}
 test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
 if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
-test_folder <- str_c(test_folder, "/")
+  test_folder <- str_c(test_folder, "/")
 pro_name <- "proj-solo"
+message("Resolved folder: ", test_folder)
+message("Folder exists: ", dir.exists(test_folder))
+
 result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
 ```
 

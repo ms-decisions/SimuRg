@@ -1,0 +1,74 @@
+<DATAFILE>
+
+[FILEINFO]
+file='../datasets/dspk-warf.csv'
+delimiter = comma
+header={ID, TIME, DV, DVID, DVNAME, CMT, ADM, AMT, EVID, MDV, AGE, AGE_centered, SEX, WEIGHT, BMI, CLCR, CYP2C9_gentyp, VKORC1_gentyp, G1_1, G1_2, G1_3, G2_2, G2_3, G3_3, GG, AG, AA}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+DV = {use=observation, yname='1', type=continuous}
+DVID = {use=observationtype}
+ADM = {use=administration}
+AMT = {use=amount}
+EVID = {use=eventidentifier}
+MDV = {use=missingdependentvariable}
+AGE = {use=covariate, type=continuous}
+AGE_centered = {use=covariate, type=continuous}
+SEX = {use=covariate, type=categorical}
+WEIGHT = {use=covariate, type=continuous}
+BMI = {use=covariate, type=continuous}
+
+[SETTINGS]
+dataType = {'1'=plasma}
+
+<MODEL>
+
+[COVARIATE]
+input = {AGE, AGE_centered, SEX, WEIGHT, BMI}
+
+SEX = {type=categorical, categories={'1', '0'}}
+
+[INDIVIDUAL]
+input = {Cl_pop, omega_Cl, V_pop, ka_pop, omega_ka}
+
+DEFINITION:
+Cl = {distribution=logNormal, typical=Cl_pop, sd=omega_Cl}
+V = {distribution=logNormal, typical=V_pop, no-variability}
+ka = {distribution=logNormal, typical=ka_pop, sd=omega_ka}
+
+[LONGITUDINAL]
+input = {Cc_b}
+
+file = '../models/model_PK_1c.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=Cc, errorModel=proportional(Cc_b)}
+
+<FIT>
+data = {'1'}
+model = {y1}
+
+<PARAMETER>
+Cl_pop = {value=0.2, method=MLE}
+V_pop = {value=20, method=MLE}
+ka_pop = {value=0.2, method=MLE}
+Cc_b = {value=1, method=MLE}
+omega_Cl = {value=1, method=MLE}
+omega_ka = {value=1, method=MLE}
+c1 = {value=1, method=FIXED}
+
+<MONOLIX>
+
+[TASKS]
+
+populationParameters()
+individualParameters()
+fim()
+logLikelihood()
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'my_project'
+
