@@ -3,19 +3,15 @@
 ## Description: formal testing of sg-vpop-est function and its helpers
 ## Keywords: SimuRg, sg-vpop-est
 
+
+
 test_that("sg-vpop-est file load works", {
 
-  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  # load(fpath_i)
   output <- sg_vpop_est(data_i = data_pbc, diag_plots = TRUE, id_col = "id",
                         excl_col = "years", seed = 123)
 
-  # Output is now a list of lists
-  expect_type(output, "list")
-  expect_length(output, 1)  # Default generates 1 dataset
-
   # Check first dataset structure
-  result <- output[[1]]
+  result <- output
   expect_true(inherits(result$datagen, "data.frame"))
   expect_true(is.numeric(result$seed) || is.na(result$seed))
   expect_true(is.logical(result$exact_dupl_check))
@@ -48,25 +44,14 @@ test_that("sg-vpop-est does not work on empty dataset", {
 # Basic functionality tests
 test_that("sg_vpop_est returns correct structure with simple continuous data", {
   # Create larger test data to avoid duplicate warnings
-  #skip_if(T)
   set.seed(42)
-  # test_data <- data.frame(
-  #   x1 = rnorm(200, mean = 10, sd = 2),
-  #   x2 = rnorm(200, mean = 20, sd = 3)
-  # )
-  # fpath_i <- system.file("data", "data_pbc.rda", package = "SimuRg")
-  # load(fpath_i)
+
   test_data <- data_pbc %>% select(years, age)
 
   output <-
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
-
-  # Check output structure - now a list of lists
-  expect_type(output, "list")
-  expect_length(output, 1)
-
-  result <- output[[1]]
+  result <- output
   expect_named(result, c("datagen", "seed", "exact_dupl_check", "dplot_cont",
                          "dplot_cat", "dplot_umap", "ks_test", "jsd_res",
                          "corr_diff_mean", "corr_diff_max", "dplot_corr_diff"))
@@ -98,7 +83,6 @@ test_that("sg_vpop_est returns correct structure with simple continuous data", {
 
 test_that("sg_vpop_est works with mixed continuous and categorical data", {
   # Create larger test data with both continuous and categorical variables
-  #skip_if(T)
   set.seed(43)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -111,12 +95,17 @@ test_that("sg_vpop_est works with mixed continuous and categorical data", {
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_true(is.data.frame(result$datagen))
   expect_equal(ncol(result$datagen), ncol(test_data))
 
-  # Check that JSD is computed for categorical variables
-  expect_true(is.numeric(result$jsd_res))
+  # Check that JSD is computed for categorical variables as a tibble/data frame
+  expect_true(tibble::is_tibble(result$jsd_res) || is.data.frame(result$jsd_res))
+  expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
+  expect_true(all(result$jsd_res$variable %in% c("cat1", "cat2")))
+  expect_true(all(is.finite(result$jsd_res$jsd)))
+  expect_true(all(result$jsd_res$n_levels >= 1))
+  expect_true(is.numeric(attr(result$jsd_res, "jsd_weighted_mean")))
 
   # Check that correlation diff is computed for continuous variables
   expect_true(is.numeric(result$corr_diff_mean))
@@ -135,7 +124,7 @@ test_that("sg_vpop_est respects nobj parameter", {
     sg_vpop_est(data_i = test_data, nobj = 100, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_equal(nrow(result$datagen), 100)
 })
 
@@ -151,7 +140,7 @@ test_that("sg_vpop_est respects npop parameter", {
     sg_vpop_est(data_i = test_data, npop = 2, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_equal(nrow(result$datagen), 300)
 })
 
@@ -168,7 +157,7 @@ test_that("sg_vpop_est excludes idcol when specified", {
     sg_vpop_est(data_i = test_data, id_col = "id", diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_false("id" %in% colnames(result$datagen))
   expect_equal(ncol(result$datagen), 2)
 })
@@ -187,13 +176,12 @@ test_that("sg_vpop_est excludes exclcol when specified", {
                 diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_false("exclude_me" %in% colnames(result$datagen))
   expect_equal(ncol(result$datagen), 2)
 })
 
 test_that("sg_vpop_est uses seed for reproducibility", {
-  #skip_if(T)
   set.seed(48)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -208,9 +196,9 @@ test_that("sg_vpop_est uses seed for reproducibility", {
 
 
   # Results should be identical with same seed
-  expect_equal(output1[[1]]$datagen, output2[[1]]$datagen)
-  expect_equal(output1[[1]]$seed, 123)
-  expect_equal(output2[[1]]$seed, 123)
+  expect_equal(output1$datagen, output2$datagen)
+  expect_equal(output1$seed, 123)
+  expect_equal(output2$seed, 123)
 })
 
 test_that("sg_vpop_est works with diag_plots = FALSE", {
@@ -225,7 +213,7 @@ test_that("sg_vpop_est works with diag_plots = FALSE", {
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_null(result$dplot_cont)
   expect_null(result$dplot_cat)
   expect_null(result$dplot_umap)
@@ -243,7 +231,7 @@ test_that("sg_vpop_est works with diag_plots = TRUE", {
 
   output <- sg_vpop_est(data_i = test_data, diag_plots = TRUE, seed = 123, seed_umap = 123)
 
-  result <- output[[1]]
+  result <- output
   expect_true(
     is.null(result$dplot_cont) ||
       (is.list(result$dplot_cont) &&
@@ -271,13 +259,14 @@ test_that("sg_vpop_est converts character columns to factors", {
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   # The synthetic data should have the same structure
   expect_true(is.data.frame(result$datagen))
   expect_true("char_col" %in% colnames(result$datagen))
 
   # Check that JSD is computed for categorical variable
-  expect_true(is.numeric(result$jsd_res))
+  expect_true(tibble::is_tibble(result$jsd_res) || is.data.frame(result$jsd_res))
+  expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
 })
 
 test_that("sg_vpop_est handles minnumlev parameter", {
@@ -293,13 +282,14 @@ test_that("sg_vpop_est handles minnumlev parameter", {
     sg_vpop_est(data_i = test_data, minnumlev = 4, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_true(is.data.frame(result$datagen))
   expect_equal(ncol(result$datagen), 2)
 
   # With minnumlev = 4, low_level should be treated as categorical
   # Check that JSD is computed
-  expect_true(is.numeric(result$jsd_res))
+  expect_true(tibble::is_tibble(result$jsd_res) || is.data.frame(result$jsd_res))
+  expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
 })
 
 test_that("sg_vpop_est handles NA values by removing rows", {
@@ -315,7 +305,7 @@ test_that("sg_vpop_est handles NA values by removing rows", {
     sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
   expect_true(is.data.frame(result$datagen))
   expect_equal(nrow(result$datagen), 195)  # Should match number of non-NA rows
 })
@@ -335,8 +325,8 @@ test_that("sg_vpop_est fixed seed mode generates single dataset", {
 
 
   # Should generate exactly 1 dataset in fixed seed mode
-  expect_length(output, 1)
-  expect_equal(output[[1]]$seed, 456)
+
+  expect_equal(output$seed, 456)
 })
 
 test_that("sg_vpop_est search mode generates multiple datasets", {
@@ -381,7 +371,7 @@ test_that("sg_vpop_est computes correlation difference metrics", {
     sg_vpop_est(data_i = test_data, seed = 789, diag_plots = FALSE, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
 
   # Check correlation metrics
   expect_true(is.numeric(result$corr_diff_mean))
@@ -403,12 +393,13 @@ test_that("sg_vpop_est computes JSD for categorical variables", {
     sg_vpop_est(data_i = test_data, seed = 321, diag_plots = FALSE, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
 
   # Check JSD metric
-  expect_true(is.numeric(result$jsd_res))
-  expect_true(result$jsd_res >= 0)
-  expect_true(result$jsd_res <= 1)
+  expect_true(tibble::is_tibble(result$jsd_res) || is.data.frame(result$jsd_res))
+  expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
+  expect_true(all(result$jsd_res$jsd >= 0))
+  expect_true(all(result$jsd_res$jsd <= 1))
 })
 
 test_that("sg_vpop_est checks for exact duplicates", {
@@ -424,7 +415,7 @@ test_that("sg_vpop_est checks for exact duplicates", {
                 diag_plots = FALSE, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
 
   # Should have checked for duplicates
   expect_true(is.logical(result$exact_dupl_check))
@@ -444,7 +435,7 @@ test_that("sg_vpop_est generates correct plots with diag_plots = TRUE", {
                 diag_plots = TRUE, seed_umap = 42, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
 
   # Check continuous plots
   expect_true(is.list(result$dplot_cont))
@@ -502,14 +493,15 @@ test_that("sg_vpop_est handles categorical-only data", {
   output <- sg_vpop_est(data_i = test_data, seed = 999, diag_plots = FALSE, remove_duplicates = TRUE)
 
 
-  result <- output[[1]]
+  result <- output
 
   # Check that it works with only categorical data
   expect_true(is.data.frame(result$datagen))
   expect_equal(ncol(result$datagen), 3)
 
   # JSD should be computed
-  expect_true(is.numeric(result$jsd_res))
+  expect_true(tibble::is_tibble(result$jsd_res) || is.data.frame(result$jsd_res))
+  expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
 
   # Correlation metrics should be NULL (no continuous variables)
   expect_null(result$corr_diff_mean)
@@ -539,7 +531,322 @@ test_that("sg_vpop_est noise_level parameter affects duplicate removal", {
 
 
   # Both should complete without error
-  expect_true(is.data.frame(output1[[1]]$datagen))
-  expect_true(is.data.frame(output2[[1]]$datagen))
+  expect_true(is.data.frame(output1$datagen))
+  expect_true(is.data.frame(output2$datagen))
 })
 
+test_that("compare_cor_matrices returns expected structure and metrics", {
+  data_obs <- data.frame(
+    a = c(1, 2, 3, 4, 5),
+    b = c(2, 4, 5, 7, 9),
+    c = c(5, 4, 4, 2, 1)
+  )
+  data_syn <- data.frame(
+    a = c(1, 2, 3, 4, 5),
+    b = c(2, 3, 5, 8, 9),
+    c = c(4, 4, 3, 2, 1)
+  )
+  vars <- c("a", "b", "c")
+
+  res <- compare_cor_matrices(data_obs, data_syn, vars = vars, method = "pearson")
+
+  expect_type(res, "list")
+  expect_true(all(c("mean_abs_diff", "max_abs_diff", "R_obs", "R_syn", "R_diff") %in% names(res)))
+  expect_equal(dim(res$R_obs), c(3, 3))
+  expect_equal(dim(res$R_syn), c(3, 3))
+  expect_equal(res$R_diff, res$R_syn - res$R_obs)
+
+  idx <- upper.tri(res$R_obs, diag = FALSE)
+  expected_diff <- abs(res$R_obs[idx] - res$R_syn[idx])
+  expect_equal(res$mean_abs_diff, mean(expected_diff))
+  expect_equal(res$max_abs_diff, max(expected_diff))
+})
+
+test_that("create_optimal_visit_sequence handles edge cases and ordering", {
+  x <- data.frame(
+    c1 = c(1, 2, 3, 4, 5, 6),
+    c2 = c(1, 2, 2, 4, 5, 6),
+    c3 = c(6, 1, 5, 2, 4, 3),
+    cat1 = factor(c("A", "B", "A", "B", "A", "B"))
+  )
+
+  expect_warning(
+    create_optimal_visit_sequence(x, var_cont = character(0), var_cat = character(0)),
+    "No variables provided"
+  )
+
+  expect_equal(
+    create_optimal_visit_sequence(x, var_cont = character(0), var_cat = "cat1"),
+    "cat1"
+  )
+
+  expect_equal(
+    create_optimal_visit_sequence(x, var_cont = "c1", var_cat = "cat1"),
+    c("c1", "cat1")
+  )
+
+  seq_all <- create_optimal_visit_sequence(
+    x,
+    var_cont = c("c1", "c2", "c3"),
+    var_cat = "cat1"
+  )
+  expect_equal(tail(seq_all, 1), "cat1")
+  expect_equal(head(seq_all, 3), c("c2", "c1", "c3"))
+})
+
+test_that("remove_exact_duplicates reports and perturbs matching rows", {
+  data_orig <- data.frame(
+    x = c(0, 1, 2, 3, 4, 5),
+    y = c(10, 12, 14, 16, 18, 20),
+    cat1 = factor(c("A", "A", "B", "B", "C", "C"))
+  )
+  data_syn <- data.frame(
+    x = c(0, 1, 9),
+    y = c(10, 12, 99),
+    cat1 = factor(c("A", "A", "C"), levels = levels(data_orig$cat1))
+  )
+
+  res <- remove_exact_duplicates(
+    data_syn = data_syn,
+    data_orig = data_orig,
+    var_cont = c("x", "y"),
+    var_cat = "cat1",
+    noise_level = 0.2,
+    seed = 777
+  )
+
+  expect_true(is.data.frame(res$data_cleaned))
+  expect_equal(res$n_duplicates_removed, 2)
+  expect_equal(sort(res$duplicate_indices), c(1, 2))
+
+  common_cols <- intersect(names(res$data_cleaned), names(data_orig))
+  expect_equal(nrow(dplyr::semi_join(res$data_cleaned, data_orig, by = common_cols)), 0)
+
+
+
+  dup_idx <- res$duplicate_indices
+  expect_true(all(res$data_cleaned$x[dup_idx] >= min(data_orig$x) & res$data_cleaned$x[dup_idx] <= max(data_orig$x)))
+  expect_true(all(res$data_cleaned$y[dup_idx] >= min(data_orig$y) & res$data_cleaned$y[dup_idx] <= max(data_orig$y)))
+  expect_equal(levels(res$data_cleaned$cat1), levels(data_syn$cat1))
+})
+
+test_that("sg_vpop_est return shape differs by fixed-seed and search mode", {
+  set.seed(62)
+  test_data <- data.frame(
+    x1 = rnorm(200, mean = 10, sd = 2),
+    x2 = rnorm(200, mean = 20, sd = 3)
+  )
+
+  fixed_output <- sg_vpop_est(
+    data_i = test_data,
+    seed = 321,
+    diag_plots = FALSE,
+    remove_duplicates = TRUE
+  )
+  expect_true(is.data.frame(fixed_output$datagen))
+  expect_false(is.list(fixed_output[[1]]) && "datagen" %in% names(fixed_output[[1]]))
+
+  search_output <- sg_vpop_est(
+    data_i = test_data,
+    seed = NA,
+    nds = 2,
+    tg_corrdif = 0.2,
+    diag_plots = FALSE,
+    remove_duplicates = TRUE
+  )
+  expect_length(search_output, 2)
+  expect_true(all(vapply(search_output, function(x) is.list(x) && is.data.frame(x$datagen), logical(1))))
+})
+
+test_that("sg_vpop_est enforces tg_corrdif when search seed is found", {
+  set.seed(63)
+  test_data <- data.frame(
+    x1 = rnorm(200, mean = 10, sd = 2),
+    x2 = rnorm(200, mean = 20, sd = 3),
+    x3 = rnorm(200, mean = 5, sd = 1)
+  )
+
+  output <- sg_vpop_est(
+    data_i = test_data,
+    seed = NA,
+    nds = 2,
+    tg_corrdif = 0.1,
+    diag_plots = FALSE,
+    remove_duplicates = TRUE
+  )
+
+  for (i in seq_along(output)) {
+    if (!is.na(output[[i]]$seed)) {
+      expect_lte(output[[i]]$corr_diff_max, 0.1)
+    }
+  }
+})
+
+test_that("sg_vpop_est warns for missing id_col and excl_col values", {
+  set.seed(64)
+  test_data <- data.frame(
+    x1 = rnorm(150, mean = 10, sd = 2),
+    x2 = rnorm(150, mean = 20, sd = 3)
+  )
+
+  expect_warning(
+    sg_vpop_est(
+      data_i = test_data,
+      id_col = "missing_id",
+      diag_plots = FALSE,
+      seed = 123,
+      remove_duplicates = TRUE
+    ),
+    "id_col"
+  )
+
+  expect_warning(
+    sg_vpop_est(
+      data_i = test_data,
+      excl_col = c("missing_excluded"),
+      diag_plots = FALSE,
+      seed = 123,
+      remove_duplicates = TRUE
+    ),
+    "excl_col"
+  )
+})
+
+test_that("sg_vpop_est handles integer columns without casting failures", {
+  set.seed(67)
+  test_data <- data.frame(
+    x_int = sample(1:8, 200, replace = TRUE),
+    x_num = rnorm(200, mean = 30, sd = 5)
+  )
+
+  output <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = FALSE,
+    remove_duplicates = TRUE
+  )
+
+  expect_true(is.data.frame(output$datagen))
+  expect_true(all(c("x_int", "x_num") %in% names(output$datagen)))
+  expect_true(is.numeric(output$datagen$x_int))
+})
+
+test_that("sg_vpop_est categorical-only with diag_plots TRUE returns only categorical plots", {
+  set.seed(69)
+  test_data <- data.frame(
+    cat1 = factor(sample(c("A", "B", "C"), 220, replace = TRUE)),
+    cat2 = factor(sample(c("X", "Y"), 220, replace = TRUE))
+  )
+
+  output <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = 42,
+    remove_duplicates = TRUE
+  )
+
+  expect_null(output$dplot_cont)
+  expect_true(is.list(output$dplot_cat))
+  expect_null(output$dplot_corr_diff)
+  expect_true(inherits(output$dplot_umap, "ggplot"))
+})
+
+test_that("remove_exact_duplicates noise_level increases perturbation magnitude", {
+  data_orig <- data.frame(
+    x = seq(1, 30, by = 1),
+    y = seq(50, 79, by = 1),
+    cat1 = factor(rep(c("A", "B", "C"), length.out = 30))
+  )
+  data_syn <- data.frame(
+    x = c(5, 6, 7, 400),
+    y = c(54, 55, 56, 900),
+    cat1 = factor(c("B", "C", "A", "C"), levels = levels(data_orig$cat1))
+  )
+
+  low_noise <- remove_exact_duplicates(
+    data_syn = data_syn,
+    data_orig = data_orig,
+    var_cont = c("x", "y"),
+    var_cat = "cat1",
+    noise_level = 0.01,
+    seed = 123
+  )
+
+  high_noise <- remove_exact_duplicates(
+    data_syn = data_syn,
+    data_orig = data_orig,
+    var_cont = c("x", "y"),
+    var_cat = "cat1",
+    noise_level = 0.50,
+    seed = 123
+  )
+
+  dupl_idx <- low_noise$duplicate_indices
+  low_shift <- mean(abs(low_noise$data_cleaned$x[dupl_idx] - data_syn$x[dupl_idx]))
+  high_shift <- mean(abs(high_noise$data_cleaned$x[dupl_idx] - data_syn$x[dupl_idx]))
+
+  expect_gt(high_shift, low_shift)
+})
+
+test_that("sg_vpop_est handles dataset with only one column", {
+  set.seed(70)
+  test_data <- data.frame(
+    x = rnorm(200, mean = 10, sd = 2)
+  )
+
+  expect_error(sg_vpop_est(data_i = test_data, seed = 123, diag_plots = FALSE, remove_duplicates = TRUE), "The dataset has only one column. Please add more columns to the dataset.")
+})
+
+test_that("sg_vpop_est drops all-NA columns before row-wise NA filtering", {
+  #skip_if(T)
+  set.seed(520)
+  test_data <- data.frame(
+    x1 = rnorm(200, mean = 10, sd = 2),
+    x2 = rep(NA_real_, 200)
+  )
+
+  expect_error(
+    sg_vpop_est(data_i = test_data, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE),
+    "The dataset has only one column. Please add more columns to the dataset."
+  )
+})
+
+test_that("sg_vpop_est treats seed_umap NULL and NA as deterministic default 42", {
+  set.seed(501)
+  test_data <- data.frame(
+    x1 = rnorm(220, mean = 10, sd = 2),
+    x2 = rnorm(220, mean = 20, sd = 3)
+  )
+
+  output_default <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = 42,
+    remove_duplicates = TRUE
+  )
+
+  output_null <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = NULL,
+    remove_duplicates = TRUE
+  )
+
+  output_na <- sg_vpop_est(
+    data_i = test_data,
+    seed = 123,
+    diag_plots = TRUE,
+    seed_umap = NA,
+    remove_duplicates = TRUE
+  )
+
+  default_umap_data <- ggplot_build(output_default$dplot_umap)$data
+  null_umap_data <- ggplot_build(output_null$dplot_umap)$data
+  na_umap_data <- ggplot_build(output_na$dplot_umap)$data
+
+  expect_equal(null_umap_data, default_umap_data)
+  expect_equal(na_umap_data, default_umap_data)
+})
