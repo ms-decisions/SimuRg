@@ -736,5 +736,66 @@ test_that("stepwise stops with clear error when mock fit fails", {
 # ------------------------------
 # Guarded fitter integration tests
 # ------------------------------
+test_that("stepwise_covariate_selection runs with Monolix fitter when available", {
+  monolix_path <-"C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
+  skip_if(
+    is.na(monolix_path),
+    "Monolix executable not available on this machine."
+  )
+  #skip_if_not(exists("sg_fit", mode = "function"), "sg_fit() is not available in this session.")
+  #skip_if_not(exists("sg_converter", mode = "function"), "sg_converter() is not available in this session.")
+
+
+  fit_dir <- file.path( "workdir-amel", "projects", "warfarin-pk", "test-sg-covsearch")
+
+  skip_if_not(dir.exists(fit_dir), "fitted_project fixtures are not available.")
+
+  gco_path <- file.path(fit_dir, "wrfrn_pk_bm_ver2_GCO.json")
+  gfo_path <- file.path(fit_dir, "wrfrn_pk_bm_ver2_GFO.json")
+  #model_path <- file.path(fit_dir, "model-pk-1c.txt")
+  #data_path <- file.path(fit_dir, "ds-warfarin-pk.csv")
+  skip_if_not(file.exists(gco_path), "GCO fixture not present.")
+  skip_if_not(file.exists(gfo_path), "GFO fixture not present.")
+  #skip_if_not(file.exists(model_path), "Model fixture not present.")
+  #skip_if_not(file.exists(data_path), "Data fixture not present.")
+
+  #gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+  #gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+
+  out_dir <- tempfile("covsearch-monolix-integration-")
+  dir.create(out_dir, recursive = TRUE)
+  on.exit(unlink(out_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+  test_pairs <- data.frame(
+    parameter = c("CL"),
+    covariate = c("CYP2C9"),
+    type = "cont",
+    reference = NA_character_,
+    center = "median",
+    stringsAsFactors = FALSE
+  )
+
+  res <- stepwise_covariate_selection(
+    gco = gco_path,
+    gfo = gfo_path,
+    #model = model_path,
+    #data = data_path,
+    output_dir = out_dir,
+    covariates = c("CYP2C9") ,
+    parameters = c("CL"),
+    test_pairs = test_pairs,
+    run_backward = FALSE,
+    path_to_fitter = monolix_path
+  )
+
+  expect_true(nrow(res$forward$history) >= 1)
+  expect_true(any(grepl("^wrfrn_pk_bm_ver2_fw_model_[0-9]{3}$", res$forward$history$project_name)))
+  expect_true(all(is.finite(res$forward$history$candidate_ofv)))
+  expect_true(.forward_history_files_exist(out_dir))
+
+  project_name <- res$forward$history$project_name[[1]]
+  expect_true(file.exists(file.path(out_dir, paste0(project_name, ".mlxtran"))))
+  expect_true(dir.exists(file.path(out_dir, project_name)))
+})
 
 
