@@ -149,7 +149,7 @@ gco_to_theta_tibble <- function(gco, gfo, update_theta_init = FALSE) {
 
   # if (!isTRUE(update_theta_init)) {
   #   return(theta_tb)
-  # } 
+  # }
 
   # sumtab <- .covsearch_sumtab_df(gfo)
   # if (is.null(sumtab)) {
@@ -353,7 +353,8 @@ remove_covariate <- function(covs_list, param, cov) {
 #' - computes candidate-specific degrees of freedom
 #'
 #' @param gfo [GFO] containing at least `COTAB` and `CATAB`.
-#' @param gco [GCO] containing at least `headers` and `theta`.
+#' @param gco [GCO] object (list) or path to a GCO `.json`/`.RData`, containing
+#'   at least `headers` and `theta`.
 #' @param output_dir Path where fit projects are written.
 #' @param covariates Optional character vector of covariate names to consider.
 #' @param parameters Optional character vector of parameter names to consider.
@@ -416,24 +417,68 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       p_backward <= 0 || p_backward >= 1) {
     stop("stepwise_covariate_selection: p_backward must be numeric in (0,1).")
   }
-  
 
+  gco_dir <- NULL
+  if (is.character(gco)) {
+    if (length(gco) != 1 || !nzchar(gco)) {
+      stop("stepwise_covariate_selection: gco path must be a non-empty string.")
+    }
+    if (!file.exists(gco)) {
+      stop("stepwise_covariate_selection: gco file does not exist: ", gco)
+    }
+    gco_path <- normalizePath(gco, winslash = "/", mustWork = TRUE)
+    gco_dir <- dirname(gco_path)
+    #gco <- read_smrg_ctrl(gco_path)
+    gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+  } else if (!is.list(gco)) {
+    stop("stepwise_covariate_selection: gco must be a list or path to a GCO file.")
+  }
 
+  .is_abs_path <- function(x) {
+    grepl("^(?:[A-Za-z]:[/\\\\]|/|\\\\\\\\)", x)
+  }
 
+  .resolve_gco_ref_path <- function(x, field_name) {
+    if (is.null(x) || !is.character(x) || length(x) != 1 || !nzchar(x)) {
+      stop("stepwise_covariate_selection: gco$", field_name, " must be a non-empty string.")
+    }
+    if (!is.null(gco_dir) && !.is_abs_path(x)) {
+      x <- file.path(gco_dir, x)
+    }
+    normalizePath(x, winslash = "/", mustWork = TRUE)
+  }
+
+  if (is.character(gfo)) {
+    if (length(gfo) != 1 || !nzchar(gfo)) {
+      stop("stepwise_covariate_selection: gfo path must be a non-empty string.")
+    }
+    if (!file.exists(gfo)) {
+      stop("stepwise_covariate_selection: gfo file does not exist: ", gfo)
+    }
+    gfo_path <- normalizePath(gfo, winslash = "/", mustWork = TRUE)
+    gfo_dir <- dirname(gfo_path)
+    #gfo <- read_smrg_ctrl(gfo_path)
+    gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+  } else if (!is.list(gfo)) {
+    stop("stepwise_covariate_selection: gfo must be a list or path to a GFO file.")
+  }
 
   headers_df <- .as_covsearch_df(gco$headers, "gco$headers")
   theta_df <- .as_covsearch_df(gco$theta, "gco$theta")
   cotab_df <- .as_covsearch_df(gfo$COTAB, "gfo$COTAB")
   catab_df <- .as_covsearch_df(gfo$CATAB, "gfo$CATAB")
   #Temporary solution until sg-converter not fixed
-  if ((is.na(gco$ruv$INIT))|(gco$ruv$INIT=="NA")) {gco$ruv$INIT=1}
-  gco$ruv$DVID <- as.numeric(gco$ruv$DVID)
+  #if ((is.na(gco$ruv$INIT))|(gco$ruv$INIT=="NA")) {gco$ruv$INIT=1}
+  #gco$ruv$DVID <- as.numeric(gco$ruv$DVID)
   #Temporary solution until the question with gco$model and gco$data would be checked
-  if (!is.null(model)){gco$model <- model}
-  if (!is.null(data)){gco$data <- data}
+  # if (!is.null(model)){gco$model <- model}
+  # if (!is.null(data)){gco$data <- data}
   
-  
-  
+  if (is.null(model)){model <- .resolve_gco_ref_path(gco$model, "model")}
+  if (is.null(data)){data <- .resolve_gco_ref_path(gco$data, "data")}
+
+
+
   if (!all(c("name", "use", "type") %in% names(headers_df))) {
     stop("stepwise_covariate_selection: gco$headers must contain name/use/type.")
   }
@@ -624,8 +669,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     accepted = logical(0),
     decision = character(0),
     project_name = character(0),
-    model_name = character(0),
-    candidate_name = character(0),
+    #model_name = character(0),
+    #candidate_name = character(0),
     status = character(0),
     message = character(0),
     stringsAsFactors = FALSE
@@ -655,8 +700,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     removed = logical(0),
     decision = character(0),
     project_name = character(0),
-    model_name = character(0),
-    candidate_name = character(0),
+    #model_name = character(0),
+    #candidate_name = character(0),
     status = character(0),
     message = character(0),
     stringsAsFactors = FALSE
@@ -690,6 +735,10 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
     forward_selected <- included
     final_covariates <- forward_selected
     final_gco <- gco
+    fh_csv <- file.path(output_dir, "forward_history.csv")
+    bh_csv <- file.path(output_dir, "backward_history.csv")
+    utils::write.csv(as.data.frame(forward_history), fh_csv, row.names = FALSE, na = "")
+    utils::write.csv(as.data.frame(backward_history), bh_csv, row.names = FALSE, na = "")
     return(list(
       final_gco = final_gco,
       final_covariates = final_covariates,
@@ -738,7 +787,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       cand <- remaining[i, , drop = FALSE]
       is_cont <- identical(cand$type[[1]], "cont")
       cov_type <- if (is_cont) "continuous" else "categorical"
-      model_name <- paste0(base_project_name, "_fw_model_", sprintf("%03d", fw_checked_idx))
+      proj_name <- paste0(base_project_name, "_fw_model_", sprintf("%03d", fw_checked_idx))
       candidate_covs <- add_covariate(
         covs_list = current_covs,
         param = cand$parameter[[1]],
@@ -747,7 +796,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         cov_ref = cand$cov_ref[[1]]
       )
 
-      proj_name <- model_name
+      #proj_name <- model_name
 
       task_opt_fast_fit <- paste(
   "populationParameters()",
@@ -758,7 +807,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
   sep = "\n"
 )
 
-      
+
       fit_args <- list(
         model =  model, #gco$model,
         data = data, #gco$data,
@@ -814,8 +863,7 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
         accepted = FALSE,
         decision = "rejected",
         project_name = proj_name,
-        model_name = model_name,
-        candidate_name = proj_name,
+        #model_name = model_name,
         status = "ok",
         message = "",
         stringsAsFactors = FALSE
@@ -843,12 +891,14 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       break
     }
 
-    accepted_project <- step_df$candidate_name[
+    accepted_project <- step_df$project_name[
       step_df$parameter == remaining$parameter[[best_idx]] &
         step_df$covariate == remaining$covariate[[best_idx]] &
         step_df$status == "ok"
-    ][1]
-    if (is.na(accepted_project) || !nzchar(accepted_project)) {
+    ]
+    accepted_project <- as.character(accepted_project)
+    accepted_project <- accepted_project[!is.na(accepted_project) & nzchar(accepted_project)]
+    if (length(accepted_project) == 0) {
       accepted_project <- paste0(base_project_name, "_fw_model_", sprintf("%03d", fw_checked_idx))
     }
 
@@ -913,8 +963,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       for (i in seq_len(nrow(retained))) {
         bw_checked_idx <- bw_checked_idx + 1L
         term <- retained[i, , drop = FALSE]
-        model_name <- paste0(base_project_name, "_bw_model_", sprintf("%03d", bw_checked_idx))
-        proj_name <- model_name
+        proj_name <- paste0(base_project_name, "_bw_model_", sprintf("%03d", bw_checked_idx))
+        #proj_name <- model_name
         candidate_covs <- remove_covariate(
           covs_list = current_covs,
           param = term$parameter[[1]],
@@ -975,8 +1025,8 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
           removed = FALSE,
           decision = if (is_removable) "candidate_remove" else "retain",
           project_name = proj_name,
-          model_name = model_name,
-          candidate_name = proj_name,
+          #model_name = model_name,
+          #candidate_name = proj_name,
           status = "ok",
           message = "",
           stringsAsFactors = FALSE
@@ -1004,13 +1054,17 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
       }
 
       removed_term <- retained[removable_term_idx, , drop = FALSE]
-      removed_project <- step_df$candidate_name[
+      removed_project <- step_df$project_name[
         step_df$parameter == retained$parameter[[removable_term_idx]] &
           step_df$covariate == retained$covariate[[removable_term_idx]] &
           step_df$status == "ok"
-      ][1]
-      if (is.na(removed_project) || !nzchar(removed_project)) {
+      ]
+      removed_project <- as.character(removed_project)
+      removed_project <- removed_project[!is.na(removed_project) & nzchar(removed_project)]
+      if (length(removed_project) == 0) {
         removed_project <- paste0(base_project_name, "_bw_model_", sprintf("%03d", bw_checked_idx))
+      } else {
+        removed_project <- removed_project[[1]]
       }
       removed_thr <- stats::qchisq(1 - p_backward, df = as.numeric(removed_term$df[[1]]))
       backward_removed <- rbind(
@@ -1054,6 +1108,10 @@ stepwise_covariate_selection <- function(gfo, gco, output_dir = tempdir(),
   final_gco <- gco
   final_gco$covs <- final_covs
   final_gco$theta <- current_theta
+  fh_csv <- file.path(output_dir, "forward_history.csv")
+  bh_csv <- file.path(output_dir, "backward_history.csv")
+  utils::write.csv(as.data.frame(forward_history), fh_csv, row.names = FALSE, na = "")
+  utils::write.csv(as.data.frame(backward_history), bh_csv, row.names = FALSE, na = "")
 
   list(
     final_gco = final_gco,

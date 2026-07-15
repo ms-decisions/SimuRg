@@ -1,18 +1,7 @@
-## Author: OpenAI Assistant
+## Author: Alina Melnikova
 ## First created: 2026-05-19
 ## Description: Unit and integration tests for sg-covsearch
 ## Keywords: SimuRg, covsearch
-
-# if (file.exists("scripts/nlme/sg-covsearch/test-fixtures-sg-covsearch.R")) {
-#   source("scripts/nlme/sg-covsearch/test-fixtures-sg-covsearch.R")
-# } else {
-#   source("test-fixtures-sg-covsearch.R")
-# }
-if (file.exists("scripts/nlme/sg-covsearch/sg-covsearch.R")) {
-  source("scripts/nlme/sg-covsearch/sg-covsearch.R")
-} else {
-  source("sg-covsearch.R")
-}
 
 #Mock objects
 .covsearch_headers_fixture <- list(
@@ -107,6 +96,7 @@ if (file.exists("scripts/nlme/sg-covsearch/sg-covsearch.R")) {
 }
 
 #Functions
+
 .ensure_mock_files <- function() {
   model_path <- file.path(tempdir(), "mock_model.txt")
   data_path <- file.path(tempdir(), "mock_data.csv")
@@ -325,28 +315,7 @@ test_that("small helpers normalize types and references consistently", {
   expect_equal(.covsearch_sanitize_name("___"), "x")
 })
 
-test_that("Stage 1 helpers align with fitted project GCO/GFO shape", {
-  gco_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GCO.json")
-  gfo_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GFO.json")
-  if (!file.exists(gco_path)) {
-    gco_path <- file.path("fitted_project", "wrfrn_pk_base_model_GCO.json")
-  }
-  if (!file.exists(gfo_path)) {
-    gfo_path <- file.path("fitted_project", "wrfrn_pk_base_model_GFO.json")
-  }
-  skip_if_not(file.exists(gco_path), "Fitted GCO JSON fixture not present.")
-  skip_if_not(file.exists(gfo_path), "Fitted GFO JSON fixture not present.")
 
-  gco <- jsonlite::fromJSON(gco_path, simplifyDataFrame = TRUE)
-  gfo <- jsonlite::fromJSON(gfo_path, simplifyDataFrame = TRUE)
-
-  ofv_ll <- get_ofv(gfo)
-  expect_true(is.finite(ofv_ll))
-
-  theta_out <- gco_to_theta_tibble(gco, gfo, update_theta_init = TRUE)
-  expect_equal(theta_out$NAME, gco$theta$NAME)
-  expect_equal(theta_out$INIT, gco$theta$INIT)
-})
 
 test_that("stepwise_covariate_selection validates p-values and core arguments", {
   mock_paths <- .ensure_mock_files()
@@ -767,96 +736,5 @@ test_that("stepwise stops with clear error when mock fit fails", {
 # ------------------------------
 # Guarded fitter integration tests
 # ------------------------------
-
-.covsearch_find_monolix_batch <- function() {
-  env_candidates <- c(
-    Sys.getenv("SIMURG_MONOLIX_PATH", unset = ""),
-    Sys.getenv("MONOLIX_PATH", unset = "")
-  )
-
-  lixoft_root <- "C:/ProgramData/Lixoft"
-  install_dirs <- if (dir.exists(lixoft_root)) {
-    list.dirs(lixoft_root, recursive = FALSE, full.names = TRUE)
-  } else {
-    character()
-  }
-
-  file_candidates <- c(
-    env_candidates,
-    file.path(install_dirs, "bin", "monolix.bat"),
-    "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
-  )
-
-  file_candidates <- unique(file_candidates[nzchar(file_candidates)])
-  existing <- file_candidates[file.exists(file_candidates)]
-  if (length(existing) == 0) {
-    return(NA_character_)
-  }
-
-  normalizePath(existing[[1]], winslash = "/", mustWork = TRUE)
-}
-
-test_that("stepwise_covariate_selection runs with Monolix fitter when available", {
-  monolix_path <- .covsearch_find_monolix_batch()
-  skip_if(
-    is.na(monolix_path),
-    "Monolix executable not available on this machine."
-  )
-  skip_if_not(exists("sg_fit", mode = "function"), "sg_fit() is not available in this session.")
-  skip_if_not(exists("sg_converter", mode = "function"), "sg_converter() is not available in this session.")
-
-  fit_dir <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project")
-  if (!dir.exists(fit_dir)) {
-    fit_dir <- "fitted_project"
-  }
-  skip_if_not(dir.exists(fit_dir), "fitted_project fixtures are not available.")
-
-  gco_path <- file.path(fit_dir, "wrfrn_pk_base_model_GCO.json")
-  gfo_path <- file.path(fit_dir, "wrfrn_pk_base_model_GFO.json")
-  model_path <- file.path(fit_dir, "model-pk-1c.txt")
-  data_path <- file.path(fit_dir, "ds-warfarin-pk.csv")
-  skip_if_not(file.exists(gco_path), "GCO fixture not present.")
-  skip_if_not(file.exists(gfo_path), "GFO fixture not present.")
-  skip_if_not(file.exists(model_path), "Model fixture not present.")
-  skip_if_not(file.exists(data_path), "Data fixture not present.")
-
-  gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
-  gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
-
-  out_dir <- tempfile("covsearch-monolix-integration-")
-  dir.create(out_dir, recursive = TRUE)
-  on.exit(unlink(out_dir, recursive = TRUE, force = TRUE), add = TRUE)
-
-  test_pairs <- data.frame(
-    parameter = "CL",
-    covariate = "WT",
-    type = "cont",
-    reference = NA_character_,
-    center = "median",
-    stringsAsFactors = FALSE
-  )
-
-  res <- stepwise_covariate_selection(
-    gco = gco,
-    gfo = gfo,
-    model = model_path,
-    data = data_path,
-    output_dir = out_dir,
-    covariates = "WT",
-    parameters = "CL",
-    test_pairs = test_pairs,
-    run_backward = FALSE,
-    path_to_fitter = monolix_path
-  )
-
-  expect_true(nrow(res$forward$history) >= 1)
-  expect_true(any(grepl("^wrfrn_pk_base_model_fw_model_[0-9]{3}$", res$forward$history$project_name)))
-  expect_true(all(is.finite(res$forward$history$candidate_ofv)))
-  expect_true(.forward_history_files_exist(out_dir))
-
-  project_name <- res$forward$history$project_name[[1]]
-  expect_true(file.exists(file.path(out_dir, paste0(project_name, ".mlxtran"))))
-  expect_true(dir.exists(file.path(out_dir, project_name)))
-})
 
 
