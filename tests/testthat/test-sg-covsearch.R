@@ -317,45 +317,50 @@ test_that("small helpers normalize types and references consistently", {
 
 
 
-test_that("stepwise_covariate_selection validates p-values and core arguments", {
+test_that("sg_covsearch validates p-values and core arguments", {
   mock_paths <- .ensure_mock_files()
-  gco <- list(headers = .covsearch_headers_fixture, theta = .covsearch_theta_fixture)
+  gco <- list(
+    model = mock_paths$model,
+    data = mock_paths$data,
+    headers = .covsearch_headers_fixture,
+    theta = .covsearch_theta_fixture
+  )
   gfo <- list(
     OFV = data.frame(LL = -100),
     COTAB = .covsearch_cotab_fixture,
     CATAB = .covsearch_catab_fixture
   )
+  fit_stub <- function(...) stop("fit should not run")
 
-  prep <- stepwise_covariate_selection(
+  prep <- sg_covsearch(
     gco = gco,
     gfo = gfo,
-    model = mock_paths$model,
-    data = mock_paths$data
+    fit_function = fit_stub
   )
   expect_equal(prep$settings$p_forward, 0.05)
   expect_equal(prep$settings$p_backward, 0.01)
   expect_false(prep$metadata$forward_ran)
 
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, p_forward = 1
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, fit_function = fit_stub, p_forward = 1
   ), regexp = "p_forward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, p_backward = 0
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, fit_function = fit_stub, p_backward = 0
   ), regexp = "p_backward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, run_backward = NA
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, fit_function = fit_stub, run_backward = NA
   ), regexp = "run_backward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, update_theta_init = NA
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, fit_function = fit_stub, update_theta_init = NA
   ), regexp = "update_theta_init")
 })
 
-test_that("stepwise_covariate_selection validates covariates, parameters, and test_pairs", {
+test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   gco <- .stage2_gco_fixture()
   gfo <- .stage2_gfo_fixture(ll = -100)
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, covariates = c("WT", "HEIGHT"),
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
@@ -363,7 +368,7 @@ test_that("stepwise_covariate_selection validates covariates, parameters, and te
   )
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, parameters = c("CL", "Q"),
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
@@ -371,7 +376,7 @@ test_that("stepwise_covariate_selection validates covariates, parameters, and te
   )
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, test_pairs = data.frame(parameter = "CL"),
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
@@ -383,7 +388,7 @@ test_that("stepwise_covariate_selection validates covariates, parameters, and te
   bad_gco <- gco
   bad_gco$headers <- bad_headers
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = bad_gco, gfo = gfo, run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unsupported covariate type"
@@ -403,7 +408,7 @@ test_that("Stage 2 generates full candidate cross-product when test_pairs is NUL
   )
 
   out_dir <- file.path(tempdir(), paste0("covsearch_stage2_cross_", as.integer(stats::runif(1, 1, 1e9))))
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = out_dir,
@@ -433,7 +438,7 @@ test_that("Stage 2 test_pairs restricts candidates and drops invalid rows with w
   )
 
   expect_warning(
-    res <- stepwise_covariate_selection(
+    res <- sg_covsearch(
       gco = gco,
       gfo = gfo,
       covariates = c("WT", "AGE", "SEX"),
@@ -474,7 +479,7 @@ test_that("Stage 2 categorical reference applies precedence and tie-break rules"
     base_model_fw_model_003 = -130
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
     covariates = c("SEX", "RACE"),
@@ -508,7 +513,7 @@ test_that("Stage 2 df uses continuous=1 and categorical k-1 excluding NA", {
     base_model_fw_model_003 = -99
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
     covariates = c("WT", "SEX", "RACE"),
@@ -535,7 +540,7 @@ test_that("Stage 3 mocked-fit selects best significant candidate each step", {
     base_model_fw_model_003 = 85
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -561,7 +566,7 @@ test_that("Stage 3 stops when no candidate passes qchisq threshold", {
     base_model_fw_model_002 = 99.2
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -585,7 +590,7 @@ test_that("Stage 3 history stores threshold, df, and decision", {
     base_model_fw_model_003 = 94
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -611,7 +616,7 @@ test_that("Stage 3 update_theta_init currently does not change theta INIT", {
     base_model_fw_model_001 = data.frame(PAR = "CL_pop", VALUE = 5, stringsAsFactors = FALSE)
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     covariates = c("WT"),
@@ -638,7 +643,7 @@ test_that("Stage 4 removes least important removable term first", {
     base_model_bw_model_003 = 97
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -667,7 +672,7 @@ test_that("Stage 4 stops without removals when retained terms are significant", 
     base_model_bw_model_002 = 92
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -692,7 +697,7 @@ test_that("Stage 4 skips backward loop cleanly when forward selected set is empt
     base_model_fw_model_002 = 99.2
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -717,7 +722,7 @@ test_that("stepwise stops with clear error when mock fit fails", {
     base_model_fw_model_001 = 95
   )
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gfo = gfo,
       gco = gco,
       covariates = c("WT"),
@@ -736,7 +741,7 @@ test_that("stepwise stops with clear error when mock fit fails", {
 # ------------------------------
 # Guarded fitter integration tests
 # ------------------------------
-test_that("stepwise_covariate_selection runs with Monolix fitter when available", {
+test_that("sg_covsearch runs with Monolix fitter when available", {
   monolix_path <-"C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
   skip_if(
     is.na(monolix_path),
@@ -775,7 +780,7 @@ test_that("stepwise_covariate_selection runs with Monolix fitter when available"
     stringsAsFactors = FALSE
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gco = gco_path,
     gfo = gfo_path,
     #model = model_path,

@@ -350,34 +350,39 @@ test_that("Stage 1 helpers align with fitted project GCO/GFO shape", {
 
 test_that("stepwise_covariate_selection validates p-values and core arguments", {
   mock_paths <- .ensure_mock_files()
-  gco <- list(headers = .covsearch_headers_fixture, theta = .covsearch_theta_fixture)
+  gco <- list(
+    model = mock_paths$model,
+    data = mock_paths$data,
+    headers = .covsearch_headers_fixture,
+    theta = .covsearch_theta_fixture
+  )
   gfo <- list(
     OFV = data.frame(LL = -100),
     COTAB = .covsearch_cotab_fixture,
     CATAB = .covsearch_catab_fixture
   )
+  fit_stub <- function(...) stop("fit should not run")
 
   prep <- stepwise_covariate_selection(
     gco = gco,
     gfo = gfo,
-    model = mock_paths$model,
-    data = mock_paths$data
+    fit_function = fit_stub
   )
   expect_equal(prep$settings$p_forward, 0.05)
   expect_equal(prep$settings$p_backward, 0.01)
   expect_false(prep$metadata$forward_ran)
 
   expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, p_forward = 1
+    gco = gco, gfo = gfo, fit_function = fit_stub, p_forward = 1
   ), regexp = "p_forward")
   expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, p_backward = 0
+    gco = gco, gfo = gfo, fit_function = fit_stub, p_backward = 0
   ), regexp = "p_backward")
   expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, run_backward = NA
+    gco = gco, gfo = gfo, fit_function = fit_stub, run_backward = NA
   ), regexp = "run_backward")
   expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, model = mock_paths$model, data = mock_paths$data, update_theta_init = NA
+    gco = gco, gfo = gfo, fit_function = fit_stub, update_theta_init = NA
   ), regexp = "update_theta_init")
 })
 
