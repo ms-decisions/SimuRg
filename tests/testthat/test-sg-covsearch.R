@@ -175,6 +175,7 @@
     file.exists(file.path(out_dir, "backward_history.csv"))
 }
 
+
 test_that("get_ofv returns LL and errors clearly when LL is missing", {
   gfo_ok <- list(OFV = data.frame(LL = -123.45))
   expect_equal(get_ofv(gfo_ok), -123.45, tolerance = 1e-10)
@@ -331,37 +332,45 @@ test_that("sg_covsearch validates p-values and core arguments", {
     CATAB = .covsearch_catab_fixture
   )
   fit_stub <- function(...) stop("fit should not run")
+  out_dir <- tempdir()
 
   prep <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = out_dir,
     fit_function = fit_stub
   )
   expect_equal(prep$settings$p_forward, 0.05)
   expect_equal(prep$settings$p_backward, 0.01)
   expect_false(prep$metadata$forward_ran)
+  expect_error(
+    sg_covsearch(gco = gco, gfo = gfo, fit_function = fit_stub),
+    regexp = "output_dir must be provided when gco is a list"
+  )
 
   expect_error(sg_covsearch(
-    gco = gco, gfo = gfo, fit_function = fit_stub, p_forward = 1
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, p_forward = 1
   ), regexp = "p_forward")
   expect_error(sg_covsearch(
-    gco = gco, gfo = gfo, fit_function = fit_stub, p_backward = 0
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, p_backward = 0
   ), regexp = "p_backward")
   expect_error(sg_covsearch(
-    gco = gco, gfo = gfo, fit_function = fit_stub, run_backward = NA
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, run_backward = NA
   ), regexp = "run_backward")
   expect_error(sg_covsearch(
-    gco = gco, gfo = gfo, fit_function = fit_stub, update_theta_init = NA
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, update_theta_init = NA
   ), regexp = "update_theta_init")
 })
 
 test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   gco <- .stage2_gco_fixture()
   gfo <- .stage2_gfo_fixture(ll = -100)
+  out_dir <- tempdir()
 
   expect_error(
     sg_covsearch(
       gco = gco, gfo = gfo, covariates = c("WT", "HEIGHT"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unknown covariates"
@@ -370,6 +379,7 @@ test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   expect_error(
     sg_covsearch(
       gco = gco, gfo = gfo, parameters = c("CL", "Q"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unknown parameters"
@@ -378,6 +388,7 @@ test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   expect_error(
     sg_covsearch(
       gco = gco, gfo = gfo, test_pairs = data.frame(parameter = "CL"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "missing required columns"
@@ -389,7 +400,7 @@ test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   bad_gco$headers <- bad_headers
   expect_error(
     sg_covsearch(
-      gco = bad_gco, gfo = gfo, run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
+      gco = bad_gco, gfo = gfo, output_dir = out_dir, run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unsupported covariate type"
   )
@@ -441,6 +452,7 @@ test_that("Stage 2 test_pairs restricts candidates and drops invalid rows with w
     res <- sg_covsearch(
       gco = gco,
       gfo = gfo,
+      output_dir = tempdir(),
       covariates = c("WT", "AGE", "SEX"),
       parameters = c("CL", "V"),
       test_pairs = .covsearch_test_pairs_fixture,
@@ -482,6 +494,7 @@ test_that("Stage 2 categorical reference applies precedence and tie-break rules"
   res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = tempdir(),
     covariates = c("SEX", "RACE"),
     parameters = c("CL", "V"),
     test_pairs = tp,
@@ -516,6 +529,7 @@ test_that("Stage 2 df uses continuous=1 and categorical k-1 excluding NA", {
   res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = tempdir(),
     covariates = c("WT", "SEX", "RACE"),
     parameters = c("CL"),
     run_backward = FALSE,
@@ -619,6 +633,7 @@ test_that("Stage 3 update_theta_init currently does not change theta INIT", {
   res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
+    output_dir = tempdir(),
     covariates = c("WT"),
     parameters = c("CL"),
     p_forward = 0.05,
@@ -725,6 +740,7 @@ test_that("stepwise stops with clear error when mock fit fails", {
     sg_covsearch(
       gfo = gfo,
       gco = gco,
+      output_dir = tempdir(),
       covariates = c("WT"),
       parameters = c("CL"),
       p_forward = 0.05,

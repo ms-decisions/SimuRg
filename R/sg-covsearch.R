@@ -398,8 +398,8 @@ remove_covariate <- function(covs_list, param, cov) {
 #'
 #' @return A list with `final_gco`, `final_covariates`, forward/backward
 #'   summaries, runtime `settings`, and execution `metadata`.
-#sg_covsearch
-sg_covsearch<- function(gfo, gco, output_dir = tempdir(),
+
+sg_covsearch<- function(gfo, gco, output_dir = NULL,
                                          covariates = NULL,
                                          parameters = NULL,
                                          test_pairs = NULL,
@@ -410,11 +410,7 @@ sg_covsearch<- function(gfo, gco, output_dir = tempdir(),
                                          run_backward = TRUE,
                                          update_theta_init_backward = FALSE,
                                          path_to_fitter = NULL) {
-  if (!is.character(output_dir) || length(output_dir) != 1 || !nzchar(output_dir)) {
-    stop("sg_covsearch: output_dir must be a non-empty string.")
-  }
-  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-  output_dir <- normalizePath(output_dir, winslash = "/", mustWork = TRUE)
+
 
   if (!is.function(fit_function)) {
     stop("sg_covsearch: fit_function must be a function.")
@@ -455,6 +451,21 @@ sg_covsearch<- function(gfo, gco, output_dir = tempdir(),
   } else if (!is.list(gco)) {
     stop("sg_covsearch: gco must be a list or path to a GCO file.")
   }
+
+  if (is.null(output_dir) || (length(output_dir) == 1 && is.na(output_dir))) {
+    if (is.list(gco)) {
+      stop("sg_covsearch: output_dir must be provided when gco is a list.")
+    }
+    if (is.null(gco_dir) || !nzchar(gco_dir)) {
+      stop("sg_covsearch: output_dir is NULL/NA, but gco_dir is unavailable. Pass output_dir explicitly or provide gco as a file path.")
+    }
+    output_dir <- gco_dir
+  }
+  if (!is.character(output_dir) || length(output_dir) != 1 || is.na(output_dir) || !nzchar(output_dir)) {
+    stop("sg_covsearch: output_dir must be a non-empty string, NULL, or NA.")
+  }
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+  output_dir <- normalizePath(output_dir, winslash = "/", mustWork = TRUE)
 
   .is_abs_path <- function(x) {
     grepl("^(?:[A-Za-z]:[/\\\\]|/|\\\\\\\\)", x)

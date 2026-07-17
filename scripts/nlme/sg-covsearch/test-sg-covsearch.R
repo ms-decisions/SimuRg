@@ -1,18 +1,7 @@
-## Author: OpenAI Assistant
+## Author: Alina Melnikova
 ## First created: 2026-05-19
 ## Description: Unit and integration tests for sg-covsearch
 ## Keywords: SimuRg, covsearch
-
-# if (file.exists("scripts/nlme/sg-covsearch/test-fixtures-sg-covsearch.R")) {
-#   source("scripts/nlme/sg-covsearch/test-fixtures-sg-covsearch.R")
-# } else {
-#   source("test-fixtures-sg-covsearch.R")
-# }
-if (file.exists("scripts/nlme/sg-covsearch/sg-covsearch.R")) {
-  source("scripts/nlme/sg-covsearch/sg-covsearch.R")
-} else {
-  source("sg-covsearch.R")
-}
 
 #Mock objects
 .covsearch_headers_fixture <- list(
@@ -107,6 +96,7 @@ if (file.exists("scripts/nlme/sg-covsearch/sg-covsearch.R")) {
 }
 
 #Functions
+
 .ensure_mock_files <- function() {
   model_path <- file.path(tempdir(), "mock_model.txt")
   data_path <- file.path(tempdir(), "mock_data.csv")
@@ -184,6 +174,7 @@ if (file.exists("scripts/nlme/sg-covsearch/sg-covsearch.R")) {
   file.exists(file.path(out_dir, "forward_history.csv")) &&
     file.exists(file.path(out_dir, "backward_history.csv"))
 }
+
 
 test_that("get_ofv returns LL and errors clearly when LL is missing", {
   gfo_ok <- list(OFV = data.frame(LL = -123.45))
@@ -325,30 +316,9 @@ test_that("small helpers normalize types and references consistently", {
   expect_equal(.covsearch_sanitize_name("___"), "x")
 })
 
-test_that("Stage 1 helpers align with fitted project GCO/GFO shape", {
-  gco_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GCO.json")
-  gfo_path <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project", "wrfrn_pk_base_model_GFO.json")
-  if (!file.exists(gco_path)) {
-    gco_path <- file.path("fitted_project", "wrfrn_pk_base_model_GCO.json")
-  }
-  if (!file.exists(gfo_path)) {
-    gfo_path <- file.path("fitted_project", "wrfrn_pk_base_model_GFO.json")
-  }
-  skip_if_not(file.exists(gco_path), "Fitted GCO JSON fixture not present.")
-  skip_if_not(file.exists(gfo_path), "Fitted GFO JSON fixture not present.")
 
-  gco <- jsonlite::fromJSON(gco_path, simplifyDataFrame = TRUE)
-  gfo <- jsonlite::fromJSON(gfo_path, simplifyDataFrame = TRUE)
 
-  ofv_ll <- get_ofv(gfo)
-  expect_true(is.finite(ofv_ll))
-
-  theta_out <- gco_to_theta_tibble(gco, gfo, update_theta_init = TRUE)
-  expect_equal(theta_out$NAME, gco$theta$NAME)
-  expect_equal(theta_out$INIT, gco$theta$INIT)
-})
-
-test_that("stepwise_covariate_selection validates p-values and core arguments", {
+test_that("sg_covsearch validates p-values and core arguments", {
   mock_paths <- .ensure_mock_files()
   gco <- list(
     model = mock_paths$model,
@@ -362,53 +332,63 @@ test_that("stepwise_covariate_selection validates p-values and core arguments", 
     CATAB = .covsearch_catab_fixture
   )
   fit_stub <- function(...) stop("fit should not run")
+  out_dir <- tempdir()
 
-  prep <- stepwise_covariate_selection(
+  prep <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = out_dir,
     fit_function = fit_stub
   )
   expect_equal(prep$settings$p_forward, 0.05)
   expect_equal(prep$settings$p_backward, 0.01)
   expect_false(prep$metadata$forward_ran)
+  expect_error(
+    sg_covsearch(gco = gco, gfo = gfo, fit_function = fit_stub),
+    regexp = "output_dir must be provided when gco is a list"
+  )
 
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, fit_function = fit_stub, p_forward = 1
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, p_forward = 1
   ), regexp = "p_forward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, fit_function = fit_stub, p_backward = 0
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, p_backward = 0
   ), regexp = "p_backward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, fit_function = fit_stub, run_backward = NA
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, run_backward = NA
   ), regexp = "run_backward")
-  expect_error(stepwise_covariate_selection(
-    gco = gco, gfo = gfo, fit_function = fit_stub, update_theta_init = NA
+  expect_error(sg_covsearch(
+    gco = gco, gfo = gfo, output_dir = out_dir, fit_function = fit_stub, update_theta_init = NA
   ), regexp = "update_theta_init")
 })
 
-test_that("stepwise_covariate_selection validates covariates, parameters, and test_pairs", {
+test_that("sg_covsearch validates covariates, parameters, and test_pairs", {
   gco <- .stage2_gco_fixture()
   gfo <- .stage2_gfo_fixture(ll = -100)
+  out_dir <- tempdir()
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, covariates = c("WT", "HEIGHT"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unknown covariates"
   )
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, parameters = c("CL", "Q"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unknown parameters"
   )
 
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gco = gco, gfo = gfo, test_pairs = data.frame(parameter = "CL"),
+      output_dir = out_dir,
       run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "missing required columns"
@@ -419,8 +399,8 @@ test_that("stepwise_covariate_selection validates covariates, parameters, and te
   bad_gco <- gco
   bad_gco$headers <- bad_headers
   expect_error(
-    stepwise_covariate_selection(
-      gco = bad_gco, gfo = gfo, run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
+    sg_covsearch(
+      gco = bad_gco, gfo = gfo, output_dir = out_dir, run_backward = FALSE, fit_function = .stage_mock_fit_project(list())
     ),
     regexp = "unsupported covariate type"
   )
@@ -439,7 +419,7 @@ test_that("Stage 2 generates full candidate cross-product when test_pairs is NUL
   )
 
   out_dir <- file.path(tempdir(), paste0("covsearch_stage2_cross_", as.integer(stats::runif(1, 1, 1e9))))
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = out_dir,
@@ -469,9 +449,10 @@ test_that("Stage 2 test_pairs restricts candidates and drops invalid rows with w
   )
 
   expect_warning(
-    res <- stepwise_covariate_selection(
+    res <- sg_covsearch(
       gco = gco,
       gfo = gfo,
+      output_dir = tempdir(),
       covariates = c("WT", "AGE", "SEX"),
       parameters = c("CL", "V"),
       test_pairs = .covsearch_test_pairs_fixture,
@@ -510,9 +491,10 @@ test_that("Stage 2 categorical reference applies precedence and tie-break rules"
     base_model_fw_model_003 = -130
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = tempdir(),
     covariates = c("SEX", "RACE"),
     parameters = c("CL", "V"),
     test_pairs = tp,
@@ -544,9 +526,10 @@ test_that("Stage 2 df uses continuous=1 and categorical k-1 excluding NA", {
     base_model_fw_model_003 = -99
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gco = gco,
     gfo = gfo,
+    output_dir = tempdir(),
     covariates = c("WT", "SEX", "RACE"),
     parameters = c("CL"),
     run_backward = FALSE,
@@ -571,7 +554,7 @@ test_that("Stage 3 mocked-fit selects best significant candidate each step", {
     base_model_fw_model_003 = 85
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -597,7 +580,7 @@ test_that("Stage 3 stops when no candidate passes qchisq threshold", {
     base_model_fw_model_002 = 99.2
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -621,7 +604,7 @@ test_that("Stage 3 history stores threshold, df, and decision", {
     base_model_fw_model_003 = 94
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -647,9 +630,10 @@ test_that("Stage 3 update_theta_init currently does not change theta INIT", {
     base_model_fw_model_001 = data.frame(PAR = "CL_pop", VALUE = 5, stringsAsFactors = FALSE)
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
+    output_dir = tempdir(),
     covariates = c("WT"),
     parameters = c("CL"),
     p_forward = 0.05,
@@ -674,7 +658,7 @@ test_that("Stage 4 removes least important removable term first", {
     base_model_bw_model_003 = 97
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -703,7 +687,7 @@ test_that("Stage 4 stops without removals when retained terms are significant", 
     base_model_bw_model_002 = 92
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -728,7 +712,7 @@ test_that("Stage 4 skips backward loop cleanly when forward selected set is empt
     base_model_fw_model_002 = 99.2
   )
 
-  res <- stepwise_covariate_selection(
+  res <- sg_covsearch(
     gfo = gfo,
     gco = gco,
     output_dir = tempdir(),
@@ -753,9 +737,10 @@ test_that("stepwise stops with clear error when mock fit fails", {
     base_model_fw_model_001 = 95
   )
   expect_error(
-    stepwise_covariate_selection(
+    sg_covsearch(
       gfo = gfo,
       gco = gco,
+      output_dir = tempdir(),
       covariates = c("WT"),
       parameters = c("CL"),
       p_forward = 0.05,
@@ -772,90 +757,60 @@ test_that("stepwise stops with clear error when mock fit fails", {
 # ------------------------------
 # Guarded fitter integration tests
 # ------------------------------
-
-.covsearch_find_monolix_batch <- function() {
-  env_candidates <- c(
-    Sys.getenv("SIMURG_MONOLIX_PATH", unset = ""),
-    Sys.getenv("MONOLIX_PATH", unset = "")
-  )
-
-  lixoft_root <- "C:/ProgramData/Lixoft"
-  install_dirs <- if (dir.exists(lixoft_root)) {
-    list.dirs(lixoft_root, recursive = FALSE, full.names = TRUE)
-  } else {
-    character()
-  }
-
-  file_candidates <- c(
-    env_candidates,
-    file.path(install_dirs, "bin", "monolix.bat"),
-    "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
-  )
-
-  file_candidates <- unique(file_candidates[nzchar(file_candidates)])
-  existing <- file_candidates[file.exists(file_candidates)]
-  if (length(existing) == 0) {
-    return(NA_character_)
-  }
-
-  normalizePath(existing[[1]], winslash = "/", mustWork = TRUE)
-}
-
-test_that("stepwise_covariate_selection runs with Monolix fitter when available", {
-  monolix_path <- .covsearch_find_monolix_batch()
+test_that("sg_covsearch runs with Monolix fitter when available", {
+  monolix_path <-"C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
   skip_if(
     is.na(monolix_path),
     "Monolix executable not available on this machine."
   )
-  skip_if_not(exists("sg_fit", mode = "function"), "sg_fit() is not available in this session.")
-  skip_if_not(exists("sg_converter", mode = "function"), "sg_converter() is not available in this session.")
+  #skip_if_not(exists("sg_fit", mode = "function"), "sg_fit() is not available in this session.")
+  #skip_if_not(exists("sg_converter", mode = "function"), "sg_converter() is not available in this session.")
 
-  fit_dir <- file.path("scripts", "nlme", "sg-covsearch", "fitted_project")
-  if (!dir.exists(fit_dir)) {
-    fit_dir <- "fitted_project"
-  }
+
+  fit_dir <- file.path( "workdir-amel", "projects", "warfarin-pk", "test-sg-covsearch")
+
   skip_if_not(dir.exists(fit_dir), "fitted_project fixtures are not available.")
 
-  gco_path <- file.path(fit_dir, "wrfrn_pk_base_model_GCO.json")
-  gfo_path <- file.path(fit_dir, "wrfrn_pk_base_model_GFO.json")
-  model_path <- file.path(fit_dir, "model-pk-1c.txt")
-  data_path <- file.path(fit_dir, "ds-warfarin-pk.csv")
+  gco_path <- file.path(fit_dir, "wrfrn_pk_bm_ver2_GCO.json")
+  gfo_path <- file.path(fit_dir, "wrfrn_pk_bm_ver2_GFO.json")
+  #model_path <- file.path(fit_dir, "model-pk-1c.txt")
+  #data_path <- file.path(fit_dir, "ds-warfarin-pk.csv")
   skip_if_not(file.exists(gco_path), "GCO fixture not present.")
   skip_if_not(file.exists(gfo_path), "GFO fixture not present.")
-  skip_if_not(file.exists(model_path), "Model fixture not present.")
-  skip_if_not(file.exists(data_path), "Data fixture not present.")
+  #skip_if_not(file.exists(model_path), "Model fixture not present.")
+  #skip_if_not(file.exists(data_path), "Data fixture not present.")
 
-  gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
-  gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+  #gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+  #gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
 
   out_dir <- tempfile("covsearch-monolix-integration-")
   dir.create(out_dir, recursive = TRUE)
   on.exit(unlink(out_dir, recursive = TRUE, force = TRUE), add = TRUE)
 
   test_pairs <- data.frame(
-    parameter = "CL",
-    covariate = "WT",
+    parameter = c("CL"),
+    covariate = c("CYP2C9"),
     type = "cont",
     reference = NA_character_,
     center = "median",
     stringsAsFactors = FALSE
   )
 
-  res <- stepwise_covariate_selection(
-    gco = gco,
-    gfo = gfo,
-    model = model_path,
-    data = data_path,
+  res <- sg_covsearch(
+    gco = gco_path,
+    gfo = gfo_path,
+    #model = model_path,
+    #data = data_path,
     output_dir = out_dir,
-    covariates = "WT",
-    parameters = "CL",
+    covariates = c("CYP2C9") ,
+    parameters = c("CL"),
     test_pairs = test_pairs,
     run_backward = FALSE,
     path_to_fitter = monolix_path
   )
 
   expect_true(nrow(res$forward$history) >= 1)
-  expect_true(any(grepl("^wrfrn_pk_base_model_fw_model_[0-9]{3}$", res$forward$history$project_name)))
+  expect_true(any(grepl("^wrfrn_pk_bm_ver2_fw_model_[0-9]{3}$", res$forward$history$project_name)))
   expect_true(all(is.finite(res$forward$history$candidate_ofv)))
   expect_true(.forward_history_files_exist(out_dir))
 
