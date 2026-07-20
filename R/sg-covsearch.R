@@ -7,6 +7,9 @@
 #'
 #' Use OFV = -2*LL from gfo$OFV
 #'
+#' @param gfo [GFO] containing `OFV`.
+#'
+#' @return Numeric scalar OFV.
 #' @noRd
 get_ofv <- function(gfo) {
   if (is.null(gfo$OFV)) {
@@ -30,6 +33,9 @@ get_ofv <- function(gfo) {
 #' Attempts to coerce `gfo$SUMTAB` into a tabular structure even when JSON was
 #' loaded as nested row-lists. When available, this uses `read_smrg_obj()` first
 #' to reuse common SimuRg table-normalization logic.
+#' @param gfo [GFO].
+#'
+#' @return Data frame with at least standard SUMTAB columns when available.
 #' @noRd
 .covsearch_sumtab_df <- function(gfo) {
   if (is.null(gfo) || is.null(gfo$SUMTAB)) {
@@ -94,6 +100,11 @@ get_ofv <- function(gfo) {
 #' values from `gfo$SUMTAB` are mapped by `PAR = paste0(NAME, "_pop")` and
 #' overwrite `INIT`.
 #'
+#' @param gco [GCO] containing `theta`.
+#' @param gfo [GFO] containing `SUMTAB`.
+#' @param update_theta_init Logical; when `TRUE`, update INIT from `gfo$SUMTAB`.
+#'
+#' @return Tibble with theta columns and updated `INIT`.
 #' @noRd
 gco_to_theta_tibble <- function(gco, gfo, update_theta_init = FALSE) {
   if (is.null(gco$theta)) {
@@ -134,6 +145,13 @@ gco_to_theta_tibble <- function(gco, gfo, update_theta_init = FALSE) {
 
 #' Append one covariate relationship definition
 #'
+#' @param covs_list Existing list of covariate definitions, or `NULL`.
+#' @param param Parameter name to modify.
+#' @param cov Covariate name.
+#' @param type Covariate type: `"continuous"` or `"categorical"`.
+#' @param cov_ref Reference category value for categorical covariates.
+#'
+#' @return Updated list with appended covariate record.
 #' @noRd
 add_covariate <- function(covs_list, param, cov, type, cov_ref = NULL) {
   if (is.null(covs_list)) {
@@ -185,6 +203,11 @@ add_covariate <- function(covs_list, param, cov, type, cov_ref = NULL) {
 
 #' Remove an exact parameter-covariate pair from covariate list
 #'
+#' @param covs_list Existing list of covariate definitions, or `NULL`.
+#' @param param Parameter name.
+#' @param cov Covariate name.
+#'
+#' @return Updated list with matching `(PAR, COVNAME)` entry removed.
 #' @noRd
 remove_covariate <- function(covs_list, param, cov) {
   if (is.null(covs_list)) {
@@ -209,6 +232,12 @@ remove_covariate <- function(covs_list, param, cov) {
   covs_list[keep_idx]
 }
 
+#' Coerce covariate search input to a data frame
+#'
+#' @param x Object. Input object expected to be coercible to a `data.frame`.
+#' @param name Character. Label used in error messages when `x` is missing.
+#'
+#' @return Data.frame. A normalized `data.frame` representation of `x`.
 #' @noRd
 .as_covsearch_df <- function(x, name) {
   if (is.null(x)) {
@@ -236,6 +265,11 @@ remove_covariate <- function(covs_list, param, cov) {
   as.data.frame(x, stringsAsFactors = FALSE)
 }
 
+#' Normalize covariate type labels
+#'
+#' @param x Character. Covariate type values to normalize.
+#'
+#' @return Character. Normalized covariate types (`cont`, `cat`, or `NA`).
 #' @noRd
 .norm_cov_type <- function(x) {
   x <- tolower(trimws(as.character(x)))
@@ -244,6 +278,12 @@ remove_covariate <- function(covs_list, param, cov) {
   out
 }
 
+#' Compute most frequent value with deterministic tie-break
+#'
+#' @param x Vector. Values used to compute the mode.
+#'
+#' @return Character. Most frequent non-missing value, choosing the
+#'   lexicographically smallest value on ties.
 #' @noRd
 .mode_sorted_smallest <- function(x) {
   x <- as.character(x)
@@ -256,6 +296,12 @@ remove_covariate <- function(covs_list, param, cov) {
   sort(top)[1]
 }
 
+#' Compute median while preserving all-missing input
+#'
+#' @param x Vector. Numeric-like values to summarize.
+#'
+#' @return Numeric. Median of non-missing values, or `NA_real_` when all values
+#'   are missing.
 #' @noRd
 .na_safe_median <- function(x) {
   x <- as.numeric(x)
@@ -265,11 +311,23 @@ remove_covariate <- function(covs_list, param, cov) {
   stats::median(x, na.rm = TRUE)
 }
 
+#' Return fallback value when input is `NULL`
+#'
+#' @param x Object. Primary value.
+#' @param y Object. Fallback value returned when `x` is `NULL`.
+#'
+#' @return Object. `x` when non-`NULL`, otherwise `y`.
 #' @noRd
 .covsearch_null_coalesce <- function(x, y) {
   if (is.null(x)) y else x
 }
 
+#' Sanitize strings for safe identifier usage
+#'
+#' @param x Character. Value to sanitize.
+#'
+#' @return Character. Sanitized identifier containing only alphanumeric
+#'   characters and underscores.
 #' @noRd
 .covsearch_sanitize_name <- function(x) {
   out <- gsub("[^[:alnum:]_]+", "_", as.character(x))
@@ -277,6 +335,12 @@ remove_covariate <- function(covs_list, param, cov) {
   if (!nzchar(out)) "x" else out
 }
 
+#' Validate and normalize existing covariate records
+#'
+#' @param x List. Candidate covariate records.
+#'
+#' @return List. Input list when it is a non-empty list of lists; otherwise an
+#'   empty list.
 #' @noRd
 .covsearch_existing_covs <- function(x) {
   if (is.null(x)) {
@@ -446,8 +510,8 @@ sg_covsearch<- function(gfo, gco, output_dir = NULL,
     }
     gco_path <- normalizePath(gco, winslash = "/", mustWork = TRUE)
     gco_dir <- dirname(gco_path)
-    #gco <- read_smrg_ctrl(gco_path)
-    gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+    gco <- read_smrg_ctrl(gco_path)
+    #gco <- jsonlite::fromJSON(gco_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
   } else if (!is.list(gco)) {
     stop("sg_covsearch: gco must be a list or path to a GCO file.")
   }
@@ -490,8 +554,8 @@ sg_covsearch<- function(gfo, gco, output_dir = NULL,
     }
     gfo_path <- normalizePath(gfo, winslash = "/", mustWork = TRUE)
     gfo_dir <- dirname(gfo_path)
-    #gfo <- read_smrg_ctrl(gfo_path)
-    gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
+    gfo <- read_smrg_obj(gfo_path)
+    #gfo <- jsonlite::fromJSON(gfo_path, simplifyVector = TRUE, simplifyDataFrame = FALSE)
   } else if (!is.list(gfo)) {
     stop("sg_covsearch: gfo must be a list or path to a GFO file.")
   }
