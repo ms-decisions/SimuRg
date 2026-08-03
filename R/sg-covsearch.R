@@ -398,6 +398,7 @@ remove_covariate <- function(covs_list, param, cov) {
 #'   When `NULL`, `gco$path_to_fitter` is used if present. Default value is
 #'   `NULL`.
 #'
+#' @export
 #' @examples
 #' model_path <- tempfile(fileext = ".txt")
 #' data_path <- tempfile(fileext = ".csv")

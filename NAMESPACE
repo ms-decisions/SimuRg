@@ -3,6 +3,7 @@
 export(read_smrg_ctrl)
 export(read_smrg_obj)
 export(sg_converter)
+export(sg_covsearch)
 export(sg_covsens_sim)
 export(sg_covsens_vis)
 export(sg_fit)
