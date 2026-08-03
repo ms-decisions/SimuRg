@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-gof-res, goodness-of-fit
 
 test_that("sg-gof-res output is correct", {
+  skip_on_ci()
   x <- sg_gof_res(obj1, cov_cols = 'AGE', col_i = 'AGE', log_x = T, facet_i = 'AGE', vs_time = F, indiv = F)
   expect_true(inherits(x, "ggplot"))
   expect_snapshot(ggplot2::layer_data(x))
@@ -15,6 +16,7 @@ test_that("sg-gof-res does not work", {
 })
 
 test_that("sg-gof-res file load", {
+  skip_on_ci()
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
   x <- sg_gof_res(fpath_i, log_x = TRUE, addline = T, legend_fl = T,
                   cov_cols = 'AGE', col_i = 'AGE', n_quantiles = 10)

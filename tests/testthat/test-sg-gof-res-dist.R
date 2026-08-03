@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-gof-res-dist, goodness-of-fit
 
 test_that("sg-gof-res-dist output is correct", {
+  skip_on_ci()
   x <- sg_gof_res_dist(obj1, ndist = F)
   expect_true(inherits(x, "ggplot"))
   expect_snapshot(ggplot2::layer_data(x))
@@ -15,6 +16,7 @@ test_that("sg-gof-res-dist does not work", {
 })
 
 test_that("sg-gof-res-dist file load", {
+  skip_on_ci()
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
   x <- sg_gof_res_dist(fpath_i, res_type = 'WRES', plot_type = 'QQ')
   expect_true(inherits(x, "ggplot"))

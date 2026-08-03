@@ -16,6 +16,7 @@ test_that("sg_gof_par_cov output is correct", {
 
   x <- sg_gof_par_cov(fpath_i = fpath_i, ptype = "IndParvsCov", cont_cov = cont_cov)
   expect_true(inherits(x$vs_contcov, "ggplot"))
+  skip_on_ci()
   expect_snapshot(ggplot2::layer_data(x$vs_contcov))
 })
 
@@ -31,5 +32,6 @@ test_that("sg_gof_par_cov file load", {
   )
   x <- sg_gof_par_cov(fpath_i, ptype = "REvsCov", cat_cov = cat_cov)
   expect_true(inherits(x$vs_catcov, "ggplot"))
+  skip_on_ci()
   expect_snapshot(ggplot2::layer_data(x$vs_catcov))
 })

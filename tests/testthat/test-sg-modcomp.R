@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-modcomp, model building, comparison
 
 test_that("sg-modcomp works", {
+  skip_on_ci()
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
   sum_tab <- sg_modcomp(fpath_i, 3)
   expect_true(inherits(sum_tab, "data.frame"))

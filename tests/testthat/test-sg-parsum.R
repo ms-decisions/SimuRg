@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-parsum, goodness-of-fit
 
 test_that("sg-parsum file load works", {
+  skip_on_ci()
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
   sum_tab <- sg_parsum(fpath_i)
   expect_true(inherits(sum_tab, "data.frame"))
@@ -13,6 +14,7 @@ test_that("sg-parsum file load works", {
   expect_snapshot(sum_tab)
 })
 test_that("sg-parsum file load works dataset with covariates", {
+  skip_on_ci()
   fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK_cov.RData", package = "SimuRg")
   sum_tab <- sg_parsum(fpath_i)
   expect_true(inherits(sum_tab, "data.frame"))

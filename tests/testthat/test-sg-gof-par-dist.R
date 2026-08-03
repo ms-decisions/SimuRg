@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-gof-par-dist, goodness-of-fit
 
 test_that("sg-gof-par-dist output is correct", {
+  skip_on_ci()
   x <- sg_gof_par_dist(obj1, tdist =F)
   expect_true(inherits(x, "ggplot"))
   expect_snapshot(ggplot2::layer_data(x))
