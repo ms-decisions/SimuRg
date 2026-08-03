@@ -24,7 +24,7 @@ calc_auc_trapz <- function(time, value){
   ord <- order(t)
   t <- t[ord]
   y <- y[ord]
-  sum(diff(t) * (head(y, -1) + tail(y, -1)) / 2)
+  sum(diff(t) * (utils::head(y, -1) + utils::tail(y, -1)) / 2)
 }
 
 #' @noRd

@@ -179,7 +179,7 @@
 #' p_exp
 #'
 #' # Alternate interval columns (must exist in the sensitivity tables)
-#' p <- sg_covsens_vis(result, ci_quantiles = c("P05", "P95"))
+#' p <- sg_covsens_vis(result, ci = 95)
 #' p
 #'
 #' # Drop selected metrics from the exposure panel

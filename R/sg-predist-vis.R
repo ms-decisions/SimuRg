@@ -6,7 +6,8 @@
 #' @param logy Logical. If TRUE, y-axis is displayed on a logarithmic scale. Default is FALSE.
 #' @param legend_fl Logical. If FALSE, the legend is hidden. Default is TRUE.
 #' @param pred_interval Character. Prediction interval to display. Options are "95%", "90%", "80%", "50%". Default is "80%".
-#' @param name_y Character. Y-axis label. If `NULL` (default), each plot is labelled
+#' @param lab_y Character. Y-axis label. If `NULL` (default), each plot is labelled
+#' @param lab_x Character. X-axis label. Default is `"TIME"`
 #'   with its own output variable (the `VAR` value, with any `_ResErr` suffix removed).
 #'
 #' @returns A list of ggplot objects, one per output variable in the simulation dataset.
@@ -37,7 +38,7 @@
 sg_predist_vis <- function(fpath_i,
                            ds_sim,
                            time_col = "TIME",
-                           name_x = "TIME", name_y = NULL,
+                           lab_x = "TIME", lab_y = NULL,
                            dt_obs_fl = FALSE, logy = FALSE, legend_fl = TRUE,
                            pred_interval = "80%") {
 
@@ -111,8 +112,8 @@ sg_predist_vis <- function(fpath_i,
     ds_sim_v <- ds_sim %>% filter(VAR == v)
 
     # Default the y-axis label to the output variable itself (one plot per VAR);
-    # an explicit `name_y` overrides it.
-    y_lab <- if (is.null(name_y)) sub("_ResErr$", "", v) else name_y
+    # an explicit `lab_y` overrides it.
+    lab_y <- if (is.null(lab_y)) sub("_ResErr$", "", v) else lab_y
 
     ds_sim_sum <- ds_sim_v %>%
       group_by(TIME, VAR) %>%
@@ -133,7 +134,7 @@ sg_predist_vis <- function(fpath_i,
         aes(x = TIME, y = median, color = label_median),
         linewidth = 0.8, alpha = 0.8
       ) +
-      scale_x_continuous(name = name_x, breaks = pretty_breaks()) +
+      scale_x_continuous(name = lab_x, breaks = pretty_breaks()) +
       p_char
 
     if (dt_obs_fl) {
@@ -152,13 +153,13 @@ sg_predist_vis <- function(fpath_i,
     if (logy) {
       p <- p +
         scale_y_log10(
-          name = y_lab,
+          name = lab_y,
           breaks = 10^seq(-10, 10, 1),
           labels = scales::trans_format("log10", scales::math_format(10^.x))
         )
     } else {
       p <- p +
-        scale_y_continuous(name = y_lab, breaks = pretty_breaks())
+        scale_y_continuous(name = lab_y, breaks = pretty_breaks())
     }
 
     if (legend_fl) {
