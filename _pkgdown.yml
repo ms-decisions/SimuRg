@@ -37,6 +37,7 @@ reference:
   - sg_multistart
   - sg_modbuild
   - sg_modcomp
+  - sg_covsearch
 
 - subtitle: Convertion
   desc: >
@@ -50,7 +51,6 @@ reference:
     Functions to access model goodness-of-fit
   contents:
   - sg_parsum
-  - sg_modbuild
   - sg_gof_obpr
   - sg_gof_res
   - sg_gof_par_dist
