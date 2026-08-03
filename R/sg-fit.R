@@ -655,7 +655,8 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
       Sys.sleep(1)  # Sleep 1 second between checks to avoid busy waiting
     }
     setwd(curr_dir)
-    res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name)
+    res_fit <- sg_converter(str_c(path_to_save_output, "/"), project_name,
+                            save_file = TRUE)
   } else if (fit & opt_name == "Simurg") {
     # CyberneticCore.exe writes the result JSON to stdout and all progress /
     # diagnostic logs (SAEM iterations, [SimurgCore] section markers and any

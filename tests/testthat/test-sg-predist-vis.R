@@ -177,7 +177,7 @@ test_that("sg_predist_vis honours custom axis labels", {
   obj <- create_mock_obj()
 
   p <- sg_predist_vis(fpath_i = obj, ds_sim = ds_sim,
-                      name_x = "Time (h)", name_y = "Concentration")[[1]]
+                      lab_x = "Time (h)", lab_y = "Concentration")[[1]]
 
   built <- ggplot2::ggplot_build(p)
   expect_equal(built$plot$scales$get_scales("x")$name, "Time (h)")
