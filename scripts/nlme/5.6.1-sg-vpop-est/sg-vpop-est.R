@@ -2,7 +2,7 @@
 ## First created: 2025-07-17
 ## Description: Covariate simulation from original dataset
 ## Keywords: covariates, simulations
-## Version: v1.1 - add JS and KL metrics, covariate matrix, merge umap
+
 
 
 # Comparison of correlation matrices
@@ -18,15 +18,12 @@ compare_cor_matrices <- function(data_obs, data_syn, vars, method = "kendall") {
 
   idx <- upper.tri(R_obs, diag = FALSE)
 
-  # mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx]))
-  # return(mean_abs_diff )
    list(
      mean_abs_diff = mean(abs(R_obs[idx] - R_syn[idx])),
      max_abs_diff  = max(abs(R_obs[idx] - R_syn[idx])),
-  #   #frobenius     = sqrt(sum((R_obs - R_syn)^2)),
      R_obs = R_obs,
      R_syn = R_syn,
-    R_diff = R_syn - R_obs
+     R_diff = R_syn - R_obs
   )
 }
 
@@ -82,7 +79,6 @@ create_optimal_visit_sequence <- function(data, var_cont, var_cat) {
 # Remove exact duplicates between synthetic and original data by adding noise
 remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
                                      noise_level = 0.10, seed = 123) {
-
   had_random_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
   if (had_random_seed) {
     old_random_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
@@ -118,7 +114,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
     ))
   }
 
-  cat("Found", n_duplicates, "exact duplicates. Adding noise to remove them...\n")
+  #message("Found ", n_duplicates, " exact duplicates. Adding noise to remove them...\n")
 
   # Add noise to continuous variables for duplicate rows
   if (length(var_cont) > 0) {
@@ -174,6 +170,19 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
   ))
 }
 
+# Jensen-Shannon divergence calculation
+distance_js <- function(p, q) {
+  p <- p / sum(p)
+  q <- q / sum(q)
+  m <- (p + q) / 2
+  kl <- function(x, y) {
+    idx <- x > 0
+    sum(x[idx] * log(x[idx] / y[idx]))
+  }
+
+  0.5 * kl(p, m) + 0.5 * kl(q, m)
+}
+
 #' Perform generation of synthetic datasets for an empirical distribution
 #'
 #' The function operates in two modes:
@@ -202,10 +211,11 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' }
 #' @inheritParams sg_dummy
 #' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
-#' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
-#' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
-#' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}), generates a single dataset with this seed (fixed seed mode). If \code{NA}, uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{NA})
-#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{123})
+#' 
+#' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional,@param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When \code{NA}, uses the original dataset size (optional, default: \code{NA}) default: \code{3})
+#' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}, not \code{NULL}), generates a single dataset with this seed (fixed seed mode).
+#' If \code{NA} or \code{NULL} uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{123})
+#' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{42})
 #' @param palette character vector. Contains color codes (hex format) for custom plot color schemes. If provided, should contain at least 2 colors. Used for histograms, bar plots, and UMAP visualizations (optional, default: \code{c("#3a6eba", "#efdd3c", "#1a1866", "#f2b93b")})
 #' @param diag_plots logical flag. If \code{TRUE}, generates diagnostic plots and UMAP visualizations (optional, default: \code{TRUE})
 #' @param remove_duplicates logical flag. If \code{TRUE}, automatically removes exact duplicates between original and synthetic data by adding controlled noise (optional, default: \code{TRUE})
@@ -265,10 +275,9 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
 #' @importFrom tidyr drop_na
 #' @importFrom tibble tibble as_tibble
 #' @importFrom recipes recipe step_dummy step_center step_scale prep bake
-#' @importFrom philentropy distance
 #' @export
-sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
-                       excl_col = NULL,seed = NA,
+sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,
+                       excl_col = NULL,seed = 123,
                        seed_umap = 42, palette = NULL,
                        diag_plots = FALSE,
                        remove_duplicates = TRUE,
@@ -283,14 +292,15 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   if(!is.null(palette) & length(palette)>1){
     color_p = rep(palette,2)
   } else {color_p = MSDcol_cut
-    cat("Default color palette is used")}
+    #message("Default color palette is used")
+  }
 
   #Control parameters for Random Forest (optimized for correlation preservation)
   num_trees = 300          # Increased from 100 for better stability
   max_depth = 12           # Increased from 7 to capture more interactions
   min_node_size = 5        # Decreased from 30 for finer splits
-  #use_smoothing = TRUE     # Enable smoothing for continuous variables
   optimize_visit_seq = TRUE # Use correlation-based visit sequence
+
 
   #####--------------- Processing ---------------#####
   #Exclude ID column and Exclusion columns
@@ -319,15 +329,15 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
     dplyr::select(where(~ !all(is.na(.)))) %>%
     drop_na()
 
-      #Check seed values
+  # Check the number of columns in the dataset
+  n_cols <- ncol(data_i)
+  if (n_cols==1) {
+    stop("The dataset has only one column. Please add more columns to the dataset.")
+  }
+
+  #Check seed values
   if (is.null(seed)){seed = NA}
   if (is.null(seed_umap) || is.na(seed_umap)){seed_umap = 42}
-
-# Check the number of columns in the dataset
-n_cols <- ncol(data_i)
-if (n_cols==1) {
-  stop("The dataset has only one column. Please add more columns to the dataset.")
-}
 
   var_char = NULL
 
@@ -357,7 +367,10 @@ if (n_cols==1) {
   var_cat  <- names(data_i)[is_cat]
   var_all <- c(var_cont, var_cat)
 
+
+
   n_orig <- nrow(data_i)
+
 
   data_orig <- data_i
 
@@ -368,17 +381,15 @@ if (n_cols==1) {
   # (Smoothing produces continuous values, which can fail if cast back to integer)
   data_i <- data_i %>% mutate(across(where(is.integer), as.numeric))
 
-  if (!is.na(nobj)){n_new = nobj} else if(!is.na(npop)&(npop>0)){
-    n_new = as.integer(round(n_orig * npop))
-    } else {n_new = n_orig}
+  if (!is.na(nobj)){n_new = nobj} else {n_new = n_orig}
+  if (!is.na(nobj) && nobj > n_orig){
+    warning("Number of synthetic rows is more than original. Please check the value of `nobj`.")
+  }
 
-  #Synthpop Method
-  # if (!is.na(seed)){seed_i = seed} else {seed_i = 123}
-  # cat("Seed for synthetic data generation:", seed_i, "\n")
 
   # Create optimal visit sequence based on correlations (if enabled)
   if (optimize_visit_seq && length(var_cont) >= 2) {
-    cat("Creating correlation-based visit sequence...\n")
+    #message("Creating correlation-based visit sequence...\n")
     visit_sequence <- create_optimal_visit_sequence(data_i, var_cont, var_cat)
   } else {
     # Use default order: all variables in their original order
@@ -388,14 +399,14 @@ if (n_cols==1) {
   # Prepare method vector: "rf" for all variables
   method_vector <- rep("rf", length(var_all))
   names(method_vector) <- var_all
+  method_vector[visit_sequence[1]] <- "sample"
 
 
-
-  cat("RF parameters: trees =", num_trees, ", max_depth =", max_depth,
-      ", min_node_size =", min_node_size, "\n")
-  cat("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
-  cat("Variables to synthesize:", length(visit_sequence),
-      "(", length(var_cont), "continuous,", length(var_cat), "categorical )\n")
+  message("RF parameters: trees = ", num_trees, ", max_depth = ", max_depth,
+      ", min_node_size = ", min_node_size, "\n")
+  message("Visit sequence:", paste(visit_sequence, collapse = ", "), "\n")
+  message("Variables to synthesize: ", length(visit_sequence),
+      "(", length(var_cont), " continuous,", length(var_cat), " categorical )\n")
 
 
   # Generate synthetic data with optimized parameters
@@ -405,15 +416,17 @@ if (n_cols==1) {
   results_list_intermediate <- list()
   results_list <- list()
 
+
+
   # Check mode: fixed seed or search mode
   if (!is.na(seed)) {
     # === MODE 1: Fixed seed mode ===
-    cat("\n=== Fixed seed mode: generating dataset with seed =", seed, "===\n")
+    message("\n=== Fixed seed mode: generating dataset with seed =", seed, "===\n")
     mode_fixed_seed <- TRUE
     n_datasets <- 1
   } else {
     # === MODE 2: Search mode (original logic) ===
-    cat("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
+    message("\n=== Search mode: generating", nds, "dataset(s) with optimal seeds ===\n")
     mode_fixed_seed <- FALSE
     n_datasets <- nds
 
@@ -432,12 +445,11 @@ if (n_cols==1) {
     # === GENERATION PHASE ===
     if (mode_fixed_seed) {
       # Fixed seed mode: generate single dataset with specified seed
-      cat("\n=== Generating dataset with fixed seed =", seed, "===\n")
+      message("\n=== Generating dataset with fixed seed =", seed, "===\n")
 
       syn_obj <- syn(data_i,
                      method = method_vector,
                      visit.sequence = visit_sequence,
-                     #smoothing = smoothing_vector,
                      k = n_new,
                      seed = seed,
                      ranger.num.trees = num_trees,
@@ -450,7 +462,7 @@ if (n_cols==1) {
 
     } else {
       # Search mode: iterate through seeds until target corr_diff is achieved
-      cat("\n=== Generating dataset", k, "of", n_datasets, "===\n")
+      message("\n=== Generating dataset", k, "of", n_datasets, "===\n")
 
       corr_diff_contr <- diff_lim + 0.05
       p <- 0
@@ -476,12 +488,12 @@ if (n_cols==1) {
       target_seed <- seed_values[[p]]
 
       if ((p == n_iterations) & (corr_diff_contr > diff_lim)) {
-        cat("Target correlation coefficient difference is not obtained\n")
+        message("Target correlation coefficient difference is not obtained\n")
         target_seed <- NA
       }
 
       res_seeds <- c(res_seeds, target_seed)
-      cat("Dataset", k, "generated with seed:", target_seed, "\n")
+      message("Dataset", k, "generated with seed:", target_seed, "\n")
 
       # Update seed range for next iteration
       i_init <- i
@@ -489,7 +501,7 @@ if (n_cols==1) {
     }
 
     # === DIAGNOSTICS PHASE (common for both modes) ===
-    cat("Computing diagnostics for dataset", k, "...\n")
+    #message("Computing diagnostics for dataset", k, "...\n")
 
     # Check for duplicates *between* real and synthetic data (not within each)
     common_cols <- intersect(names(data_i), names(data_syn))
@@ -497,8 +509,6 @@ if (n_cols==1) {
     n_dupl_removed <- 0
 
     if (dupl_check_before){
-      #warning("Exact duplicates found between original and synthetic data.")
-
       # Remove duplicates if requested
       if (remove_duplicates) {
         dedup_result <- remove_exact_duplicates(
@@ -507,7 +517,6 @@ if (n_cols==1) {
           var_cont = var_cont,
           var_cat = var_cat,
           noise_level = noise_level,
-          #seed = seed_i
         )
 
         data_syn <- dedup_result$data_cleaned
@@ -517,7 +526,7 @@ if (n_cols==1) {
         dupl_check_after <- nrow(dplyr::semi_join(data_syn, data_i, by = common_cols)) > 0
 
         if (dupl_check_after) {
-          cat("Warning: Some duplicates may still remain after noise addition.\n")
+          message("Warning: Some duplicates may still remain after noise addition.\n")
         }
       }
     }
@@ -599,8 +608,12 @@ if (n_cols==1) {
 
         # Jensen-Shannon divergence (obs || syn)
         as.numeric(
-          distance(rbind(p, q), method = "jensen-shannon")
+        distance_js(p, q)
         )
+
+        # as.numeric(
+        #   distance(rbind(p, q), method = "jensen-shannon")
+        # )
       })
 
       jsd <- as.vector(jsd_by_var)
@@ -644,8 +657,9 @@ if (n_cols==1) {
 
       X_real <- bake(rec, new_data = data_i)
       X_syn  <- bake(rec, new_data = data_syn)
+
       # UMAP (fit on real data only)
-      
+
       umap_model <- uwot::umap(
         X_real,
         n_neighbors = 15,
@@ -655,7 +669,7 @@ if (n_cols==1) {
         ret_nn = TRUE,
         seed = seed_umap
       )
-      cat("UMAP model created with seed:", seed_umap, "\n")
+      message("UMAP model created with seed:", seed_umap, "\n")
 
       # project synthetic data
       emb_real <- umap_model$embedding
@@ -766,8 +780,8 @@ if (n_cols==1) {
         names(plist_cat) <- var_cat
       }
 
-      if (length(var_cat) == 0){cat("No categorical variables to plot\n")}
-      if (length(var_cont) == 0){cat("No continuous variables to plot\n")}
+      if (length(var_cat) == 0){message("No categorical variables to plot\n")}
+      if (length(var_cont) == 0){message("No continuous variables to plot\n")}
     }
 
     # Store dataset and its diagnostics
@@ -785,14 +799,14 @@ if (n_cols==1) {
       dplot_corr_diff = p_corr_heatmap
     )
 
-    cat("Dataset", k, "diagnostics completed.\n")
+    #message("Dataset", k, "diagnostics completed.\n")
   }
 
   # Final summary message
   if (mode_fixed_seed) {
-    cat("\n=== Dataset generated with fixed seed =", seed, "===\n")
+    message("\n=== Dataset generated with fixed seed =", seed, "===\n")
   } else {
-    cat("\n=== All", nds, "datasets generated and diagnosed ===\n")
+    message("\n=== All", nds, "datasets generated and diagnosed ===\n")
   }
 
   if (mode_fixed_seed) {results_list <- results_list_intermediate[[1]]} else

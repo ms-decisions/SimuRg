@@ -5,7 +5,7 @@
 
 
 
-test_that("sg-vpop-est file load works", {
+test_that("Test_1_1, sg-vpop-est file load works", {
 
   output <- sg_vpop_est(data_i = data_pbc, diag_plots = TRUE, id_col = "id",
                         excl_col = "years", seed = 123)
@@ -36,13 +36,13 @@ test_that("sg-vpop-est file load works", {
   )
 })
 
-test_that("sg-vpop-est does not work on empty dataset", {
+test_that("Test_2_2, sg-vpop-est does not work on empty dataset", {
   expect_error(sg_vpop_est(data.frame()))
 })
 
 
 # Basic functionality tests
-test_that("sg_vpop_est returns correct structure with simple continuous data", {
+test_that("Test_3_3, sg_vpop_est returns correct structure with simple continuous data", {
   # Create larger test data to avoid duplicate warnings
   set.seed(42)
 
@@ -81,7 +81,7 @@ test_that("sg_vpop_est returns correct structure with simple continuous data", {
   expect_null(result$jsd_res)
 })
 
-test_that("sg_vpop_est works with mixed continuous and categorical data", {
+test_that("Test_4_4, sg_vpop_est works with mixed continuous and categorical data", {
   # Create larger test data with both continuous and categorical variables
   set.seed(43)
   test_data <- data.frame(
@@ -112,7 +112,7 @@ test_that("sg_vpop_est works with mixed continuous and categorical data", {
   expect_true(is.numeric(result$corr_diff_max))
 })
 
-test_that("sg_vpop_est respects nobj parameter", {
+test_that("Test_5_5, sg_vpop_est respects nobj parameter", {
   #skip_if(T)
   set.seed(44)
   test_data <- data.frame(
@@ -128,23 +128,8 @@ test_that("sg_vpop_est respects nobj parameter", {
   expect_equal(nrow(result$datagen), 100)
 })
 
-test_that("sg_vpop_est respects npop parameter", {
-  #skip_if(T)
-  set.seed(45)
-  test_data <- data.frame(
-    x1 = rnorm(150, mean = 10, sd = 2),
-    x2 = rnorm(150, mean = 20, sd = 3)
-  )
 
-  output <-
-    sg_vpop_est(data_i = test_data, npop = 2, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
-
-
-  result <- output
-  expect_equal(nrow(result$datagen), 300)
-})
-
-test_that("sg_vpop_est excludes idcol when specified", {
+test_that("Test_6_6, sg_vpop_est excludes idcol when specified", {
   #skip_if(T)
   set.seed(46)
   test_data <- data.frame(
@@ -162,7 +147,7 @@ test_that("sg_vpop_est excludes idcol when specified", {
   expect_equal(ncol(result$datagen), 2)
 })
 
-test_that("sg_vpop_est excludes exclcol when specified", {
+test_that("Test_7_6, sg_vpop_est excludes exclcol when specified", {
   #skip_if(T)
   set.seed(47)
   test_data <- data.frame(
@@ -181,7 +166,7 @@ test_that("sg_vpop_est excludes exclcol when specified", {
   expect_equal(ncol(result$datagen), 2)
 })
 
-test_that("sg_vpop_est uses seed for reproducibility", {
+test_that("Test_8_7, sg_vpop_est uses seed for reproducibility", {
   set.seed(48)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -201,7 +186,7 @@ test_that("sg_vpop_est uses seed for reproducibility", {
   expect_equal(output2$seed, 123)
 })
 
-test_that("sg_vpop_est works with diag_plots = FALSE", {
+test_that("Test_9_8, sg_vpop_est works with diag_plots = FALSE", {
   #skip_if(T)
   set.seed(49)
   test_data <- data.frame(
@@ -222,7 +207,7 @@ test_that("sg_vpop_est works with diag_plots = FALSE", {
   expect_true(is.data.frame(result$ks_test))
 })
 
-test_that("sg_vpop_est works with diag_plots = TRUE", {
+test_that("Test_9_9, sg_vpop_est works with diag_plots = TRUE", {
   #skip_if(T)
   test_data <- data.frame(
     x1 = rnorm(300, mean = 10, sd = 2),
@@ -246,7 +231,7 @@ test_that("sg_vpop_est works with diag_plots = TRUE", {
   expect_true(inherits(result$dplot_corr_diff, "ggplot") || is.null(result$dplot_corr_diff))
 })
 
-test_that("sg_vpop_est converts character columns to factors", {
+test_that("Test_10_10, sg_vpop_est converts character columns to factors", {
   #skip_if(T)
   set.seed(50)
   test_data <- data.frame(
@@ -269,7 +254,7 @@ test_that("sg_vpop_est converts character columns to factors", {
   expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
 })
 
-test_that("sg_vpop_est handles minnumlev parameter", {
+test_that("Test_11_11, sg_vpop_est handles minnumlev parameter", {
   #skip_if(T)
   # Create data with numeric column that has few unique values
   set.seed(51)
@@ -292,7 +277,7 @@ test_that("sg_vpop_est handles minnumlev parameter", {
   expect_true(all(c("variable", "jsd", "n_levels") %in% colnames(result$jsd_res)))
 })
 
-test_that("sg_vpop_est handles NA values by removing rows", {
+test_that("Test_12_12, sg_vpop_est handles NA values by removing rows", {
   #skip_if(T)
   set.seed(52)
   test_data <- data.frame(
@@ -310,9 +295,9 @@ test_that("sg_vpop_est handles NA values by removing rows", {
   expect_equal(nrow(result$datagen), 195)  # Should match number of non-NA rows
 })
 
-# New tests for updated features
 
-test_that("sg_vpop_est fixed seed mode generates single dataset", {
+
+test_that("Test_13_13, sg_vpop_est fixed seed mode generates single dataset", {
   #skip_if(T)
   set.seed(53)
   test_data <- data.frame(
@@ -329,7 +314,7 @@ test_that("sg_vpop_est fixed seed mode generates single dataset", {
   expect_equal(output$seed, 456)
 })
 
-test_that("sg_vpop_est search mode generates multiple datasets", {
+test_that("Test_14_14, sg_vpop_est search mode generates multiple datasets", {
   #skip_if(T)
   set.seed(54)
   test_data <- data.frame(
@@ -358,7 +343,7 @@ test_that("sg_vpop_est search mode generates multiple datasets", {
   }
 })
 
-test_that("sg_vpop_est computes correlation difference metrics", {
+test_that("Test_15_15, sg_vpop_est computes correlation difference metrics", {
   #skip_if(T)
   set.seed(55)
   test_data <- data.frame(
@@ -380,7 +365,7 @@ test_that("sg_vpop_est computes correlation difference metrics", {
   expect_true(result$corr_diff_max >= result$corr_diff_mean)
 })
 
-test_that("sg_vpop_est computes JSD for categorical variables", {
+test_that("Test_16_16, sg_vpop_est computes JSD for categorical variables", {
   #skip_if(T)
   set.seed(56)
   test_data <- data.frame(
@@ -402,7 +387,7 @@ test_that("sg_vpop_est computes JSD for categorical variables", {
   expect_true(all(result$jsd_res$jsd <= 1))
 })
 
-test_that("sg_vpop_est checks for exact duplicates", {
+test_that("Test_17_17, sg_vpop_est checks for exact duplicates", {
   #skip_if(T)
   set.seed(57)
   test_data <- data.frame(
@@ -421,7 +406,7 @@ test_that("sg_vpop_est checks for exact duplicates", {
   expect_true(is.logical(result$exact_dupl_check))
 })
 
-test_that("sg_vpop_est generates correct plots with diag_plots = TRUE", {
+test_that("Test_18_18, sg_vpop_est generates correct plots with diag_plots = TRUE", {
   #skip_if(T)
   set.seed(58)
   test_data <- data.frame(
@@ -456,7 +441,7 @@ test_that("sg_vpop_est generates correct plots with diag_plots = TRUE", {
   expect_true(inherits(result$dplot_corr_diff, "ggplot"))
 })
 
-test_that("sg_vpop_est respects tg_corrdif in search mode", {
+test_that("Test_19_19, sg_vpop_est respects tg_corrdif in search mode", {
   #skip_if(T)
   set.seed(59)
   test_data <- data.frame(
@@ -481,7 +466,7 @@ test_that("sg_vpop_est respects tg_corrdif in search mode", {
   }
 })
 
-test_that("sg_vpop_est handles categorical-only data", {
+test_that("Test_20_20, sg_vpop_est handles categorical-only data", {
   #skip_if(T)
   set.seed(60)
   test_data <- data.frame(
@@ -509,7 +494,7 @@ test_that("sg_vpop_est handles categorical-only data", {
   expect_null(result$ks_test)
 })
 
-test_that("sg_vpop_est noise_level parameter affects duplicate removal", {
+test_that("Test_21_21, sg_vpop_est noise_level parameter affects duplicate removal", {
   #skip_if(T)
   set.seed(61)
   test_data <- data.frame(
@@ -535,7 +520,7 @@ test_that("sg_vpop_est noise_level parameter affects duplicate removal", {
   expect_true(is.data.frame(output2$datagen))
 })
 
-test_that("compare_cor_matrices returns expected structure and metrics", {
+test_that("Test_22_22, compare_cor_matrices returns expected structure and metrics", {
   data_obs <- data.frame(
     a = c(1, 2, 3, 4, 5),
     b = c(2, 4, 5, 7, 9),
@@ -562,7 +547,7 @@ test_that("compare_cor_matrices returns expected structure and metrics", {
   expect_equal(res$max_abs_diff, max(expected_diff))
 })
 
-test_that("create_optimal_visit_sequence handles edge cases and ordering", {
+test_that("Test_23_23, create_optimal_visit_sequence handles edge cases and ordering", {
   x <- data.frame(
     c1 = c(1, 2, 3, 4, 5, 6),
     c2 = c(1, 2, 2, 4, 5, 6),
@@ -594,7 +579,7 @@ test_that("create_optimal_visit_sequence handles edge cases and ordering", {
   expect_equal(head(seq_all, 3), c("c2", "c1", "c3"))
 })
 
-test_that("remove_exact_duplicates reports and perturbs matching rows", {
+test_that("Test_24_24, remove_exact_duplicates reports and perturbs matching rows", {
   data_orig <- data.frame(
     x = c(0, 1, 2, 3, 4, 5),
     y = c(10, 12, 14, 16, 18, 20),
@@ -630,7 +615,7 @@ test_that("remove_exact_duplicates reports and perturbs matching rows", {
   expect_equal(levels(res$data_cleaned$cat1), levels(data_syn$cat1))
 })
 
-test_that("sg_vpop_est return shape differs by fixed-seed and search mode", {
+test_that("Test_25_25, sg_vpop_est return shape differs by fixed-seed and search mode", {
   set.seed(62)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -658,7 +643,7 @@ test_that("sg_vpop_est return shape differs by fixed-seed and search mode", {
   expect_true(all(vapply(search_output, function(x) is.list(x) && is.data.frame(x$datagen), logical(1))))
 })
 
-test_that("sg_vpop_est enforces tg_corrdif when search seed is found", {
+test_that("Test_26_26, sg_vpop_est enforces tg_corrdif when search seed is found", {
   set.seed(63)
   test_data <- data.frame(
     x1 = rnorm(200, mean = 10, sd = 2),
@@ -682,7 +667,7 @@ test_that("sg_vpop_est enforces tg_corrdif when search seed is found", {
   }
 })
 
-test_that("sg_vpop_est warns for missing id_col and excl_col values", {
+test_that("Test_27_27, sg_vpop_est warns for missing id_col and excl_col values", {
   set.seed(64)
   test_data <- data.frame(
     x1 = rnorm(150, mean = 10, sd = 2),
@@ -712,7 +697,7 @@ test_that("sg_vpop_est warns for missing id_col and excl_col values", {
   )
 })
 
-test_that("sg_vpop_est handles integer columns without casting failures", {
+test_that("Test_28_28, sg_vpop_est handles integer columns without casting failures", {
   set.seed(67)
   test_data <- data.frame(
     x_int = sample(1:8, 200, replace = TRUE),
@@ -731,7 +716,7 @@ test_that("sg_vpop_est handles integer columns without casting failures", {
   expect_true(is.numeric(output$datagen$x_int))
 })
 
-test_that("sg_vpop_est categorical-only with diag_plots TRUE returns only categorical plots", {
+test_that("Test_29_29, sg_vpop_est categorical-only with diag_plots TRUE returns only categorical plots", {
   set.seed(69)
   test_data <- data.frame(
     cat1 = factor(sample(c("A", "B", "C"), 220, replace = TRUE)),
@@ -752,7 +737,7 @@ test_that("sg_vpop_est categorical-only with diag_plots TRUE returns only catego
   expect_true(inherits(output$dplot_umap, "ggplot"))
 })
 
-test_that("remove_exact_duplicates noise_level increases perturbation magnitude", {
+test_that("Test_31_31, remove_exact_duplicates noise_level increases perturbation magnitude", {
   data_orig <- data.frame(
     x = seq(1, 30, by = 1),
     y = seq(50, 79, by = 1),
@@ -789,7 +774,7 @@ test_that("remove_exact_duplicates noise_level increases perturbation magnitude"
   expect_gt(high_shift, low_shift)
 })
 
-test_that("sg_vpop_est handles dataset with only one column", {
+test_that("Test_31_31, sg_vpop_est handles dataset with only one column", {
   set.seed(70)
   test_data <- data.frame(
     x = rnorm(200, mean = 10, sd = 2)
@@ -798,7 +783,7 @@ test_that("sg_vpop_est handles dataset with only one column", {
   expect_error(sg_vpop_est(data_i = test_data, seed = 123, diag_plots = FALSE, remove_duplicates = TRUE), "The dataset has only one column. Please add more columns to the dataset.")
 })
 
-test_that("sg_vpop_est drops all-NA columns before row-wise NA filtering", {
+test_that("Test_32_32, sg_vpop_est drops all-NA columns before row-wise NA filtering", {
   #skip_if(T)
   set.seed(520)
   test_data <- data.frame(
@@ -812,7 +797,7 @@ test_that("sg_vpop_est drops all-NA columns before row-wise NA filtering", {
   )
 })
 
-test_that("sg_vpop_est treats seed_umap NULL and NA as deterministic default 42", {
+test_that("Test_33_33, sg_vpop_est treats seed_umap NULL and NA as deterministic default 42", {
   set.seed(501)
   test_data <- data.frame(
     x1 = rnorm(220, mean = 10, sd = 2),
@@ -850,3 +835,32 @@ test_that("sg_vpop_est treats seed_umap NULL and NA as deterministic default 42"
   expect_equal(null_umap_data, default_umap_data)
   expect_equal(na_umap_data, default_umap_data)
 })
+
+test_that("Test_34_34, sg_vpop_est internal function distance_js calculate JSD properly",{
+  P=c(0.32,0.30,0.08,0.26,0.04)
+  Q=c(0.16,0.36, 0.14,0.10,0.24)
+  jsd_exp = 0.077
+  jsd_act = round(distance_js(P, Q), 3)
+  expect_equal(jsd_act, jsd_exp)
+})
+
+test_that("Test_35_35, sg_vpop_est warns when nobj is greater than original rows", {
+  set.seed(45)
+  test_data <- data.frame(
+    x1 = rnorm(80, mean = 10, sd = 2),
+    x2 = rnorm(80, mean = 20, sd = 3)
+  )
+
+  expect_warning(
+    output <- sg_vpop_est(
+      data_i = test_data,
+      nobj = 100,
+      diag_plots = FALSE,
+      seed = 123,
+      remove_duplicates = TRUE
+    ),
+    "Number of synthetic rows is more than original"
+  )
+  expect_equal(nrow(output$datagen), 100)
+})
+
