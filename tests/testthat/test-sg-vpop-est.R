@@ -128,21 +128,6 @@ test_that("sg_vpop_est respects nobj parameter", {
   expect_equal(nrow(result$datagen), 100)
 })
 
-test_that("sg_vpop_est respects npop parameter", {
-  #skip_if(T)
-  set.seed(45)
-  test_data <- data.frame(
-    x1 = rnorm(150, mean = 10, sd = 2),
-    x2 = rnorm(150, mean = 20, sd = 3)
-  )
-
-  output <-
-    sg_vpop_est(data_i = test_data, npop = 2, diag_plots = FALSE, seed = 123, remove_duplicates = TRUE)
-
-
-  result <- output
-  expect_equal(nrow(result$datagen), 300)
-})
 
 test_that("sg_vpop_est excludes idcol when specified", {
   #skip_if(T)
@@ -850,3 +835,32 @@ test_that("sg_vpop_est treats seed_umap NULL and NA as deterministic default 42"
   expect_equal(null_umap_data, default_umap_data)
   expect_equal(na_umap_data, default_umap_data)
 })
+
+test_that("sg_vpop_est internal function distance_js calculate JSD properly",{
+  P=c(0.32,0.30,0.08,0.26,0.04)
+  Q=c(0.16,0.36, 0.14,0.10,0.24)
+  jsd_exp = 0.077
+  jsd_act = round(distance_js(P, Q), 3)
+  expect_equal(jsd_act, jsd_exp)
+})
+
+test_that("sg_vpop_est warns when nobj is greater than original rows", {
+  set.seed(45)
+  test_data <- data.frame(
+    x1 = rnorm(80, mean = 10, sd = 2),
+    x2 = rnorm(80, mean = 20, sd = 3)
+  )
+
+  expect_warning(
+    output <- sg_vpop_est(
+      data_i = test_data,
+      nobj = 100,
+      diag_plots = FALSE,
+      seed = 123,
+      remove_duplicates = TRUE
+    ),
+    "Number of synthetic rows is more than original"
+  )
+  expect_equal(nrow(output$datagen), 100)
+})
+

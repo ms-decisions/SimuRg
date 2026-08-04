@@ -170,7 +170,7 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
   ))
 }
 
-# Jensen-Shannon divergence
+# Jensen-Shannon divergence calculation
 distance_js <- function(p, q) {
   p <- p / sum(p)
   q <- q / sum(q)
@@ -211,8 +211,8 @@ distance_js <- function(p, q) {
 #' }
 #' @inheritParams sg_dummy
 #' @param data_i data frame. Input data frame containing the original dataset to be synthesized (required)
-#' @param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When provided, overrides \code{npop} (optional, default: \code{NA})
-#' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional, default: \code{3})
+#' 
+#' @param minnumlev integer. Threshold; numeric variables with <= \code{minnumlev} unique values are converted to factors (optional,@param nobj integer. Specify the exact number of rows to generate in the synthetic dataset. When \code{NA}, uses the original dataset size (optional, default: \code{NA}) default: \code{3})
 #' @param seed integer. Random seed for synthetic data generation. If provided (not \code{NA}, not \code{NULL}), generates a single dataset with this seed (fixed seed mode).
 #' If \code{NA} or \code{NULL} uses search mode to find \code{nds} datasets meeting correlation threshold (optional, default: \code{123})
 #' @param seed_umap integer. Random seed for UMAP algorithm reproducibility (optional, default: \code{42})
@@ -275,9 +275,8 @@ distance_js <- function(p, q) {
 #' @importFrom tidyr drop_na
 #' @importFrom tibble tibble as_tibble
 #' @importFrom recipes recipe step_dummy step_center step_scale prep bake
-#' @importFrom philentropy distance
 #' @export
-sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 1,
+sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,
                        excl_col = NULL,seed = 123,
                        seed_umap = 42, palette = NULL,
                        diag_plots = FALSE,
@@ -382,9 +381,10 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
   # (Smoothing produces continuous values, which can fail if cast back to integer)
   data_i <- data_i %>% mutate(across(where(is.integer), as.numeric))
 
-  if (!is.na(nobj)){n_new = nobj} else if(!is.na(npop)&(npop>0)){
-    n_new = as.integer(round(n_orig * npop))
-    } else {n_new = n_orig}
+  if (!is.na(nobj)){n_new = nobj} else {n_new = n_orig}
+  if (!is.na(nobj) && nobj > n_orig){
+    warning("Number of synthetic rows is more than original. Please check the value of `nobj`.")
+  }
 
 
   # Create optimal visit sequence based on correlations (if enabled)
@@ -599,16 +599,18 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
         p <- prop.table(table(factor(data_i[[var]], levels = lev)))
         q <- prop.table(table(factor(data_syn[[var]], levels = lev)))
 
-        distance_js(p, q)
-
         # Small epsilon to avoid log(0)
-        # eps <- 1e-8
-        # p <- p + eps
-        # q <- q + eps
-        # p <- p / sum(p)
-        # q <- q / sum(q)
+        eps <- 1e-8
+        p <- p + eps
+        q <- q + eps
+        p <- p / sum(p)
+        q <- q / sum(q)
 
         # Jensen-Shannon divergence (obs || syn)
+        as.numeric(
+        distance_js(p, q)
+        )
+
         # as.numeric(
         #   distance(rbind(p, q), method = "jensen-shannon")
         # )
