@@ -170,6 +170,19 @@ remove_exact_duplicates <- function(data_syn, data_orig, var_cont, var_cat,
   ))
 }
 
+# Jensen-Shannon divergence calculation
+distance_js <- function(p, q) {
+  p <- p / sum(p)
+  q <- q / sum(q)
+  m <- (p + q) / 2
+  kl <- function(x, y) {
+    idx <- x > 0
+    sum(x[idx] * log(x[idx] / y[idx]))
+  }
+
+  0.5 * kl(p, m) + 0.5 * kl(q, m)
+}
+
 #' Perform generation of synthetic datasets for an empirical distribution
 #'
 #' The function operates in two modes:
@@ -595,8 +608,12 @@ sg_vpop_est <-  function(data_i, nobj = NA, id_col = NULL, minnumlev = 3,npop = 
 
         # Jensen-Shannon divergence (obs || syn)
         as.numeric(
-          distance(rbind(p, q), method = "jensen-shannon")
+        distance_js(p, q)
         )
+
+        # as.numeric(
+        #   distance(rbind(p, q), method = "jensen-shannon")
+        # )
       })
 
       jsd <- as.vector(jsd_by_var)
