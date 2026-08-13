@@ -1,9 +1,9 @@
-## Author: Yaroslav Ugolkov, Alina Melnikova
+## Author: Yaroslav Ugolkov
 ## First created: 2025-10-17
 ## Description: Unit tests for sg-converter requirements/risks
 ## Keywords: SimuRg, sg-converter
 
-#source("./scripts/nlme/2.1-sg-converter/sg-converter_AMel.R")
+source("./scripts/nlme/2.1-sg-converter/sg-converter_AMel.R")
 
 fixture_copy <- function() {
   src_extdata <- system.file("extdata", package = "SimuRg")
@@ -55,35 +55,14 @@ run_converter <- function(fx) {
   )
 }
 
-test_that("Test_1_1:sg-converter works and contains all elements", {
-  test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
-  if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
-    test_folder <- str_c(test_folder, "/")
-  pro_name <- "proj-solo"
-
-  # Simple function call
-  result <- sg_converter(folder_path = test_folder, proj_name = pro_name)
-  expect_type(result, "list")
-
-  required_elements <- c("SDTAB", "SUMTAB", "SIGMAMAT", "OMEGAMAT", "OCCMAT",
-                         "EVTAB", "PATAB", "COTAB", "CATAB", "REGTAB",
-                         "OFV", "COVMAT", "CORRMAT", "OPTIONS", "PROJNAME")
-  expect_true(all(required_elements %in% names(result$GFO)))
-
-  expect_gt(nrow(result$GFO$SDTAB), 0)
-  expect_gt(nrow(result$GFO$SUMTAB), 0)
-  expect_gt(nrow(result$GFO$PATAB), 0)
-})
-
-
-test_that("Test_2_2: missing mlxtran project file errors clearly", {
+test_that("1) missing mlxtran project file errors clearly", {
   expect_error(
     suppressWarnings(sg_converter("invalid_path", "invalid_project")),
     "Project file does not exist. Check file existance or try to use absolute path"
   )
 })
 
-test_that("Test_3_3: DATAFILE path parsing supports absolute and Monolix 2024 syntax", {
+test_that("2) DATAFILE path parsing supports absolute and Monolix 2024 syntax", {
   # Absolute path case
   fx_abs <- fixture_copy()
   files_abs <- project_files(fx_abs)
@@ -105,7 +84,7 @@ test_that("Test_3_3: DATAFILE path parsing supports absolute and Monolix 2024 sy
   expect_gt(nrow(res_2024$GFO$SDTAB), 0)
 })
 
-test_that("Test_4_4: both CSV and TSV datasets are parsed", {
+test_that("3) both CSV and TSV datasets are parsed", {
   fx <- fixture_copy()
   files <- project_files(fx)
 
@@ -122,7 +101,7 @@ test_that("Test_4_4: both CSV and TSV datasets are parsed", {
   expect_true(all(c("ID", "TIME", "DV", "DVID") %in% names(result$GFO$SDTAB)))
 })
 
-test_that("Test_5_5: required mapping columns are renamed without losing target-name conflicts", {
+test_that("4) required mapping columns are renamed without losing target-name conflicts", {
   fx <- fixture_copy()
   files <- project_files(fx)
   dt <- read.csv(files$csv, check.names = FALSE)
@@ -161,7 +140,7 @@ test_that("Test_5_5: required mapping columns are renamed without losing target-
   expect_true(all(result$GFO$SDTAB$DV != -999))
 })
 
-test_that("Test_6_6: duplicate non-covariate `use` mappings pass if identical and fail if different", {
+test_that("5) duplicate non-covariate `use` mappings pass if identical and fail if different", {
   # Pass case: duplicated time mapping with identical values
   fx_ok <- fixture_copy()
   files_ok <- project_files(fx_ok)
@@ -192,7 +171,7 @@ test_that("Test_6_6: duplicate non-covariate `use` mappings pass if identical an
   )
 })
 
-test_that("Test_7_7: FIT endpoint map enforces matching data/model lengths", {
+test_that("6) FIT endpoint map enforces matching data/model lengths", {
   fx <- fixture_copy()
   update_mlx(fx, function(lines) {
     replace_first_matching_line(lines, "^model\\s*=\\s*\\{y1\\}", "model = {y1, y2}")
@@ -203,7 +182,7 @@ test_that("Test_7_7: FIT endpoint map enforces matching data/model lengths", {
   )
 })
 
-test_that("Test_8_8: residual error mapping covers proportional, constant, and combined", {
+test_that("7) residual error mapping covers proportional, constant, and combined", {
   # proportional (fixture default)
   fx_prop <- fixture_copy()
   res_prop <- run_converter(fx_prop)
@@ -256,7 +235,7 @@ test_that("Test_8_8: residual error mapping covers proportional, constant, and c
   expect_length(res_comb$GCO$ruv$INIT, 2)
 })
 
-test_that("Test_9_9: SDTAB joins by ID/TIME and fills MDV=0 when MDV source is absent", {
+test_that("8) SDTAB joins by ID/TIME and fills MDV=0 when MDV source is absent", {
   fx <- fixture_copy()
   files <- project_files(fx)
 
@@ -275,7 +254,7 @@ test_that("Test_9_9: SDTAB joins by ID/TIME and fills MDV=0 when MDV source is a
   expect_false(any(is.na(result$GFO$SDTAB$IPRED)))
 })
 
-test_that("Test_10_10: Monte Carlo WRES is reproducible with an explicit seed", {
+test_that("9) Monte Carlo WRES is reproducible with an explicit seed", {
   fx <- fixture_copy()
   set.seed(2026)
   res_1 <- run_converter(fx)
@@ -285,7 +264,7 @@ test_that("Test_10_10: Monte Carlo WRES is reproducible with an explicit seed", 
   expect_equal(res_1$GFO$SDTAB$WRES, res_2$GFO$SDTAB$WRES, tolerance = 1e-12)
 })
 
-test_that("Test_11_11: GFO/GCO preserve required shape and optional placeholders", {
+test_that("10) GFO/GCO preserve required shape and optional placeholders", {
   fx <- fixture_copy()
   files <- project_files(fx)
   if (dir.exists(files$fi_dir)) unlink(files$fi_dir, recursive = TRUE)
@@ -311,7 +290,7 @@ test_that("Test_11_11: GFO/GCO preserve required shape and optional placeholders
   expect_null(result$GFO$OPTIONS)
 })
 
-test_that("Test_12_12: GCO covs keeps several covariates on one parameter", {
+test_that("11) GCO covs keeps several covariates on one parameter", {
   fx <- fixture_copy()
 
   update_mlx(fx, function(lines) {
