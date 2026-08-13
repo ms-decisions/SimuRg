@@ -290,3 +290,27 @@ test_that("10) GFO/GCO preserve required shape and optional placeholders", {
   expect_null(result$GFO$OPTIONS)
 })
 
+test_that("11) GCO covs keeps several covariates on one parameter", {
+  fx <- fixture_copy()
+
+  update_mlx(fx, function(lines) {
+    lines <- replace_first_matching_line(
+      lines,
+      "^Cl\\s*=\\s*\\{distribution=logNormal, typical=Cl_pop, sd=omega_Cl\\}",
+      "Cl = {distribution=logNormal, typical=Cl_pop, sd=omega_Cl, covariate={AGE_centered, WEIGHT}, coefficient={beta_age, beta_wt}}"
+    )
+    lines <- insert_line_after(lines, "^omega_ka\\s*=\\s*\\{value=1, method=MLE\\}", "beta_age = {value=0.01, method=MLE}")
+    lines <- insert_line_after(lines, "^beta_age\\s*=\\s*\\{value=0.01, method=MLE\\}", "beta_wt = {value=0.02, method=MLE}")
+    lines
+  })
+
+  result <- run_converter(fx)
+  expect_type(result$GCO$covs, "list")
+
+  cl_covs <- Filter(function(x) identical(x$PAR, "Cl"), result$GCO$covs)
+  cl_cov_names <- vapply(cl_covs, function(x) x$COVNAME, character(1))
+
+  expect_true(all(c("AGE_centered", "WEIGHT") %in% cl_cov_names))
+  expect_equal(sum(cl_cov_names %in% c("AGE_centered", "WEIGHT")), 2)
+})
+

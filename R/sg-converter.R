@@ -962,6 +962,54 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
     def_lines <- ind_section[(def_idx + 1):length(ind_section)]
     def_lines <- def_lines[str_detect(def_lines, "=") & str_detect(def_lines, "\\{")]
 
+    split_top_level <- function(x) {
+      chars <- strsplit(x, "", fixed = TRUE)[[1]]
+      if (length(chars) == 0) return(character(0))
+      depth <- 0L
+      token <- ""
+      out <- character(0)
+      for (ch in chars) {
+        if (ch == "{") depth <- depth + 1L
+        if (ch == "}") depth <- depth - 1L
+        if (ch == "," && depth == 0L) {
+          out <- c(out, str_trim(token))
+          token <- ""
+        } else {
+          token <- paste0(token, ch)
+        }
+      }
+      out <- c(out, str_trim(token))
+      out[out != ""]
+    }
+
+    extract_key_value <- function(text, key) {
+      key_pos <- str_locate(text, paste0("\\b", key, "\\s*="))
+      if (is.na(key_pos[1, 1])) return(NA_character_)
+      i <- key_pos[1, 2] + 1
+      n <- nchar(text)
+      while (i <= n && substr(text, i, i) == " ") i <- i + 1
+      if (i > n) return(NA_character_)
+
+      if (substr(text, i, i) == "{") {
+        depth <- 0L
+        j <- i
+        while (j <= n) {
+          ch <- substr(text, j, j)
+          if (ch == "{") depth <- depth + 1L
+          if (ch == "}") {
+            depth <- depth - 1L
+            if (depth == 0L) break
+          }
+          j <- j + 1
+        }
+        return(str_trim(substr(text, i, j)))
+      }
+
+      j <- i
+      while (j <= n && !substr(text, j, j) %in% c(",", "}")) j <- j + 1
+      str_trim(substr(text, i, j - 1))
+    }
+
     covs_list <- list()
 
     for (line in def_lines) {
@@ -970,76 +1018,95 @@ sg_converter <- function(folder_path, proj_name, save_file = FALSE){
       def_part <- str_extract(line_clean, "\\{.*")
       if (is.na(def_part) || is.na(par_name)) next
 
-      cov_match <- str_match(def_part, "covariate\\s*=\\s*([[:alnum:]_]+)")
-      if (is.na(cov_match[1, 2])) next
-      cov_name_raw <- cov_match[1, 2]
-
-      cov_name_orig <- if (!is.null(cov_transform_map[[cov_name_raw]])) {
-        cov_transform_map[[cov_name_raw]]
+      cov_raw <- extract_key_value(def_part, "covariate")
+      if (is.na(cov_raw) || cov_raw == "") next
+      cov_names_raw <- if (str_starts(cov_raw, "\\{")) {
+        split_top_level(str_remove_all(cov_raw, "^\\{|\\}$"))
       } else {
-        cov_name_raw
+        cov_raw
+      }
+      if (length(cov_names_raw) == 0) next
+
+      coef_raw <- extract_key_value(def_part, "coefficient")
+      coef_parts <- if (is.na(coef_raw) || coef_raw == "") {
+        rep(NA_character_, length(cov_names_raw))
+      } else if (str_starts(coef_raw, "\\{")) {
+        split_top_level(str_remove_all(coef_raw, "^\\{|\\}$"))
+      } else {
+        coef_raw
+      }
+      if (length(coef_parts) < length(cov_names_raw)) {
+        coef_parts <- c(coef_parts, rep(NA_character_, length(cov_names_raw) - length(coef_parts)))
       }
 
-      is_cat <- cov_name_orig %in% cat_covs || cov_name_raw %in% cat_covs
-
-      coef_braced <- str_match(def_part, "coefficient\\s*=\\s*(\\{[^}]+\\})")
-      coef_single <- str_match(def_part, "coefficient\\s*=\\s*([[:alnum:]_]+)")
-
-      if (is_cat) {
-        beta_par <- NA_character_
-        ref_cat  <- NA
-
-        if (!is.na(coef_braced[1, 2])) {
-          coef_inner <- str_remove_all(coef_braced[1, 2], "[\\{\\}]")
-          coef_parts <- str_split(coef_inner, ",")[[1]] %>% str_trim()
-          cats <- cat_cats_map[[cov_name_raw]]
-          if (is.null(cats)) cats <- cat_cats_map[[cov_name_orig]]
-
-          for (k in seq_along(coef_parts)) {
-            coef_val <- suppressWarnings(as.numeric(coef_parts[k]))
-            if (!is.na(coef_val) && coef_val == 0) {
-              ref_cat <- if (!is.null(cats) && k <= length(cats)) {
-                val <- suppressWarnings(as.numeric(cats[k]))
-                if (is.na(val)) cats[k] else val
-              } else {
-                0
-              }
-            } else if (is.na(suppressWarnings(as.numeric(coef_parts[k])))) {
-              if (is.na(beta_par)) beta_par <- coef_parts[k]
-            }
-          }
-        } else if (!is.na(coef_single[1, 2])) {
-          beta_par <- coef_single[1, 2]
+      for (i in seq_along(cov_names_raw)) {
+        cov_name_raw <- cov_names_raw[i]
+        cov_name_orig <- if (!is.null(cov_transform_map[[cov_name_raw]])) {
+          cov_transform_map[[cov_name_raw]]
+        } else {
+          cov_name_raw
         }
 
-        init_val <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
-        est_val  <- if (!is.na(beta_par)) {
-          !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
-        } else NA
+        is_cat <- cov_name_orig %in% cat_covs || cov_name_raw %in% cat_covs
+        coef_i <- coef_parts[i]
+        if (is.na(coef_i) || coef_i == "") coef_i <- NA_character_
 
-        covs_list <- c(covs_list, list(list(
-          PAR     = par_name,
-          COVNAME = cov_name_orig,
-          REF     = ref_cat,
-          INIT    = init_val,
-          EST     = est_val
-        )))
+        if (is_cat) {
+          beta_par <- NA_character_
+          ref_cat  <- NA
 
-      } else {
-        beta_par  <- if (!is.na(coef_single[1, 2])) coef_single[1, 2] else NA_character_
-        init_val  <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
-        est_val   <- if (!is.na(beta_par)) {
-          !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
-        } else NA
+          if (!is.na(coef_i) && str_starts(coef_i, "\\{")) {
+            coef_inner <- str_remove_all(coef_i, "^\\{|\\}$")
+            coef_items <- split_top_level(coef_inner)
+            cats <- cat_cats_map[[cov_name_raw]]
+            if (is.null(cats)) cats <- cat_cats_map[[cov_name_orig]]
 
-        covs_list <- c(covs_list, list(list(
-          PAR     = par_name,
-          COVNAME = cov_name_orig,
-          FUNC    = "linear",
-          TRANS   = "median",
-          INIT    = init_val,
-          EST     = est_val
-        )))
+            for (k in seq_along(coef_items)) {
+              coef_val <- suppressWarnings(as.numeric(coef_items[k]))
+              if (!is.na(coef_val) && coef_val == 0) {
+                ref_cat <- if (!is.null(cats) && k <= length(cats)) {
+                  val <- suppressWarnings(as.numeric(cats[k]))
+                  if (is.na(val)) cats[k] else val
+                } else {
+                  0
+                }
+              } else if (is.na(suppressWarnings(as.numeric(coef_items[k])))) {
+                if (is.na(beta_par)) beta_par <- coef_items[k]
+              }
+            }
+          } else if (!is.na(coef_i)) {
+            beta_par <- coef_i
+          }
+
+          init_val <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
+          est_val  <- if (!is.na(beta_par)) {
+            !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
+          } else NA
+
+          covs_list <- c(covs_list, list(list(
+            PAR     = par_name,
+            COVNAME = cov_name_orig,
+            REF     = ref_cat,
+            INIT    = init_val,
+            EST     = est_val
+          )))
+
+        } else {
+          beta_par  <- if (!is.na(coef_i) && !str_starts(coef_i, "\\{")) coef_i else NA_character_
+          init_val  <- if (!is.na(beta_par)) param_map$value[match(beta_par, param_map$PAR)] else NA_real_
+          est_val   <- if (!is.na(beta_par)) {
+            !toupper(param_map$method[match(beta_par, param_map$PAR)]) %in% c("FIXED")
+          } else NA
+
+          covs_list <- c(covs_list, list(list(
+            PAR     = par_name,
+            COVNAME = cov_name_orig,
+            FUNC    = "linear",
+            TRANS   = "median",
+            INIT    = init_val,
+            EST     = est_val
+          )))
+        }
       }
     }
 
