@@ -245,6 +245,26 @@ sg_sim <- function(model, et,  stimes = NULL, outputs = NULL, theta = NULL,
   # ── id column: et may use "id" or "ID" ─────────────────────────────────
   et_id_col <- intersect(c("id", "ID"), colnames(et))[1]
 
+  if (is.character(model) && length(model) == 1) {
+
+    model <- tryCatch(
+
+      {
+        eval(parse(text = paste0("rxode2::rxode2({", model, "})")))
+      },
+
+      error = function(e) {
+        stop(
+          "Unable to compile the rxode2 model.\n",
+          "Compilation error:\n",
+          conditionMessage(e),
+          call. = FALSE
+        )
+      }
+
+    )
+  }
+
   # ── auto-detect per-ID parameters from model + et columns ────────────
   et_standard <- c("id", "ID", "time", "TIME", "evid", "EVID", "cmt", "CMT",
                    "amt", "AMT", "addl", "ADDL", "ii", "II", "dur", "DUR",

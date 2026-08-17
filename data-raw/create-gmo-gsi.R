@@ -2,8 +2,8 @@
 ## GMO: from inst/extdata/simurg_object/gmo_pk1c_model.txt
 ## GSI: assembled inline (sg_sim() arguments).
 
-root <- normalizePath(getwd(), winslash = "/")
-model_path <- file.path(root, "inst", "extdata", "simurg_object", "gmo_pk1c_model.txt")
+
+model_path <- file.path("inst", "extdata", "simurg_object", "gmo_pk1c_model.txt")
 
 if (!file.exists(model_path)) {
   stop("Missing model source: ", model_path)
@@ -13,7 +13,8 @@ if (!file.exists(model_path)) {
 model_code <- paste(readLines(model_path, warn = FALSE), collapse = "\n")
 
 suppressPackageStartupMessages(library(rxode2))
-gmo_pk1c <- eval(parse(text = paste0("rxode2::rxode2({", model_code, "})")))
+gmo_pk1c <- model_code
+gmo_pk1c_comp <- eval(parse(text = paste0("rxode2::rxode2({", model_code, "})")))
 
 ## --- GSI ---
 theta_par <- c(
@@ -70,7 +71,7 @@ gsi_pk1c <- list(
 )
 
 if (requireNamespace("devtools", quietly = TRUE)) {
-  devtools::load_all(root, quiet = TRUE)
+  devtools::load_all(quiet = TRUE)
   sim_check <- do.call(sg_sim, c(list(model = gmo_pk1c), gsi_pk1c))
   stopifnot(all(c("ID", "TIME", "VAR", "VALUE", "POPN") %in% names(sim_check)))
   message("Sanity check: ", nrow(sim_check), " GSO rows")

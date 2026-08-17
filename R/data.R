@@ -182,9 +182,9 @@ NULL
 #' }
 #' @examples
 #' \donttest{
-#' class(gmo_pk1c)
-#' gmo_pk1c$model
-#' gmo_pk1c$params
+#' gmo_pk1c_comp <- eval(parse(text = paste0("rxode2::rxode2({", gmo_pk1c, "})")))
+#' gmo_pk1c_comp$model
+#' gmo_pk1c_comp$params
 #' }
 #' @seealso [GCO], [GSI], [gmo_pk1c], [sg_sim()]
 #' @name GMO
