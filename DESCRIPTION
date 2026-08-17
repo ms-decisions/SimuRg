@@ -1,6 +1,6 @@
 Package: SimuRg
 Title: Building, Fitting and Evaluating PK/PD Modeles 
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
     person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut"), comment = c(ORCID = " 0000-0001-7066-0811")),
     person("Anna", "Mikhailova", , "anna.mikhailova@msdecisions.tech", role = c("cre", "aut"), comment = c(ORCID = "0009-0007-1547-5200")),
@@ -27,7 +27,6 @@ Imports:
     ggplot2,
     jsonlite,
     MASS,
-    philentropy,
     purrr,
     readr,
     recipes,
