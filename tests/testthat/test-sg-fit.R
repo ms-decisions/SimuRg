@@ -234,6 +234,7 @@ test_that("sg_fit mlxtran output reflects core headers and parameterization", {
 # ============================================================
 
 test_that("sg_fit fit = TRUE skips cleanly when Monolix is unavailable", {
+  skip_on_cran()
   monolix_path <- .find_monolix_batch()
   skip_if(
     is.na(monolix_path),
@@ -359,6 +360,7 @@ test_that("sg_fit mlxtran output reflects core headers and parameterization", {
 # ============================================================
 
 test_that("sg_fit fit = TRUE skips cleanly when Monolix is unavailable", {
+  skip_on_cran()
   monolix_path <- .find_monolix_batch()
   skip_if(
     is.na(monolix_path),
@@ -486,6 +488,7 @@ test_that("sg_fit Simurg JSON reflects core GCO fields and parameterisation", {
 }
 
 test_that("sg_fit fit = TRUE with Simurg core returns a result", {
+  skip_on_cran()
   core_path <- .find_simurg_core()
   skip_if(
     is.na(core_path),

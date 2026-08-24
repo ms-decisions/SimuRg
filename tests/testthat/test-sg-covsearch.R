@@ -758,6 +758,7 @@ test_that("stepwise stops with clear error when mock fit fails", {
 # Guarded fitter integration tests
 # ------------------------------
 test_that("sg_covsearch runs with Monolix fitter when available", {
+  skip_on_cran()
   monolix_path <-"C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat"
   skip_if(
     is.na(monolix_path),

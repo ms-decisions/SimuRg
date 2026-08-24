@@ -78,6 +78,7 @@ et_base <- tribble(
 )
 
 test_that("sg_localsens_vis output is correct", {
+  skip_on_cran()
   skip_on_ci()
   sens_data <- sg_localsens_sim(
     model = mod_ex,

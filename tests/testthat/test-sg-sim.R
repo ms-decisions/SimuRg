@@ -6,6 +6,7 @@
 ##   (2) 1-compartment PK with WTBL covariate on Vd — covs/keep and covariate + variability (sim5).
 
 test_that("sg_sim runs with 1-compartment model and explicit parameters", {
+  skip_on_cran()
   # ---- Model: 1-compartment PK, no covariate ----
   mod <- rxode2::rxode2({
     ka_pop = 0.1;
@@ -219,6 +220,7 @@ test_that("sg_sim runs with 1-compartment model and explicit parameters", {
 })
 
 test_that("sg_sim runs with covariate model and explicit parameters (sim5)", {
+  skip_on_cran()
   # ---- Model: 1-compartment PK with WTBL covariate on Vd (Vd_tv = exp(Vd_pop) * (WTBL/70)^beta_WTBL_Vd_pop) ----
   mod_cov <- rxode2::rxode2({
     ka_pop = 0.1;

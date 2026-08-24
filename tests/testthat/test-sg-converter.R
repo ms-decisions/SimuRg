@@ -56,6 +56,7 @@ run_converter <- function(fx) {
 }
 
 test_that("Test_1_1:sg-converter works and contains all elements", {
+  skip_on_cran()
   test_folder <- system.file("extdata", "Monolix_objects", package = "SimuRg")
   if (substr(test_folder, nchar(test_folder), nchar(test_folder)) != "/")
     test_folder <- str_c(test_folder, "/")
@@ -84,6 +85,7 @@ test_that("Test_2_2: missing mlxtran project file errors clearly", {
 })
 
 test_that("Test_3_3: DATAFILE path parsing supports absolute and Monolix 2024 syntax", {
+  skip_on_cran()
   # Absolute path case
   fx_abs <- fixture_copy()
   files_abs <- project_files(fx_abs)
@@ -106,6 +108,7 @@ test_that("Test_3_3: DATAFILE path parsing supports absolute and Monolix 2024 sy
 })
 
 test_that("Test_4_4: both CSV and TSV datasets are parsed", {
+  skip_on_cran()
   fx <- fixture_copy()
   files <- project_files(fx)
 
@@ -123,6 +126,7 @@ test_that("Test_4_4: both CSV and TSV datasets are parsed", {
 })
 
 test_that("Test_5_5: required mapping columns are renamed without losing target-name conflicts", {
+  skip_on_cran()
   fx <- fixture_copy()
   files <- project_files(fx)
   dt <- read.csv(files$csv, check.names = FALSE)
@@ -162,6 +166,7 @@ test_that("Test_5_5: required mapping columns are renamed without losing target-
 })
 
 test_that("Test_6_6: duplicate non-covariate `use` mappings pass if identical and fail if different", {
+  skip_on_cran()
   # Pass case: duplicated time mapping with identical values
   fx_ok <- fixture_copy()
   files_ok <- project_files(fx_ok)
@@ -193,6 +198,7 @@ test_that("Test_6_6: duplicate non-covariate `use` mappings pass if identical an
 })
 
 test_that("Test_7_7: FIT endpoint map enforces matching data/model lengths", {
+  skip_on_cran()
   fx <- fixture_copy()
   update_mlx(fx, function(lines) {
     replace_first_matching_line(lines, "^model\\s*=\\s*\\{y1\\}", "model = {y1, y2}")
@@ -204,6 +210,7 @@ test_that("Test_7_7: FIT endpoint map enforces matching data/model lengths", {
 })
 
 test_that("Test_8_8: residual error mapping covers proportional, constant, and combined", {
+  skip_on_cran()
   # proportional (fixture default)
   fx_prop <- fixture_copy()
   res_prop <- run_converter(fx_prop)
@@ -257,6 +264,7 @@ test_that("Test_8_8: residual error mapping covers proportional, constant, and c
 })
 
 test_that("Test_9_9: SDTAB joins by ID/TIME and fills MDV=0 when MDV source is absent", {
+  skip_on_cran()
   fx <- fixture_copy()
   files <- project_files(fx)
 
@@ -276,6 +284,7 @@ test_that("Test_9_9: SDTAB joins by ID/TIME and fills MDV=0 when MDV source is a
 })
 
 test_that("Test_10_10: Monte Carlo WRES is reproducible with an explicit seed", {
+  skip_on_cran()
   fx <- fixture_copy()
   set.seed(2026)
   res_1 <- run_converter(fx)
@@ -286,6 +295,7 @@ test_that("Test_10_10: Monte Carlo WRES is reproducible with an explicit seed", 
 })
 
 test_that("Test_11_11: GFO/GCO preserve required shape and optional placeholders", {
+  skip_on_cran()
   fx <- fixture_copy()
   files <- project_files(fx)
   if (dir.exists(files$fi_dir)) unlink(files$fi_dir, recursive = TRUE)
@@ -312,6 +322,7 @@ test_that("Test_11_11: GFO/GCO preserve required shape and optional placeholders
 })
 
 test_that("Test_12_12: GCO covs keeps several covariates on one parameter", {
+  skip_on_cran()
   fx <- fixture_copy()
 
   update_mlx(fx, function(lines) {

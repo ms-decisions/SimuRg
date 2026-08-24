@@ -400,6 +400,7 @@ remove_covariate <- function(covs_list, param, cov) {
 #'
 #' @export
 #' @examples
+#' \donttest{
 #' model_path <- tempfile(fileext = ".txt")
 #' data_path <- tempfile(fileext = ".csv")
 #' writeLines(c("[LONGITUDINAL]", "input = {CL, V}", "PK:"), model_path)
@@ -460,6 +461,7 @@ remove_covariate <- function(covs_list, param, cov) {
 #' )
 #'
 #' result$forward$selected[, c("parameter", "covariate")]
+#' }
 #'
 #' @return A list with `final_gco`, `final_covariates`, forward/backward
 #'   summaries, runtime `settings`, and execution `metadata`.

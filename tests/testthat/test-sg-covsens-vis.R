@@ -114,21 +114,23 @@ diag(.m_cov) <- 0.05 + runif(.npar, 0, 0.05)
 names(.est_covmat)[-1] <- .pnames
 
 # ---- Cached sg_covsens_sim output (table mode) -----------------------------
-.covsens_res <- sg_covsens_sim(
-  fpath_i    = NULL,
-  ds_parest  = parest,
-  ds_covs    = ds_covval,
-  model      = .mod_fin,
-  stimes     = .stimes_ss,
-  et         = .ev_t_input,
-  est_covmat = .est_covmat,
-  npop       = 10,
-  cont_cov_l = .cont_cov_l,
-  cat_cov_l  = .cat_cov_l,
-  quantiles  = c(0.2, 0.8),
-  aggr       = c("max"),
-  outputs    = "Cc"
-)
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  .covsens_res <- sg_covsens_sim(
+    fpath_i    = NULL,
+    ds_parest  = parest,
+    ds_covs    = ds_covval,
+    model      = .mod_fin,
+    stimes     = .stimes_ss,
+    et         = .ev_t_input,
+    est_covmat = .est_covmat,
+    npop       = 10,
+    cont_cov_l = .cont_cov_l,
+    cat_cov_l  = .cat_cov_l,
+    quantiles  = c(0.2, 0.8),
+    aggr       = c("max"),
+    outputs    = "Cc"
+  )
+}
 
 
 # ============================================================
@@ -136,17 +138,20 @@ names(.est_covmat)[-1] <- .pnames
 # ============================================================
 
 test_that("sg_covsens_vis returns a ggplot object", {
+  skip_on_cran()
   p <- sg_covsens_vis(.covsens_res)
   expect_s3_class(p, "gg")
 })
 
 test_that("sg_covsens_vis default type builds PARSENS with ggplot_build", {
+  skip_on_cran()
   p <- sg_covsens_vis(.covsens_res)
   pb <- ggplot2::ggplot_build(p)
   expect_s3_class(pb, "ggplot_built")
 })
 
 test_that("sg_covsens_vis plot_type EXPSENS builds with ggplot_build", {
+  skip_on_cran()
   p <- sg_covsens_vis(.covsens_res, plot_type = "EXPSENS")
   pb <- ggplot2::ggplot_build(p)
   expect_s3_class(pb, "ggplot_built")
@@ -158,6 +163,7 @@ test_that("sg_covsens_vis plot_type EXPSENS builds with ggplot_build", {
 # ============================================================
 
 test_that("sg_covsens_vis applies lab_y and cap to plot labels", {
+  skip_on_cran()
   ylab_txt <- "Custom y label"
   cap_txt <- "Ref: custom caption"
   p <- sg_covsens_vis(.covsens_res, lab_y = ylab_txt, cap = cap_txt)
@@ -166,6 +172,7 @@ test_that("sg_covsens_vis applies lab_y and cap to plot labels", {
 })
 
 test_that("sg_covsens_vis accepts alternate ci levels", {
+  skip_on_cran()
   p <- sg_covsens_vis(.covsens_res, ci = 90)
   pb <- ggplot2::ggplot_build(p)
   expect_s3_class(pb, "ggplot_built")
@@ -177,6 +184,7 @@ test_that("sg_covsens_vis accepts alternate ci levels", {
 # ============================================================
 
 test_that("sg_covsens_vis exclude_vars reduces facet rows to remaining VAR levels", {
+  skip_on_cran()
   v_excl <- "CL"
   ds_kept <- dplyr::filter(.covsens_res$PARSENS, !.data$VAR %in% v_excl)
   n_var_kept <- dplyr::n_distinct(ds_kept$VAR)
@@ -195,6 +203,7 @@ test_that("sg_covsens_vis exclude_vars reduces facet rows to remaining VAR level
 # ============================================================
 
 test_that("sg_covsens_vis errors when covsens_res lacks requested plot_type", {
+  skip_on_cran()
   expect_error(
     sg_covsens_vis(list(PARSENS = .covsens_res$PARSENS), plot_type = "EXPSENS"),
     regexp = "does not contain an element named"
@@ -202,6 +211,7 @@ test_that("sg_covsens_vis errors when covsens_res lacks requested plot_type", {
 })
 
 test_that("sg_covsens_vis warns and falls back to 95 when ci is unsupported", {
+  skip_on_cran()
   expect_warning(
     p <- sg_covsens_vis(.covsens_res, ci = 85),
     regexp = "'ci' must be one of"
@@ -210,6 +220,7 @@ test_that("sg_covsens_vis warns and falls back to 95 when ci is unsupported", {
 })
 
 test_that("sg_covsens_vis errors when ci_limits length is not 2", {
+  skip_on_cran()
   expect_error(
     sg_covsens_vis(.covsens_res, ci_limits = 0.8),
     regexp = "length 2"
@@ -218,6 +229,7 @@ test_that("sg_covsens_vis errors when ci_limits length is not 2", {
 
 
 test_that("sg_covsens_vis warns and ignores invalid var_nice_names", {
+  skip_on_cran()
   expect_warning(
     p <- sg_covsens_vis(.covsens_res, var_nice_names = c("Label A", "Label B")),
     regexp = "must be a named character vector"
@@ -226,6 +238,7 @@ test_that("sg_covsens_vis warns and ignores invalid var_nice_names", {
 })
 
 test_that("sg_covsens_vis accepts duplicated var_nice_names values", {
+  skip_on_cran()
   parsens_vars <- unique(as.character(.covsens_res$PARSENS$VAR))
   expect_true(length(parsens_vars) >= 2)
 

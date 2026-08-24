@@ -109,6 +109,7 @@ test_that("sg_vpc_vis errors on invalid binning method", {
 
 # Basic functionality tests
 test_that("sg_vpc_vis returns list of ggplot objects", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -127,6 +128,7 @@ test_that("sg_vpc_vis returns list of ggplot objects", {
 })
 
 test_that("sg_vpc_vis handles multiple output variables", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -154,6 +156,7 @@ test_that("sg_vpc_vis handles multiple output variables", {
 })
 
 test_that("sg_vpc_vis handles different binning methods", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -182,6 +185,7 @@ test_that("sg_vpc_vis handles different binning methods", {
 })
 
 test_that("sg_vpc_vis handles custom n_bins parameter", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -200,6 +204,7 @@ test_that("sg_vpc_vis handles custom n_bins parameter", {
 })
 
 test_that("sg_vpc_vis handles interpolation parameter", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -222,6 +227,7 @@ test_that("sg_vpc_vis handles interpolation parameter", {
 })
 
 test_that("sg_vpc_vis handles log_y parameter", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -244,6 +250,7 @@ test_that("sg_vpc_vis handles log_y parameter", {
 })
 
 test_that("sg_vpc_vis handles prediction correction", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -266,6 +273,7 @@ test_that("sg_vpc_vis handles prediction correction", {
 })
 
 test_that("sg_vpc_vis handles percentile display flags", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -296,6 +304,7 @@ test_that("sg_vpc_vis handles percentile display flags", {
 })
 
 test_that("sg_vpc_vis handles confidence interval display", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -318,6 +327,7 @@ test_that("sg_vpc_vis handles confidence interval display", {
 })
 
 test_that("sg_vpc_vis handles observed data points display", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -340,6 +350,7 @@ test_that("sg_vpc_vis handles observed data points display", {
 })
 
 test_that("sg_vpc_vis handles custom axis labels", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -360,6 +371,7 @@ test_that("sg_vpc_vis handles custom axis labels", {
 })
 
 test_that("sg_vpc_vis handles custom prediction interval bounds", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -378,6 +390,7 @@ test_that("sg_vpc_vis handles custom prediction interval bounds", {
 })
 
 test_that("sg_vpc_vis handles custom confidence interval bounds", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -396,6 +409,7 @@ test_that("sg_vpc_vis handles custom confidence interval bounds", {
 })
 
 test_that("sg_vpc_vis handles legend display", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -418,6 +432,7 @@ test_that("sg_vpc_vis handles legend display", {
 })
 
 test_that("sg_vpc_vis handles custom time and DV column names", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -441,6 +456,7 @@ test_that("sg_vpc_vis handles custom time and DV column names", {
 })
 
 test_that("sg_vpc_vis handles variables with _ResErr suffix", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -460,6 +476,7 @@ test_that("sg_vpc_vis handles variables with _ResErr suffix", {
 })
 
 test_that("sg_vpc_vis returns named list matching VAR values", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
@@ -478,6 +495,7 @@ test_that("sg_vpc_vis returns named list matching VAR values", {
 })
 
 test_that("sg_vpc_vis plot changes when bins change", {
+  skip_on_cran()
   skip_if_not_installed("dplyr")
   skip_if_not_installed("tidyr")
   skip_if_not_installed("ggplot2")
