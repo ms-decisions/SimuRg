@@ -1,5 +1,5 @@
 Package: SimuRg
-Title: Building, Fitting and Evaluating PK/PD Modeles 
+Title: Building, Fitting and Evaluating PK/PD Models 
 Version: 0.2.2
 Authors@R: c(
     person("Victor", "Sokolov", , "victor.sokolov@msdecisions.tech", role =  c("cph", "aut"), comment = c(ORCID = " 0000-0001-7066-0811")),
