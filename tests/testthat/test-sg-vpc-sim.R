@@ -113,12 +113,14 @@ gco <-list(headers = headers,
            modelText = "")
 
 test_that("sg_sim_vps works ", {
+  skip_on_cran()
   res <- sg_vpc_sim(obj1, model = mod_fin, output = "Cc")
   expect_equal(res %>% pull(ID) %>% unique() %>% length(), 100)
   expect_equal(res %>% pull(TIME) %>% unique() %>% length(),
                obj1$SDTAB$TIME %>% unique() %>% length())
 })
 test_that("sg_sim_vps works ", {
+  skip_on_cran()
   res <- sg_vpc_sim(obj1, gco = gco, output = "Cc")
   expect_equal(res %>% pull(ID) %>% unique() %>% length(), 100)
   expect_equal(res %>% pull(TIME) %>% unique() %>% length(),
@@ -175,6 +177,7 @@ test_that("sg_vpc_sim errors on non-existent file path", {
 
 # Basic functionality tests
 test_that("sg_vpc_sim accepts list object as fpath_i", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -205,6 +208,7 @@ test_that("sg_vpc_sim accepts list object as fpath_i", {
 })
 
 test_that("sg_vpc_sim handles custom time_col parameter", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -229,6 +233,7 @@ test_that("sg_vpc_sim handles custom time_col parameter", {
 })
 
 test_that("sg_vpc_sim handles output parameter", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -249,6 +254,7 @@ test_that("sg_vpc_sim handles output parameter", {
 })
 
 test_that("sg_vpc_sim handles npop parameter", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -271,6 +277,7 @@ test_that("sg_vpc_sim handles npop parameter", {
 })
 
 test_that("sg_vpc_sim handles optional COTAB and CATAB", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -302,6 +309,7 @@ test_that("sg_vpc_sim handles optional COTAB and CATAB", {
 })
 
 test_that("sg_vpc_sim filters MDV correctly", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")
@@ -335,6 +343,7 @@ test_that("sg_vpc_sim filters MDV correctly", {
 })
 
 test_that("sg_vpc_sim returns data frame with ID column", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   skip_if_not_installed("dplyr")
   skip_if_not_installed("purrr")

@@ -8,9 +8,11 @@
 #' @inheritParams sg_dummy
 #' @returns Table derived from [GFO] `$SUMTAB` (and `$OFV` when `addOFV = TRUE`).
 #' @examples
+#' \donttest{
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sum_tab <- sg_parsum(fpath_i)
 #' print(sum_tab)
+#' }
 #' @import dplyr
 #' @import stringr
 #' @export

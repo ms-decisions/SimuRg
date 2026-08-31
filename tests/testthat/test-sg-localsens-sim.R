@@ -81,6 +81,7 @@ et_base <- tribble(
   1,   0,     1,     1,    10,   2,     24,  112,   1
 )
 test_that("sg_localsens_sim works and contains all elements", {
+  skip_on_cran()
   # Просто вызываем функцию и проверяем результат
   result <- sg_localsens_sim(
     model = mod_ex,

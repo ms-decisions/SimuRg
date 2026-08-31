@@ -4,6 +4,7 @@
 ## Keywords: SimuRg, sg-modbuild, model building
 
 test_that("sg_modbuild creates expected number of files", {
+  skip_on_cran()
 
   folder_path <- system.file("extdata", package = "SimuRg")
 

@@ -12,6 +12,7 @@
 #' `vs_contcov` and versus categorical covariates `vs_catcov` plots.
 #'
 #' @examples
+#' \donttest{
 #' library(tibble)
 #' cont_cov <- tibble(
 #'   COV = c("AGE", "WEIGHT"),
@@ -30,6 +31,7 @@
 #' )
 #' p$vs_contcov
 #' p$vs_catcov
+#' }
 #'
 #' @import dplyr
 #' @import tidyr

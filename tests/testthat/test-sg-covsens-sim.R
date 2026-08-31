@@ -115,38 +115,40 @@ names(.est_covmat) <- .pnames
 .est_covmat <- bind_cols(tibble(X1 = .pnames), .est_covmat)
 
 # ---- Helper: run once with file mode (gfo4cov) and cache result ------------
-.output_01 <- sg_covsens_sim(
-  fpath_i    = gfo4cov,
-  ds_parest  = NULL,
-  ds_covs     = NULL,
-  model      = .mod_fin,
-  stimes  = .stimes_ss,
-  et         = .ev_t_input,
-  est_covmat = NULL,
-  npop       = 10,
-  cont_cov_l = .cont_cov_l,
-  cat_cov_l  = .cat_cov_l,
-  quantiles  = c(0.2, 0.8),
-  aggr       = c("max"),
-  outputs    = "Cc"
-)
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  .output_01 <- sg_covsens_sim(
+    fpath_i    = gfo4cov,
+    ds_parest  = NULL,
+    ds_covs     = NULL,
+    model      = .mod_fin,
+    stimes  = .stimes_ss,
+    et         = .ev_t_input,
+    est_covmat = NULL,
+    npop       = 10,
+    cont_cov_l = .cont_cov_l,
+    cat_cov_l  = .cat_cov_l,
+    quantiles  = c(0.2, 0.8),
+    aggr       = c("max"),
+    outputs    = "Cc"
+  )
 
-# ---- Helper: run once with table mode (parest + ds_covval) -----------------
-.output_02 <- sg_covsens_sim(
-  fpath_i    = NULL,
-  ds_parest  = parest,
-  ds_covs     = ds_covval,
-  model      = .mod_fin,
-  stimes  = .stimes_ss,
-  et         = .ev_t_input,
-  est_covmat = .est_covmat,
-  npop       = 10,
-  cont_cov_l = .cont_cov_l,
-  cat_cov_l  = .cat_cov_l,
-  quantiles  = c(0.2, 0.8),
-  aggr       = c("max"),
-  outputs    = "Cc"
-)
+  # ---- Helper: run once with table mode (parest + ds_covval) -----------------
+  .output_02 <- sg_covsens_sim(
+    fpath_i    = NULL,
+    ds_parest  = parest,
+    ds_covs     = ds_covval,
+    model      = .mod_fin,
+    stimes  = .stimes_ss,
+    et         = .ev_t_input,
+    est_covmat = .est_covmat,
+    npop       = 10,
+    cont_cov_l = .cont_cov_l,
+    cat_cov_l  = .cat_cov_l,
+    quantiles  = c(0.2, 0.8),
+    aggr       = c("max"),
+    outputs    = "Cc"
+  )
+}
 
 
 # ============================================================
@@ -154,12 +156,14 @@ names(.est_covmat) <- .pnames
 # ============================================================
 
 test_that("sg_covsens_sim returns a named list of length 4", {
+  skip_on_cran()
   expect_type(.output_01, "list")
   expect_length(.output_01, 4)
   expect_named(.output_01, c("PARSENS", "SUMPARSENS", "EXPSENS", "COVREF"))
 })
 
 test_that("sg_covsens_sim all four list elements are data frames", {
+  skip_on_cran()
   expect_true(is.data.frame(.output_01$PARSENS))
   expect_true(is.data.frame(.output_01$SUMPARSENS))
   expect_true(is.data.frame(.output_01$EXPSENS))
@@ -176,6 +180,7 @@ test_that("sg_covsens_sim all four list elements are data frames", {
 # ============================================================
 
 test_that("PARSENS has required columns", {
+  skip_on_cran()
   required_cols <- c("NICEN", "VAR", "LAB", "Type",
                      "mean", "median", "min", "max", "sd",
                      "P025", "P05", "P95", "P975")
@@ -183,6 +188,7 @@ test_that("PARSENS has required columns", {
 })
 
 test_that("PARSENS VAR contains expected model parameters", {
+  skip_on_cran()
   vars <- unique(.output_01$PARSENS$VAR)
   expect_true("CL" %in% vars)
   expect_true("Vd" %in% vars)
@@ -190,6 +196,7 @@ test_that("PARSENS VAR contains expected model parameters", {
 })
 
 test_that("PARSENS NICEN contains expected covariate display names", {
+  skip_on_cran()
   nicen <- unique(.output_01$PARSENS$NICEN)
   expect_true("Age, years"        %in% nicen)
   expect_true("Weight, kg"        %in% nicen)
@@ -198,20 +205,24 @@ test_that("PARSENS NICEN contains expected covariate display names", {
 })
 
 test_that("PARSENS Type contains both Continuous and Categorical", {
+  skip_on_cran()
   types <- unique(as.character(.output_01$PARSENS$Type))
   expect_true("Continuous"  %in% types)
   expect_true("Categorical" %in% types)
 })
 
 test_that("PARSENS LAB is a factor", {
+  skip_on_cran()
   expect_true(is.factor(.output_01$PARSENS$LAB))
 })
 
 test_that("PARSENS Type is a factor", {
+  skip_on_cran()
   expect_true(is.factor(.output_01$PARSENS$Type))
 })
 
 test_that("PARSENS summary statistics are numeric and non-negative", {
+  skip_on_cran()
   stat_cols <- c("mean", "median", "P05", "P95", "P025", "P975")
   for (col in stat_cols) {
     vals <- .output_01$PARSENS[[col]]
@@ -223,6 +234,7 @@ test_that("PARSENS summary statistics are numeric and non-negative", {
 })
 
 test_that("PARSENS ratio values are centred around 1 (stored as ratio, not percent)", {
+  skip_on_cran()
   # Values are transformed: ratio = pct_change/100 + 1, so reference = 1.
   # Non-reference rows should have values reasonably bounded away from zero.
   expect_true(all(.output_01$PARSENS$mean > 0, na.rm = TRUE))
@@ -230,18 +242,21 @@ test_that("PARSENS ratio values are centred around 1 (stored as ratio, not perce
 })
 
 test_that("PARSENS continuous rows have KEY labels with percentile text", {
+  skip_on_cran()
   cont_rows <- .output_01$PARSENS[.output_01$PARSENS$Type == "Continuous", ]
   key_labels <- unique(as.character(cont_rows$KEY))
   expect_true(any(grepl("perc\\.", key_labels)))
 })
 
 test_that("PARSENS BCOVVAL is present and numeric for continuous rows", {
+  skip_on_cran()
   expect_true("BCOVVAL" %in% names(.output_01$PARSENS))
   cont_rows <- .output_01$PARSENS[.output_01$PARSENS$Type == "Continuous", ]
   expect_true(is.numeric(cont_rows$BCOVVAL) || is.character(cont_rows$BCOVVAL))
 })
 
 test_that("PARSENS CATDES is present for categorical rows", {
+  skip_on_cran()
   expect_true("CATDES" %in% names(.output_01$PARSENS))
   cat_rows <- .output_01$PARSENS[.output_01$PARSENS$Type == "Categorical", ]
   expect_false(all(is.na(cat_rows$CATDES)))
@@ -253,6 +268,7 @@ test_that("PARSENS CATDES is present for categorical rows", {
 # ============================================================
 
 test_that("SUMPARSENS has required columns", {
+  skip_on_cran()
   ci_col <- grep("%CI$", names(.output_01$SUMPARSENS), value = TRUE)
   required_cols <- c("Parameter", "Covariate", "Cov. percentile",
                      "Cov. value", "Mean", ci_col)
@@ -260,6 +276,7 @@ test_that("SUMPARSENS has required columns", {
 })
 
 test_that("SUMPARSENS Parameter contains expected model parameters", {
+  skip_on_cran()
   params <- unique(.output_01$SUMPARSENS$Parameter)
   expect_true("CL" %in% params)
   expect_true("Vd" %in% params)
@@ -267,6 +284,7 @@ test_that("SUMPARSENS Parameter contains expected model parameters", {
 })
 
 test_that("SUMPARSENS CI column is a character with comma-separated values", {
+  skip_on_cran()
   ci_col <- grep("%CI$", names(.output_01$SUMPARSENS), value = TRUE)
   expect_equal(length(ci_col), 1)
   ci_vals <- .output_01$SUMPARSENS[[ci_col]]
@@ -275,10 +293,12 @@ test_that("SUMPARSENS CI column is a character with comma-separated values", {
 })
 
 test_that("SUMPARSENS Mean is numeric", {
+  skip_on_cran()
   expect_true(is.numeric(.output_01$SUMPARSENS$Mean))
 })
 
 test_that("SUMPARSENS row count matches PARSENS non-duplicated covariate-parameter combinations", {
+  skip_on_cran()
   # Each unique NICEN x VAR x KEY/CATDES combination should yield one SUMPARSENS row
   expect_equal(nrow(.output_01$SUMPARSENS), nrow(.output_01$PARSENS))
 })
@@ -289,28 +309,33 @@ test_that("SUMPARSENS row count matches PARSENS non-duplicated covariate-paramet
 # ============================================================
 
 test_that("EXPSENS has required columns", {
+  skip_on_cran()
   required_cols <- c("NICEN", "VAR", "LAB", "Type",
                      "mean", "median", "P05", "P95")
   expect_true(all(required_cols %in% names(.output_01$EXPSENS)))
 })
 
 test_that("EXPSENS VAR reflects output and aggr (Cc + max -> Cc_Cmax)", {
+  skip_on_cran()
   vars <- unique(.output_01$EXPSENS$VAR)
   expect_true("Cc_Cmax" %in% vars)
 })
 
 test_that("EXPSENS Type contains both Continuous and Categorical", {
+  skip_on_cran()
   types <- unique(as.character(.output_01$EXPSENS$Type))
   expect_true("Continuous"  %in% types)
   expect_true("Categorical" %in% types)
 })
 
 test_that("EXPSENS summary statistics are numeric and positive", {
+  skip_on_cran()
   expect_true(is.numeric(.output_01$EXPSENS$mean))
   expect_true(all(.output_01$EXPSENS$mean > 0, na.rm = TRUE))
 })
 
 test_that("EXPSENS LAB is a factor", {
+  skip_on_cran()
   expect_true(is.factor(.output_01$EXPSENS$LAB))
 })
 
@@ -320,17 +345,20 @@ test_that("EXPSENS LAB is a factor", {
 # ============================================================
 
 test_that("COVREF has required columns", {
+  skip_on_cran()
   required_cols <- c("COV", "NICEN", "REF_VALUE", "REF_SOURCE")
   expect_true(all(required_cols %in% names(.output_01$COVREF)))
 })
 
 test_that("COVREF includes both median and reference sources", {
+  skip_on_cran()
   sources <- unique(as.character(.output_01$COVREF$REF_SOURCE))
   expect_true("median" %in% sources)
   expect_true("reference" %in% sources)
 })
 
 test_that("COVREF NICEN contains expected covariate labels", {
+  skip_on_cran()
   nicen <- unique(.output_01$COVREF$NICEN)
   expect_true("Age, years" %in% nicen)
   expect_true("Weight, kg" %in% nicen)
@@ -344,26 +372,31 @@ test_that("COVREF NICEN contains expected covariate labels", {
 # ============================================================
 
 test_that("sg_covsens_sim table mode returns a named list of length 4", {
+  skip_on_cran()
   expect_type(.output_02, "list")
   expect_length(.output_02, 4)
   expect_named(.output_02, c("PARSENS", "SUMPARSENS", "EXPSENS", "COVREF"))
 })
 
 test_that("sg_covsens_sim table mode PARSENS has same columns as file mode", {
+  skip_on_cran()
   expect_equal(sort(names(.output_02$PARSENS)), sort(names(.output_01$PARSENS)))
 })
 
 test_that("sg_covsens_sim table mode PARSENS contains same VAR set as file mode", {
+  skip_on_cran()
   expect_equal(sort(unique(.output_02$PARSENS$VAR)),
                sort(unique(.output_01$PARSENS$VAR)))
 })
 
 test_that("sg_covsens_sim table mode EXPSENS VAR matches file mode", {
+  skip_on_cran()
   expect_equal(sort(unique(.output_02$EXPSENS$VAR)),
                sort(unique(.output_01$EXPSENS$VAR)))
 })
 
 test_that("sg_covsens_sim table mode COVREF has same columns as file mode", {
+  skip_on_cran()
   expect_equal(sort(names(.output_02$COVREF)), sort(names(.output_01$COVREF)))
 })
 
@@ -463,6 +496,7 @@ test_that("sg_covsens_sim errors when est_covmat is missing in table mode", {
 # ============================================================
 
 test_that("sg_covsens_sim warns on unrecognised aggr value", {
+  skip_on_cran()
   expect_warning(
     sg_covsens_sim(
       fpath_i    = NULL,
@@ -490,6 +524,7 @@ test_that("sg_covsens_sim warns on unrecognised aggr value", {
 # ============================================================
 
 test_that("sg_covsens_sim EXPSENS VAR reflects multiple aggr metrics", {
+  skip_on_cran()
   out <- sg_covsens_sim(
     fpath_i    = NULL,
     ds_parest  = parest,

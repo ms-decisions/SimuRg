@@ -562,9 +562,11 @@ read_smrg_ctrl <- function(ctrl) {
 #'
 #'
 #' @examples
+#' \donttest{
 #' # Pass an already-loaded sg-fit object
 #' obj <- read_smrg_obj(gfo4cov)
 #' class(obj$SDTAB)
+#' }
 #'
 #' @export
 read_smrg_obj <- function(fpath_i) {

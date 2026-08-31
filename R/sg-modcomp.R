@@ -9,9 +9,11 @@
 #' @returns Data frame with model comparison metrics derived from [GFO] `$OFV` and
 #'   related fit outputs.
 #' @examples
+#' \donttest{
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData", package = "SimuRg")
 #' sum_tab <- sg_modcomp(fpath_i, 3)
 #' print(sum_tab)
+#' }
 #' @import dplyr
 #' @import stringr
 #' @import stringr

@@ -26,6 +26,7 @@
 #' @importFrom rlang sym syms expr
 #'
 #' @examples
+#' \donttest{
 #' make_extended_mock_data <- function() {
 #'  data.frame(
 #'    TIME = rep(1:4, times = 6),
@@ -39,6 +40,7 @@
 #' p <- sg_sim_tp(ds_i = ds_sim, group_i = 'VAR', col_i = 'VAR', fill_i = 'VAR',
 #'                wrap_i = '~VAR', wrap_ncol = 2)
 #' p
+#' }
 #' @export
 sg_sim_tp <- function(
   ds_i,

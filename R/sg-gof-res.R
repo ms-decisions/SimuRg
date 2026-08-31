@@ -17,6 +17,7 @@
 #' @return A `ggplot2` object
 #'
 #' @examples
+#' \donttest{
 #' # Basic example with mock data
 #' set.seed(123)  # For reproducibility
 #' n_subjects <- 50
@@ -62,6 +63,7 @@
 #'   legend_fl = TRUE
 #' )
 #' p
+#' }
 #'
 #' @import dplyr
 #' @import ggplot2

@@ -86,33 +86,36 @@ par_bounds_ext <- tibble::tibble(
   UB  = inits[params_ext] * 1.8
 )
 
-sim_prcc <- sg_globalsens_sim(
-  method = "PRCC",
-  model = mod_ex,
-  params = params_ext,
-  par_bounds = par_bounds_ext,
-  n_sim = 120,
-  stimes = seq(0, 168, 12),
-  output = c("Cc", "Cp"),
-  cov = c("IGFR", "POPN"),
-  et = et_base,
-  stat_comp = c("mean", "max", "sd")
-)
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  sim_prcc <- sg_globalsens_sim(
+    method = "PRCC",
+    model = mod_ex,
+    params = params_ext,
+    par_bounds = par_bounds_ext,
+    n_sim = 120,
+    stimes = seq(0, 168, 12),
+    output = c("Cc", "Cp"),
+    cov = c("IGFR", "POPN"),
+    et = et_base,
+    stat_comp = c("mean", "max", "sd")
+  )
 
-sim_efast <- sg_globalsens_sim(
-  method = "eFAST",
-  model = mod_ex,
-  params = params_ext,
-  par_bounds = par_bounds_ext,
-  n_sim = 120,
-  stimes = seq(0, 168, 12),
-  output = c("Cc", "Cp"),
-  cov = c("IGFR", "POPN"),
-  et = et_base,
-  stat_comp = c("mean", "max", "sd")
-)
+  sim_efast <- sg_globalsens_sim(
+    method = "eFAST",
+    model = mod_ex,
+    params = params_ext,
+    par_bounds = par_bounds_ext,
+    n_sim = 120,
+    stimes = seq(0, 168, 12),
+    output = c("Cc", "Cp"),
+    cov = c("IGFR", "POPN"),
+    et = et_base,
+    stat_comp = c("mean", "max", "sd")
+  )
+}
 
 test_that("PRCC: full combinatorial structure is preserved", {
+  skip_on_cran()
 
   df <- sim_prcc$result
 
@@ -126,6 +129,7 @@ test_that("PRCC: full combinatorial structure is preserved", {
 })
 
 test_that("eFAST: full combinatorial structure includes TYPE dimension", {
+  skip_on_cran()
 
   df <- sim_efast$result
 
@@ -140,6 +144,7 @@ test_that("eFAST: full combinatorial structure includes TYPE dimension", {
 })
 
 test_that("eFAST: each facet has all parameters and TYPE levels", {
+  skip_on_cran()
 
   p <- sg_globalsens_vis(sim_efast)
 
@@ -158,6 +163,7 @@ test_that("eFAST: each facet has all parameters and TYPE levels", {
 })
 
 test_that("Filtering works correctly in high-dimensional PRCC", {
+  skip_on_cran()
 
   p <- sg_globalsens_vis(
     sim_prcc,
@@ -174,6 +180,7 @@ test_that("Filtering works correctly in high-dimensional PRCC", {
 })
 
 test_that("PRCC heatmap result type is correct", {
+  skip_on_cran()
 
   p <- sg_globalsens_vis(
     sim_prcc,
@@ -188,6 +195,7 @@ test_that("PRCC heatmap result type is correct", {
 })
 
 test_that("PRCC barplot result type is correct", {
+  skip_on_cran()
 
   p <- sg_globalsens_vis(
     sim_prcc,
@@ -202,6 +210,7 @@ test_that("PRCC barplot result type is correct", {
 })
 
 test_that("eFAST barplot result type is correct", {
+  skip_on_cran()
 
   p <- sg_globalsens_vis(
     sim_efast,

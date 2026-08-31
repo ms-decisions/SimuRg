@@ -131,6 +131,7 @@ create_mock_sg_fit <- function() {
 
 # ---- Integration tests using the obj1 package fixture ----
 test_that("sg_predist_sim works with an explicit model", {
+  skip_on_cran()
   res <- sg_predist_sim(obj1, model = mod_fin, outputs = "Cc", npop = 100)
 
   # ID is overwritten with the original individual id -> one per subject in obj1
@@ -142,6 +143,7 @@ test_that("sg_predist_sim works with an explicit model", {
 })
 
 test_that("sg_predist_sim works with a generalized control object (gco)", {
+  skip_on_cran()
   res <- sg_predist_sim(obj1, gco = gco, outputs = "Cc", npop = 50)
 
   expect_s3_class(res, "data.frame")
@@ -167,6 +169,7 @@ test_that("sg_predist_sim errors on non-existent file path", {
 
 # ---- Mock-object behaviour ----
 test_that("sg_predist_sim accepts a list object as fpath_i", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   if (!exists("sg_sim")) skip("sg_sim function not available")
 
@@ -184,6 +187,7 @@ test_that("sg_predist_sim accepts a list object as fpath_i", {
 })
 
 test_that("sg_predist_sim drops the MDV column and filters MDV == 1", {
+  skip_on_cran()
   skip_if_not_installed("rxode2")
   if (!exists("sg_sim")) skip("sg_sim function not available")
 

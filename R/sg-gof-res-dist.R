@@ -20,6 +20,7 @@
 #'
 #' @return A `ggplot` object.
 #' @examples
+#' \donttest{
 #' # Plot the distribution of individual weighted residuals (IWRES)
 #' # (default \code{DVID = 1}; pass \code{DVID} or a \code{DVNAME} string to select another endpoint)
 #' fpath_i <- system.file("extdata", "simurg_object", "Warfarin_PK.RData",
@@ -34,6 +35,7 @@
 #' # Several residual columns at once (still one \code{DVID} unless you change it)
 #' p <- sg_gof_res_dist(fpath_i = fpath_i, res_type = c("IWRES", "IRES"))
 #' p
+#' }
 #' @import dplyr
 #' @import tidyr
 #' @import ggplot2

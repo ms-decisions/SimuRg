@@ -86,20 +86,22 @@ par_bounds <- tibble::tibble(
   LB  = inits[c("POPCL", "POPVC")] * (1 - 0.9),
   UB  = inits[c("POPCL", "POPVC")] * (1 + 0.9)
 )
-result <- sg_globalsens_sim(
-  method = "PRCC",
-  model = mod_ex,
-  params = c("POPCL","POPVC"),
-  par_bounds = par_bounds,
-  n_sim = 100,
-  stimes = seq(0, 168, 10),
-  output = "Cc",
-  cov = c("IGFR", "POPN"),
-  et = et_base,
-  stat_comp = c("mean")
-)
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  result <- sg_globalsens_sim(
+    method = "PRCC",
+    model = mod_ex,
+    params = c("POPCL", "POPVC"),
+    par_bounds = par_bounds,
+    n_sim = 100,
+    stimes = seq(0, 168, 10),
+    output = "Cc",
+    cov = c("IGFR", "POPN"),
+    et = et_base,
+    stat_comp = c("mean")
+  )
+}
 test_that("sg_globalsens_sim PRCC output structure is correct", {
-
+  skip_on_cran()
 
   # List output
   expect_type(result, "list")
@@ -120,8 +122,7 @@ test_that("sg_globalsens_sim PRCC output structure is correct", {
   expect_s3_class(result$bounds, "tbl_df")
 })
 test_that("sg_globalsens_sim PRCC returns correct parameter set", {
-
-
+  skip_on_cran()
 
   res_tbl <- result$result
 
@@ -130,21 +131,22 @@ test_that("sg_globalsens_sim PRCC returns correct parameter set", {
   expect_true(all(sort(unique(res_tbl$PAR)) %in%
                     c("POPCL","POPVC")))
 })
-result <- sg_globalsens_sim(
-  method = "eFAST",
-  model = mod_ex,
-  params = c("POPCL","POPVC"),
-  par_bounds = par_bounds,
-  n_sim = 100,
-  stimes = seq(0, 168, 10),
-  output = "Cc",
-  cov = c("IGFR", "POPN"),
-  et = et_base,
-  stat_comp = c("mean")
-)
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  result <- sg_globalsens_sim(
+    method = "eFAST",
+    model = mod_ex,
+    params = c("POPCL","POPVC"),
+    par_bounds = par_bounds,
+    n_sim = 100,
+    stimes = seq(0, 168, 10),
+    output = "Cc",
+    cov = c("IGFR", "POPN"),
+    et = et_base,
+    stat_comp = c("mean")
+  )
+}
 test_that("sg_globalsens_sim eFAST output structure is correct", {
-
-
+  skip_on_cran()
 
   # List output
   expect_type(result, "list")
@@ -163,8 +165,7 @@ test_that("sg_globalsens_sim eFAST output structure is correct", {
   expect_s3_class(result$bounds, "tbl_df")
 })
 test_that("sg_globalsens_sim eFAST returns correct parameter set", {
-
-
+  skip_on_cran()
 
   res_tbl <- result$result
 
