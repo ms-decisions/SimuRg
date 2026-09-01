@@ -7,7 +7,7 @@
 library(tidyverse)
 library(jsonlite)
 
-source("V:/Collaborative_working/Simurg_R_package/Rproj_4.2.3_renv_SimurgR/functions/nlme/1.4-sg-modbuild/1.4-sg-modbuild-args.R", echo=TRUE)
+source("some path", echo=TRUE)
 
 re_lst <- re_lst_2[[1]]
 # make_re_obj <- function(changes, est, init, variable_num, init0) {
@@ -333,6 +333,6 @@ sg_modbuild(
      re_lst = re_lst_1,
      occ_lst = re_lst_1,
      covs_lst = NULL,
-     path = "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.4-sg-modbuild/results/",
+     path = "some path",
      project_name = "test_project"
    )

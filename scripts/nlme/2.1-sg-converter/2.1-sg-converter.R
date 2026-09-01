@@ -455,7 +455,7 @@ calculate_wres_mc <- function(pred_data, omega_params, resid_err_params, sum_dt_
 
 obj1 <- sg_converter(folder_path = "./functions/nlme/1.1-sg-fit/monolix/base-model-pk/", proj_name = "proj-r-solo")
 save(obj1, file = "./example_code/simurg_object/Warfarin_PK.RData")
-obj2 <- sg_converter(folder_path = "V:/Personal_folders/kulesvi1/PhDproj_4.2.3/Models/CD4_homeost_v2/Monolix/", proj_name = "CD4_hmst_bin1_woA4_test")
+obj2 <- sg_converter(folder_path = "some path", proj_name = "CD4_hmst_bin1_woA4_test")
 
 obj3 <- sg_converter(folder_path = "./functions/nlme/1.1-sg-fit/monolix/base-model-pk/", proj_name = "proj-r-cov")
 save(obj3, file = "./example_code/simurg_object/Warfarin_PK_cov.RData")
