@@ -19,8 +19,8 @@ library(jsonlite)
 # ruv - list residual unexpected variability properties (with data mapping)
 # covs - list of covariates assignment
 
-model <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/models/pk_1cmp.txt"
-data <- "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/monolix/interim-datasets/dspk-warf.csv"
+model <- "some path"
+data <- "some path"
 
 headers <- list(list(name = "ID", use = "identifier", type = NULL),
                 list(name = "TIME", use = "time", type = NULL),
@@ -397,7 +397,7 @@ sg_fit <- function(model, data, headers, theta, ruv, re, occ, covs, project_name
 
 result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs,
                  project_name = "my_project", fit = T,
-                 path_to_save_output =  "V:/Collaborative_working/SimuRg_as_R_lib/SimuRg/scripts/nlme/1.1-sg-fit/my_project/",
+                 path_to_save_output =  "some path",
                  path_to_fitter = "C:/ProgramData/Lixoft/MonolixSuite2023R1/bin/monolix.bat")
 sg_result <- sg_fit(model, data, headers, theta, ruv, re, occ, covs, project_name = "my_project", opt_name = "Simurg")
 write(sg_result, "./example_code/simurg_object/sg_object.json")
