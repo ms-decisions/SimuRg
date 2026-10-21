@@ -114,6 +114,20 @@ sg_gof_par_dist <- function(fpath_i, par_seq = NULL,
   prm_i <- smrg_obj$COVMAT
   patab_i <- smrg_obj$PATAB
   omegamat_i <- smrg_obj$OMEGAMAT
+  # JSON stores OMEGAMAT as a bare numeric array, so dimnames are NULL or V1, V2, ...
+  # SUMTAB lists omega_* in the same column order the matrix was built.
+  if (!is.null(omegamat_i) && is.matrix(omegamat_i) && ncol(omegamat_i) > 0 &&
+      !is.null(smrg_obj$SUMTAB) && "PAR" %in% names(smrg_obj$SUMTAB)) {
+    omega_par <- smrg_obj$SUMTAB$PAR[grepl("^omega_", smrg_obj$SUMTAB$PAR)]
+    cn <- colnames(omegamat_i)
+    cn_plain <- if (is.null(cn)) character(0) else sub("^omega_", "", cn)
+    names_ok <- length(cn_plain) == ncol(omegamat_i) &&
+      any(cn_plain %in% sub("^omega_", "", omega_par))
+    if (!names_ok && length(omega_par) == ncol(omegamat_i)) {
+      colnames(omegamat_i) <- omega_par
+      rownames(omegamat_i) <- omega_par
+    }
+  }
   ### Distribution of individual parameters
   if(is.null(par_seq)){
     par_seq <- names(patab_i %>% select(-contains("eta"),-ID))
