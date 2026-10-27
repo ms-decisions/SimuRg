@@ -5,14 +5,26 @@
 #' Create residual diagnostic plots
 #'
 #' @description
-#' Generates residual diagnostic plots versus time/predictions from [GFO] `$SDTAB`.
-#' Supports faceting, covariate coloring, quantile binning for
-#' continuous covariates, and optional smoothing.
+#' Generates residual diagnostic plots versus time or versus predictions from [GFO] `$SDTAB`.
+#' Individual plots use `IWRES` when `weighted` is `TRUE` and `IRES` otherwise.
+#' Population plots use conditional weighted residuals (`CWRES`) when that column
+#' is present, otherwise `WRES`, or unweighted `RES` when `weighted` is `FALSE`.
+#' Supports faceting, covariate coloring, quantile binning for continuous
+#' covariates (legend and facet labels include the bounds of each group), and optional smoothing.
 #' @inheritParams sg_dummy
 #' @param vs_time Logical. If `TRUE`, plot residuals vs TIME; otherwise, plot
 #'  residuals vs predictions (IPRED/PRED).
-#' @param weighted Logical. If `TRUE`, use weighted residuals; otherwise, use
-#'  RES/IRES
+#' @param weighted Logical. If `TRUE`, plot weighted residuals: `IWRES` for
+#'  individual plots, and conditional weighted residuals (`CWRES`) for population
+#'  plots when that column is present, otherwise `WRES`. If `FALSE`, plot `IRES`
+#'  or `RES`. Default is `TRUE`.
+#' @param log_labs Character. Tick labels when `log_x` is `TRUE`. `"number"` prints
+#'  ordinary numbers (`1`, `10`, `100`), the same formatter as the linear axes of
+#'  [sg_gof_obpr()]. `"math"` prints powers of ten (`10^x`). Default is `"number"`.
+#' @param exp_dv Logical. If `TRUE`, exponentiate the x variable (`TIME`, `IPRED`, or `PRED`)
+#'  and `DV` before dividing by `sc_factor`. Default is `FALSE`.
+#' @param sc_factor Numeric. The x variable and `DV` are divided by this factor.
+#'  Default is `1`.
 #'
 #' @return A `ggplot2` object
 #'
@@ -67,16 +79,18 @@
 #'
 #' @import dplyr
 #' @import ggplot2
-#' @importFrom scales pretty_breaks pretty_breaks trans_format math_format
+#' @importFrom scales pretty_breaks trans_breaks trans_format math_format number_format
 #' @export
 sg_gof_res <- function(
     fpath_i, DVID = 1, cov_cols = NULL, indiv = TRUE, vs_time = TRUE, weighted = TRUE,
     addline = TRUE, alpha_i = 0.5, smooth = TRUE, log_x = FALSE,
+    log_labs = c("number", "math"), sc_factor = 1, exp_dv = FALSE,
     abreaks = scales::pretty_breaks(7), lab_y = NULL, lab_x = NULL,
     col_i = NULL, col_lab = NULL, facet_i = NULL, f_scales = "fixed",
     n_bins = 50, min_y = NA, max_y = NA, min_x = NA, max_x = NA, legend_fl = FALSE,
     n_quantiles = 3, levels_discrete = 10
 ) {
+  log_labs <- match.arg(log_labs)
 
   # --- helper functions ---
   is_discrete <- function(x, max_levels = levels_discrete) {
@@ -84,12 +98,33 @@ sg_gof_res <- function(
     n_unique <= max_levels
   }
 
+  format_cov_value <- function(v) {
+    v <- as.numeric(v)
+    if (abs(v - round(v)) < sqrt(.Machine$double.eps) * pmax(1, abs(v))) {
+      as.character(as.integer(round(v)))
+    } else {
+      format(signif(v, 4), trim = TRUE, scientific = FALSE)
+    }
+  }
   continuous_to_categories <- function(x, n_quant = 3) {
+    breaks <- stats::quantile(
+      x,
+      probs = seq(0, 1, length.out = n_quant + 1),
+      na.rm = TRUE
+    )
+    labels <- vapply(seq_len(n_quant), function(i) {
+      range_str <- paste0(
+        format_cov_value(breaks[i]),
+        "-",
+        format_cov_value(breaks[i + 1])
+      )
+      paste0("Q", i, ", ", range_str)
+    }, character(1))
     cut(
       x,
-      breaks = quantile(x, probs = seq(0, 1, length.out = n_quant + 1), na.rm = TRUE),
+      breaks = breaks,
       include.lowest = TRUE,
-      labels = paste0("Q", 1:n_quant)
+      labels = labels
     )
   }
 
@@ -167,6 +202,15 @@ sg_gof_res <- function(
     rename_at(vars(any_of(res_type)), ~"Y") %>%
     rename_at(vars(any_of(X)), ~"X")
 
+  # Back-transform log-scale concentrations, then apply the unit scale.
+  # Residuals stay unchanged: IWRES/CWRES/WRES are dimensionless.
+  if (exp_dv) {
+    ds_i <- ds_i %>% mutate_at(vars(any_of(c("X", "DV"))), exp)
+  }
+  if (sc_factor != 1) {
+    ds_i <- ds_i %>% mutate_at(vars(any_of(c("X", "DV"))), function(s) s / sc_factor)
+  }
+
   # --- covariates ---
   if (!is.null(cov_cols)) {
     suppressMessages({
@@ -226,9 +270,14 @@ sg_gof_res <- function(
                               col = "firebrick", linewidth = 0.5, linetype = "dashed"))
   )
   if (log_x) {
+    x_log_labels <- if (log_labs == "math") {
+      scales::trans_format("log10", scales::math_format(10^.x))
+    } else {
+      scales::number_format()
+    }
     p_char <- c(p_char, scale_x_log10(
       breaks = scales::trans_breaks("log10", function(x) 10^x),
-      labels = scales::trans_format("log10", scales::math_format(10^.x)),
+      labels = x_log_labels,
       limits = x_limits
     ))
   } else {
